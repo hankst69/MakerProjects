@@ -1,5 +1,9 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿/.vs
+/espBode-awg
+/espBode-main
 
-/.vs
+/espBode/*
+/fygen/*
+/html5_rtsp_player/*
+
+!clone.bat
