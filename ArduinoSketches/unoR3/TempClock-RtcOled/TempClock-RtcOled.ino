@@ -1,5 +1,6 @@
 // Test for minimum program size.
 
+#include <stdio.h>
 #include <Wire.h>
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiWire.h"
@@ -58,21 +59,16 @@ void loop() {
 
     DateTime now = rtc.now();
 
+    char dateStr[256];
+    sprintf(dateStr, "%02d.%02d.%04d\0", now.day(), now.month(), now.year());
+    char timeStr[256];
+    sprintf(timeStr, "%02d:%02d:%02d\0", now.hour(), now.minute(), now.second());
+#
     oled.print(daysOfTheWeek[now.dayOfTheWeek()]);
     oled.println();
-
-    oled.print(now.day(), DEC);
-    oled.print('.');
-    oled.print(now.month(), DEC);
-    oled.print('.');
-    oled.print(now.year(), DEC);
+    oled.print(dateStr);
     oled.println();
-
-    oled.print(now.hour(), DEC);
-    oled.print(':');
-    oled.print(now.minute(), DEC);
-    oled.print(':');
-    oled.print(now.second(), DEC);
+    oled.print(timeStr);
     oled.println();
     oled.println();
 
