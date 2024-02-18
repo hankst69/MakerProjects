@@ -17,7 +17,9 @@ if %ERRORLEVEL% equ 0 (
   echo '%~2' is already cloned into '%~dp1'
   echo.
   if exist "%~dp1clone.bat"     echo delete the content in folder '%~dp1' ^(except file clone.bat^) to clone fresh
-  if not exist "%~dp1clone.bat" echo delete the content in folder '%~dp1' to clone fresh
+  if not exist "%~dp1clone.bat" echo delete the content in folder '%~dp1' and try again to clone fresh
+  if not exist "%~dp1clone.bat" echo use 'rmdir /s /q "%~dp1"' to rmove the folder
+  echo.
   goto :EOF
 )
 if %ERRORLEVEL% equ 1 (
@@ -27,7 +29,9 @@ if %ERRORLEVEL% equ 1 (
   grep ".git" .git\config
   echo.
   if exist "%~dp1clone.bat"     echo delete the content in folder '%~dp1' ^(except file clone.bat^) to clone fresh
-  if not exist "%~dp1clone.bat" echo delete the content in folder '%~dp1' to clone fresh
+  if not exist "%~dp1clone.bat" echo delete the content in folder '%~dp1' and try again to clone fresh
+  if not exist "%~dp1clone.bat" echo use 'rmdir /s /q "%~dp1"' to remove the folder
+  echo.
   goto :EOF
 )
 
@@ -40,8 +44,10 @@ if exist "%~dp1clone.bat" (
   del /F /Q "%~dp1clone.bat"
 )
 
-rem echo %cd%
+rem cd
+rem git clone "%~2" "%~dp1"
 pushd "%~dp1"
+cd
 git clone "%~2" .
 popd
 
@@ -49,3 +55,9 @@ if exist "%~dp0clone.tmp" (
   copy "%~dp0clone.tmp" "%~dp1clone.bat"
   del /F /Q "%~dp0clone.tmp"
 )
+
+echo.
+@git remote -v
+@git status
+if /I "%~3" equ "--changeDir" (cd "%~dp1")
+if /I "%~4" equ "--switchBranch" (echo.& git switch %~5 & git status)
