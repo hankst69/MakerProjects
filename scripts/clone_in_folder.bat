@@ -11,6 +11,7 @@ echo.
 goto :EOF
 
 :Start
+doskey home="%~dp0home.cmd"
 grep "%~2" "%~dp1.git\config" 1>NUL 2>NUL
 rem echo %ERRORLEVEL%
 if %ERRORLEVEL% equ 0 (
