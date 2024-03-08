@@ -1,9 +1,8 @@
-﻿/.vs
-#/ProjectAWGControl/espBode/*
-#/ProjectAWGControl/fygen/*
-#/ProjectWebCam/html5_rtsp_player/*
-#/Solar2024/*
-#!clone.bat
+﻿**/.vs/*
+**/.vscode/*
+!**/.vscode/extensions.json
+!**/.vscode/settings.json
+**/out/*
 
 #/ArduinoSketches/libraries
 /ArduinoSketches/esp01/espBode
@@ -14,8 +13,5 @@
 /ProjectAWGControl/espBode
 /ProjectAWGControl/espBode-master
 /ProjectAWGControl/fygen
-
 /ProjectWebCam/html5_rtsp_player
-
 /Solar2024
-
