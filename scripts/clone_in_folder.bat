@@ -17,41 +17,34 @@ rem echo %ERRORLEVEL%
 if %ERRORLEVEL% equ 0 (
   echo ********************************************************************************
   echo * '%~2' is already cloned into '%~dp1'
-  echo ********************************************************************************
-  echo.
-  echo ********************************************************************************
+  echo *
+  if exist "%~dp1clone.bat"     echo * to clone fresh delete the content in folder '%~dp1' ^(except file clone.bat^)
+  if not exist "%~dp1clone.bat" echo * to clone fresh delete the content in folder '%~dp1'
+  if not exist "%~dp1clone.bat" echo * with 'rmdir /s /q "%~dp1"'
+  echo *
   echo * the status in '%~dp1' is:
   echo ********************************************************************************
   pushd "%~dp1"
   git remote -v
   if /I "%~4" equ "--switchBranch" (echo. & git switch %~5)
   git status
+  git fetch
   popd
   if /I "%~3" equ "--changeDir" (cd "%~dp1")
-  echo.
-  echo ********************************************************************************
-  if exist "%~dp1clone.bat"     echo * to delete the content in folder '%~dp1' ^(except file clone.bat^) to clone fresh
-  if not exist "%~dp1clone.bat" echo * to delete the content in folder '%~dp1' and try again to clone fresh
-  if not exist "%~dp1clone.bat" echo * use 'rmdir /s /q "%~dp1"' to rmove the folder
-  echo ********************************************************************************
   echo.
   goto :EOF
 )
 if %ERRORLEVEL% equ 1 (
   echo ********************************************************************************
   echo * a different repository than '%~2' is already cloned into '%~dp1'
-  echo ********************************************************************************
-  echo.
-  echo ********************************************************************************
+  echo *
+  if exist "%~dp1clone.bat"     echo * to clone fresh delete the content in folder '%~dp1' ^(except file clone.bat^)
+  if not exist "%~dp1clone.bat" echo * to clone fresh delete the content in folder '%~dp1'
+  if not exist "%~dp1clone.bat" echo * with 'rmdir /s /q "%~dp1"'
+  echo *
   echo * currently cloned: 
   echo ********************************************************************************
   grep ".git" .git\config
-  echo.
-  echo ********************************************************************************
-  if exist "%~dp1clone.bat"     echo * to delete the content in folder '%~dp1' ^(except file clone.bat^) to clone fresh
-  if not exist "%~dp1clone.bat" echo * to delete the content in folder '%~dp1' and try again to clone fresh
-  if not exist "%~dp1clone.bat" echo * use 'rmdir /s /q "%~dp1"' to remove the folder
-  echo ********************************************************************************
   echo.
   goto :EOF
 )
