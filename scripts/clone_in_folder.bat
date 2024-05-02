@@ -12,9 +12,15 @@ goto :EOF
 
 :Start
 doskey home="%~dp0home.cmd"
-grep "%~2" "%~dp1.git\config" 1>NUL 2>NUL
-rem echo %ERRORLEVEL%
-if %ERRORLEVEL% equ 0 (
+set _GIT_REPO_EXISTS=
+if exist "%~dp1.git\config" (
+  grep "%~2" "%~dp1.git\config" 1>NUL 2>NUL
+  if %ERRORLEVEL% equ 0 (
+    set _GIT_REPO_EXISTS=true
+  )
+)
+if "%_GIT_REPO_EXISTS%" equ "true" (
+  set _GIT_REPO_EXISTS=
   echo ********************************************************************************
   echo * '%~2' is already cloned into '%~dp1'
   echo *
