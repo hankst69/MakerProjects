@@ -23,9 +23,9 @@ goto :EOF
 :test_cmake_success
 rem test ninja
 :test_ninja_success
-rem test llvm
+rem test llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 :test_llvm_success
-rem test perl
+rem test perl (+ gperf + qnx)
 call which perl.exe 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_perl_success
 echo error: perl is not available
@@ -45,10 +45,10 @@ rem call python -m pip wheel html5lib
 
 rem 2) cloning QT
 :qt_clone
-pushd "%_QT_DIR%"
 call "%~dp0scripts\clone_in_folder.bat" "%_QT_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QT_VERSION%
+pushd "%_QT_SOURCES_DIR%"
 call git pull
-if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" call perl init-repository
+if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" call perl "%_QT_SOURCES_DIR%\init-repository"
 rem "%_QT_SOURCES_DIR%\configure" -init-submodules
 rem "%_QT_SOURCES_DIR%\configure" -init-submodules -submodules qtdeclarative
 popd
@@ -60,7 +60,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE already don
 rmdir /s /q "%_QT_BUILD_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info >"%_QT_DIR%\qt-build-configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info >"%_QT_DIR%\qt_build-configure.log"
 popd
 :qt_configure_done
 
@@ -74,12 +74,22 @@ popd
 
 rem 5) install QT 
 :qt_install
-if exist "%QT_BIN_DIR%\bin\designer.exe" echo QT-INSTALL already done &goto :qt_install_done
-pushd "%_QT_BUILD_DIR%"
-call cmake --install .
-popd
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo QT-INSTALL already &goto :qt_install_done
+if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
+  pushd "%_QT_BUILD_DIR%"
+  call cmake --install .
+  popd
+  if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL FAILED&goto :EOF
+)
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo QT-INSTALL already &goto :qt_install_done
+set "PATH=%PATH%;%QT_BIN_DIR%\bin"
 :qt_install_done
 
 rem 6) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
+rem pushd "%_QT_DIR%"
+rem popd
+cd "%_QT_DIR%"
