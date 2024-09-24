@@ -1,13 +1,23 @@
 @echo off
 rem https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui-v2
-mkdir "%~dp0Victron"
+
+set "_QT_BIN_DIR=%~dp0qt6\bin"
+set "_QT_VERSION=6.6.3"
+if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
+  echo QT is not installed
+  call "%~dp0clone_qt6.bat %_QT_VERSION%"
+)
+
+if not exists "%~dp0Victron" mkdir "%~dp0Victron"
 set "_GUIV2DIR=%~dp0Victron\gui-v2\"
 set "_GUIV2BUILD=%~dp0Victron\build_gui-v2.bat"
 set "_QTMQTTDIR=%~dp0Victron\qtmqtt\"
 
-call "%~dp0scripts\clone_in_folder.bat" "%_QTMQTTDIR%" "https://github.com/qt/qtmqtt.git"
-pushd "%_QTMQTTDIR%"
-call git checkout 6.6.3
+call "%~dp0scripts\clone_in_folder.bat" "%_QTMQTTDIR%" "https://github.com/qt/qtmqtt.git" --switchBranch %_QT_VERSION%
+
+goto :EOF
+rem pushd "%_QTMQTTDIR%"
+rem call git checkout 6.6.3
 mkdir build
 cd build
 echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
