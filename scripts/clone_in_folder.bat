@@ -79,7 +79,9 @@ echo ***************************************************************************
 echo * the status in '%~dp1' is:
 echo ********************************************************************************
 git remote -v
+if /I "%~3" equ "--switchBranch" (echo. & git switch %~4)
 if /I "%~4" equ "--switchBranch" (echo. & git switch %~5)
 git status
 popd
 if /I "%~3" equ "--changeDir" (cd "%~dp1")
+if /I "%~5" equ "--changeDir" (cd "%~dp1")
