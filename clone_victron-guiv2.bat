@@ -13,11 +13,17 @@ set "_GUIV2DIR=%~dp0Victron\gui-v2\"
 set "_GUIV2BUILD=%~dp0Victron\build_gui-v2.bat"
 set "_QTMQTTDIR=%~dp0Victron\qtmqtt\"
 
-call "%~dp0scripts\clone_in_folder.bat" "%_QTMQTTDIR%" "https://github.com/qt/qtmqtt.git" --switchBranch %_QT_VERSION%
-
-goto :EOF
+rem Submodule 'qtmqtt' (https://code.qt.io/qt/qtmqtt.git)
+rem vs https://github.com/qt/qtmqtt.git
+rem
 rem pushd "%_QTMQTTDIR%"
+rem call git clone https://github.com/qt/qtmqtt.git .
 rem call git checkout 6.6.3
+rem popd
+rem
+rem call "%~dp0scripts\clone_in_folder.bat" "%_QTMQTTDIR%" "https://github.com/qt/qtmqtt.git" --switchBranch %_QT_VERSION%
+goto :EOF
+
 mkdir build
 cd build
 echo call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
