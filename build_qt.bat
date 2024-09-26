@@ -24,24 +24,32 @@ set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 rem test msvs
 rem ...tbd
 :test_msvs_success
+
 rem test cmake
 call which cmake.exe 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_cmake_success
-echo error: cmake is not available
+echo error: CMAKE is not available
 goto :EOF
 :test_cmake_success
+
 rem test ninja
-rem ...tbd
+call which ninja.exe 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :test_ninja_success
+echo warning: NINJA is not available
+rem goto :EOF
 :test_ninja_success
+
 rem test llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 rem ...tbd
 :test_llvm_success
+
 rem test perl (+ gperf + qnx)
 call which perl.exe 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_perl_success
 echo error: perl is not available
 goto :EOF
 :test_perl_success
+
 rem test python
 call which python.exe 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_python_success
@@ -49,7 +57,8 @@ echo error: python is not available
 goto :EOF
 :test_python_success
 
-rem 2) configure QT win build
+
+rem 2) configure QT build
 :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE already done &goto :qt_configure_done
 rmdir /s /q "%_QT_BUILD_DIR%"
@@ -61,6 +70,7 @@ call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-d
 popd
 :qt_configure_done
 
+
 rem 3) build QT
 :qt_build
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD already done &goto :qt_build_done
@@ -68,6 +78,7 @@ pushd "%_QT_BUILD_DIR%"
 call cmake --build . --parallel
 popd
 :qt_build_done
+
 
 rem 4) install QT 
 :qt_install
@@ -84,6 +95,7 @@ call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :qt_install_done
 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
 :qt_install_done
+
 
 rem 5) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
