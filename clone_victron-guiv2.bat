@@ -7,7 +7,9 @@ if not exist "%_VICTRON_DIR%" mkdir "%_VICTRON_DIR%"
 
 pushd %_MAKER_ROOT%
 call "%_MAKER_ROOT%\build_emsdk.bat" 3.1.37
+echo.
 call "%_MAKER_ROOT%\build_qt-wasm.bat" 6.6.3
+echo.
 popd
 
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (

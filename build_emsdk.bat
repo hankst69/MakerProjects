@@ -39,4 +39,6 @@ rem # Make the SDK "active" for the current user. (writes .emscripten file)
 call emsdk.bat activate %_EMSDK_VERSION%
 popd
 
+set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
+
 cd "%_EMSDK_BIN_DIR%"

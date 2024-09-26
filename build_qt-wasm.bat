@@ -70,8 +70,8 @@ goto :EOF
 
 rem 2) configure QT-WASM
 :qt_configure
-if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE already done &goto :qt_configure_done
-echo CONFIGURING QT-WASM %_QT_VERSION%
+if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE WASM %_QT_VERSION% already done &goto :qt_configure_done
+echo QT-CONFIGURE WASM %_QT_VERSION%
 rmdir /s /q "%_QT_BUILD_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
@@ -85,8 +85,8 @@ popd
 
 rem 3) build QT-WASM
 :qt_build
-rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD already done &goto :qt_build_done
-echo BUILDING QT-WASM %_QT_VERSION%
+rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD WASM %_QT_VERSION% already done &goto :qt_build_done
+echo QT-BUILD WASM %_QT_VERSION%
 pushd "%_QT_BUILD_DIR%"
 rem call cmake --build . --parallel
 rem call cmake --build . -t qtbase -t qtdeclarative [-t another_module]
@@ -101,8 +101,10 @@ popd
 
 rem 4) install QT-WASM
 :qt_install
-rem echo QT-INSTALL done
+rem if ... echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% already done
+rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
 rem set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
 :qt_install_done
 
 
