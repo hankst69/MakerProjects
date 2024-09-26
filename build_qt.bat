@@ -90,13 +90,10 @@ if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
   popd
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL FAILED&goto :qt_install_done
 )
-echo QT-INSTALL done
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :qt_install_done
-set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+echo QT-INSTALL done
 :qt_install_done
-
-
 rem 5) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
