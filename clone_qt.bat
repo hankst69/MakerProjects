@@ -22,7 +22,8 @@ set "_QT_SOURCES_DIR=%_QT_DIR%\qt_sources_%_QT_VERSION%\"
 
 rem cloning QT
 :qt_clone
-if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE already done &goto :qt_clone_done
+if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
+echo QT-CLONE %_QT_VERSION%
 call "%~dp0scripts\clone_in_folder.bat" "%_QT_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QT_VERSION%
 pushd "%_QT_SOURCES_DIR%"
 call git pull
@@ -30,7 +31,8 @@ if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" call perl "%_QT_SOURCES_DI
 rem "%_QT_SOURCES_DIR%\configure" -init-submodules
 rem "%_QT_SOURCES_DIR%\configure" -init-submodules -submodules qtdeclarative
 popd
+echo QT-CLONE %_QT_VERSION% done
 :qt_clone_done
 
-if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo error: cloning failed &set _QT_SOURCES_DIR=
+if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo error: QT-CLONE %_QT_VERSION% failed &set _QT_SOURCES_DIR=
 if "%_QT_SOURCES_DIR%" neq "" cd /d "%_QT_SOURCES_DIR%"
