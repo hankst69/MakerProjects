@@ -7,10 +7,9 @@ if not exist "%_VICTRON_DIR%" mkdir "%_VICTRON_DIR%"
 
 pushd %_MAKER_ROOT%
 call "%_MAKER_ROOT%\build_emsdk.bat" 3.1.37
-call "%_MAKER_ROOT%\build_qt.bat" 6.6.3
+call "%_MAKER_ROOT%\build_qt-wasm.bat" 6.6.3
 popd
 
-set "_QT_VERSION=6.6.3"
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
   echo QT is not installed
   goto :EOF

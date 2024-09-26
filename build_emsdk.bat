@@ -6,7 +6,7 @@ set "_EMSDK_DIR=%_MAKER_ROOT%Emsdk"
 if not exist "%_EMSDK_DIR%" mkdir "%_EMSDK_DIR%"
 
 rem set _EMSDK_VERSION=1.38.45
-rem set _EMSDK_VERSION=3.1.67
+rem set _EMSDK_VERSION=3.1.67 (current latest as of 2024/09)
 set _EMSDK_VERSION=latest
 if "%~1" neq "" set "_EMSDK_VERSION=%~1"
 
@@ -26,11 +26,16 @@ goto :EOF
 
 
 pushd "%_EMSDK_BIN_DIR%"
+if exist "%_EMSDK_BIN_DIR%\upstream\emscripten\emcc.bat" echo EMSDK %_EMSDK_VERSION% INSTALL already done &goto :emsdk_install_done
+
 rem # Fetch the latest version of the emsdk (not needed the first time you clone)
 call git pull
+
 rem # Download and install the latest SDK tools.
 call emsdk.bat install %_EMSDK_VERSION%
-# Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+
+:emsdk_install_done
+rem # Make the SDK "active" for the current user. (writes .emscripten file)
 call emsdk.bat activate %_EMSDK_VERSION%
 popd
 
