@@ -8,7 +8,7 @@ rem https://code.qt.io/cgit
 set "_QT_DIR=%~dp0Qt"
 if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
 
-set "_QT_VERSION=6.6.3"
+set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
 
 rem test perl (+ gperf + qnx)
