@@ -15,23 +15,16 @@ goto :EOF
 
 :Start
 doskey home="%~dp0home.cmd"
-set _GIT_REPO_EXISTS=
-if exist "%~1.git\config" (
-  grep "%~2" "%~1.git\config" 1>NUL 2>NUL
-  if %ERRORLEVEL% equ 0 (
-    set _GIT_REPO_EXISTS=true
-  )
-)
-if "%_GIT_REPO_EXISTS%" equ "true" (
-  set _GIT_REPO_EXISTS=
+if not exist "%~1.git\config" goto :Clone
+grep ".git" "%~1.git\config"1>"%TEMP%\%~n0_git.tmp" 2>nul
+grep "%~2" "%~1.git\config"1>"%TEMP%\%~n0_match.tmp" 2>nul
+rem type "%TEMP%\%~n0_git.tmp"
+set /p _GIT_REPO=<"%TEMP%\%~n0_git.tmp"
+set /p _GIT_REPO_MATCHES=<"%TEMP%\%~n0_match.tmp"
+if "%_GIT_REPO_MATCHES%" NEQ "" (
   echo ********************************************************************************
-  echo * '%~2' is already cloned into '%~1'
-  echo *
-  if exist "%~1\clone.bat"     echo * to clone fresh delete the content in folder '%~1' ^(except file clone.bat^)
-  if not exist "%~1\clone.bat" echo * to clone fresh delete the content in folder '%~1'
-  if not exist "%~1\clone.bat" echo * with 'rmdir /s /q "%~1"'
-  echo *
-  echo * the status in '%~1' is:
+  echo * '%~nx2' is already cloned into folder:
+  echo * '%~1'
   echo ********************************************************************************
   pushd "%~1"
   git remote -v
@@ -40,23 +33,23 @@ if "%_GIT_REPO_EXISTS%" equ "true" (
   git fetch
   popd
   if /I "%~3" equ "--changeDir" (cd "%~1")
-  echo.
-  goto :EOF
-)
-if %ERRORLEVEL% equ 1 (
+) else (
   echo ********************************************************************************
-  echo * a different repository than '%~2' is already cloned into '%~1'
-  echo *
-  if exist "%~1\clone.bat"     echo * to clone fresh delete the content in folder '%~1' ^(except file clone.bat^)
-  if not exist "%~1\clone.bat" echo * to clone fresh delete the content in folder '%~1'
-  if not exist "%~1\clone.bat" echo * with 'rmdir /s /q "%~1"'
-  echo *
+  echo * a different repository than '%~nx2' is already cloned into folder:
+  echo * '%~1'
   echo * currently cloned: 
+  echo *%_GIT_REPO%
   echo ********************************************************************************
-  grep ".git" .git\config
-  echo.
-  goto :EOF
 )
+echo ********************************************************************************
+echo * to clone '%~nx2' freshly, all content needs to be removed first:
+echo * 'rmdir /s /q "%~1"'
+echo ********************************************************************************
+echo.
+set _GIT_REPO=
+set _GIT_REPO_MATCHES=
+goto :EOF
+
 
 :Clone
 echo ********************************************************************************
