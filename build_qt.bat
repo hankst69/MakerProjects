@@ -95,18 +95,19 @@ popd
 
 rem 4) install QT 
 :qt_install
-call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% already done&goto :qt_install_done
-echo QT-INSTALL %_QT_VERSION%
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
+  echo QT-INSTALL %_QT_VERSION%
   pushd "%_QT_BUILD_DIR%"
   call cmake --install .
   popd
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
+  call which Qt6WebSockets.dll 1>nul 2>nul
+  if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+  echo QT-INSTALL %_QT_VERSION% done
+) else (
+  call which Qt6WebSockets.dll 1>nul 2>nul
+  if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% already done&goto :qt_install_done
 )
-call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-echo QT-INSTALL %_QT_VERSION% done
 :qt_install_done
 
 
