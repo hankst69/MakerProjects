@@ -15,6 +15,7 @@ if not exist "%_EMSDK_BIN_DIR%" mkdir "%_EMSDK_BIN_DIR%"
 
 pushd "%_MAKER_ROOT%"
 call "%_MAKER_ROOT%\scripts\clone_in_folder.bat" "%_EMSDK_BIN_DIR%" "https://github.com/emscripten-core/emsdk.git"
+echo.
 popd
 
 rem test python

@@ -7,6 +7,7 @@ if "%~1" neq "" set "_QT_VERSION=%~1"
 
 rem if we have to create a WASM build, we have to build the matching windows host version first
 call "%_MAKER_ROOT%\build_qt.bat" "%~1"
+echo.
 cd "%_MAKER_ROOT%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
