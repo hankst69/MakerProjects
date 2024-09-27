@@ -24,7 +24,9 @@ set /p _GIT_REPO_MATCHES=<"%TEMP%\%~n0_match.tmp"
 if "%_GIT_REPO_MATCHES%" NEQ "" (
   echo ********************************************************************************
   echo * '%~nx2' is already cloned into folder:
-  echo * '%~1'
+  echo *  '%~1'
+  echo * to clone '%~nx2' freshly, all content needs to be removed first:
+  echo *  'rmdir /s /q "%~1"'
   echo ********************************************************************************
   pushd "%~1"
   git remote -v
@@ -36,15 +38,13 @@ if "%_GIT_REPO_MATCHES%" NEQ "" (
 ) else (
   echo ********************************************************************************
   echo * a different repository than '%~nx2' is already cloned into folder:
-  echo * '%~1'
+  echo *  '%~1'
   echo * currently cloned: 
   echo *%_GIT_REPO%
+  echo * to clone '%~nx2' freshly, all content needs to be removed first:
+  echo *  'rmdir /s /q "%~1"'
   echo ********************************************************************************
 )
-echo ********************************************************************************
-echo * to clone '%~nx2' freshly, all content needs to be removed first:
-echo * 'rmdir /s /q "%~1"'
-echo ********************************************************************************
 echo.
 set _GIT_REPO=
 set _GIT_REPO_MATCHES=
