@@ -15,9 +15,9 @@ goto :EOF
 
 :Start
 doskey home="%~dp0home.cmd"
-if not exist "%~1.git\config" goto :Clone
-grep ".git" "%~1.git\config"1>"%TEMP%\%~n0_git.tmp" 2>nul
-grep "%~2" "%~1.git\config"1>"%TEMP%\%~n0_match.tmp" 2>nul
+if not exist "%~1\.git\config" goto :Clone
+grep ".git" "%~1\.git\config"1>"%TEMP%\%~n0_git.tmp" 2>nul
+grep "%~2" "%~1\.git\config"1>"%TEMP%\%~n0_match.tmp" 2>nul
 rem type "%TEMP%\%~n0_git.tmp"
 set /p _GIT_REPO=<"%TEMP%\%~n0_git.tmp"
 set /p _GIT_REPO_MATCHES=<"%TEMP%\%~n0_match.tmp"
