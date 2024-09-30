@@ -41,7 +41,10 @@ rem goto :EOF
 :test_ninja_success
 
 rem echo test llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-rem ...tbd
+call which clang.exe 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :test_llvm_success
+echo warning: LLVM Clang is not available
+rem goto :EOF
 :test_llvm_success
 
 rem echo test emsdk
