@@ -40,6 +40,13 @@ rem # Make the SDK "active" for the current user. (writes .emscripten file)
 call emsdk.bat activate %_EMSDK_VERSION%
 popd
 
-set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
+
+rem set llvm/clang
+if not exist "%LLVM_INSTALL_DIR%\clang.exe" set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
+call which clang.exe 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :test_llvm_success
+set "PATH=%PATH%;%LLVM_INSTALL_DIR%"
+:test_llvm_success
+
 
 cd "%_EMSDK_BIN_DIR%"
