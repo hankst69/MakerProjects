@@ -39,8 +39,9 @@ if %ERRORLEVEL% EQU 0 goto :test_make_success
 call which nmake 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 goto :test_make_failed
 doskey make=nmake
-call which make 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_make_success
+rem call which make 1>nul 2>nul
+rem if %ERRORLEVEL% EQU 0 goto :test_make_success
+goto :test_make_success
 :test_make_failed
 echo error: MAKE is not available
 goto :EOF
