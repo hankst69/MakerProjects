@@ -6,13 +6,12 @@ rem https://github.com/vedderb/vesc_tool
 rem http://github.com/vedderb/bldc
 
 
-rem 1) clone VESC tool and fw 
 echo.
 echo 1) clone VESC FW and VESC Tool
+call "%_MAKER_ROOT%\clone_vesc.bat"
 rem defines: _VESC_DIR
 rem defines: _VESC_TOOL_DIR
 rem defines: _VESC_FW_DIR
-call "%_MAKER_ROOT%\clone_vesc.bat"
 if "%_VESC_DIR%" EQU "" (echo cloning VESC failed &goto :EOF)
 if "%_VESC_TOOL_DIR%" EQU "" (echo cloning VESC-Tool failed &goto :EOF)
 if "%_VESC_FW_DIR%" EQU "" (echo cloning VESC-FW failed &goto :EOF)
@@ -20,7 +19,6 @@ if not exist "%_VESC_DIR%" (echo cloning VESC failed &goto :EOF)
 if not exist "%_VESC_TOOL_DIR%" (echo cloning VESC-Tool failed &goto :EOF)
 if not exist "%_VESC_FW_DIR%" (echo cloning VESC-FW failed &goto :EOF)
 
-rem 2) install Qt
 echo.
 echo 2) install Qt
 pushd %_MAKER_ROOT%
@@ -31,7 +29,6 @@ if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
   echo QT is not installed
   goto :EOF
 )
-
 
 rem echo test make
 call which make 1>nul 2>nul
@@ -48,18 +45,14 @@ goto :EOF
 :test_make_success
 echo  make available
 
-
-rem 3) configure VESC-Tool  build
 echo.
 echo 3) configure VESC-Tool build
 echo ...tbd
 
-rem 4) build VESC-Tool
 echo.
 echo 4) build VESC-Tool
 echo ...tbd
 
-rem 5) install VESC-Tool
 echo.
 echo 5) install VESC-Tool
 echo ...tbd

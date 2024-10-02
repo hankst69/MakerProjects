@@ -16,10 +16,14 @@
 /ProjectWebCam/html5_rtsp_player
 
 /Solar2024
+
+/Choco
+/CSharp
+#/CSharp/Choco
+#/CSharp/SOLID
+#/CSharp/IPTools
+
 /Emsdk
 /Qt
 /Victron
 /VESC
-
-/CSharp/SOLID
-/CSharp/IPTools
