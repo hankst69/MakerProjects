@@ -32,6 +32,10 @@ if %ERRORLEVEL% EQU 0 goto :test_cmake_success
 echo error: CMAKE is not available
 goto :EOF
 :test_cmake_success
+set _VERSION_NR=
+for /f "tokens=1-3 delims= " %%i in ('call cmake --version') do if /I "%%j" EQU "version" set "_VERSION_NR=%%k"
+echo using: cmake %_VERSION_NR%
+set _VERSION_NR=
 
 rem echo test ninja
 call which ninja.exe 1>nul 2>nul
@@ -39,20 +43,14 @@ if %ERRORLEVEL% EQU 0 goto :test_ninja_success
 echo warning: NINJA is not available
 rem goto :EOF
 :test_ninja_success
+set _VERSION_NR=
+for /f "tokens=1,* delims= " %%i in ('call ninja --version') do set "_VERSION_NR=%%i"
+echo using: ninja %_VERSION_NR%
+set _VERSION_NR=
 
 rem echo test llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 rem ...tbd
 :test_llvm_success
-
-rem echo test emsdk
-rem call which emcc.bat 1>nul 2>nul
-rem if %ERRORLEVEL% EQU 0 goto :test_emsdk_success
-rem echo error: EMSDK not available
-rem goto :EOF
-rem :test_emsdk_success
-rem call em++ --version
-rem call emcc --version
-rem :test_emsdk_ok
 
 rem echo test perl (+ gperf + qnx)
 call which perl.exe 1>nul 2>nul
@@ -60,6 +58,10 @@ if %ERRORLEVEL% EQU 0 goto :test_perl_success
 echo error: perl is not available
 goto :EOF
 :test_perl_success
+set _VERSION_NR=
+for /f "tokens=1,2 delims=^(" %%i in ('call perl --version') do for /f "tokens=1,* delims=)" %%k in ("%%j") do set "_VERSION_NR=%%k"
+echo using: perl %_VERSION_NR%
+set _VERSION_NR=
 
 rem echo test python
 call which python.exe 1>nul 2>nul
@@ -67,6 +69,10 @@ if %ERRORLEVEL% EQU 0 goto :test_python_success
 echo error: python is not available
 goto :EOF
 :test_python_success
+set _VERSION_NR=
+for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
+echo using: python %_VERSION_NR%
+set _VERSION_NR=
 
 
 rem 2) configure QT build
