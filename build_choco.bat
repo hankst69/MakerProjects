@@ -31,10 +31,15 @@ if not exist "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\choco.exe"
 if not exist "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\lib" mkdir "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\lib"
 
 set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
-if not exist "%_TOOLS_DIR%" mkdir "%_TOOLS_DIR%"
-echo @call "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\choco.exe" --allow-unofficial %%*>"%_TOOLS_DIR%\choco.bat"
+set "_TOOLS_CHOCO_DIR=%_TOOLS_DIR%\.choco"
+if not exist "%_TOOLS_CHOCO_DIR%" mkdir "%_TOOLS_CHOCO_DIR%"
+call xcopy /S /Y /Q "D:\GIT\HAN\MakerProjects\Choco\code_drop\temp\_PublishedApps\choco_merged" "%_TOOLS_CHOCO_DIR%" 1>NUL
+echo @pushd "%_TOOLS_CHOCO_DIR%">"%_TOOLS_DIR%\choco.bat"
+rem echo @call choco.exe %%* --allow-unofficial --debug>>"%_TOOLS_DIR%\choco.bat"
+echo @call choco.exe %%* --allow-unofficial >>"%_TOOLS_DIR%\choco.bat"
+echo @popd>>"%_TOOLS_DIR%\choco.bat"
 call which choco.bat 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%_TOOLS_DIR%"
+if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%_TOOLS_DIR%;%_TOOLS_CHOCO_DIR%\bin"
 call which choco.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_choco_success
 echo. error: Choco build seems not to work

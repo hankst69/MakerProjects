@@ -23,22 +23,16 @@ rem echo test make
 call which make 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
 call "%_MAKER_ROOT%\build_choco.bat"
-echo on
 call choco install make
 call which make 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
-
-call which ninja 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 goto :test_make_failed
-if exist "%_QT_CREATOR_ENV_DIR%\Scripts" echo @ninja %%*>"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat"
-if exist "%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" goto :test_make_success
 :test_make_failed
 echo error: MAKE is not available
 goto :EOF
 :test_make_success
-echo on
 set _VERSION_NR=
-for /f "tokens=6,* delims= " %%i in ('"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" --version') do set "_VERSION_NR=%%j"
+for /f "tokens=1,2,* delims= " %%i in ('call make --version') do if /I "%%j" equ "make" set "_VERSION_NR=%%k"
+rem for /f "tokens=6,* delims= " %%i in ('"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" --version') do set "_VERSION_NR=%%j"
 echo using: make %_VERSION_NR%
 set _VERSION_NR=
 
@@ -52,7 +46,7 @@ if not exist "%_QT_CREATOR_ENV_DIR%\.venv.created" (
   echo installing Qt-Creator ...
   call python -m pip install --upgrade pip  || exit /b
   call python -m pip install aqtinstall  || exit /b
-  call make qt_install  || exit /b
+  call make qt_install || exit /b
   rem python -m pip install setuptools^>=36.0.0,^<58.0.0 wheel --no-cache-dir || exit /b
   echo done >"%_QT_CREATOR_ENV_DIR%\.venv.created"
 )
