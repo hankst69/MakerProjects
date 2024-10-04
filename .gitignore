@@ -3,6 +3,7 @@
 !**/.vscode/extensions.json
 !**/.vscode/settings.json
 **/out/*
+/.tools
 
 #/ArduinoSketches/libraries
 /ArduinoSketches/esp01/espBode

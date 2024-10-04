@@ -22,6 +22,12 @@ set _VERSION_NR=
 rem echo test make
 call which make 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
+call "%_MAKER_ROOT%\build_choco.bat"
+echo on
+call choco install make
+call which make 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :test_make_success
+
 call which ninja 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 goto :test_make_failed
 if exist "%_QT_CREATOR_ENV_DIR%\Scripts" echo @ninja %%*>"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat"
@@ -30,6 +36,7 @@ if exist "%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" goto :test_make_success
 echo error: MAKE is not available
 goto :EOF
 :test_make_success
+echo on
 set _VERSION_NR=
 for /f "tokens=6,* delims= " %%i in ('"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" --version') do set "_VERSION_NR=%%j"
 echo using: make %_VERSION_NR%
