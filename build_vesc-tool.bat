@@ -1,13 +1,14 @@
 @echo off
-set "_MAKER_ROOT=%~dp0"
 rem https://vesc-project.com/vesc_tool
 rem https://vesc-project.com/node/309
 rem https://github.com/vedderb/vesc_tool
 rem http://github.com/vedderb/bldc
 
+set "_MAKER_ROOT=%~dp0"
 set "_QT_DIR=%~dp0Qt"
-if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
+
+if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
 
 set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
 set "_TOOLS_QTCREATOR_DIR=%_TOOLS_DIR%\.qtcreator"
@@ -36,20 +37,12 @@ set _VESC_BOARD=100_250
 echo.
 echo 1) install Make
 call which make 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_make_success
-call "%_MAKER_ROOT%\build_choco.bat"
-call choco install make
+if %ERRORLEVEL% NEQ 0 call "%_MAKER_ROOT%\build_make.bat"
 call which make 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_make_success
-:test_make_failed
-echo error: MAKE is not available
-goto :EOF
-:test_make_success
-set _VERSION_NR=
-for /f "tokens=1,2,* delims= " %%i in ('call make --version') do if /I "%%j" equ "make" set "_VERSION_NR=%%k"
-rem for /f "tokens=6,* delims= " %%i in ('"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" --version') do set "_VERSION_NR=%%j"
-echo using: make %_VERSION_NR%
-set _VERSION_NR=
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MAKE is not available
+  goto :EOF
+)
 
 echo.
 echo.
