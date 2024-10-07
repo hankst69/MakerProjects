@@ -1,20 +1,24 @@
 @echo off
+pushd
+rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 set "_MAKER_ROOT=%~dp0"
 set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
 
-rem echo.
-rem echo install MAKE
 
 call which make.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-  rem echo MAKE already available
-  goto :test_make_success
+  rem deep test for correct version
+  set _VERSION_NR=
+  for /f "tokens=1,2,* delims= " %%i in ('call make --version') do if /I "%%i" equ "gnu" if /I "%%j" equ "make" set "_VERSION_NR=%%k"
+  rem if "%_VERSION_NR%" neq "" echo MAKE already available
+  if "%_VERSION_NR%" neq "" goto :test_make_success
 )
 
 if exist "%_TOOLS_DIR%\make.bat" (
-  rem deep test for working MAKE
+  rem deep test for correct version
   set _VERSION_NR=
-  for /f "tokens=1,2,* delims= " %%i in ('call make --version') do if /I "%%i" equ "gnu" if /I "%%j" equ "make" set "_VERSION_NR=%%k"
+  for /f "tokens=1,2,* delims= " %%i in ('call "%_TOOLS_DIR%\make.bat" --version') do if /I "%%i" equ "gnu" if /I "%%j" equ "make" set "_VERSION_NR=%%k"
+  rem if "%_VERSION_NR%" neq "" echo MAKE already available
   if "%_VERSION_NR%" neq "" set "Path=%_TOOLS_DIR%;%Path%"
   if "%_VERSION_NR%" neq "" goto :test_make_success
 )
@@ -27,7 +31,7 @@ if not exist "%_TOOLS_CHOCO_DIR%\bin\make.exe" (
   call choco install make
   if not exist "%_TOOLS_CHOCO_DIR%\bin\make.exe" (
     echo. error: install MAKE failed
-    goto :EOF
+    goto :exit_script
   )
 )
 
@@ -39,7 +43,7 @@ if %ERRORLEVEL% neq 0 set "Path=%_TOOLS_DIR%;%Path%"
 call which make.bat 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
   echo error: installing MAKE failed
-  goto :EOF
+  goto :exit_script
 )
 
 :test_make_success
@@ -48,3 +52,6 @@ for /f "tokens=1,2,* delims= " %%i in ('call make --version') do if /I "%%j" equ
 rem for /f "tokens=6,* delims= " %%i in ('"%_QT_CREATOR_ENV_DIR%\Scripts\make.bat" --version') do set "_VERSION_NR=%%j"
 echo make %_VERSION_NR%
 set _VERSION_NR=
+
+:exit_script
+popd
