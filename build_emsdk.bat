@@ -72,6 +72,18 @@ if %ERRORLEVEL% EQU 0 goto :test_llvm_success
 set "PATH=%PATH%;%LLVM_INSTALL_DIR%"
 :test_llvm_success
 
+echo.
+call clang --version
+rem call clang++ --version
+echo.
+call wasm32-clang --version
+echo.
+call wasm32-wasi-clang --version
+echo.
+call wasm2js --version
+echo.
+call emcc --version
+rem call em++ --version
 
 cd "%_EMSDK_BIN_DIR%"
 

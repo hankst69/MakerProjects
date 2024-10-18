@@ -81,8 +81,8 @@ mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
 rem call python -m pip install html5lib
 rem call python -m pip wheel html5lib
-rem configure -qt-host-path C:\Path\to\Qt -no-warnings-are-errors -platform wasm-emscripten -prefix %CD%\qtbase
 call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_BUILD_DIR%\qtbase" -LLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 popd
 :qt_configure_done
 
