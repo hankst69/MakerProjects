@@ -22,7 +22,14 @@ if not exist "%_TOOLS_CHOCO_DIR%\choco.exe" (
   if not exist "%_CHOCO_DIR%" (echo error: cloning CHOCO &goto :EOF)
   if not exist "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\choco.exe" (
     pushd %_CHOCO_DIR%
-    call "%_CHOCO_DIR%\build.bat"
+	echo.
+	echo rebuilding CHOCO from sources
+    echo.
+	echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
+	echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
+	if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
+    echo.
+	call "%_CHOCO_DIR%\build.bat"
     popd
   )
   if not exist "%_CHOCO_DIR%\code_drop\temp\_PublishedApps\choco_merged\choco.exe" (
