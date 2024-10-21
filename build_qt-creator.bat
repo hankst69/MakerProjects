@@ -1,4 +1,5 @@
 @echo off
+endlocal
 pushd
 rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
@@ -6,7 +7,7 @@ set "_MAKER_ROOT=%~dp0"
 set "_QT_DIR=%~dp0Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
-set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
+set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
 set "_TOOLS_QTCREATOR_DIR=%_TOOLS_DIR%\.qtcreator"
 
 set _QT_VERSION=6.6.3
@@ -14,20 +15,41 @@ if "%~1" neq "" set "_QT_VERSION=%~1"
 
 
 rem --test if qt-creater is already available
-if exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
-  call which qtcreator.bat 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 (
-    rem echo QtCreator already available
-    goto :test_qtcreator_success
-  )
-  if exist "%_TOOLS_DIR%\qtcreator.bat" set "Path=%Path%;%_TOOLS_DIR%;%_TOOLS_QTCREATOR_DIR%\bin"
-  call which qtcreator.bat 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 (
-    rem echo QtCreator already available
-    goto :test_qtcreator_success
+if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
+  if exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
+    if not exist "%_TOOLS_QTCREATOR_DIR%" mkdir "%_TOOLS_QTCREATOR_DIR%"
+    call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_TOOLS_QTCREATOR_DIR%" 1>NUL
   )
 )
+if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
+  del /Y "%_TOOLS_DIR%\qtcreator.bat"
+) else (
+  echo @pushd "%_TOOLS_QTCREATOR_DIR%\bin">"%_TOOLS_DIR%\qtcreator.bat"
+  echo @call qtcreator.exe %%* >>"%_TOOLS_DIR%\qtcreator.bat"
+  echo @popd>>"%_TOOLS_DIR%\qtcreator.bat"
+)
+rem type "%_TOOLS_DIR%\qtcreator.bat"
+call which qtcreator.bat 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+  rem echo QtCreator already available
+  goto :test_qtcreator_success
+)
+rem if exist "%_TOOLS_DIR%\qtcreator.bat" path
+if exist "%_TOOLS_DIR%\qtcreator.bat" set "Path=%Path%;%_TOOLS_DIR%;%_TOOLS_QTCREATOR_DIR%\bin"
+rem if exist "%_TOOLS_DIR%\qtcreator.bat" path
+call which qtcreator.bat 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+  rem echo QtCreator already available
+  goto :test_qtcreator_success
+)
 
+echo.
+echo rebuilding Qt-Creator from sources
+echo.
+echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
+echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
+if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
+echo.
 
 rem -- ensure python is available
 rem call "%_MAKER_ROOT%\setup_python.bat"
@@ -115,11 +137,10 @@ if not exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
 
 
 rem -- create shortcuts
-if not exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
+if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
   if not exist "%_TOOLS_QTCREATOR_DIR%" mkdir "%_TOOLS_QTCREATOR_DIR%"
   call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_TOOLS_QTCREATOR_DIR%" 1>NUL
 )
-
 echo @pushd "%_TOOLS_QTCREATOR_DIR%\bin">"%_TOOLS_DIR%\qtcreator.bat"
 echo @call qtcreator.exe %%* >>"%_TOOLS_DIR%\qtcreator.bat"
 echo @popd>>"%_TOOLS_DIR%\qtcreator.bat"
