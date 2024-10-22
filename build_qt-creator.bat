@@ -48,8 +48,8 @@ echo rebuilding Qt-Creator from sources
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
 echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
-if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
 echo.
+
 
 rem -- ensure python is available
 rem call "%_MAKER_ROOT%\setup_python.bat"
@@ -63,6 +63,28 @@ set _VERSION_NR=
 for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
 echo using: python %_VERSION_NR%
 set _VERSION_NR=
+
+
+rem -- ensure proper VSCMD is available (VisualStudio command line build environment) 
+if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
+rem -- ensure proper VSCMD_ARG_TGT_ARCH is set that matches Python 32bit/64bit (for building wheels, otherwise linker errors)
+rem VSCMD_ARG_TGT_ARCH can be: x86 or x64
+rem 1) detect Python Architecture:
+set PYTHON_ARCH=x86
+for /f %%i in ('call python -c "import sys;print(f""{sys.maxsize > 2**32}"")"') do if /I "%%~i" equ "True" set PYTHON_ARCH=x64
+rem 2) compare PYTHON_ARCH vs VSCMD_ARG_TGT_ARCH
+if /I "%VSCMD_ARG_TGT_ARCH%" equ "%PYTHON_ARCH%" goto :test_vscmd_success
+rem 3) counteract (adapt VSCMD)
+if /I "%PYTHON_ARCH%" equ "x64" call vsdevcmd -arch=amd64
+if /I "%PYTHON_ARCH%" equ "x86" call vsdevcmd -arch=x86
+rem 4) compare again PYTHON_ARCH vs VSCMD_ARG_TGT_ARCH
+if /I "%VSCMD_ARG_TGT_ARCH%" equ "%PYTHON_ARCH%" goto :test_vscmd_success
+echo error: VSCMD not available
+goto :exit_script
+:test_vscmd_success
+echo VSCMD_VER      : %VSCMD_VER:~0,2%
+echo VSCMD_TGT_ARCH : %VSCMD_ARG_TGT_ARCH%
+echo PYTHON_ARCH    : %PYTHON_ARCH%
 
 
 rem -- ensure make is available
