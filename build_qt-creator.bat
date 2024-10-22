@@ -22,7 +22,7 @@ if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
   )
 )
 if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
-  del /Y "%_TOOLS_DIR%\qtcreator.bat"
+  del /F /Q "%_TOOLS_DIR%\qtcreator.bat" 2>NUL
 ) else (
   echo @pushd "%_TOOLS_QTCREATOR_DIR%\bin">"%_TOOLS_DIR%\qtcreator.bat"
   echo @call qtcreator.exe %%* >>"%_TOOLS_DIR%\qtcreator.bat"
