@@ -35,16 +35,16 @@ if "%_REBUILD%" equ "true" (
 rem (2) *** testing for existing build ***
 rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
-if exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
-  call which Qt6WebSockets.dll 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
-  set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-  call which Qt6WebSockets.dll 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
-  echo error: QT %_QT_VERSION% seems to be prebuild but is not working
-  echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
-  goto :EOF
-)
+if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
+set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
+echo error: QT %_QT_VERSION% seems to be prebuild but is not working
+echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
+goto :EOF
+:build_qt
 
 
 rem (3) *** ensuring prerequisites ***
@@ -223,17 +223,13 @@ if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
   call cmake --install .
   popd
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
-  call which Qt6WebSockets.dll 1>nul 2>nul
-  if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-  echo QT-INSTALL %_QT_VERSION% done
-) else (
-  call which Qt6WebSockets.dll 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% already done&goto :qt_install_done
-  set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-  call which Qt6WebSockets.dll 1>nul 2>nul
-  if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% already done&goto :qt_install_done
-  echo error: QT-INSTALL %_QT_VERSION% failed
 )
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+call which Qt6WebSockets.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% available &goto :qt_install_done
+echo error: QT-INSTALL %_QT_VERSION% failed
+goto :EOF
 :qt_install_done
 
 
