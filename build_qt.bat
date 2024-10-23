@@ -27,8 +27,8 @@ set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
 if "%_REBUILD%" equ "true" (
   echo preparing rebuild...
-  rmdir /s /q "%_QT_BIN_DIR%"
-  rmdir /s /q "%_QT_BUILD_DIR%"
+  rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
+  rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 )
 
 
@@ -108,10 +108,10 @@ echo error: MSVS not available
 goto :EOF
 :test_msvs_version_ok
 set _MSVS_TGT=x86
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "amd64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
+if /I "%VSCMD_ARG_TGT_ARCH%" equ "x64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
 echo warning: MSVS uses wrong target architecture %_MSVS_TGT% - switching to 'amd64'
 call vsdevcmd -arch=amd64
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "amd64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
+if /I "%VSCMD_ARG_TGT_ARCH%" equ "x64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
 echo error: MSVS uses wrong target architecture %_MSVS_TGT%
 :test_msvs_success
 echo using: msvs %_MSVS_VER% (VS%VSCMD_VER:~0,2%) for %_MSVS_TGT%
@@ -161,14 +161,21 @@ set _VERSION_NR=
 
 rem validate python
 call which python.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_python_success
+if %ERRORLEVEL% EQU 0 goto :test_python_available
 echo error: python is not available
 goto :EOF
+:test_python_available
+set _PYTHON_ARCH=x86
+for /f %%i in ('call python -c "import sys;print(f""{sys.maxsize > 2**32}"")"') do if /I "%%~i" equ "True" set _PYTHON_ARCH=x64
+if /I "%VSCMD_ARG_TGT_ARCH%" equ "%_PYTHON_ARCH%" goto :test_python_success
+echo warning: python architecture '%_PYTHON_ARCH%' does not match msvs target architecture '%VSCMD_ARG_TGT_ARCH%'
+rem goto :EOF
 :test_python_success
 set _VERSION_NR=
 for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
-echo using: python %_VERSION_NR%
+echo using: python %_VERSION_NR% %_PYTHON_ARCH%
 set _VERSION_NR=
+set _PYTHON_ARCH=
 
 
 rem (4) *** setup QT dependencies ***
