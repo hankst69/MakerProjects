@@ -4,9 +4,9 @@
 @rem https://github.com/sq6sfo/espBode
 @echo off
 set "_MAKER_ROOT=%~dp0"
-rem set "_ESP_BODE_DIR=%_MAKER_ROOT%projects\mkr\AWGControl\espBode"
-set "_ESP_BODE_AWG_DIR=%_MAKER_ROOT%projects\mkr\AWGControl\espBode-awg"
 
-rem call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_ESP_BODE_DIR%" "https://github.com/hankst69/espBode.git" --changeDir
+rem set "_ESP_BODE_AWG_DIR=%_MAKER_ROOT%projects\mkr\AWGControl\espBode-awg"
+set "_ESP_BODE_AWG_DIR=%_MAKER_ROOT%projects\AWGControl\espBode-awg"
+
 call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_ESP_BODE_AWG_DIR%" "https://github.com/hankst69/espBode.git" --changeDir --switchBranch awgDevices
 

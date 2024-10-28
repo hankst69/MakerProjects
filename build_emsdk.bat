@@ -1,7 +1,7 @@
 @rem https://emscripten.org/docs/getting_started/downloads.html
 @echo off
+pushd 1>nul
 set "_MAKER_ROOT=%~dp0"
-pushd
 
 rem -- clone EMSDK
 call "%_MAKER_ROOT%\clone_emsdk.bat" %*
