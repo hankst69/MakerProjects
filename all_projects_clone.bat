@@ -2,7 +2,7 @@
 set "_START_DIR=%cd%"
 set "_MAKER_ROOT=%~dp0"
 
-set "_ALL_PROJECTS=espBode espBode-awg fygen victron-guiv2 html5_rtsp_player UserScripts SOLID IPTools"
+set "_ALL_PROJECTS=espBode espBode-awg fygen victron-guiv2 html5_rtsp_player UserScripts SOLID IPTools python"
 
 echo ----------------------------------------------------------------------
 echo about to clone:
@@ -17,7 +17,7 @@ echo.
 call :for_each --clone "%_ALL_PROJECTS%"
 echo.
 echo ----------------------------------------------------------------------
-echo call one of the clone scripts again to see state and change directory:c
+echo call one of the clone scripts again to see state and change directory:
 echo ----------------------------------------------------------------------
 echo.
 call :for_each --short "%_ALL_PROJECTS%"
