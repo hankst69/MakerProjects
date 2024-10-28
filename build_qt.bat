@@ -106,7 +106,7 @@ if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 rem validate cmake
-call "%_MAKER_ROOT%scripts\validate_cmake.bat"
+call "%_MAKER_ROOT%scripts\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
@@ -135,12 +135,11 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :EOF
 )
 rem validate python
-call "%_MAKER_ROOT%scripts\validate_python.bat"
+call "%_MAKER_ROOT%scripts\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
 )
- 
 
 
 rem (4) *** setup QT dependencies ***
