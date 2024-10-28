@@ -1,38 +1,26 @@
+@rem https://emscripten.org/docs/getting_started/downloads.html
 @echo off
-pushd
-rem https://emscripten.org/docs/getting_started/downloads.html
 set "_MAKER_ROOT=%~dp0"
-set "_EMSDK_DIR=%_MAKER_ROOT%Emsdk"
-if not exist "%_EMSDK_DIR%" mkdir "%_EMSDK_DIR%"
+pushd
 
-rem set _EMSDK_VERSION=1.38.45
-rem set _EMSDK_VERSION=3.1.67 (current latest as of 2024/09)
-set _EMSDK_VERSION=latest
-if "%~1" neq "" set "_EMSDK_VERSION=%~1"
-
-set "_EMSDK_BIN_DIR=%_EMSDK_DIR%\%_EMSDK_VERSION%"
-if not exist "%_EMSDK_BIN_DIR%" mkdir "%_EMSDK_BIN_DIR%"
-
-rem pushd "%_MAKER_ROOT%"
-call "%_MAKER_ROOT%\scripts\clone_in_folder.bat" "%_EMSDK_BIN_DIR%" "https://github.com/emscripten-core/emsdk.git"
-echo.
-rem popd
+rem -- clone EMSDK
+call "%_MAKER_ROOT%\clone_emsdk.bat" %*
+rem defines: _EMSDK_DIR
+rem defines: _EMSDK_BIN_DIR
+rem defines: _EMSDK_VERSION
+if "%_EMSDK_DIR%" EQU "" (echo error: cloning EMSDK &goto :EOF)
+if not exist "%_EMSDK_DIR%" (echo error: cloning EMSDK &goto :EOF)
+if "%_EMSDK_BIN_DIR%" EQU "" (echo error: cloning EMSDK &goto :EOF)
+if not exist "%_EMSDK_BIN_DIR%" (echo error: cloning EMSDK &goto :EOF)
+if "%_EMSDK_VERSION%" EQU "" (echo error: cloning EMSDK &goto :EOF)
 
 
 rem -- ensure python is available
-rem call "%_MAKER_ROOT%\setup_python.bat"
-call which python.exe 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-  echo error: python not available
-  goto :exit_script
-)
-:test_python_success
-set _VERSION_NR=
-for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
-echo using: python %_VERSION_NR%
-set _VERSION_NR=
+call "%_MAKER_ROOT%\scripts\validate_python.bat"
+if %ERRORLEVEL% NEQ 0 goto :exit_script
 
 
+rem -- build EMSK
 pushd "%_EMSDK_BIN_DIR%"
 if exist "%_EMSDK_BIN_DIR%\upstream\emscripten\emcc.bat" echo EMSDK %_EMSDK_VERSION% INSTALL already done &goto :emsdk_install_done
 

@@ -1,10 +1,10 @@
+@rem https://doc.qt.io/qt-6/getting-sources-from-git.html
+@rem https://doc.qt.io/qt-6/configure-options.html
+@rem https://doc.qt.io/qt-6/build-sources.html
+@rem https://doc.qt.io/qt-6/windows-building.html
+@rem https://code.qt.io/cgit
 @echo off
 set "_MAKER_ROOT=%~dp0"
-rem https://doc.qt.io/qt-6/getting-sources-from-git.html
-rem https://doc.qt.io/qt-6/configure-options.html
-rem https://doc.qt.io/qt-6/build-sources.html
-rem https://doc.qt.io/qt-6/windows-building.html
-rem https://code.qt.io/cgit
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
@@ -100,82 +100,47 @@ echo *** OTPIONAL: gRPC
 echo *** OTPIONAL: Protobuf
 echo.
 
-rem validate msvs
-set _MSVS_VER=
-if "%VSCMD_VER:~0,2%" equ "16" (set "_MSVS_VER=2019" &goto :test_msvs_version_ok)
-if "%VSCMD_VER:~0,2%" equ "17" (set "_MSVS_VER=2022" &goto :test_msvs_version_ok)
-echo error: MSVS not available
-goto :EOF
-:test_msvs_version_ok
-set _MSVS_TGT=x86
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "x64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
-echo warning: MSVS uses wrong target architecture %_MSVS_TGT% - switching to 'amd64'
-call vsdevcmd -arch=amd64
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "x64" (set "_MSVS_TGT=amd64" &goto :test_msvs_success)
-echo error: MSVS uses wrong target architecture %_MSVS_TGT%
-:test_msvs_success
-echo using: msvs %_MSVS_VER% (VS%VSCMD_VER:~0,2%) for %_MSVS_TGT%
-set _MSVS_VER=
-set _MSVS_TGT=
-
+rem validate msvs and ensure amd64 target architecture
+call "%_MAKER_ROOT%scripts\validate_msvs.bat" GEQ2019 amd64
+if %ERRORLEVEL% NEQ 0 (
+  goto :EOF
+)
 rem validate cmake
-call which cmake.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_cmake_success
-echo error: CMAKE is not available
-goto :EOF
-:test_cmake_success
-set _VERSION_NR=
-for /f "tokens=1-3 delims= " %%i in ('call cmake --version') do if /I "%%j" EQU "version" set "_VERSION_NR=%%k"
-echo using: cmake %_VERSION_NR%
-set _VERSION_NR=
-
+call "%_MAKER_ROOT%scripts\validate_cmake.bat"
+if %ERRORLEVEL% NEQ 0 (
+  goto :EOF
+)
 rem validate ninja
-call which ninja.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_ninja_success
-echo warning: NINJA is not available
-rem goto :EOF
-:test_ninja_success
-set _VERSION_NR=
-for /f "tokens=1,* delims= " %%i in ('call ninja --version') do set "_VERSION_NR=%%i"
-echo using: ninja %_VERSION_NR%
-set _VERSION_NR=
-
+call "%_MAKER_ROOT%scripts\validate_ninja.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NINJA is not available
+  rem goto :EOF
+)
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-rem ...tbd
-:test_llvm_success
-
+call "%_MAKER_ROOT%scripts\validate_llvm.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: LLVM CLANG is not available
+  rem goto :EOF
+)
 rem validate node.js 
-rem ...tbd
-:test_nodejs_success
-
+call "%_MAKER_ROOT%scripts\validate_nodejs.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NODE.JS is not available
+  rem goto :EOF
+)
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call which perl.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_perl_success
-echo warning: perl is not available
-rem goto :EOF
-:test_perl_success
-set _VERSION_NR=
-for /f "tokens=1,2 delims=^(" %%i in ('call perl --version') do for /f "tokens=1,* delims=)" %%k in ("%%j") do set "_VERSION_NR=%%k"
-echo using: perl %_VERSION_NR%
-set _VERSION_NR=
-
+call "%_MAKER_ROOT%scripts\validate_perl.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: PERL is not available
+  rem goto :EOF
+)
 rem validate python
-call which python.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_python_available
-echo error: python is not available
-goto :EOF
-:test_python_available
-set _PYTHON_ARCH=x86
-for /f %%i in ('call python -c "import sys;print(f""{sys.maxsize > 2**32}"")"') do if /I "%%~i" equ "True" set _PYTHON_ARCH=x64
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "%_PYTHON_ARCH%" goto :test_python_success
-echo warning: python architecture '%_PYTHON_ARCH%' does not match msvs target architecture '%VSCMD_ARG_TGT_ARCH%'
-rem goto :EOF
-:test_python_success
-set _VERSION_NR=
-for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
-echo using: python %_VERSION_NR% %_PYTHON_ARCH%
-set _VERSION_NR=
-set _PYTHON_ARCH=
+call "%_MAKER_ROOT%scripts\validate_python.bat"
+if %ERRORLEVEL% NEQ 0 goto :EOF
+if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
+  echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+)
+ 
 
 
 rem (4) *** setup QT dependencies ***

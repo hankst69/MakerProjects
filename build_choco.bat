@@ -1,5 +1,5 @@
+@rem https://github.com/chocolatey/choco?tab=readme-ov-file#compiling--building-source
 @echo off
-rem https://github.com/chocolatey/choco?tab=readme-ov-file#compiling--building-source
 set "_MAKER_ROOT=%~dp0"
 set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
 set "_TOOLS_CHOCO_DIR=%_TOOLS_DIR%\.choco"
