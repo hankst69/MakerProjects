@@ -1,9 +1,8 @@
+@rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 @echo off
-pushd
-rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
+pushd 1>nul
 set "_MAKER_ROOT=%~dp0"
 set "_TOOLS_DIR=%_MAKER_ROOT%\.tools"
-
 
 call which make.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (

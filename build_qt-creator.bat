@@ -1,13 +1,14 @@
+@rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
+@rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
 @echo off
 endlocal
-pushd
-rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
-rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
+pushd 1>nul
 set "_MAKER_ROOT=%~dp0"
-set "_QT_DIR=%~dp0Qt"
+set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
+
+set "_QT_DIR=%~dp0tools\Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
-set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
 set "_TOOLS_QTCREATOR_DIR=%_TOOLS_DIR%\.qtcreator"
 
 set _QT_VERSION=6.6.3
