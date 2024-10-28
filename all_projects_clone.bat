@@ -2,7 +2,7 @@
 set "_START_DIR=%cd%"
 set "_MAKER_ROOT=%~dp0"
 
-set "_ALL_PROJECTS=espBode espBode-awg fygen victron-guiv2 html5_rtsp_player UserScripts SOLID IPTools python"
+set "_ALL_PROJECTS=espBode fygen victron-guiv2 html5_rtsp_player UserScripts SOLID IPTools python"
 
 echo ----------------------------------------------------------------------
 echo about to clone:

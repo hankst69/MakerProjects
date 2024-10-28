@@ -7,23 +7,21 @@ set MSVS_VERSION_MAJOR=
 set MSVS_VERSION_MINOR=
 set MSVS_VERSION_PATCH=
 
-set _TGT_VERSION_MAJOR=
-set _TGT_VERSION_MINOR=
-set _TGT_VERSION_PATCH=
-
 set _TGT_ARCHITECTURE=
 set _TGT_VERSION=
 set _TGT_VERSION_COMPARE=
-set _NO_WARNINGS=
-set _NO_ERRORS=
+set _MSVS_NO_WARNINGS=
+set _MSVS_NO_ERRORS=
+set _MSVS_NO_INFO=
 :param_loop
 if /I "%~1" equ "x86"   (set "_TGT_ARCHITECTURE=x86" &shift &goto :param_loop)
 if /I "%~1" equ "x64"   (set "_TGT_ARCHITECTURE=x64" &shift &goto :param_loop)
 if /I "%~1" equ "amd64" (set "_TGT_ARCHITECTURE=x64" &shift &goto :param_loop)
-if /I "%~1" equ "--no_warnings" (set "_NO_WARNINGS=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "--no_errors"   (set "_NO_ERRORS=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--no_warnings" (set "_MSVS_NO_WARNINGS=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--no_errors"   (set "_MSVS_NO_ERRORS=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--no_info"     (set "_MSVS_NO_INFO=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_TGT_VERSION%" equ "" (set "_TGT_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq ""         (echo warning: unknown argument '%~1' &shift &goto :param_loop)
+if "%~1" neq "" (echo warning: unknown argument '%~1' &shift &goto :param_loop)
 
 if "%_TGT_VERSION%" equ "" goto :validate_msvs
 
@@ -48,14 +46,11 @@ if "%_TGT_VERSION%" equ "2010" (set "_TGT_VERSION=10" &goto :tgt_version_normali
 if "%_TGT_VERSION%" equ "2008" (set "_TGT_VERSION=9"  &goto :tgt_version_normalized)
 if "%_TGT_VERSION%" equ "2005" (set "_TGT_VERSION=8"  &goto :tgt_version_normalized)
 :tgt_version_normalized
-call "%_SCRIPT_ROOT%split_version.bat" "%_TGT_VERSION%" 1>NUL
-if "%ERRORLEVEL%" equ "0" goto :split_tgt_version_ok
-if "%_NO_ERRORS%" equ "" echo error: target version '%_TGT_VERSION%' not available or invalid
-exit /b 4
-:split_tgt_version_ok
-set "_TGT_VERSION_MAJOR=%VERSION_MAJOR%"
-set "_TGT_VERSION_MINOR=%VERSION_MINOR%"
-set "_TGT_VERSION_PATCH=%VERSION_PATCH%"
+rem call "%_SCRIPT_ROOT%split_version.bat" "%_TGT_VERSION%" 1>NUL
+rem if "%ERRORLEVEL%" equ "0" goto :split_tgt_version_ok
+rem if "%_MSVS_NO_ERRORS%" equ "" echo error: target version '%_TGT_VERSION%' not available or invalid
+rem exit /b 1
+rem :split_tgt_version_ok
 
 
 :validate_msvs
@@ -64,8 +59,9 @@ set "MSVS_YEAR="
 set "MSVS_VERSION=%VSCMD_VER%"
 call "%_SCRIPT_ROOT%split_version.bat" "%MSVS_VERSION%" 1>NUL
 if "%ERRORLEVEL%" equ "0" goto :split_msvs_version_ok
-if "%_NO_ERRORS%" equ "" echo error: MSVS version '%MSVS_VERSION%' not available or invalid
-exit /b 5
+if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS version '%MSVS_VERSION%' not available or invalid
+exit /b 2
+
 :split_msvs_version_ok
 set "MSVS_VERSION_MAJOR=%VERSION_MAJOR%"
 set "MSVS_VERSION_MINOR=%VERSION_MINOR%"
@@ -80,27 +76,36 @@ if /I "%MSVS_VERSION_MAJOR%" equ "11" (set "MSVS_YEAR=2012" &goto :test_msvs_ver
 if /I "%MSVS_VERSION_MAJOR%" equ "10" (set "MSVS_YEAR=2010" &goto :test_msvs_version)
 if /I "%MSVS_VERSION_MAJOR%" equ "9"  (set "MSVS_YEAR=2008" &goto :test_msvs_version)
 if /I "%MSVS_VERSION_MAJOR%" equ "8"  (set "MSVS_YEAR=2005" &goto :test_msvs_version)
-if "%_NO_ERRORS%" equ "" echo error: MSVS not available (unexpected major version '%MSVS_VERSION_MAJOR%')
-exit /b 1
-
+if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS not available (unexpected major version '%MSVS_VERSION_MAJOR%')
+exit /b 3
 
 :test_msvs_version
 if "%_TGT_VERSION%" equ "" goto :test_msvs_tgt_architecture
 call "%_SCRIPT_ROOT%compare_versions.bat" "%MSVS_VERSION%" "%_TGT_VERSION%" "%_TGT_VERSION_COMPARE%"
 if "%ERRORLEVEL%" equ "0" goto :test_msvs_tgt_architecture
-if "%_NO_ERRORS%" equ "" echo error: MSVS version '%MSVS_VERSION%' does not match required version '%_TGT_VERSION%'
-exit /b 2
+if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS version '%MSVS_VERSION%' does not match required version '%_TGT_VERSION%'
+exit /b 4
 
 :test_msvs_tgt_architecture
 if "%_TGT_ARCHITECTURE%" equ "" goto :test_msvs_success
 if /I "%MSVS_TARGET_ARCHITECTURE%" equ "%_TGT_ARCHITECTURE%" goto :test_msvs_success
-if "%_NO_ERRORS%" equ "" echo error: MSVS target architecture '%MSVS_TARGET_ARCHITECTURE%' does not match required type '%_TGT_ARCHITECTURE%'
-exit /b 3
+if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS target architecture '%MSVS_TARGET_ARCHITECTURE%' does not match required type '%_TGT_ARCHITECTURE%'
+exit /b 5
 
 
 :test_msvs_success
-echo using: msvs %MSVS_YEAR% (vs %MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
-rem set MSVS_VERSION=
-rem set MSVS_YEAR=
+if "%_MSVS_NO_INFO%" neq "" echo using: msvs %MSVS_YEAR% (vs %MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
 rem set MSVS_TARGET_ARCHITECTURE=
+rem set MSVS_YEAR=
+rem set MSVS_VERSION=
+rem set MSVS_VERSION_MAJOR=
+rem set MSVS_VERSION_MINOR=
+rem set MSVS_VERSION_PATCH=
+set _TGT_ARCHITECTURE=
+set _TGT_VERSION=
+set _TGT_VERSION_COMPARE=
+set _MSVS_NO_WARNINGS=
+set _MSVS_NO_ERRORS=
+set _MSVS_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 0

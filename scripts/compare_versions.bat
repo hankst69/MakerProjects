@@ -56,25 +56,31 @@ exit /b 5
 set "_COMPARE_TGT_VERSION_MAJOR=%VERSION_MAJOR%"
 set "_COMPARE_TGT_VERSION_MINOR=%VERSION_MINOR%"
 set "_COMPARE_TGT_VERSION_PATCH=%VERSION_PATCH%"
+set _CMP_TGT_MINOR_MISSING=
+set _CMP_TGT_PATCH_MISSING=
+if "%VERSION_MINOR%" equ "" set _CMP_TGT_MINOR_MISSING=true
+if "%VERSION_PATCH%" equ "" set _CMP_TGT_PATCH_MISSING=true
 
-rem already ensured in split_version.bat
-rem if "%_COMPARE_SRC_VERSION_MAJOR%" equ "" set _COMPARE_SRC_VERSION_MAJOR=0
-rem if "%_COMPARE_SRC_VERSION_MINOR%" equ "" set _COMPARE_SRC_VERSION_MINOR=0
-rem if "%_COMPARE_SRC_VERSION_PATCH%" equ "" set _COMPARE_SRC_VERSION_PATCH=0
-rem if "%_COMPARE_TGT_VERSION_MAJOR%" equ "" set _COMPARE_TGT_VERSION_MAJOR=0
-rem if "%_COMPARE_TGT_VERSION_MINOR%" equ "" set _COMPARE_TGT_VERSION_MINOR=0
-rem if "%_COMPARE_TGT_VERSION_PATCH%" equ "" set _COMPARE_TGT_VERSION_PATCH=0
+rem handle missing sub versions
+if "%_COMPARE_SRC_VERSION_MAJOR%" equ "" set _COMPARE_SRC_VERSION_MAJOR=0
+if "%_COMPARE_SRC_VERSION_MINOR%" equ "" set _COMPARE_SRC_VERSION_MINOR=0
+if "%_COMPARE_SRC_VERSION_PATCH%" equ "" set _COMPARE_SRC_VERSION_PATCH=0
+if "%_COMPARE_TGT_VERSION_MAJOR%" equ "" set _COMPARE_TGT_VERSION_MAJOR=0
+if "%_COMPARE_TGT_VERSION_MINOR%" equ "" set _COMPARE_TGT_VERSION_MINOR=0
+if "%_COMPARE_TGT_VERSION_PATCH%" equ "" set _COMPARE_TGT_VERSION_PATCH=0
 
 :compare_major_version
 if "%_COMPARE_SRC_VERSION_MAJOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_major_version_ok
 :compare_major_version_failed
-rem support: compare_versions.bat 3.3.1 3.2.2 GTR
+rem support: compare_versions.bat 3.3 3.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
 if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.x.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
 exit /b 6
 :compare_major_version_ok
 if "%_COMPARE_SRC_VERSION_MAJOR%" NEQ "%_COMPARE_TGT_VERSION_MAJOR%" goto :version_compare_success
+rem support: compare_versions.bat 3.1 3
+if "%_CMP_TGT_MINOR_MISSING%" neq "" goto :version_compare_success
 
 :compare_minor_version
 if "%_COMPARE_SRC_VERSION_MINOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_minor_version_ok
@@ -86,6 +92,8 @@ if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement
 exit /b 7
 :compare_minor_version_ok
 if "%_COMPARE_SRC_VERSION_MINOR%" NEQ "%_COMPARE_TGT_VERSION_MINOR%" goto :version_compare_success
+rem support: compare_versions.bat 3.3.1 3.3
+if "%_CMP_TGT_PATCH_MISSING%" neq "" goto :version_compare_success
 
 :compare_patch_version
 if "%_COMPARE_SRC_VERSION_PATCH%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_PATCH%" goto :version_compare_success
@@ -93,18 +101,23 @@ if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement
 exit /b 8
 
 :version_compare_success
-if "%_COMPARE_NO_INFO%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' met
-rem echo using: msvs %MSVS_YEAR% (VS%MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
+if "%_COMPARE_NO_INFO%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION%' met
+rem if "%_COMPARE_NO_INFO%%_CMP_TGT_MINOR_MISSING%%_CMP_TGT_PATCH_MISSING%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' met
+rem if "%_COMPARE_NO_INFO%" equ "" if "%_CMP_TGT_PATCH_MISSING%" neq "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%' met
+rem if "%_COMPARE_NO_INFO%" equ "" if "%_CMP_TGT_MINOR_MISSING%" neq "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%' met
 set _COMPARE_SRC_VERSION_MAJOR=
 set _COMPARE_SRC_VERSION_MINOR=
 set _COMPARE_SRC_VERSION_PATCH=
 set _COMPARE_TGT_VERSION_MAJOR=
 set _COMPARE_TGT_VERSION_MINOR=
 set _COMPARE_TGT_VERSION_PATCH=
+set _CMP_TGT_MINOR_MISSING=
+set _CMP_TGT_PATCH_MISSING=
 set _COMPARE_SRC_VERSION=
 set _COMPARE_TGT_VERSION=
 set _COMPARE_VERSION_MODE=
 set _COMPARE_NO_WARNINGS=
 set _COMPARE_NO_ERRORS=
 set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 0
