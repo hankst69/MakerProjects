@@ -11,15 +11,16 @@ set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
 set "_QT_SOURCES_DIR=%_QT_DIR%\qt_sources_%_QT_VERSION%\"
 
+rem --- cloning QT
+:qt_clone
+rem if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
+if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
+
 rem --- ensure perl (is required for cloning the qt submodules)
 call "%_MAKER_ROOT%\scripts\validate_perl.bat"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 echo.
 
-rem --- cloning QT
-:qt_clone
-rem if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
-if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
 echo QT-CLONE %_QT_VERSION%
 call "%_MAKER_ROOT%\scripts\clone_in_folder.bat" "%_QT_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QT_VERSION%
 pushd "%_QT_SOURCES_DIR%"

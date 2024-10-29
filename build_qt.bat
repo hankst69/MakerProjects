@@ -15,6 +15,7 @@ if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
 
+
 rem (1) *** cloning QT sources ***
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
@@ -27,6 +28,8 @@ if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :EO
 set "_QT_BUILD_DIR=%_QT_DIR%\qt_build_%_QT_VERSION%"
 set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
+
+rem (2) *** cleaning QT build if demanded ***
 if "%_REBUILD%" equ "true" (
   echo preparing rebuild...
   rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
@@ -34,7 +37,7 @@ if "%_REBUILD%" equ "true" (
 )
 
 
-rem (2) *** testing for existing build ***
+rem (3) *** testing for existing QT build ***
 rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
@@ -49,7 +52,7 @@ goto :EOF
 :build_qt
 
 
-rem (3) *** ensuring prerequisites ***
+rem (4) *** ensuring prerequisites ***
 
 rem https://doc.qt.io/qt-6/windows-building.html
 rem building Qt (libs and tools) requires:
@@ -86,7 +89,6 @@ rem You will need to set the FEATURE_clangcpp CMake variable to ON to re-evaluat
 rem WARNING: QtWebEngine won't be built. node.js version 14 or later is required.
 rem WARNING: QtPdf won't be built. node.js version 14 or later is required.
 rem WARNING: No perl found, compiling opus without some optimizations.
-
 echo.
 echo rebuilding Qt %_QT_VERSION% from sources
 echo see https://doc.qt.io/qt-6/windows-building.html
@@ -144,35 +146,38 @@ if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
 )
 
 
-rem (4) *** setup QT dependencies ***
+rem (5) *** setup QT dependencies ***
 
 rem setup gRPC
-rem call "%_MAKER_ROOT%\build_grpc.bat x64-windows"
-pushd "%_QT_DIR%"
-call vcpkg install grpc:x64-windows
-popd
+rem call "%_MAKER_ROOT%\build_grpc.bat" x64-windows
+  rem pushd "%_QT_DIR%"
+  rem call vcpkg install grpc:x64-windows
+  rem popd
 rem setup Protobuf
-rem call "%_MAKER_ROOT%\build_protobuf.bat x64-windows"
-pushd "%_QT_DIR%"
-call vcpkg install protobuf protobuf:x64-windows
-popd
+rem call "%_MAKER_ROOT%\build_protobuf.bat" x64-windows
+  rem pushd "%_QT_DIR%"
+  rem call vcpkg install protobuf protobuf:x64-windows
+  rem popd
 rem setup Python packages
 rem       clarify: created a dedicated  python venv for configuring/building ?
 call python -m pip install html5lib
 rem call python -m pip wheel html5lib
 
-rem (5) *** configure QT build ***
+
+rem (6) *** configure QT build ***
 :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 echo QT-CONFIGURE %_QT_VERSION%
-rmdir /s /q "%_QT_BUILD_DIR%"
+rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
+rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul 
+mkdir "%_QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
 call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info >"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
-rem (6) *** perform QT build ***
+rem (7) *** perform QT build ***
 :qt_build
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 echo QT-BUILD %_QT_VERSION%
@@ -181,7 +186,7 @@ call cmake --build . --parallel
 popd
 :qt_build_done
 
-rem (7) *** perform QT install ***
+rem (8) *** perform QT install ***
 :qt_install
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
   echo QT-INSTALL %_QT_VERSION%
@@ -199,7 +204,7 @@ goto :EOF
 :qt_install_done
 
 
-rem 5) post configure QT
+rem (9) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 cd "%_QT_DIR%"
