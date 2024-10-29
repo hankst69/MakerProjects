@@ -4,7 +4,9 @@
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
 @echo off
+
 set "_MAKER_ROOT=%~dp0"
+set "_SCRIPTS_ROOT=%_MAKER_ROOT%scripts"
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
@@ -101,41 +103,41 @@ echo *** OTPIONAL: Protobuf
 echo.
 
 rem validate msvs and ensure amd64 target architecture
-call "%_MAKER_ROOT%scripts\validate_msvs.bat" GEQ2019 amd64
+call "%_SCRIPTS_ROOT%\validate_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 rem validate cmake
-call "%_MAKER_ROOT%scripts\validate_cmake.bat" GEQ3.16
+call "%_SCRIPTS_ROOT%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 rem validate ninja
-call "%_MAKER_ROOT%scripts\validate_ninja.bat" --no_errors
+call "%_SCRIPTS_ROOT%\validate_ninja.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :EOF
 )
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%_MAKER_ROOT%scripts\validate_llvm.bat" --no_errors
+call "%_SCRIPTS_ROOT%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   rem goto :EOF
 )
 rem validate node.js 
-call "%_MAKER_ROOT%scripts\validate_nodejs.bat" --no_errors
+call "%_SCRIPTS_ROOT%\validate_nodejs.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   rem goto :EOF
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%_MAKER_ROOT%scripts\validate_perl.bat" --no_errors
+call "%_SCRIPTS_ROOT%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :EOF
 )
 rem validate python
-call "%_MAKER_ROOT%scripts\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%_SCRIPTS_ROOT%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'

@@ -1,18 +1,24 @@
 @rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 @rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
 @echo off
-endlocal
-pushd 1>nul
+rem endlocal
+
+set "_START_DIR=%cd%"
 set "_MAKER_ROOT=%~dp0"
+set "_SCRIPTS_DIR=%_MAKER_ROOT%scripts"
 set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
+
+set _QT_VERSION=6.6.3
+set _REBUILD=
+:param_loop
+if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
+if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
 
 set "_QT_DIR=%~dp0tools\Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
 set "_TOOLS_QTCREATOR_DIR=%_TOOLS_DIR%\.qtcreator"
-
-set _QT_VERSION=6.6.3
-if "%~1" neq "" set "_QT_VERSION=%~1"
 
 
 rem --test if qt-creater is already available
@@ -49,44 +55,21 @@ echo rebuilding Qt-Creator from sources
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
 echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
+echo *** THIS REQUIRES Python 3
 echo.
 
-
-rem -- ensure python is available
-rem call "%_MAKER_ROOT%\setup_python.bat"
-call which python.exe 1>nul 2>nul
+rem --- validate python
+call "%_SCRIPTS_DIR%\validate_python.bat" 3
 if %ERRORLEVEL% NEQ 0 (
-  echo error: python not available
   goto :exit_script
 )
-:test_python_success
-set _VERSION_NR=
-for /f "tokens=1,2 delims= " %%i in ('call python --version') do set "_VERSION_NR=%%j"
-echo using: python %_VERSION_NR%
-set _VERSION_NR=
 
-
-rem -- ensure proper VSCMD is available (VisualStudio command line build environment) 
-if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
-rem -- ensure proper VSCMD_ARG_TGT_ARCH is set that matches Python 32bit/64bit (for building wheels, otherwise linker errors)
-rem VSCMD_ARG_TGT_ARCH can be: x86 or x64
-rem 1) detect Python Architecture:
-set PYTHON_ARCH=x86
-for /f %%i in ('call python -c "import sys;print(f""{sys.maxsize > 2**32}"")"') do if /I "%%~i" equ "True" set PYTHON_ARCH=x64
-rem 2) compare PYTHON_ARCH vs VSCMD_ARG_TGT_ARCH
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "%PYTHON_ARCH%" goto :test_vscmd_success
-rem 3) counteract (adapt VSCMD)
-if /I "%PYTHON_ARCH%" equ "x64" call vsdevcmd -arch=amd64
-if /I "%PYTHON_ARCH%" equ "x86" call vsdevcmd -arch=x86
-rem 4) compare again PYTHON_ARCH vs VSCMD_ARG_TGT_ARCH
-if /I "%VSCMD_ARG_TGT_ARCH%" equ "%PYTHON_ARCH%" goto :test_vscmd_success
-echo error: VSCMD not available
-goto :exit_script
-:test_vscmd_success
-echo VSCMD_VER      : %VSCMD_VER:~0,2%
-echo VSCMD_TGT_ARCH : %VSCMD_ARG_TGT_ARCH%
-echo PYTHON_ARCH    : %PYTHON_ARCH%
-
+rem --- ensure proper MSVS 2019 is available where target architecture matches python architecture
+call "%_SCRIPTS_DIR%\ensure_msvs_matches_architecture.bat" 2019 %PYTHON_ARCHITECTURE%
+if %ERRORLEVEL% NEQ 0 (
+  rem echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+  goto :exit_script
+)
 
 rem -- ensure make is available
 call "%_MAKER_ROOT%\build_make.bat"
@@ -145,7 +128,7 @@ if not exist "%_QT_ENV_DIR%\.venv.created" (
 :test_qtinstall_success
  
 
-rem install Qt-tools (make) and create shortcuts
+rem -- install Qt-tools (make) and create shortcuts
 echo.
 call "%_QT_ENV_DIR%\Scripts\activate.bat"
 echo installing Qt-Creator ...
@@ -189,4 +172,15 @@ echo qtcreator (to start Qt-Creator)
 
 
 :exit_script
-popd
+cd /d "%_START_DIR%"
+set _START_DIR=
+set _MAKER_ROOT=
+set _SCRIPTS_DIR=
+set _TOOLS_DIR=
+set _REBUILD=
+rem set _QT_VERSION=6.6.3
+rem set _QT_DIR=
+rem set _QT_ENV_DIR=
+rem set _QT_INSTALL_MAKE=
+rem set _TOOLS_QTCREATOR_DIR=
+goto :EOF
