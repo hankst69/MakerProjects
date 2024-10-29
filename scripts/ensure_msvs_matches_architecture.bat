@@ -18,14 +18,14 @@ if "%~1" neq ""         (echo warning: unknown argument '%~1' &shift &goto :para
 
 if "%_MSVS_TGT_ARCHITECTURE%" neq "" goto :test_msvs
 if "%_MSVS_NO_ERRORS%" equ "" echo error: no target architecture specified in command line arguments
-exit /b 3
+exit /b 1
 
 :test_msvs
 rem validate msvs
 call "%_SCRIPTS_DIR%\validate_msvs.bat" %_MSVS_TGT_VERSION% 1>nul
 if "%ERRORLEVEL%" equ "0" goto :test_msvs_version_ok
 if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS not available
-exit /b 1
+exit /b 2
 
 :test_msvs_version_ok
 if /I "%MSVS_TARGET_ARCHITECTURE%" equ "%_MSVS_TGT_ARCHITECTURE%" goto :test_msvs_success
@@ -40,7 +40,7 @@ set "MSVS_TARGET_ARCHITECTURE=%VSCMD_ARG_TGT_ARCH%"
 
 if /I "%MSVS_TARGET_ARCHITECTURE%" equ "%_MSVS_TGT_ARCHITECTURE%" goto :test_msvs_success
 if "%_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_TARGET_ARCHITECTURE% but requirement is %_MSVS_TGT_ARCHITECTURE%
-exit /b 2
+exit /b 3
 
 :test_msvs_success
 if "%_MSVS_NO_INFO%" equ "" echo using: msvs %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
