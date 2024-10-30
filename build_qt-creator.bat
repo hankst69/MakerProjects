@@ -65,7 +65,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem --- ensure proper MSVS 2019 is available where target architecture matches python architecture
-call "%_SCRIPTS_DIR%\ensure_msvs_matches_architecture.bat" 2019 %PYTHON_ARCHITECTURE%
+call "%_SCRIPTS_DIR%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
 if %ERRORLEVEL% NEQ 0 (
   rem echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
   goto :exit_script
