@@ -104,8 +104,8 @@ echo *** OTPIONAL: gRPC
 echo *** OTPIONAL: Protobuf
 echo.
 
-rem validate msvs and ensure amd64 target architecture
-call "%_SCRIPTS_ROOT%\validate_msvs.bat" GEQ2019 amd64
+rem ensure msvs version and amd64 target architecture
+call "%_SCRIPTS_ROOT%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
