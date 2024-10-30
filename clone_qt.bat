@@ -3,6 +3,10 @@
 @rem https://doc.qt.io/qt-6/build-sources.html
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
+@rem 
+@rem to solve SSL certificate issue when cloning 
+@rem - see: https://stackoverflow.com/questions/23885449/unable-to-resolve-unable-to-get-local-issuer-certificate-using-git-on-windows
+@rem -  do: git config --global http.sslbackend schannel
 @echo off
 set "_MAKER_ROOT=%~dp0"
 set "_QT_DIR=%_MAKER_ROOT%tools\Qt"
