@@ -3,6 +3,7 @@ rem arg1: target-folder '%1' '%~1' '%~dp1'
 rem arg2: git-repo-url  '%2' '%~2' '%~dp2'
 set "_SCRIPT_ROOT=%~dp0"
 set "_SCRIPT_NAME=%~n0"
+set "_CURRENT_DIR=%cd%"
 set _TARGET_DIR=
 set _CLONE_URL=
 set _CLONE_REPO=
@@ -37,13 +38,17 @@ echo.
 goto :Exit
 
 :Exit
+if "%_CHANGE_DIR%" equ "" (cd "%_CURRENT_DIR%")
+set _SCRIPT_ROOT=
+set _SCRIPT_NAME=
+set _CURRENT_DIR=
 set _TARGET_DIR=
 set _CLONE_URL=
 set _CLONE_REPO=
 set _SILENT_CLONE_MODE=
 set _SWITCH_BRANCH=
 set _CHANGE_DIR=
-set _MAKER_ROOT=
+set _FREE_ARGS=
 goto :EOF
 
 :Start
