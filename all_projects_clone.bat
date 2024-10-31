@@ -7,7 +7,6 @@ set "_ALL_PROJECTS=espBode fygen victron-guiv2 Python html5_rtsp_player UserScri
 echo ----------------------------------------------------------------------
 echo about to clone:
 echo ----------------------------------------------------------------------
-echo.
 call :for_each --long "%_ALL_PROJECTS%"
 echo.
 echo ----------------------------------------------------------------------
@@ -19,12 +18,12 @@ echo.
 echo ----------------------------------------------------------------------
 echo call one of the clone scripts again to see state and change directory:
 echo ----------------------------------------------------------------------
-echo.
 call :for_each --short "%_ALL_PROJECTS%"
 cd /d "%_APC_CURRENT_DIR%"
-set _APC_CURRENT_DIR=
-set _APC_SCRIPT_ROOT=
-set _ALL_PROJECTS=
+call "%_APC_SCRIPT_ROOT%scripts\clear_temp_envs.bat"
+rem set _APC_CURRENT_DIR=
+rem set _APC_SCRIPT_ROOT=
+rem set _ALL_PROJECTS=
 goto :EOF
 
 
