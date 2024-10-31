@@ -27,7 +27,11 @@ if not exist "%_TOOLS_CHOCO_DIR%\choco.exe" (
     echo.
 	echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
 	echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
-	if "%VSCMD_VER:~0,2%" neq "16" (echo error: wrong VisualStudio version &goto :EOF)
+	call "%_MAKER_ROOT%\scripts\validate_msvs.bat" 2019
+	if %ERRORLEVEL% NEQ 0 (
+		echo error: wrong VisualStudio version 
+		goto :EOF
+	)
     echo.
 	call "%_CHOCO_DIR%\build.bat"
     popd
@@ -52,15 +56,7 @@ call which choco.bat 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%_TOOLS_DIR%;%Path%"
 
 call which choco.bat 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-  echo error: installing CHOCO failed
-  goto :EOF
-)
 
 :test_choco_success
-rem echo.
-rem call which choco.bat -l -d
-set _VERSION_NR=
-for /f "tokens=1,2,* delims=-" %%i in ('call choco --version') do set "_VERSION_NR=%%i-%%j-%%k"
-echo choco %_VERSION_NR%
-set _VERSION_NR=
+call "%_MAKER_ROOT%\scripts\validate_choco.bat"
+if %ERRORLEVEL% NEQ 0 echo error: installing CHOCO failed

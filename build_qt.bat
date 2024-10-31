@@ -5,8 +5,10 @@
 @rem https://code.qt.io/cgit
 @echo off
 
+set "_START_DIR=%cd%"
 set "_MAKER_ROOT=%~dp0"
-set "_SCRIPTS_ROOT=%_MAKER_ROOT%scripts"
+set "_SCRIPTS_DIR=%_MAKER_ROOT%scripts"
+set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
@@ -20,10 +22,10 @@ rem (1) *** cloning QT sources ***
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
 call "%_MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
-if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :EOF)
-if "%_QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :EOF)
-if not exist "%_QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :EOF)
-if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :EOF)
+if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
+if "%_QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
+if not exist "%_QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
+if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 
 set "_QT_BUILD_DIR=%_QT_DIR%\qt_build_%_QT_VERSION%"
 set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
@@ -38,8 +40,6 @@ if "%_REBUILD%" equ "true" (
 
 
 rem (3) *** testing for existing QT build ***
-rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
-rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
@@ -48,7 +48,7 @@ call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
 echo error: QT %_QT_VERSION% seems to be prebuild but is not working
 echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
-goto :EOF
+goto :Exit
 :build_qt
 
 
@@ -105,42 +105,42 @@ echo *** OTPIONAL: Protobuf
 echo.
 
 rem ensure msvs version and amd64 target architecture
-call "%_SCRIPTS_ROOT%\ensure_msvs.bat" GEQ2019 amd64
+call "%_SCRIPTS_DIR%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
-  goto :EOF
+  goto :Exit
 )
 rem validate cmake
-call "%_SCRIPTS_ROOT%\validate_cmake.bat" GEQ3.16
+call "%_SCRIPTS_DIR%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
-  goto :EOF
+  goto :Exit
 )
 rem validate ninja
-call "%_SCRIPTS_ROOT%\validate_ninja.bat" --no_errors
+call "%_SCRIPTS_DIR%\validate_ninja.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
-  rem goto :EOF
+  rem goto :Exit
 )
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%_SCRIPTS_ROOT%\validate_llvm.bat" --no_errors
+call "%_SCRIPTS_DIR%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
-  rem goto :EOF
+  rem goto :Exit
 )
 rem validate node.js 
-call "%_SCRIPTS_ROOT%\validate_nodejs.bat" --no_errors
+call "%_SCRIPTS_DIR%\validate_nodejs.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
-  rem goto :EOF
+  rem goto :Exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%_SCRIPTS_ROOT%\validate_perl.bat" --no_errors
+call "%_SCRIPTS_DIR%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
-  rem goto :EOF
+  rem goto :Exit
 )
 rem validate python
-call "%_SCRIPTS_ROOT%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
-if %ERRORLEVEL% NEQ 0 goto :EOF
+call "%_SCRIPTS_DIR%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+if %ERRORLEVEL% NEQ 0 goto :Exit
 if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
 )
@@ -200,11 +200,24 @@ if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% available &goto :qt_install_done
 echo error: QT-INSTALL %_QT_VERSION% failed
-goto :EOF
+goto :Exit
 :qt_install_done
+rem -- create shortcuts
+echo @call "%_QT_BIN_DIR%\bin\designer.exe" %%* >"%_TOOLS_DIR%\qtdesigner.bat"
 
 
 rem (9) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
-cd "%_QT_DIR%"
+:Exit
+rem cd "%_QT_DIR%"
+cd /d "%_START_DIR%"
+set _START_DIR=
+set _MAKER_ROOT=
+set _SCRIPTS_DIR=
+set _TOOLS_DIR=
+set _REBUILD=
+rem set _QT_DIR=
+rem set _QT_SOURCES_DIR=
+rem set _QT_BUILD_DIR=
+rem set _QT_BIN_DIR=
