@@ -7,6 +7,8 @@ set _COMPARE_SRC_VERSION_PATCH=
 set _COMPARE_TGT_VERSION_MAJOR=
 set _COMPARE_TGT_VERSION_MINOR=
 set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
 
 set _COMPARE_SRC_VERSION=
 set _COMPARE_TGT_VERSION=
@@ -21,11 +23,11 @@ if /I "%~1" equ "--no_info"     (set "_COMPARE_NO_INFO=%~1" &shift &goto :param_
 if "%~1" neq "" if "%_COMPARE_SRC_VERSION%"  equ "" (set "_COMPARE_SRC_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_COMPARE_TGT_VERSION%"  equ "" (set "_COMPARE_TGT_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_COMPARE_VERSION_MODE%" equ "" (set "_COMPARE_VERSION_MODE=%~1" &shift &goto :param_loop)
-if "%~1" neq ""         (echo warning: unknown argument '%~1' &shift &goto :param_loop)
+if "%~1" neq "" (echo warning: unknown argument '%~1' &shift &goto :param_loop)
 
-if "%_COMPARE_SRC_VERSION%"  equ "" echo error: missing argument ^<src_version^>
-if "%_COMPARE_SRC_VERSION%"  equ "" exit /b 1
-if "%_COMPARE_TGT_VERSION%" equ "" echo error: missing argument ^<tgt_version^>
+if "%_COMPARE_SRC_VERSION%" equ "" echo error 1: missing argument ^<src_version^>
+if "%_COMPARE_SRC_VERSION%" equ "" exit /b 1
+if "%_COMPARE_TGT_VERSION%" equ "" echo error 2: missing argument ^<tgt_version^>
 if "%_COMPARE_TGT_VERSION%" equ "" exit /b 2
 
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=EQU
@@ -35,14 +37,45 @@ if /I "%_COMPARE_VERSION_MODE%" equ "GEQ" goto :compare_versions
 if /I "%_COMPARE_VERSION_MODE%" equ "NEQ" goto :compare_versions
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" goto :compare_versions
 if /I "%_COMPARE_VERSION_MODE%" equ "LEQ" goto :compare_versions
-echo error: invalid value '%_COMPARE_VERSION_MODE%' for optional argument [version_compare]
+echo error 3: invalid value '%_COMPARE_VERSION_MODE%' for optional argument [version_compare]
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 3
 
 :compare_versions
 call "%_SCRIPT_ROOT%split_version.bat" "%_COMPARE_SRC_VERSION%" 1>NUL
 if "%ERRORLEVEL%" equ "0" goto :split_COMPARE_SRC_VERSION_ok
-if "%_COMPARE_NO_ERRORS%" equ "" echo error: target version '%_COMPARE_SRC_VERSION%' not available or invalid
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 4: target version '%_COMPARE_SRC_VERSION%' not available or invalid
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 4
+
 :split_COMPARE_SRC_VERSION_ok
 set "_COMPARE_SRC_VERSION_MAJOR=%VERSION_MAJOR%"
 set "_COMPARE_SRC_VERSION_MINOR=%VERSION_MINOR%"
@@ -50,8 +83,24 @@ set "_COMPARE_SRC_VERSION_PATCH=%VERSION_PATCH%"
 
 call "%_SCRIPT_ROOT%split_version.bat" "%_COMPARE_TGT_VERSION%" 1>NUL
 if "%ERRORLEVEL%" equ "0" goto :split_COMPARE_TGT_VERSION_ok
-if "%_COMPARE_NO_ERRORS%" equ "" echo error: target version '%_COMPARE_TGT_VERSION%' not available or invalid
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 5: target version '%_COMPARE_TGT_VERSION%' not available or invalid
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 5
+
 :split_COMPARE_TGT_VERSION_ok
 set "_COMPARE_TGT_VERSION_MAJOR=%VERSION_MAJOR%"
 set "_COMPARE_TGT_VERSION_MINOR=%VERSION_MINOR%"
@@ -75,8 +124,24 @@ if "%_COMPARE_SRC_VERSION_MAJOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION
 rem support: compare_versions.bat 3.3 3.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
-if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.x.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 6: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.x.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 6
+
 :compare_major_version_ok
 if "%_COMPARE_SRC_VERSION_MAJOR%" NEQ "%_COMPARE_TGT_VERSION_MAJOR%" goto :version_compare_success
 rem support: compare_versions.bat 3.1 3
@@ -88,8 +153,24 @@ if "%_COMPARE_SRC_VERSION_MINOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION
 rem support: compare_versions.bat 3.3.1 3.2.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MINOR%" EQU "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_patch_version
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" if "%_COMPARE_SRC_VERSION_MINOR%" EQU "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_patch_version
-if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 7: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 7
+
 :compare_minor_version_ok
 if "%_COMPARE_SRC_VERSION_MINOR%" NEQ "%_COMPARE_TGT_VERSION_MINOR%" goto :version_compare_success
 rem support: compare_versions.bat 3.3.1 3.3
@@ -97,7 +178,22 @@ if "%_COMPARE_TGT_PATCH_MISSING%" neq "" goto :version_compare_success
 
 :compare_patch_version
 if "%_COMPARE_SRC_VERSION_PATCH%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_PATCH%" goto :version_compare_success
-if "%_COMPARE_NO_ERRORS%" equ "" echo error: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 8: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+set _COMPARE_SRC_VERSION_MAJOR=
+set _COMPARE_SRC_VERSION_MINOR=
+set _COMPARE_SRC_VERSION_PATCH=
+set _COMPARE_TGT_VERSION_MAJOR=
+set _COMPARE_TGT_VERSION_MINOR=
+set _COMPARE_TGT_VERSION_PATCH=
+set _COMPARE_TGT_MINOR_MISSING=
+set _COMPARE_TGT_PATCH_MISSING=
+set _COMPARE_SRC_VERSION=
+set _COMPARE_TGT_VERSION=
+set _COMPARE_VERSION_MODE=
+set _COMPARE_NO_WARNINGS=
+set _COMPARE_NO_ERRORS=
+set _COMPARE_NO_INFO=
+set _SCRIPT_ROOT=
 exit /b 8
 
 :version_compare_success
