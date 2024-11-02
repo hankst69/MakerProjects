@@ -34,7 +34,6 @@ if /I "%_MSVS_TGT_VERSION:~0,3%" equ "LEQ" set "_MSVS_TGT_VERSION=%_MSVS_TGT_VER
 if /I "%_MSVS_TGT_VERSION:~0,3%" equ "LSS" set "_MSVS_TGT_VERSION_COMPARE=LSS"
 if /I "%_MSVS_TGT_VERSION:~0,3%" equ "LSS" set "_MSVS_TGT_VERSION=%_MSVS_TGT_VERSION:~3%"
 
-
 rem https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
 if "%_MSVS_TGT_VERSION%" equ "2022" (set "_MSVS_TGT_VERSION=17" &goto :tgt_version_normalized)
 if "%_MSVS_TGT_VERSION%" equ "2019" (set "_MSVS_TGT_VERSION=16" &goto :tgt_version_normalized)
@@ -46,11 +45,6 @@ if "%_MSVS_TGT_VERSION%" equ "2010" (set "_MSVS_TGT_VERSION=10" &goto :tgt_versi
 if "%_MSVS_TGT_VERSION%" equ "2008" (set "_MSVS_TGT_VERSION=9"  &goto :tgt_version_normalized)
 if "%_MSVS_TGT_VERSION%" equ "2005" (set "_MSVS_TGT_VERSION=8"  &goto :tgt_version_normalized)
 :tgt_version_normalized
-rem call "%_SCRIPT_ROOT%split_version.bat" "%_MSVS_TGT_VERSION%" 1>NUL
-rem if "%ERRORLEVEL%" equ "0" goto :split_MSVS_TGT_version_ok
-rem if "%_MSVS_NO_ERRORS%" equ "" echo error: target version '%_MSVS_TGT_VERSION%' not available or invalid
-rem exit /b 1
-rem :split_tgt_version_ok
 
 
 :validate_msvs
@@ -95,12 +89,7 @@ exit /b 5
 
 :test_msvs_success
 if "%_MSVS_NO_INFO%" equ "" echo using: msvs %MSVS_YEAR% (vs %MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
-rem set MSVS_TARGET_ARCHITECTURE=
-rem set MSVS_YEAR=
-rem set MSVS_VERSION=
-rem set MSVS_VERSION_MAJOR=
-rem set MSVS_VERSION_MINOR=
-rem set MSVS_VERSION_PATCH=
+
 set _MSVS_TGT_ARCHITECTURE=
 set _MSVS_TGT_VERSION=
 set _MSVS_TGT_VERSION_COMPARE=
