@@ -15,8 +15,9 @@ goto :EOF
 
 :_start
 @echo off
-set "_SCRIPT_ROOT=%~dp0"
-set "_SCRIPT_NAME=%~n0"
+set "_COMPARE_SCRIPT_ROOT=%~dp0"
+set "_COMPARE_SCRIPT_NAME=_%~n0"
+set "_COMPARE_SCRIPT_NAME=_compare"
 set _COMPARE_SRC_VERSION_MAJOR=
 set _COMPARE_SRC_VERSION_MINOR=
 set _COMPARE_SRC_VERSION_PATCH=
@@ -49,17 +50,18 @@ if /I "%_ARG_TMP_%" equ "-v"            (set "_COMPARE_VERBOSE=--verbose" &goto 
 if /I "%_ARG_TMP_%" equ "--help"        (set "_COMPARE_HELP=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-h"            (set "_COMPARE_HELP=--help" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-?"            (set "_COMPARE_HELP=--help" &goto :_param_loop)
-if "%_ARG_TMP_:~0,1%" equ "-" (echo %_SCRIPT_NAME% warning: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" if "%_COMPARE_SRC_VERSION%"  equ "" (set "_COMPARE_SRC_VERSION=%_ARG_TMP_%" &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" if "%_COMPARE_TGT_VERSION%"  equ "" (set "_COMPARE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" if "%_COMPARE_VERSION_MODE%" equ "" (set "_COMPARE_VERSION_MODE=%_ARG_TMP_%" &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" (echo %_SCRIPT_NAME% warning: unknown argument '%_ARG_TMP_%' &goto :_param_loop)
+if "%_ARG_TMP_:~0,1%" equ "-" (echo warning%_COMPARE_SCRIPT_NAME%: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
+if "%_COMPARE_SRC_VERSION%"  equ "" (set "_COMPARE_SRC_VERSION=%_ARG_TMP_%" &goto :_param_loop)
+if "%_COMPARE_TGT_VERSION%"  equ "" (set "_COMPARE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop)
+if "%_COMPARE_VERSION_MODE%" equ "" (set "_COMPARE_VERSION_MODE=%_ARG_TMP_%" &goto :_param_loop)
+echo warning%_COMPARE_SCRIPT_NAME%: unknown argument '%_ARG_TMP_%'
+goto :_param_loop)
 :_param_loop_finish
 set _ARG_TMP_=
 
 :_params_postprocessing
-if "%_COMPARE_SRC_VERSION%" equ "" (echo %_SCRIPT_NAME% error 1: missing argument ^<src_version^> &call :_clean_temp_variables &exit /b 1)
-if "%_COMPARE_TGT_VERSION%" equ "" (echo %_SCRIPT_NAME% error 2: missing argument ^<tgt_version^> &call :_clean_temp_variables &exit /b 2)
+if "%_COMPARE_SRC_VERSION%" equ "" (echo error 1%_COMPARE_SCRIPT_NAME%: missing argument ^<src_version^> &call :_clean_temp_variables &exit /b 1)
+if "%_COMPARE_TGT_VERSION%" equ "" (echo error 2%_COMPARE_SCRIPT_NAME%: missing argument ^<tgt_version^> &call :_clean_temp_variables &exit /b 2)
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=EQU
 if /I "%_COMPARE_VERSION_MODE%" equ "EQU" goto :_params_done
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" goto :_params_done
@@ -67,20 +69,20 @@ if /I "%_COMPARE_VERSION_MODE%" equ "GEQ" goto :_params_done
 if /I "%_COMPARE_VERSION_MODE%" equ "NEQ" goto :_params_done
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" goto :_params_done
 if /I "%_COMPARE_VERSION_MODE%" equ "LEQ" goto :_params_done
-echo %_SCRIPT_NAME% error 3: invalid value '%_COMPARE_VERSION_MODE%' for optional argument [version_compare]
+echo error 3%_COMPARE_SCRIPT_NAME%: invalid value '%_COMPARE_VERSION_MODE%' for optional argument [version_compare]
 call :_clean_temp_variables
 exit /b 3
 
 :_params_done
 dir "%~dpn0.---" 1>nul 2>nul
-if %ERRORLEVEL% equ 0 (echo YOUR SHELL IS DEFECT -^> CREATE A NEW ONE &goto :EOF)
+if %ERRORLEVEL% equ 0 (echo YOUR SHELL IS DEFECT -^> CREATE A NEW ONE &exit /b 99)
 rem if "%_COMPARE_VERBOSE%" neq "" call :_verbose_params_list
 if "%_COMPARE_HELP%" neq "" (call :_usage &call :_clean_temp_variables &goto :EOF)
 goto :_execute
 
 :_clean_temp_variables
-set _SCRIPT_ROOT=
-set _SCRIPT_NAME=
+set _COMPARE_SCRIPT_ROOT=
+set _COMPARE_SCRIPT_NAME=
 set _COMPARE_SRC_VERSION_MAJOR=
 set _COMPARE_SRC_VERSION_MINOR=
 set _COMPARE_SRC_VERSION_PATCH=
@@ -101,9 +103,9 @@ goto :EOF
 
 
 :_execute
-call "%_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" 1>NUL
+call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" 1>NUL
 if "%ERRORLEVEL%" equ "0" goto :split_COMPARE_SRC_VERSION_ok
-if "%_COMPARE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 4: target version '%_COMPARE_SRC_VERSION%' not available or invalid
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 4%_COMPARE_SCRIPT_NAME%: target version '%_COMPARE_SRC_VERSION%' not available or invalid
 call :_clean_temp_variables
 exit /b 4
 
@@ -112,9 +114,9 @@ set "_COMPARE_SRC_VERSION_MAJOR=%VERSION_MAJOR%"
 set "_COMPARE_SRC_VERSION_MINOR=%VERSION_MINOR%"
 set "_COMPARE_SRC_VERSION_PATCH=%VERSION_PATCH%"
 
-call "%_SCRIPT_ROOT%split_version.bat" "%_COMPARE_TGT_VERSION%" 1>NUL
+call "%_COMPARE_SCRIPT_ROOT%split_version.bat" "%_COMPARE_TGT_VERSION%" 1>NUL
 if "%ERRORLEVEL%" equ "0" goto :split_COMPARE_TGT_VERSION_ok
-if "%_COMPARE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 5: target version '%_COMPARE_TGT_VERSION%' not available or invalid
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 5%_COMPARE_SCRIPT_NAME%: target version '%_COMPARE_TGT_VERSION%' not available or invalid
 call :_clean_temp_variables
 exit /b 5
 
@@ -141,7 +143,7 @@ if "%_COMPARE_SRC_VERSION_MAJOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION
 rem support: compare_versions.bat 3.3 3.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
-if "%_COMPARE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 6: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.x.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 6%_COMPARE_SCRIPT_NAME%: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.x.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
 call :_clean_temp_variables
 exit /b 6
 
@@ -156,7 +158,7 @@ if "%_COMPARE_SRC_VERSION_MINOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION
 rem support: compare_versions.bat 3.3.1 3.2.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MINOR%" EQU "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_patch_version
 if /I "%_COMPARE_VERSION_MODE%" equ "LSS" if "%_COMPARE_SRC_VERSION_MINOR%" EQU "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_patch_version
-if "%_COMPARE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 7: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 7%_COMPARE_SCRIPT_NAME%: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.x %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
 call :_clean_temp_variables
 exit /b 7
 
@@ -167,7 +169,7 @@ if "%_COMPARE_TGT_PATCH_MISSING%" neq "" goto :version_compare_success
 
 :compare_patch_version
 if "%_COMPARE_SRC_VERSION_PATCH%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_PATCH%" goto :version_compare_success
-if "%_COMPARE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 8: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
+if "%_COMPARE_NO_ERRORS%" equ "" echo error 8%_COMPARE_SCRIPT_NAME%: version compare failed, requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' not met
 call :_clean_temp_variables
 exit /b 8
 

@@ -15,29 +15,14 @@ goto :EOF
 
 :_start
 @echo off
-set "_SCRIPT_NAME=%~n0"
-if /I "%~1" equ "--help" (call :_usage &goto :EOF)
-if /I "%~1" equ "-h"     (call :_usage &goto :EOF)
-if /I "%~1" equ "-?"     (call :_usage &goto :EOF)
-if "%~1" equ "" echo %_SCRIPT_NAME% error: missing arg1: ^<tool_name^> & goto :EOF
-if "%~2" equ "" echo %_SCRIPT_NAME% error: missing arg2: ^<test_cmd^> & goto :EOF
-if "%~3" equ "" echo %_SCRIPT_NAME% error: missing arg3: ^<version_cmd^> & goto :EOF
-set "_SCRIPT_ROOT=%~dp0"
+set "_VALIDATE_SCRIPT_ROOT=%~dp0"
+set "_VALIDATE_SCRIPT_NAME=_%~n0"
 set "_VALIDATE_NAME=%~1"
 set "_VALIDATE_TEST_CMD=%~2"
 set "_VALIDATE_VERSION_CMD=%3"
 shift
 shift
 shift
-rem unquote the cmd string:
-set _VALIDATE_VERSION_CMD=%_VALIDATE_VERSION_CMD:~1,-1%
-call set _VALIDATE_VERSION_CMD=%%_VALIDATE_VERSION_CMD:""="%%
-rem reset result and temp variables:
-set %_VALIDATE_NAME%_VERSION=
-set %_VALIDATE_NAME%_VERSION_MAJOR=
-set %_VALIDATE_NAME%_VERSION_MINOR=
-set %_VALIDATE_NAME%_VERSION_PATCH=
-
 set _VALIDATE_TGT_VERSION=
 set _VALIDATE_TGT_VERSION_COMPARE=
 set _VALIDATE_NO_WARNINGS=
@@ -46,6 +31,7 @@ set _VALIDATE_NO_INFO=
 set _VALIDATE_VERBOSE=
 set _VALIDATE_HELP=
 :_param_loop
+rem set "_ARG_TMP_RAW_=%1"
 set "_ARG_TMP_=%~1"
 if "%_ARG_TMP_%" equ "" goto :_param_loop_finish
 shift
@@ -60,13 +46,31 @@ if /I "%_ARG_TMP_%" equ "-v"            (set "_VALIDATE_VERBOSE=--verbose" &goto
 if /I "%_ARG_TMP_%" equ "--help"        (set "_VALIDATE_HELP=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-h"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-?"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
-if "%_ARG_TMP_:~0,1%" equ "-" (echo warning: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" if "%_VALIDATE_TGT_VERSION%" equ "" (set "_VALIDATE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop)
-if "%_ARG_TMP_%" neq "" (echo warning: unknown argument '%_ARG_TMP_%' &goto :_param_loop)
+if '%_ARG_TMP_:~0,1%' equ '-' (echo warning%_VALIDATE_SCRIPT_NAME%: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
+rem if '%_ARG_TMP_RAW_:~0,1%' equ '"' if '%_ARG_TMP_RAW_:~1,1%' equ '-' (echo warning%_VALIDATE_SCRIPT_NAME%: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
+rem if "%_VALIDATE_NAME%"        equ "" set "_VALIDATE_NAME=%_ARG_TMP_%" &goto :_param_loop
+rem if "%_VALIDATE_TEST_CMD%"    equ "" set "_VALIDATE_TEST_CMD=%_ARG_TMP_%" &goto :_param_loop
+rem if "%_VALIDATE_VERSION_CMD:~1,1%" equ "" set "_VALIDATE_VERSION_CMD=%_ARG_TMP_RAW_%" &goto :_param_loop
+if "%_VALIDATE_TGT_VERSION%" equ "" set "_VALIDATE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop
+echo warning%_VALIDATE_SCRIPT_NAME%: unknown argument '%_ARG_TMP_%'
+goto :_param_loop
 :_param_loop_finish
 set _ARG_TMP_=
+rem set _ARG_TMP_RAW_=
 
 :_params_postprocessing
+if "%_VALIDATE_NAME%"             equ "" (echo error 1%_VALIDATE_SCRIPT_NAME%: missing arg1: ^<tool_name^> &call :_clean_temp_variables &exit /b 1)
+if "%_VALIDATE_TEST_CMD%"         equ "" (echo error 2%_VALIDATE_SCRIPT_NAME%: missing arg2: ^<test_cmd^>  &call :_clean_temp_variables &exit /b 2)
+if "%_VALIDATE_VERSION_CMD:~1,1%" equ "" (echo error 3%_VALIDATE_SCRIPT_NAME%: missing arg3: ^<version_cmd^> &call :_clean_temp_variables &exit /b 3)
+rem unquote the cmd string:
+set _VALIDATE_VERSION_CMD=%_VALIDATE_VERSION_CMD:~1,-1%
+call set _VALIDATE_VERSION_CMD=%%_VALIDATE_VERSION_CMD:""="%%
+rem reset result and temp variables:
+set %_VALIDATE_NAME%_VERSION=
+set %_VALIDATE_NAME%_VERSION_MAJOR=
+set %_VALIDATE_NAME%_VERSION_MINOR=
+set %_VALIDATE_NAME%_VERSION_PATCH=
+rem extract compare mode from target verison
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_params_done
 if /I "%_VALIDATE_TGT_VERSION:~0,3%" equ "GEQ" set "_VALIDATE_TGT_VERSION_COMPARE=GEQ"
 if /I "%_VALIDATE_TGT_VERSION:~0,3%" equ "GEQ" set "_VALIDATE_TGT_VERSION=%_VALIDATE_TGT_VERSION:~3%"
@@ -79,14 +83,14 @@ if /I "%_VALIDATE_TGT_VERSION:~0,3%" equ "LSS" set "_VALIDATE_TGT_VERSION=%_VALI
 
 :_params_done
 dir "%~dpn0.---" 1>nul 2>nul
-if %ERRORLEVEL% equ 0 (echo YOUR SHELL IS DEFECT -^> CREATE A NEW ONE &goto :EOF)
+if %ERRORLEVEL% equ 0 (echo YOUR SHELL IS DEFECT -^> CREATE A NEW ONE &exit /b 99)
 if "%_VALIDATE_VERBOSE%" neq "" call :_validate_verbose_params_list
-if "%_VALIDATE_HELP%" neq "" call :_usage &call :_clean_temp_variables &goto :EOF
+if "%_VALIDATE_HELP%" neq "" (call :_usage &call :_clean_temp_variables &goto :EOF)
 goto :_execute
 
 :_clean_temp_variables
-set _SCRIPT_ROOT=
-set _SCRIPT_NAME=
+set _VALIDATE_SCRIPT_ROOT=
+set _VALIDATE_SCRIPT_NAME=
 set _VALIDATE_NAME=
 set _VALIDATE_TEST_CMD=
 set _VALIDATE_VERSION_CMD=
@@ -120,9 +124,9 @@ goto :EOF
 :_execute
 call %_VALIDATE_TEST_CMD% 1>nul 2>nul
 if %ERRORLEVEL% equ 0 goto :_tool_available
-if "%_VALIDATE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 1: %_VALIDATE_NAME% not available
+if "%_VALIDATE_NO_ERRORS%" equ "" echo error 4%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% not available
 call :_clean_temp_variables
-exit /b 1
+exit /b 4
 
 :_tool_available
 set _VALIDATE_VERSION=
@@ -131,16 +135,16 @@ rem call cmd /Q /E:ON /V:ON /C "%_VALIDATE_VERSION_CMD%">"%TEMP%\_VALIDATE_VERSI
 set /P _VALIDATE_VERSION=<"%TEMP%\_VALIDATE_VERSION_CMD.tmp"
 del /Q /F "%TEMP%\_VALIDATE_VERSION_CMD.tmp" 1>nul 2>nul
 if "%_VALIDATE_VERSION%" neq "" goto :_tool_version_available
-if "%_VALIDATE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 2: %_VALIDATE_NAME% version unknown
+if "%_VALIDATE_NO_ERRORS%" equ "" echo error 5%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version unknown
 call :_clean_temp_variables
-exit /b 2
+exit /b 5
 
 :_tool_version_available
-call "%_SCRIPT_ROOT%\split_version.bat" "%_VALIDATE_VERSION%" 1>nul
+call "%_VALIDATE_SCRIPT_ROOT%\split_version.bat" "%_VALIDATE_VERSION%" --no_info %_VALIDATE_NO_ERRORS%
 if %ERRORLEVEL% equ 0 goto :_tool_version_split_ok
-if "%_VALIDATE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 3: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' not available or invalid
+if "%_VALIDATE_NO_ERRORS%" equ "" echo error 6%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' not available or invalid
 call :_clean_temp_variables
-exit /b 3
+exit /b 6
 
 :_tool_version_split_ok
 set "%_VALIDATE_NAME%_VERSION=%_VALIDATE_VERSION%"
@@ -156,11 +160,11 @@ if "%_VALIDATE_VERBOSE%" neq "" cmd /V:ON /C echo %_VALIDATE_NAME%_VERSION_PATCH
 
 :_tool_version_requirement_test
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_tool_validation_success
-call "%_SCRIPT_ROOT%\compare_versions.bat" --no_info %_VALIDATE_NO_ERRORS% "%_VALIDATE_VERSION%" "%_VALIDATE_TGT_VERSION%" "%_VALIDATE_TGT_VERSION_COMPARE%"
+call "%_VALIDATE_SCRIPT_ROOT%\compare_versions.bat" --no_info %_VALIDATE_NO_ERRORS% "%_VALIDATE_VERSION%" "%_VALIDATE_TGT_VERSION%" "%_VALIDATE_TGT_VERSION_COMPARE%"
 if %ERRORLEVEL% equ 0 goto :_tool_validation_success
-if "%_VALIDATE_NO_ERRORS%" equ "" echo %_SCRIPT_NAME% error 4: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'
+if "%_VALIDATE_NO_ERRORS%" equ "" echo error 7%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'
 call :_clean_temp_variables
-exit /b 4
+exit /b 7
 
 :_tool_validation_success
 if "%_VALIDATE_NO_INFO%" equ "" cmd /Q /V:ON /C echo using: %_VALIDATE_NAME% !%_VALIDATE_NAME%_VERSION!
