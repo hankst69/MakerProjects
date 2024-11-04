@@ -24,7 +24,7 @@ exit /b 1
 rem validate msvs
 call "%_SCRIPTS_DIR%\validate_msvs.bat" %_MSVS_TGT_VERSION% 1>nul
 if "%ERRORLEVEL%" equ "0" goto :test_msvs_version_ok
-if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS not available
+if "%_MSVS_NO_ERRORS%" equ "" echo error: MSVS %_MSVS_TGT_VERSION% not available
 exit /b 2
 
 :test_msvs_version_ok
