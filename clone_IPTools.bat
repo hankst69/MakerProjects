@@ -1,8 +1,9 @@
 @rem "https://github.com/hankst69/IPTools"
 @echo off
-set "_MAKER_ROOT=%~dp0"
-rem set "_IPTOOLS_DIR=%_MAKER_ROOT%CSharp\IPTools"
-rem set "_IPTOOLS_DIR=%_MAKER_ROOT%projects\cs\IPTools"
-set "_IPTOOLS_DIR=%_MAKER_ROOT%projects\net\IPTools"
+call "%~dp0\maker_env.bat"
 
-call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_IPTOOLS_DIR%" "https://github.com/hankst69/IPTools.git" --changeDir
+rem set "_IPTOOLS_DIR=%MAKER_ROOT%CSharp\IPTools"
+rem set "_IPTOOLS_DIR=%MAKER_PROJECTS%\cs\IPTools"
+set "_IPTOOLS_DIR=%MAKER_PROJECTS%\net\IPTools"
+
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_IPTOOLS_DIR%" "https://github.com/hankst69/IPTools.git" --changeDir
