@@ -1,5 +1,5 @@
 @echo off
-set "_EMSVS_SCRIPTS_DIR=%~dp0"
+call "%~dp0\maker_env.bat"
 
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=
@@ -22,7 +22,7 @@ exit /b 1
 
 :test_msvs
 rem validate msvs
-call "%_EMSVS_SCRIPTS_DIR%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
+call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS %_EMSVS_TGT_VERSION% not available
 exit /b 2
@@ -44,7 +44,6 @@ exit /b 3
 
 :test_EMSVS_success
 if "%_EMSVS_NO_INFO%" equ "" echo using: msvs %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
-set _EMSVS_SCRIPTS_DIR=
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=
 set _EMSVS_NO_WARNINGS=

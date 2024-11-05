@@ -1,6 +1,5 @@
 @echo off
-set "_MAKER_ROOT=%~dp0"
-set "_SCRIPTS_ROOT=%_MAKER_ROOT%scripts"
+call "%~dp0\maker_env.bat"
 
 set _LLVM_VERSION=
 set _REBUILD=
@@ -12,7 +11,7 @@ if "%~1" neq ""             (set "_LLVM_VERSION=%~1" &shift &goto :param_loop)
 rem (1) *** cloning LLVM sources ***
 rem defines: _LLVM_DIR
 rem defines: _LLVM_SOURCES_DIR
-call "%_MAKER_ROOT%\clone_llvm.bat" %_LLVM_VERSION%
+call "%MAKER_ROOT%\clone_llvm.bat" %_LLVM_VERSION%
 if "%_LLVM_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if "%_LLVM_SOURCES_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if not exist "%_LLVM_DIR%" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
@@ -38,12 +37,12 @@ echo *** THIS REQUIRES Cmake 3.16 or newer
 echo.
 
 rem validate msvs and ensure amd64 target architecture
-call "%_SCRIPTS_ROOT%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 rem validate cmake
-call "%_SCRIPTS_ROOT%\validate_cmake.bat" GEQ3.16
+call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )

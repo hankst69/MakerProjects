@@ -1,14 +1,15 @@
+@rem https://doc.qt.io/qt-6/wasm.html
 @echo off
-set "_MAKER_ROOT=%~dp0"
-rem https://doc.qt.io/qt-6/wasm.html
+call "%~dp0\maker_env.bat"
+set "_BQTW_START_DIR=%cd%"
 
 set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
 
 rem if we have to create a WASM build, we have to build the matching windows host version first
-call "%_MAKER_ROOT%\build_qt.bat" "%~1"
+call "%MAKER_ROOT%\build_qt.bat" "%~1"
 echo.
-cd "%_MAKER_ROOT%
+cd "%MAKER_ROOT%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
 rem defines: _QT_BIN_DIR
@@ -23,32 +24,31 @@ if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo building Qt %_QT_VERSIO
 set "_QT_BUILD_DIR=%_QT_DIR%\qt-wasm%_QT_VERSION%"
 
 rem echo test msvs
-rem ...tbd
-:test_msvs_success
-
-rem echo test cmake
-call which cmake.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_cmake_success
-echo error: CMAKE is not available
-goto :EOF
-:test_cmake_success
-
-rem echo test ninja
-call which ninja.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_ninja_success
-echo warning: NINJA is not available
-rem goto :EOF
-:test_ninja_success
-
-rem echo test llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call which clang.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_llvm_success
-echo warning: LLVM Clang is not available
-rem goto :EOF
-:test_llvm_success
+rem ensure msvs version and amd64 target architecture
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
+)
+rem validate cmake
+call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
+)
+rem validate ninja
+call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NINJA is not available
+  rem goto :Exit
+)
+rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
+call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: LLVM CLANG is not available
+  rem goto :Exit
+)
 
 rem echo test emsdk
-call which emcc.bat 1>nul 2>nul
+call emcc --version 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_emsdk_success
 echo error: EMSDK not available
 goto :EOF
@@ -57,19 +57,18 @@ call em++ --version
 call emcc --version
 :test_emsdk_ok
 
-rem echo test perl (+ gperf + qnx)
-call which perl.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_perl_success
-echo error: perl is not available
-goto :EOF
-:test_perl_success
-
-rem echo test python
-call which python.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_python_success
-echo error: python is not available
-goto :EOF
-:test_python_success
+rem validate perl (for QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
+call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: PERL is not available
+  rem goto :Exit
+)
+rem validate python
+call "%MAKER_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+if %ERRORLEVEL% NEQ 0 goto :Exit
+if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
+  echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+)
 
 
 rem 2) configure QT-WASM
@@ -112,4 +111,12 @@ rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
 :qt_install_done
 
 
-cd "%_QT_DIR%"
+:Exit
+cd /d "%_QT_DIR%"
+cd /d "%_BQTW_START_DIR%"
+set _BQTW_START_DIR=
+rem set _QT_VERSION=
+rem set _QT_DIR=
+rem set _QT_SOURCES_DIR=
+rem set _QT_BUILD_DIR=
+rem set _QT_BIN_DIR=

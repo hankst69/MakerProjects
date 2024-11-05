@@ -4,11 +4,8 @@
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
 @echo off
-
-set "_START_DIR=%cd%"
-set "_MAKER_ROOT=%~dp0"
-set "_SCRIPTS_DIR=%_MAKER_ROOT%scripts"
-set "_TOOLS_DIR=%_MAKER_ROOT%.tools"
+call "%~dp0\maker_env.bat"
+set "_BQT_START_DIR=%cd%"
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
@@ -19,9 +16,9 @@ if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
 
 
 rem (1) *** cloning QT sources ***
+call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
-call "%_MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
 if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 if "%_QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
@@ -105,41 +102,41 @@ echo *** OTPIONAL: Protobuf
 echo.
 
 rem ensure msvs version and amd64 target architecture
-call "%_SCRIPTS_DIR%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%_SCRIPTS_DIR%\validate_cmake.bat" GEQ3.16
+call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate ninja
-call "%_SCRIPTS_DIR%\validate_ninja.bat" --no_errors
+call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
 )
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%_SCRIPTS_DIR%\validate_llvm.bat" --no_errors
+call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   rem goto :Exit
 )
 rem validate node.js 
-call "%_SCRIPTS_DIR%\validate_nodejs.bat" --no_errors
+call "%MAKER_SCRIPTS%\validate_nodejs.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   rem goto :Exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%_SCRIPTS_DIR%\validate_perl.bat" --no_errors
+call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :Exit
 )
 rem validate python
-call "%_SCRIPTS_DIR%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%MAKER_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
 if %ERRORLEVEL% NEQ 0 goto :Exit
 if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
@@ -149,12 +146,12 @@ if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
 rem (5) *** setup QT dependencies ***
 
 rem setup gRPC
-rem call "%_MAKER_ROOT%\build_grpc.bat" x64-windows
+rem call "%MAKER_ROOT%\build_grpc.bat" x64-windows
   rem pushd "%_QT_DIR%"
   rem call vcpkg install grpc:x64-windows
   rem popd
 rem setup Protobuf
-rem call "%_MAKER_ROOT%\build_protobuf.bat" x64-windows
+rem call "%MAKER_ROOT%\build_protobuf.bat" x64-windows
   rem pushd "%_QT_DIR%"
   rem call vcpkg install protobuf protobuf:x64-windows
   rem popd
@@ -203,20 +200,18 @@ echo error: QT-INSTALL %_QT_VERSION% failed
 goto :Exit
 :qt_install_done
 rem -- create shortcuts
-echo @call "%_QT_BIN_DIR%\bin\designer.exe" %%* >"%_TOOLS_DIR%\qtdesigner.bat"
+echo @call "%_QT_BIN_DIR%\bin\designer.exe" %%* >"%MAKER_BIN%\qtdesigner.bat"
 
 
 rem (9) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 :Exit
-rem cd "%_QT_DIR%"
-cd /d "%_START_DIR%"
-set _START_DIR=
-set _MAKER_ROOT=
-set _SCRIPTS_DIR=
-set _TOOLS_DIR=
+cd /d "%_QT_DIR%"
+cd /d "%_BQT_START_DIR%"
+set _BQT_START_DIR=
 set _REBUILD=
+rem set _QT_VERSION=
 rem set _QT_DIR=
 rem set _QT_SOURCES_DIR=
 rem set _QT_BUILD_DIR=

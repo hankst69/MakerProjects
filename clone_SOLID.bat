@@ -1,8 +1,9 @@
 @rem "https://github.com/hankst69/SOLID"
 @echo off
-set "_MAKER_ROOT=%~dp0"
-rem set "_SOLID_DIR=%_MAKER_ROOT%CSharp\SOLID"
-rem set "_SOLID_DIR=%_MAKER_ROOT%projects\cs\SOLID"
-set "_SOLID_DIR=%_MAKER_ROOT%projects\net\SOLID"
+call "%~dp0\maker_env.bat"
 
-call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_SOLID_DIR%" "https://github.com/hankst69/SOLID.git" --changeDir
+rem set "_SOLID_DIR=%MAKER_ROOT%CSharp\SOLID"
+rem set "_SOLID_DIR=%MAKER_PROJECTS%\cs\SOLID"
+set "_SOLID_DIR=%MAKER_PROJECTS%\net\SOLID"
+
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_SOLID_DIR%" "https://github.com/hankst69/SOLID.git" --changeDir

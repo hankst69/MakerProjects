@@ -1,10 +1,10 @@
 @rem https://emscripten.org/docs/getting_started/downloads.html
 @echo off
-pushd 1>nul
-set "_MAKER_ROOT=%~dp0"
+call "%~dp0\maker_env.bat"
+set "_EMSDK_START_DIR=%cd%"
 
 rem -- clone EMSDK
-call "%_MAKER_ROOT%\clone_emsdk.bat" %*
+call "%MAKER_ROOT%\clone_emsdk.bat" %*
 rem defines: _EMSDK_DIR
 rem defines: _EMSDK_BIN_DIR
 rem defines: _EMSDK_VERSION
@@ -16,7 +16,7 @@ if "%_EMSDK_VERSION%" EQU "" (echo error: cloning EMSDK &goto :EOF)
 
 
 rem -- ensure python is available
-call "%_MAKER_ROOT%\scripts\validate_python.bat"
+call "%MAKER_SCRIPTS%\validate_python.bat"
 if %ERRORLEVEL% NEQ 0 goto :exit_script
 
 
@@ -55,7 +55,7 @@ popd
 
 rem set llvm/clang
 if not exist "%LLVM_INSTALL_DIR%\clang.exe" set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
-call which clang.exe 1>nul 2>nul
+call "%MAKER_SCRIPTS%\validate_llvm.bat" 1>nul
 if %ERRORLEVEL% EQU 0 goto :test_llvm_success
 set "PATH=%PATH%;%LLVM_INSTALL_DIR%"
 :test_llvm_success
@@ -73,9 +73,7 @@ echo.
 call emcc --version
 rem call em++ --version
 
-cd "%_EMSDK_BIN_DIR%"
-
 :exit_script
-popd
+rem cd "%_EMSDK_BIN_DIR%"
+cd /d "%_EMSDK_START_DIR%"
 goto :EOF
-

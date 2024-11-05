@@ -2,7 +2,8 @@
 @rem https://chocolatey.org/
 @rem https://github.com/chocolatey/choco.git
 @echo off
-set "_MAKER_ROOT=%~dp0"
-set "_CHOCO_DIR=%_MAKER_ROOT%tools\Choco"
+call "%~dp0\maker_env.bat"
 
-call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_CHOCO_DIR%" "https://github.com/chocolatey/choco.git" --changeDir %*
+set "_CHOCO_DIR=%MAKER_TOOLS%\Choco"
+
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_CHOCO_DIR%" "https://github.com/chocolatey/choco.git" --changeDir %*

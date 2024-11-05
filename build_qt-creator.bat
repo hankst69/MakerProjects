@@ -1,12 +1,8 @@
 @rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 @rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
 @echo off
-rem endlocal
-
-set "_MAKER_ROOT=%~dp0"
+call "%~dp0\maker_env.bat"
 set "_BQTC_START_DIR=%cd%"
-set "_BQTC_SCRIPTS_DIR=%_MAKER_ROOT%scripts"
-set "_BQTC_TOOLS_DIR=%_MAKER_ROOT%.tools"
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
@@ -18,38 +14,38 @@ if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
 set "_QT_DIR=%~dp0tools\Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
-set "_TOOLS_QTCREATOR_DIR=%_BQTC_TOOLS_DIR%\.qtcreator"
+set "_QTCREATOR_BIN=%MAKER_BIN%\.qtcreator"
 
 if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QT_INSTALL_MAKE%" 1>nul 2>nul
   rem rmdir /s /q "%_QT_ENV_DIR%"  1>nul 2>nul
-  rmdir /s /q "%_TOOLS_QTCREATOR_DIR%" 1>nul 2>nul
-  del /F /Q "%_BQTC_TOOLS_DIR%\qtcreator.bat" 2>NUL
+  rmdir /s /q "%_QTCREATOR_BIN%" 1>nul 2>nul
+  del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
 )
 
 rem --test if qt-creater is already available
-if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
+if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
   if exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
-    if not exist "%_TOOLS_QTCREATOR_DIR%" mkdir "%_TOOLS_QTCREATOR_DIR%"
-    call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_TOOLS_QTCREATOR_DIR%" 1>NUL
+    if not exist "%_QTCREATOR_BIN%" mkdir "%_QTCREATOR_BIN%"
+    call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
   )
 )
-if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
-  del /F /Q "%_BQTC_TOOLS_DIR%\qtcreator.bat" 2>NUL
+if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
+  del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
 ) else (
-  echo @pushd "%_TOOLS_QTCREATOR_DIR%\bin">"%_BQTC_TOOLS_DIR%\qtcreator.bat"
-  echo @call qtcreator.exe %%* >>"%_BQTC_TOOLS_DIR%\qtcreator.bat"
-  echo @popd>>"%_BQTC_TOOLS_DIR%\qtcreator.bat"
+  echo @pushd "%_QTCREATOR_BIN%\bin">"%MAKER_BIN%\qtcreator.bat"
+  echo @call qtcreator.exe %%* >>"%MAKER_BIN%\qtcreator.bat"
+  echo @popd>>"%MAKER_BIN%\qtcreator.bat"
 )
-rem type "%_BQTC_TOOLS_DIR%\qtcreator.bat"
+rem type "%MAKER_BIN%\qtcreator.bat"
 call which qtcreator.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
   goto :test_qtcreator_success
 )
-rem if exist "%_BQTC_TOOLS_DIR%\qtcreator.bat" path
-if exist "%_BQTC_TOOLS_DIR%\qtcreator.bat" set "Path=%Path%;%_BQTC_TOOLS_DIR%;%_TOOLS_QTCREATOR_DIR%\bin"
-rem if exist "%_BQTC_TOOLS_DIR%\qtcreator.bat" path
+rem if exist "%MAKER_BIN%\qtcreator.bat" path
+if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
+rem if exist "%MAKER_BIN%\qtcreator.bat" path
 call which qtcreator.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
@@ -65,19 +61,19 @@ echo *** THIS REQUIRES Python 3
 echo.
 
 rem --- validate python
-call "%_BQTC_SCRIPTS_DIR%\validate_python.bat" 3
+call "%MAKER_SCRIPTS%\validate_python.bat" 3
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem --- ensure proper MSVS 2019 is available where target architecture matches python architecture
-call "%_BQTC_SCRIPTS_DIR%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem -- ensure make is available
-call "%_BQTC_SCRIPTS_DIR%\validate_make.bat" 3 1>nul
-if %ERRORLEVEL% NEQ 0 call "%_MAKER_ROOT%\build_make.bat"
-call "%_BQTC_SCRIPTS_DIR%\validate_make.bat"
+call "%MAKER_SCRIPTS%\validate_make.bat" 3 1>nul
+if %ERRORLEVEL% NEQ 0 call "%MAKER_ROOT%\build_make.bat"
+call "%MAKER_SCRIPTS%\validate_make.bat"
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
@@ -85,7 +81,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem -- ensure qt_install makefiles are available
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
-  call "%_MAKER_ROOT%\scripts\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
+  call "%MAKER_ROOT%\scripts\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
 )
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
   echo error: QT Make files not available
@@ -151,23 +147,23 @@ if not exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
 
 
 rem -- create shortcuts
-if not exist "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe" (
-  if not exist "%_TOOLS_QTCREATOR_DIR%" mkdir "%_TOOLS_QTCREATOR_DIR%"
-  call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_TOOLS_QTCREATOR_DIR%" 1>NUL
+if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
+  if not exist "%_QTCREATOR_BIN%" mkdir "%_QTCREATOR_BIN%"
+  call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
 )
-echo @pushd "%_TOOLS_QTCREATOR_DIR%\bin">"%_BQTC_TOOLS_DIR%\qtcreator.bat"
-echo @call qtcreator.exe %%* >>"%_BQTC_TOOLS_DIR%\qtcreator.bat"
-echo @popd>>"%_BQTC_TOOLS_DIR%\qtcreator.bat"
+echo @pushd "%_QTCREATOR_BIN%\bin">"%MAKER_BIN%\qtcreator.bat"
+echo @call qtcreator.exe %%* >>"%MAKER_BIN%\qtcreator.bat"
+echo @popd>>"%MAKER_BIN%\qtcreator.bat"
 
 call which qtcreator.bat 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%_BQTC_TOOLS_DIR%;%_TOOLS_QTCREATOR_DIR%\bin"
+if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
 call which qtcreator.bat 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_qtcreator_success
   
 rem start qtcreator:
 rem call "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe"
-rem call "%_TOOLS_QTCREATOR_DIR%\bin\qtcreator.exe"
-rem call "%_TOOLS_QTCREATOR_DIR%\qtcreator.bat"
+rem call "%_QTCREATOR_BIN%\bin\qtcreator.exe"
+rem call "%_QTCREATOR_BIN%\qtcreator.bat"
 rem call qtcreator
 
 :test_qtcreator_failed
@@ -182,13 +178,10 @@ echo qtcreator (to start Qt-Creator)
 :exit_script
 cd /d "%_BQTC_START_DIR%"
 set _BQTC_START_DIR=
-set _MAKER_ROOT=
-set _BQTC_SCRIPTS_DIR=
-set _BQTC_TOOLS_DIR=
 set _REBUILD=
 rem set _QT_VERSION=6.6.3
 rem set _QT_DIR=
 rem set _QT_ENV_DIR=
 rem set _QT_INSTALL_MAKE=
-rem set _TOOLS_QTCREATOR_DIR=
+rem set _QTCREATOR_BIN=
 goto :EOF

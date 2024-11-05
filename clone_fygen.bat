@@ -1,9 +1,9 @@
 @rem "https://github.com/hankst69/fygen"
 @rem "https://github.com/mattwach/fygen"
 @echo off
-set "_MAKER_ROOT=%~dp0"
+call "%~dp0\maker_env.bat"
 
-rem set "_FYGEN_DIR=%_MAKER_ROOT%projects\mkr\AWGControl\fygen"
-set "_FYGEN_DIR=%_MAKER_ROOT%projects\AWGControl\fygen"
+rem set "_FYGEN_DIR=%MAKER_PROJECTS%\mkr\AWGControl\fygen"
+set "_FYGEN_DIR=%MAKER_PROJECTS%\AWGControl\fygen"
 
-call "%_MAKER_ROOT%scripts\clone_in_folder.bat" "%_FYGEN_DIR%" "https://github.com/hankst69/fygen.git" --changeDir
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_FYGEN_DIR%" "https://github.com/hankst69/fygen.git" --changeDir

@@ -8,8 +8,9 @@
 @rem - see: https://stackoverflow.com/questions/23885449/unable-to-resolve-unable-to-get-local-issuer-certificate-using-git-on-windows
 @rem -  do: git config --global http.sslbackend schannel
 @echo off
-set "_MAKER_ROOT=%~dp0"
-set "_QT_DIR=%_MAKER_ROOT%tools\Qt"
+call "%~dp0\maker_env.bat"
+
+set "_QT_DIR=%MAKER_TOOLS%\Qt"
 
 set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
@@ -21,12 +22,12 @@ rem if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
 if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
 
 rem --- ensure perl (is required for cloning the qt submodules)
-call "%_MAKER_ROOT%\scripts\validate_perl.bat"
+call "%MAKER_SCRIPTS%\validate_perl.bat"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 echo.
 
 echo QT-CLONE %_QT_VERSION%
-call "%_MAKER_ROOT%\scripts\clone_in_folder.bat" "%_QT_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QT_VERSION%
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QT_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QT_VERSION%
 pushd "%_QT_SOURCES_DIR%"
 call git pull
 if not exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" call perl "%_QT_SOURCES_DIR%\init-repository"
