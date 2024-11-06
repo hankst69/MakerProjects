@@ -71,13 +71,12 @@ if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem -- ensure make is available
-call "%MAKER_SCRIPTS%\validate_make.bat" 3 1>nul
+call "%MAKER_SCRIPTS%\validate_make.bat" GEQ3 1>nul
 if %ERRORLEVEL% NEQ 0 call "%MAKER_ROOT%\build_make.bat"
 call "%MAKER_SCRIPTS%\validate_make.bat"
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
-
 
 rem -- ensure qt_install makefiles are available
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
@@ -92,7 +91,9 @@ if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
 
 rem -- ensure arm_sdk available
 pushd "%_QT_INSTALL_MAKE%"
+echo on
 call make arm_sdk_install
+@echo off
 popd
 
 
@@ -136,12 +137,15 @@ rem -- install Qt-tools (make) and create shortcuts
 echo.
 call "%_QT_ENV_DIR%\Scripts\activate.bat"
 echo installing Qt-Creator ...
-pushd "%_QT_INSTALL_MAKE%"
-call make qt_install || exit /b
-popd
+cd "%_QT_INSTALL_MAKE%"
+call make qt_install
+if %ERRORLEVEL% NEQ 0 (
+  echo. error: build QtCreator failed ^(make qt_install failed^)
+  goto :exit_script
+)
 call "%_QT_ENV_DIR%\Scripts\deactivate.bat"
 if not exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
-  echo. error: building QtCreator failed
+  echo. error: build QtCreator failed ^(make qtcreator.exe does not exist^)
   goto :exit_script
 )
 
@@ -176,6 +180,7 @@ echo qtcreator (to start Qt-Creator)
 
 
 :exit_script
+call "%_QT_ENV_DIR%\Scripts\deactivate.bat" 1>nul 2>nul
 cd /d "%_BQTC_START_DIR%"
 set _BQTC_START_DIR=
 set _REBUILD=
