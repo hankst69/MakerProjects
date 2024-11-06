@@ -3,10 +3,12 @@
 @echo off
 call "%~dp0\maker_env.bat"
 set "_BQTC_START_DIR=%cd%"
+set "_BQTC_ARG1=%~1"
 
 set _QT_VERSION=6.6.3
 set _REBUILD=
 :param_loop
+if /I "%~1" equ "--start"   (shift &goto :param_loop)
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
@@ -30,23 +32,20 @@ if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
     call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
   )
 )
-if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
-  del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
-) else (
-  echo @pushd "%_QTCREATOR_BIN%\bin">"%MAKER_BIN%\qtcreator.bat"
-  echo @call qtcreator.exe %%* >>"%MAKER_BIN%\qtcreator.bat"
-  echo @popd>>"%MAKER_BIN%\qtcreator.bat"
+del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
+if exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
+  echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qtcreator.bat"
+  echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_BIN%\qtcreator.bat"
 )
 rem type "%MAKER_BIN%\qtcreator.bat"
-call which qtcreator.bat 1>nul 2>nul
+call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
   goto :test_qtcreator_success
 )
-rem if exist "%MAKER_BIN%\qtcreator.bat" path
-if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
-rem if exist "%MAKER_BIN%\qtcreator.bat" path
-call which qtcreator.bat 1>nul 2>nul
+rem if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
+if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%"
+call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
   goto :test_qtcreator_success
@@ -91,9 +90,7 @@ if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
 
 rem -- ensure arm_sdk available
 pushd "%_QT_INSTALL_MAKE%"
-echo on
 call make arm_sdk_install
-@echo off
 popd
 
 
@@ -155,21 +152,14 @@ if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
   if not exist "%_QTCREATOR_BIN%" mkdir "%_QTCREATOR_BIN%"
   call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
 )
-echo @pushd "%_QTCREATOR_BIN%\bin">"%MAKER_BIN%\qtcreator.bat"
-echo @call qtcreator.exe %%* >>"%MAKER_BIN%\qtcreator.bat"
-echo @popd>>"%MAKER_BIN%\qtcreator.bat"
+echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qtcreator.bat"
+echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_BIN%\qtcreator.bat"
 
-call which qtcreator.bat 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
-call which qtcreator.bat 1>nul 2>nul
+call qtcreator.bat --validate 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_BIN%"
+call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_qtcreator_success
   
-rem start qtcreator:
-rem call "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe"
-rem call "%_QTCREATOR_BIN%\bin\qtcreator.exe"
-rem call "%_QTCREATOR_BIN%\qtcreator.bat"
-rem call qtcreator
-
 :test_qtcreator_failed
 echo. error: Qt-Creator not available
 goto :exit_script
@@ -177,6 +167,7 @@ goto :exit_script
 :test_qtcreator_success
 rem call which qtcreator -l -d
 echo qtcreator (to start Qt-Creator)
+if /I "%_BQTC_ARG1%" equ "--start" call qtcreator
 
 
 :exit_script
