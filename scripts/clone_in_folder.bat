@@ -95,22 +95,10 @@ echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
 echo ******************************************************************************************
 rem )
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
-rem if exist "%_TARGET_DIR%\clone.bat" (
-rem   if exist "%_SCRIPT_ROOT%clone.tmp" (del /F /Q "%_SCRIPT_ROOT%clone.tmp")
-rem   copy "%_TARGET_DIR%\clone.bat" "%_SCRIPT_ROOT%clone.tmp"
-rem   del /F /Q "%_TARGET_DIR%\clone.bat"
-rem )
-pushd "%_TARGET_DIR%"
-cd
-echo on
-git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" . 
-@echo off
-set _CLONE_ERROR=%ERRORLEVEL%
-rem if exist "%_SCRIPT_ROOT%clone.tmp" (
-rem   copy "%_SCRIPT_ROOT%clone.tmp" "%_TARGET_DIR%\clone.bat"
-rem   del /F /Q "%_SCRIPT_ROOT%clone.tmp"
-rem )
-if %_CLONE_ERROR% neq 0 (echo. & echo error: git clone failed & popd & goto:EOF)
+rem pushd "%_TARGET_DIR%" & cd
+echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
+git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
+if %ERRORLEVEL% neq 0 (echo. & echo error: git clone failed & goto:EOF)
 if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
 if "%_SILENT_CLONE_MODE%" neq "true" (
   echo.

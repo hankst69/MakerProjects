@@ -12,4 +12,4 @@ set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
 set "MAKER_BIN=%MAKER_ROOT%\.tools"
 
 rem list env:
-set MAKER_
+rem set MAKER_
