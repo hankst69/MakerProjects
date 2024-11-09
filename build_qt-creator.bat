@@ -11,7 +11,10 @@ set _REBUILD=
 if /I "%~1" equ "--start"   (shift &goto :param_loop)
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
-if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
+
+call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
 
 set "_QT_DIR=%~dp0tools\Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
@@ -25,7 +28,7 @@ if "%_REBUILD%" neq "" (
   del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
 )
 
-rem --test if qt-creater is already available
+rem test if qt-creater is already available
 if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
   if exist "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator\bin\qtcreator.exe" (
     if not exist "%_QTCREATOR_BIN%" mkdir "%_QTCREATOR_BIN%"
@@ -166,8 +169,11 @@ goto :exit_script
 
 :test_qtcreator_success
 rem call which qtcreator -l -d
-echo qtcreator (to start Qt-Creator)
-if /I "%_BQTC_ARG1%" equ "--start" call qtcreator
+echo to start Qt-Creator:
+echo ^>qtcreator
+echo or
+echo ^>build_qt-creator --start
+if /I "%_BQTC_ARG1%" equ "--start" (echo. &echo starting Qt-Creator &call qtcreator)
 
 
 :exit_script
