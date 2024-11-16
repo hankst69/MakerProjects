@@ -200,7 +200,7 @@ echo error: QT-INSTALL %_QT_VERSION% failed
 goto :Exit
 :qt_install_done
 rem -- create shortcuts
-echo @call "%_QT_BIN_DIR%\bin\designer.exe" %%* >"%MAKER_BIN%\qtdesigner.bat"
+echo @start /D "%_QT_BIN_DIR%\bin" /MAX /B %_QT_BIN_DIR%\bin\designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
 
 
 rem (9) post configure QT
