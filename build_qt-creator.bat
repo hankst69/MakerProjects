@@ -8,7 +8,6 @@ set "_BQTC_ARG1=%~1"
 set _QT_VERSION=6.6.3
 set _REBUILD=
 :param_loop
-if /I "%~1" equ "--start"   (shift &goto :param_loop)
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &shift &goto :param_loop)
@@ -169,11 +168,11 @@ goto :exit_script
 
 :test_qtcreator_success
 rem call which qtcreator -l -d
-echo to start Qt-Creator:
-echo ^>qtcreator
-echo or
-echo ^>build_qt-creator --start
-if /I "%_BQTC_ARG1%" equ "--start" (echo. &echo starting Qt-Creator &call qtcreator)
+rem echo to start Qt-Creator:
+rem echo ^>qtcreator
+rem echo or
+rem echo ^>build_qt-creator --start
+rem if /I "%_BQTC_ARG1%" equ "--start" (echo starting Qt-Creator &call "%MAKER_BIN%\qtcreator.bat")
 
 
 :exit_script
