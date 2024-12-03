@@ -52,18 +52,23 @@ if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
 
 rem (6) *** perform LLVM Cmake configuration ***
-echo LLVM-CONFIGURATION %_QT_VERSION%
-pushd "%_LLVM_BUILD_DIR%"
+:_configure
+echo.
+echo LLVM-CONFIGURATION %_LLVM_VERSION%
+echo using generator "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
+cd "%_LLVM_BUILD_DIR%"
 rem cmake -S llvm -B build -G <generator> [options]
+echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE=Release
 call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE=Release
-popd
+:_configure_done
 
 
 rem (7) *** perform LLVM build ***
 :_build
-if exist "%_LLVM_BIN_DIR%\bin\designer.exe" echo LLVM-BUILD %_LLVM_VERSION% already done &goto :_build_done
+rem if exist "%_LLVM_BIN_DIR%\bin\designer.exe" echo LLVM-BUILD %_LLVM_VERSION% already done &goto :_build_done
+echo.
 echo LLVM-BUILD %_LLVM_VERSION%
-pushd "%_LLVM_BUILD_DIR%"
+pushd "%_LLVM_BUILD_DIR%\build"
 call cmake --build . --parallel
 popd
 :_build_done
@@ -72,10 +77,13 @@ popd
 rem (8) *** perform LLVM install ***
 :_install
 rem if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" (
+  echo.
   echo LLVM-INSTALL %_LLVM_VERSION%
-  pushd "%_LLVM_BUILD_DIR%"
+  pushd "%_LLVM_BUILD_DIR%\buid"
   call cmake --install .
   popd
 rem   if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
 rem )
 :_install_done
+
+cd "%_LLVM_DIR%"
