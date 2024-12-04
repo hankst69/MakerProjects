@@ -95,9 +95,9 @@ echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
 echo ******************************************************************************************
 rem )
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
-rem pushd "%_TARGET_DIR%" & cd
+pushd "%_TARGET_DIR%"
 echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
-git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
+git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" .
 if %ERRORLEVEL% neq 0 (echo. & echo error: git clone failed & goto:EOF)
 if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
 if "%_SILENT_CLONE_MODE%" neq "true" (
@@ -108,5 +108,6 @@ if "%_SILENT_CLONE_MODE%" neq "true" (
   git remote -v
   git status
 )
+popd
 if "%_CHANGE_DIR%" neq "" (cd "%_TARGET_DIR%")
 goto :Exit

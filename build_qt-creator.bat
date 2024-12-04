@@ -13,11 +13,6 @@ if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
-call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
-
-set "_QT_DIR=%~dp0tools\Qt"
-set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
-set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
 set "_QTCREATOR_BIN=%MAKER_BIN%\.qtcreator"
 
 if "%_REBUILD%" neq "" (
@@ -60,6 +55,11 @@ echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
 echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
 echo *** THIS REQUIRES Python 3
 echo.
+
+call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
+rem set "_QT_DIR=%MAKER_TOOLS%\Qt"
+set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
+set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
 
 rem --- validate python
 call "%MAKER_SCRIPTS%\validate_python.bat" 3
