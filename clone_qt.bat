@@ -10,15 +10,16 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_QT_DIR=%MAKER_TOOLS%\Qt"
-
 set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
+
+set "_QT_DIR=%MAKER_TOOLS%\Qt"
 set "_QT_SOURCES_DIR=%_QT_DIR%\qt_sources_%_QT_VERSION%\"
 
 rem --- cloning QT
 :qt_clone
 rem if not exist "%_QT_DIR%" mkdir "%_QT_DIR%"
+rem if not exist "%_QT_SOURCES_DIR%" mkdir "%_QT_SOURCES_DIR%"
 if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
 
 rem --- ensure perl (is required for cloning the qt submodules)
