@@ -3,6 +3,7 @@ call "%~dp0\maker_env.bat"
 
 set _LLVM_VERSION=
 set _LLVM_BUILD_TYPE=Release
+set _LLVM_BUILD_TYPE=Debug
 set _REBUILD=
 :param_loop
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
