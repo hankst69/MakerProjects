@@ -2,6 +2,7 @@
 call "%~dp0\maker_env.bat"
 
 set _LLVM_VERSION=
+set _LLVM_BUILD_TYPE=Release
 set _REBUILD=
 :param_loop
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
@@ -53,19 +54,20 @@ if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
 rem (6) *** perform LLVM Cmake configuration ***
 :_configure
+if exist "%_LLVM_BUILD_DIR%\build\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
 echo.
 echo LLVM-CONFIGURATION %_LLVM_VERSION%
 echo using generator "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
 cd "%_LLVM_BUILD_DIR%"
 rem cmake -S llvm -B build -G <generator> [options]
-echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE=Release
-call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE=Release
+echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 :_configure_done
 
 
 rem (7) *** perform LLVM build ***
 :_build
-rem if exist "%_LLVM_BIN_DIR%\bin\designer.exe" echo LLVM-BUILD %_LLVM_VERSION% already done &goto :_build_done
+if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" echo LLVM-BUILD %_LLVM_VERSION% already done &goto :_build_done
 echo.
 echo LLVM-BUILD %_LLVM_VERSION%
 pushd "%_LLVM_BUILD_DIR%\build"
