@@ -22,7 +22,7 @@ rem call git config --add remote.origin.fetch "^refs/heads/revert-*"
 rem call git config --edit
 rem call git pull
 
-:qt_clone_done
+:llvm_clone_done
 echo LLVM-CLONE %_LLVM_VERSION% done
 
 rem cd "%_LLVM_DIR%"
