@@ -14,6 +14,9 @@ if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &sh
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
 set "_QTCREATOR_BIN=%MAKER_BIN%\.qtcreator"
+set "_QT_DIR=%MAKER_TOOLS%\Qt"
+set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
+set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
 
 if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QT_INSTALL_MAKE%" 1>nul 2>nul
@@ -35,6 +38,10 @@ if exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
   echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_BIN%\qtcreator.bat"
 )
 rem type "%MAKER_BIN%\qtcreator.bat"
+
+rem test if PATH is already adapted to find qtcreator.bat
+rem first change the current dir to not unwillingly call the local qtcreator.bat from Maker project root and cause an iteration
+cd "%MAKER_TOOLS%"
 call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
