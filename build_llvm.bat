@@ -64,17 +64,19 @@ rem cmake -S llvm -B build -G <generator> [options]
 echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 :_configure_done
+echo LLVM-CONFIGURE %_LLVM_VERSION% done
 
 
 rem (7) *** perform LLVM build ***
 :_build
-if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" echo LLVM-BUILD %_LLVM_VERSION% already done &goto :_build_done
+if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" goto :_build_done
 echo.
 echo LLVM-BUILD %_LLVM_VERSION%
 pushd "%_LLVM_BUILD_DIR%\build"
 call cmake --build . --parallel
 popd
 :_build_done
+echo LLVM-BUILD %_LLVM_VERSION% done
 
 
 rem (8) *** perform LLVM install ***
