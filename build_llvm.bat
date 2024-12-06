@@ -3,7 +3,7 @@ call "%~dp0\maker_env.bat"
 
 set _LLVM_VERSION=
 set _LLVM_BUILD_TYPE=Release
-set _LLVM_BUILD_TYPE=Debug
+rem set _LLVM_BUILD_TYPE=Debug
 set _REBUILD=
 :param_loop
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
@@ -55,14 +55,15 @@ if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
 rem (6) *** perform LLVM Cmake configuration ***
 :_configure
-if exist "%_LLVM_BUILD_DIR%\build\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
+if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
 echo.
 echo LLVM-CONFIGURATION %_LLVM_VERSION%
 echo using generator "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-cd "%_LLVM_BUILD_DIR%"
-rem cmake -S llvm -B build -G <generator> [options]
-echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
-call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B build -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+rem cmake -S <source_dir> -B <build_dir> -G <generator> [options]
+echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
+rem cd "%_LLVM_BUILD_DIR%"
+rem call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B . -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
+call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
 :_configure_done
 echo LLVM-CONFIGURE %_LLVM_VERSION% done
 
@@ -72,9 +73,8 @@ rem (7) *** perform LLVM build ***
 if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" goto :_build_done
 echo.
 echo LLVM-BUILD %_LLVM_VERSION%
-pushd "%_LLVM_BUILD_DIR%\build"
+cd "%_LLVM_BUILD_DIR%"
 call cmake --build . --parallel
-popd
 :_build_done
 echo LLVM-BUILD %_LLVM_VERSION% done
 
@@ -84,7 +84,7 @@ rem (8) *** perform LLVM install ***
 rem if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" (
   echo.
   echo LLVM-INSTALL %_LLVM_VERSION%
-  pushd "%_LLVM_BUILD_DIR%\buid"
+  pushd "%_LLVM_BUILD_DIR%"
   call cmake --install .
   popd
 rem   if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
