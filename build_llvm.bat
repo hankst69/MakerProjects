@@ -87,14 +87,19 @@ echo LLVM-BUILD %_LLVM_VERSION% done
 
 rem (8) *** perform LLVM install ***
 :_install
-rem if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" (
+if not exist "%_LLVM_BIN_DIR%\bin\Release\clang.exe" (
   echo.
   echo LLVM-INSTALL %_LLVM_VERSION%
   pushd "%_LLVM_BUILD_DIR%"
   call cmake --install .
   popd
 rem   if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
-rem )
+)
 :_install_done
+
+if exist "%_LLVM_BIN_DIR%\bin\Release\clang.exe" (
+  call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+  if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin\Release"
+)
 
 cd "%_LLVM_DIR%"

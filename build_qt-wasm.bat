@@ -44,8 +44,10 @@ rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEAT
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
-  rem goto :Exit
+  goto :Exit
 )
+
+goto :EOF
 
 rem echo test emsdk
 call emcc --version 1>nul 2>nul
