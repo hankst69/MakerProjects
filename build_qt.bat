@@ -121,7 +121,11 @@ rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEAT
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
-  rem goto :Exit
+  call "%MAKER_ROOT%\build_llvm.bat"
+  call "%MAKER_SCRIPTS%\validate_llvm.bat"
+  if %ERRORLEVEL% NEQ 0 (
+    goto :Exit
+  )
 )
 rem validate node.js 
 call "%MAKER_SCRIPTS%\validate_nodejs.bat" --no_errors
