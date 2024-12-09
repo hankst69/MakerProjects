@@ -2,13 +2,19 @@
 call "%~dp0\maker_env.bat"
 
 set _LLVM_VERSION=
+set _LLVM_TGT_ARCH=x64
 set _LLVM_BUILD_TYPE=Release
 rem set _LLVM_BUILD_TYPE=Debug
+
 set _REBUILD=
 :param_loop
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
-if "%~1" neq ""             (set "_LLVM_VERSION=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--rebuild"    (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"           (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "Debug"        (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "Release"      (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
+rem if /I "%~1" equ "RelWithDebug" (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if "%~1" neq "" if "%_LLVM_VERSION%" equ "" (set "_LLVM_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq ""              (echo error: unknonwn argument '%~1' &goto :EOF)
 
 rem (1) *** cloning LLVM sources ***
 rem defines: _LLVM_DIR
@@ -39,7 +45,7 @@ echo *** THIS REQUIRES Cmake 3.16 or newer
 echo.
 
 rem validate msvs and ensure amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 %_LLVM_TGT_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
@@ -57,13 +63,13 @@ rem (6) *** perform LLVM Cmake configuration ***
 :_configure
 if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
 echo.
-echo LLVM-CONFIGURATION %_LLVM_VERSION%
+echo LLVM-CONFIGURATION %_LLVM_VERSION% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% x64)
 echo using generator "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-rem cmake -S <source_dir> -B <build_dir> -G <generator> [options]
-echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
-rem cd "%_LLVM_BUILD_DIR%"
-rem call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B . -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
-call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
+rem cmake -S <source_dir> -B <build_dir> -G <generator> [options] -A <architecture>
+rem cmake -S D:\GIT\Maker\tools\LLVM\llvm-project\llvm -B D:\GIT\Maker\tools\LLVM\llvm_build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release --install-prefix D:\GIT\Maker\tools\LLVM\llvm --trace --fresh
+rem echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;"
+echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 :_configure_done
 echo LLVM-CONFIGURE %_LLVM_VERSION% done
 
@@ -72,9 +78,9 @@ rem (7) *** perform LLVM build ***
 :_build
 if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" goto :_build_done
 echo.
-echo LLVM-BUILD %_LLVM_VERSION%
+echo LLVM-BUILD %_LLVM_VERSION% (%_LLVM_BUILD_TYPE%)
 cd "%_LLVM_BUILD_DIR%"
-call cmake --build . --parallel
+call cmake --build . --parallel 4 --config %_LLVM_BUILD_TYPE%
 :_build_done
 echo LLVM-BUILD %_LLVM_VERSION% done
 
