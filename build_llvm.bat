@@ -59,7 +59,7 @@ if not exist "%_LLVM_BIN_DIR%" mkdir "%_LLVM_BIN_DIR%"
 if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
 
-rem (6) *** perform LLVM Cmake configuration ***
+rem (5) *** perform LLVM Cmake configuration ***
 :_configure
 if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
 echo.
@@ -74,9 +74,9 @@ call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studi
 echo LLVM-CONFIGURE %_LLVM_VERSION% done
 
 
-rem (7) *** perform LLVM build ***
+rem (6) *** perform LLVM build ***
 :_build
-if exist "%_LLVM_BIN_DIR%\build\%_LLVM_BUILD_TYPE%\bin\llvm-link.exe" goto :_build_done
+if exist "%_LLVM_BUILD_DIR%\%_LLVM_BUILD_TYPE%\bin\clang.exe" goto :_build_done
 echo.
 echo LLVM-BUILD %_LLVM_VERSION% (%_LLVM_BUILD_TYPE%)
 cd "%_LLVM_BUILD_DIR%"
@@ -85,21 +85,33 @@ call cmake --build . --parallel 4 --config %_LLVM_BUILD_TYPE%
 echo LLVM-BUILD %_LLVM_VERSION% done
 
 
-rem (8) *** perform LLVM install ***
+rem (7) *** perform LLVM install ***
 :_install
-if not exist "%_LLVM_BIN_DIR%\bin\Release\clang.exe" (
+if exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_install_done
   echo.
   echo LLVM-INSTALL %_LLVM_VERSION%
   pushd "%_LLVM_BUILD_DIR%"
   call cmake --install .
   popd
-rem   if not exist "%_LLVM_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
 )
 :_install_done
-
-if exist "%_LLVM_BIN_DIR%\bin\Release\clang.exe" (
-  call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
-  if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin\Release"
+if exist "%_LLVM_BIN_DIR%\bin\clang.exe" (
+  echo LLVM-INSTALL %_LLVM_VERSION% done
+) else (
+  echo error: LLVM-INSTALL %_LLVM_VERSION% FAILED
 )
+
+
+rem (8) *** make LLVM available ***
+:_validate
+call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+if %ERRORLEVEL% EQU 0 goto :_validate_done
+if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" echo error: LLVM build incomplete &goto :_validate_done
+
+set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
+rem set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%\bin"
+set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
+call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+:_validate_done
 
 cd "%_LLVM_DIR%"
