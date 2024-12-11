@@ -43,7 +43,7 @@ if "%_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_TARGET_
 exit /b 3
 
 :test_EMSVS_success
-if "%_EMSVS_NO_INFO%" equ "" echo using: msvs %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
+if "%_EMSVS_NO_INFO%" equ "" echo using: MSVS %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=
 set _EMSVS_NO_WARNINGS=
