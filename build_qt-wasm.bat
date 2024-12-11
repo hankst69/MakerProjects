@@ -7,6 +7,7 @@ set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
 
 rem if we have to create a WASM build, we have to build the matching windows host version first
+rem call "%MAKER_ROOT%\clone_qt.bat" "%~1"
 call "%MAKER_ROOT%\build_qt.bat" "%~1"
 echo.
 cd "%MAKER_ROOT%
@@ -43,22 +44,23 @@ if %ERRORLEVEL% NEQ 0 (
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
-  goto :Exit
+  echo warning: LLVM CLANG is not available - trying to provide
+  call "%MAKER_ROOT%\build_llvm.bat"
+  call "%MAKER_SCRIPTS%\validate_llvm.bat"
+  if %ERRORLEVEL% NEQ 0 (
+    goto :Exit
+  )
 )
-
-goto :EOF
-
-rem echo test emsdk
-call emcc --version 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_emsdk_success
-echo error: EMSDK not available
-goto :EOF
-:test_emsdk_success
-call em++ --version
-call emcc --version
-:test_emsdk_ok
-
+rem validate emsdk
+call "%MAKER_SCRIPTS%\validate_emsdk.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: EMSDK is not available - trying to provide
+  call "%MAKER_ROOT%\build_emsdk.bat"
+  call "%MAKER_SCRIPTS%\validate_emsdk.bat" --no_errors
+  if %ERRORLEVEL% NEQ 0 (
+    goto :Exit
+  )
+)
 rem validate perl (for QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
 call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
@@ -67,9 +69,12 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem validate python
 call "%MAKER_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
-if %ERRORLEVEL% NEQ 0 goto :Exit
-if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
-  echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+if %ERRORLEVEL% NEQ 0 (
+  rem if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
+  rem   echo warning: PYTHON architecture '%PYTHON_ARCHITECTURE%' does not match MSVS target architecture '%MSVS_TARGET_ARCHITECTURE%'
+  rem )
+  echo warning: PERL is not available
+  goto :Exit
 )
 
 

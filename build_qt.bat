@@ -38,6 +38,7 @@ if "%_REBUILD%" equ "true" (
 
 rem (3) *** testing for existing QT build ***
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
+if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :build_qt
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
@@ -183,19 +184,22 @@ rem (7) *** perform QT build ***
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 echo QT-BUILD %_QT_VERSION%
 pushd "%_QT_BUILD_DIR%"
-call cmake --build . --parallel
+call cmake --build . --parallel 4
 popd
 :qt_build_done
 
 rem (8) *** perform QT install ***
 :qt_install
-if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (
+if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_install_do
+if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_install_do
+goto :qt_install_test
+:qt_install_do
   echo QT-INSTALL %_QT_VERSION%
   pushd "%_QT_BUILD_DIR%"
   call cmake --install .
   popd
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
-)
+:qt_install_test
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
