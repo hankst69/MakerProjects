@@ -54,15 +54,19 @@ popd
 
 
 rem set llvm/clang
-if not exist "%LLVM_INSTALL_DIR%\clang.exe" set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
-call "%MAKER_SCRIPTS%\validate_llvm.bat" 1>nul
-if %ERRORLEVEL% EQU 0 goto :test_llvm_success
+call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+if %ERRORLEVEL% EQU 0 goto :add_llvm_done
+:add_llvm_emsdk
+goto :add_llvm_end
+if not exist "%LLVM_INSTALL_DIR%\clang.exe" goto :add_llvm_end
+set "LLVM_INSTALL_DIR=%_EMSDK_BIN_DIR%\upstream\bin"
 set "PATH=%PATH%;%LLVM_INSTALL_DIR%"
-:test_llvm_success
+:add_llvm_done
+call clang --version
+call clang++ --version
+:add_llvm_end
 
 echo.
-call clang --version
-rem call clang++ --version
 echo.
 call wasm32-clang --version
 echo.
