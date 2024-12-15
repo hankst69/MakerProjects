@@ -5,4 +5,4 @@ if %ERRORLEVEL% EQU 0 goto :Exit
 echo warning: GPERF is not available - trying to build from sources
 call "%MAKER_ROOT%\build_gperf.bat" %*
 :Exit
-"%MAKER_SCRIPTS%\validate_gperf.bat" %*
+call "%MAKER_SCRIPTS%\validate_gperf.bat" %*
