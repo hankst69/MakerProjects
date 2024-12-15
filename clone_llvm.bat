@@ -25,4 +25,4 @@ rem call git pull
 :llvm_clone_done
 echo LLVM-CLONE %_LLVM_VERSION% done
 
-rem cd "%_LLVM_DIR%"
+cd "%_LLVM_SOURCES_DIR%"
