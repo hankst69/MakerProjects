@@ -6,12 +6,15 @@ set "_BGP_START_DIR=%cd%"
 set _GP_VERSION=
 set _REBUILD=
 :param_loop
-set "_ARG_1=%~1"
-if /I "%~1" equ "--rebuild"   (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"          (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "!_ARG_1:~0,1!" equ "-" (echo unknown switch '%_ARG_1%' &shift &goto :param_loop)
-if "%~1" neq ""               (set "_GP_VERSION=%~1" &shift &goto :param_loop)
-
+if "%~1" equ "" goto :param_loop_exit
+set "_ARG_=%~1"
+if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
+if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
+if "%~1" neq ""              (set "_GP_VERSION=%~1" &shift &goto :param_loop)
+:param_loop_exit
+set _ARG_=
 
 rem (1) *** cloning GPerf sources ***
 call "%MAKER_ROOT%\clone_gperf.bat" %_GP_VERSION%
@@ -75,9 +78,11 @@ if not exist "%_GP_BIN_DIR%" (
 :install_gp_done
 echo GPERF-INSTALL done
 
-:ensuure_gp
-call "%MAKER_SCRIPTS%\ensure_gperf.bat" %_GP_VERSION%
+:ensure_gp
+if not exist "%_GP_BIN_DIR%\bin\tcmalloc_minimal.dll" goto :Exit
+call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
+:Exit
 cd "%_GP_DIR%"
-goto :EOF
-
+"%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION%
