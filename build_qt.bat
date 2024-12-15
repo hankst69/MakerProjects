@@ -7,18 +7,30 @@
 call "%~dp0\maker_env.bat"
 set "_BQT_START_DIR=%cd%"
 
-set _QT_VERSION=6.6.3
+set _VERSION=
 set _REBUILD=
+set _BUILD_TYPE=
 :param_loop
 if "%~1" equ "" goto :param_loop_exit
 set "_ARG_=%~1"
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "Debug"      (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "Release"    (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
 if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
 if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq "" if "%_VERSION%" equ "" (set "_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq "" (echo error: unknown argument '%~1' &shift &goto :param_loop)
 :param_loop_exit
 set _ARG_=
+
+set "_QT_TGT_ARCH=x64"
+set "_QT_VERSION=%_VERSION%"
+set "_QT_BUILD_TYPE=%_BUILD_TYPE%"
+rem apply defaults
+if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
+set _QT_BUILD_TYPE=Release
+
 
 rem (1) *** cloning QT sources ***
 call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%

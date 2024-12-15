@@ -1,20 +1,29 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set _LLVM_VERSION=
-set _LLVM_TGT_ARCH=x64
-set _LLVM_BUILD_TYPE=Release
-rem set _LLVM_BUILD_TYPE=Debug
-
+set _VERSION=
 set _REBUILD=
+set _BUILD_TYPE=
 :param_loop
-if /I "%~1" equ "--rebuild"    (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"           (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "Debug"        (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "Release"      (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
-rem if /I "%~1" equ "RelWithDebug" (set "_LLVM_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if "%~1" neq "" if "%_LLVM_VERSION%" equ "" (set "_LLVM_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq "" (echo error: unknown argument '%~1' &goto :EOF)
+if "%~1" equ "" goto :param_loop_exit
+set "_ARG_=%~1"
+if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "Debug"      (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "Release"    (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
+if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
+if "%~1" neq "" if "%_VERSION%" equ "" (set "_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq "" (echo error: unknown argument '%~1' &shift &goto :param_loop)
+:param_loop_exit
+set _ARG_=
+
+set "_LLVM_VERSION=%_VERSION%"
+set "_LLVM_BUILD_TYPE=%_BUILD_TYPE%"
+rem apply defaults
+if "%_LLVM_VERSION%" equ "" set _LLVM_VERSION=
+if "%_LLVM_BUILD_TYPE%" equ "" set _LLVM_BUILD_TYPE=Release
+set "_LLVM_TGT_ARCH=x64"
 
 
 rem (1) *** cloning LLVM sources ***
