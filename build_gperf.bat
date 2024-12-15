@@ -48,7 +48,16 @@ rem
 rem * mandatory: CMake 3.16 or newer
 rem * mandatory: 
 rem * mandatory: MSVC2019 or MSVC2022 or Mingw-w64 13.1
-
+rem ensure msvs version and amd64 target architecture
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
+)
+rem validate cmake
+call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
+)
 
 :configure_gp
 set _GP_BUILD_TYPE=Release
