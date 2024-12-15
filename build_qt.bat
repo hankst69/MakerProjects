@@ -10,10 +10,15 @@ set "_BQT_START_DIR=%cd%"
 set _QT_VERSION=6.6.3
 set _REBUILD=
 :param_loop
+if "%~1" equ "" goto :param_loop_exit
+set "_ARG_=%~1"
 if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
+if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
 if "%~1" neq ""             (set "_QT_VERSION=%~1" &shift &goto :param_loop)
-
+:param_loop_exit
+set _ARG_=
 
 rem (1) *** cloning QT sources ***
 call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
@@ -130,7 +135,7 @@ if %ERRORLEVEL% NEQ 0 (
   )
 )
 rem validate node.js 
-call "%MAKER_SCRIPTS%\validate_nodejs.bat" GEQ14 --no_errors
+call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   goto :Exit
