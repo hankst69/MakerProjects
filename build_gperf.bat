@@ -73,6 +73,17 @@ if not exist "%_GP_BIN_DIR%" (
 :install_gp_done
 echo GPERF-INSTALL done
 
+:validate_gp
+rem extend path to find gperf tools
+call which tcmalloc_minimal.dll 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
+call which tcmalloc_minimal.dll 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 echo GPERF %_GP_VERSION% available &goto :validate_gp_done
+echo error: GPERF %_GP_VERSION% failed
+goto :Exit
+:validate_gp_done
+
+:Exit
 cd "%_GP_DIR%"
 goto :EOF
 

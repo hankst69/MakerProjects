@@ -7,9 +7,10 @@ set _QT_VERSION=6.6.3
 if "%~1" neq "" set "_QT_VERSION=%~1"
 
 rem if we have to create a WASM build, we have to build the matching windows host version first
-rem call "%MAKER_ROOT%\clone_qt.bat" "%~1"
+rem note that this call already ensures most of the prerequisites below
 call "%MAKER_ROOT%\build_qt.bat" "%~1"
 echo.
+
 cd "%MAKER_ROOT%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
@@ -75,6 +76,17 @@ if %ERRORLEVEL% NEQ 0 (
   rem )
   echo warning: PERL is not available
   goto :Exit
+)
+rem validate gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
+call "%MAKER_SCRIPTS%\validate_gperf.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: gperf is not available - trying to build from sources
+  call "%MAKER_ROOT%\build_gperf.bat"
+  call "%MAKER_SCRIPTS%\validate_gperf.bat"
+  if %ERRORLEVEL% NEQ 0 (
+    echo warning: gperf is not available
+    rem goto :Exit
+  )
 )
 
 
