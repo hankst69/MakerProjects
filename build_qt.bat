@@ -100,6 +100,7 @@ echo *** OTPIONAL: LLVM/Clang
 echo *** OTPIONAL: Node.js
 echo *** OTPIONAL: gRPC
 echo *** OTPIONAL: Protobuf
+echo *** OPTIONAL: gperf (for QtWebEngine)
 echo.
 
 rem ensure msvs version and amd64 target architecture
@@ -118,10 +119,10 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
 )
-rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
+rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
+  echo warning: LLVM CLANG is not available - trying to build from sources
   call "%MAKER_ROOT%\build_llvm.bat"
   call "%MAKER_SCRIPTS%\validate_llvm.bat"
   if %ERRORLEVEL% NEQ 0 (
@@ -149,6 +150,18 @@ if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
 
 
 rem (5) *** setup QT dependencies ***
+
+rem validate gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
+call "%MAKER_SCRIPTS%\validate_gperf.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: gperf is not available - trying to build from sources
+  call "%MAKER_ROOT%\build_gperf.bat"
+  call "%MAKER_SCRIPTS%\validate_gperf.bat"
+  if %ERRORLEVEL% NEQ 0 (
+    echo warning: gperf is not available
+    rem goto :Exit
+  )
+)
 
 rem setup gRPC
 rem call "%MAKER_ROOT%\build_grpc.bat" x64-windows
