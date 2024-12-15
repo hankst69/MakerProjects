@@ -5,7 +5,7 @@ if %ERRORLEVEL% EQU 0 echo GPERF %* available &exit /b 0
 
 set "_GP_BIN_DIR=%MAKER_TOOLS%\GPerf\gperf\bin"
 set "_GP_TEST_OBJECT=%_GP_BIN_DIR%\tcmalloc_minimal.dll"
-if not exist "%_GP_TEST_OBJECT%" call %MAKER_ROOT%\build_gperf.bat" %*
+if not exist "%_GP_TEST_OBJECT%" call "%MAKER_ROOT%\build_gperf.bat" %*
 if not exist "%_GP_TEST_OBJECT%" echo error: GPERF %* failed &exit /b 1
 rem echo %PATH%
 if exist "%_GP_TEST_OBJECT%" set "PATH=%PATH%;%_GP_BIN_DIR%"

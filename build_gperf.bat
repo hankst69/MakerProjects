@@ -6,9 +6,11 @@ set "_BGP_START_DIR=%cd%"
 set _GP_VERSION=
 set _REBUILD=
 :param_loop
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
-if "%~1" neq ""             (set "_GP_VERSION=%~1" &shift &goto :param_loop)
+set "_ARG_1=%~1"
+if /I "%~1" equ "--rebuild"   (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"          (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "!_ARG_1:~0,1!" equ "-" (echo unknown switch '%_ARG_1%' &shift &goto :param_loop)
+if "%~1" neq ""               (set "_GP_VERSION=%~1" &shift &goto :param_loop)
 
 
 rem (1) *** cloning GPerf sources ***
