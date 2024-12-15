@@ -109,13 +109,14 @@ if exist "%_LLVM_BIN_DIR%\bin\clang.exe" (
 
 rem (8) *** make LLVM available ***
 :_validate
+rem set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%\bin"
+set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
+
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% EQU 0 goto :_validate_done
 if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" echo error: LLVM build incomplete &goto :_validate_done
 
 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
-rem set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%\bin"
-set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
 :_validate_done
 
