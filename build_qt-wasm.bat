@@ -77,16 +77,11 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   goto :Exit
 )
-rem validate gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
-call "%MAKER_SCRIPTS%\validate_gperf.bat" --no_errors
+rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
+call "%MAKER_SCRIPTS%\ensure_gperf.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: gperf is not available - trying to build from sources
-  call "%MAKER_ROOT%\build_gperf.bat"
-  call "%MAKER_SCRIPTS%\validate_gperf.bat"
-  if %ERRORLEVEL% NEQ 0 (
-    echo warning: gperf is not available
-    rem goto :Exit
-  )
+  echo warning: gperf is not available
+  rem goto :Exit
 )
 
 
