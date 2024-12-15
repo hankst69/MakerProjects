@@ -10,4 +10,4 @@ if not exist "%_NODE_TEST_OBJECT%" echo error: NODEJS failed &exit /b 1
 if exist "%_NODE_TEST_OBJECT%" set "PATH=%PATH%;%_NODE_BIN_DIR%"
 
 :Exit
-"%MAKER_SCRIPTS%\validate_nodejs.bat" %*
+call "%MAKER_SCRIPTS%\validate_nodejs.bat" %*

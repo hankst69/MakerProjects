@@ -1,4 +1,7 @@
-@rem https://github.com/GerHobbelt/gperf.git
+@rem https://www.gnu.org/software/gperf/gperf.html
+@rem https://github.com/rurban/gperf
+@rem https://github.com/GerHobbelt/gperf
+@rem https://github.com/hankst69/gperf
 @echo off
 call "%~dp0\maker_env.bat"
 
@@ -18,7 +21,7 @@ rem if %ERRORLEVEL% NEQ 0 goto :EOF
 rem echo.
 
 echo GPerf-CLONE %_GP_VERSION%
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GP_SOURCES_DIR%" "https://github.com/GerHobbelt/gperf.git"
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GP_SOURCES_DIR%" "https://github.com/hankst69/gperf.git"
 pushd "%_GP_SOURCES_DIR%"
 
 rem call git pull
