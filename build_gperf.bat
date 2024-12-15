@@ -3,18 +3,30 @@
 call "%~dp0\maker_env.bat"
 set "_BGP_START_DIR=%cd%"
 
-set _GP_VERSION=
+set _VERSION=
 set _REBUILD=
+set _BUILD_TYPE=
 :param_loop
 if "%~1" equ "" goto :param_loop_exit
 set "_ARG_=%~1"
 if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "Debug"      (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "Release"    (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
 if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
 if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if "%~1" neq ""              (set "_GP_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq "" if "%_VERSION%" equ "" (set "_VERSION=%~1" &shift &goto :param_loop)
+if "%~1" neq "" (echo error: unknown argument '%~1' &shift &goto :param_loop)
 :param_loop_exit
 set _ARG_=
+
+set "_GP_VERSION=%_VERSION%"
+set "_GP_BUILD_TYPE=%_BUILD_TYPE%"
+rem apply defaults
+if "%_GP_VERSION%" equ ""    set _GP_VERSION=
+if "%_GP_BUILD_TYPE%" equ "" set _GP_BUILD_TYPE=Release
+set "_GP_TGT_ARCH=x64"
+
 
 rem (1) *** cloning GPerf sources ***
 call "%MAKER_ROOT%\clone_gperf.bat" %_GP_VERSION%
@@ -37,7 +49,7 @@ if "%_REBUILD%" equ "true" (
 )
 
 rem (3) *** testing for existing gperf build ***
-if exist "%_GP_BIN_DIR%\bin\tcmalloc_minimal.dll" goto :install_gp_done
+if exist "%_GP_BIN_DIR%\bin\gperf.exe" goto :install_gp_done
 
 
 rem (4) *** ensuring prerequisites ***
@@ -60,11 +72,10 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :configure_gp
-set _GP_BUILD_TYPE=Release
-echo GPERF-CONFIG %_GP_VERSION% %_GP_BUILD_TYPE% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% x64)
+echo GPERF-CONFIG %_GP_VERSION% %_GP_BUILD_TYPE% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% %_GP_TGT_ARCH%)
 cd "%_GP_SOURCES_DIR%"
-echo cmake -S "%_GP_SOURCES_DIR%" -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
-call cmake -S . -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -DCMAKE_INSTALL_PREFIX="%_LLVM_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
+echo cmake -S "%_GP_SOURCES_DIR%" -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
+call cmake -S . -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
 echo GPERF-CONFIG done
 
 :build_gp
@@ -78,17 +89,11 @@ echo GPERF-INSTALL (%_GP_BIN_DIR%)
 cd "%_GP_BUILD_DIR%"
 call cmake --install .
 
-if not exist "%_GP_BIN_DIR%" (
-  mkdir "%_GP_BIN_DIR%\bin"
-  mkdir "%_GP_BIN_DIR%\gperftools"
-  call xcopy /S /Y /Q "%_GP_BUILD_DIR%\%_GP_BUILD_TYPE%" "%_GP_BIN_DIR%\bin" 1>NUL
-  call xcopy /S /Y /Q "%_GP_BUILD_DIR%\gperftools" "%_GP_BIN_DIR%\gperftools" 1>NUL
-)
 :install_gp_done
 echo GPERF-INSTALL done
 
 :ensure_gp
-if not exist "%_GP_BIN_DIR%\bin\tcmalloc_minimal.dll" goto :Exit
+if not exist "%_GP_BIN_DIR%\bin\gperf.exe" goto :Exit
 call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
