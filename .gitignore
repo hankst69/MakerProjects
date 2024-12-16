@@ -3,6 +3,7 @@
 !**/.vscode/extensions.json
 !**/.vscode/settings.json
 **/out/*
+aqtinstall.log
 
 /.tools
 /tools/*

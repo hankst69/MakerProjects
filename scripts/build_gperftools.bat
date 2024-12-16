@@ -26,6 +26,7 @@ rem apply defaults
 if "%_GPT_VERSION%" equ "" set _GPT_VERSION=
 if "%_GPT_BUILD_TYPE%" equ "" set _GPT_=Release
 set "_GPT_TGT_ARCH=x64"
+set _GPT_BUILD_TYPE=Release
 
 
 rem (1) *** cloning GPerf sources ***
@@ -72,7 +73,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem :configure_gpt
-set _GPT_BUILD_TYPE=Release
+echo.
 echo GPERFTOOLS-CONFIG %_GPT_VERSION% %_GPT_BUILD_TYPE% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% x64)
 cd "%_GPT_SOURCES_DIR%"
 echo cmake -S "%_GPT_SOURCES_DIR%" -G "Visual Studio 17 2022" -B "%_GPT_BUILD_DIR%" -DCMAKE_INSTALL_PREFIX="%_GPT_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GPT_BUILD_TYPE%"
@@ -80,12 +81,14 @@ call cmake -S . -G "Visual Studio 17 2022" -B "%_GPT_BUILD_DIR%" -DCMAKE_INSTALL
 echo GPERFTOOLS-CONFIG done
 
 rem :build_gpt
+echo.
 echo GPERFTOOLS-BUILD (%_GPT_BUILD_DIR%)
 cd "%_GPT_BUILD_DIR%"
 call cmake --build . --parallel 4 --config %_GPT_BUILD_TYPE%
 echo GPERFTOOLS-BUILD done
 
 rem :install_gpt
+echo.
 echo GPERFTOOLS-INSTALL (%_GPT_BIN_DIR%)
 cd "%_GPT_BUILD_DIR%"
 call cmake --install .
