@@ -84,7 +84,7 @@ rem              https://github.com/qt-creator/qt-creator/blob/master/README.md#
 rem * optional:  Perl (for opus optimization)
 rem * optional:  node.js 14 or newer (for QtWebEngine, QtPdf)
 rem * optional:  gperf (for QtWebEngine, QtPdf)
-rem * optional:  bison (for QtWebEngine, QtPdf) see https://github.com/akimd/bison
+rem * optional:  bison (for QtWebEngine, QtPdf) see https://gnuwin32.sourceforge.net/packages/bison.htm  https://github.com/akimd/bison ,
 rem * optional:  gRPC and Protobuf packages (for QtGRPC and QtProtobuf) 
 rem              -> install gRPC and Protobuf via vcpkg: https://doc.qt.io/qt-6/qtprotobuf-installation-windows-vcpkg.html
 rem                 ".\vcpkg.exe install grpc:x64-windows"
@@ -144,12 +144,6 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :Exit
 )
-rem validate node.js 
-call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: NODE.JS is not available
-  goto :Exit
-)
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
 call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
@@ -166,12 +160,27 @@ if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
 
 rem (5) *** setup QT dependencies ***
 
+rem validate node.js 
+call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NODE.JS is not available
+  goto :Exit
+)
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
+rem WARNING: QtWebEngine won't be built. Tool gperf is required.
 call "%MAKER_SCRIPTS%\ensure_gperf.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: gperf is not available
   rem goto :Exit
 )
+rem ensure bison
+rem WARNING: QtWebEngine won't be built. Tool bison is required.
+call "%MAKER_SCRIPTS%\ensure_bison.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: bison is not available
+  rem goto :Exit
+)
+
 
 rem setup gRPC
 rem call "%MAKER_ROOT%\build_grpc.bat" x64-windows
