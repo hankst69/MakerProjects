@@ -1,10 +1,10 @@
 @rem https://emscripten.org/docs/getting_started/downloads.html
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 set "_EMSDK_START_DIR=%cd%"
 
 rem -- clone EMSDK
-call "%MAKER_ROOT%\clone_emsdk.bat" %*
+call "%MAKER_BUILD%\clone_emsdk.bat" %*
 rem defines: _EMSDK_DIR
 rem defines: _EMSDK_BIN_DIR
 rem defines: _EMSDK_VERSION
@@ -16,7 +16,7 @@ if "%_EMSDK_VERSION%" EQU "" (echo error: cloning EMSDK &goto :EOF)
 
 
 rem -- ensure python is available
-call "%MAKER_SCRIPTS%\validate_python.bat"
+call "%MAKER_BUILD%\validate_python.bat"
 if %ERRORLEVEL% NEQ 0 goto :exit_script
 
 
@@ -54,7 +54,7 @@ popd
 
 
 rem set llvm/clang
-call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+call "%MAKER_BUILD%\validate_llvm.bat" --no_errors
 if %ERRORLEVEL% EQU 0 goto :add_llvm_done
 :add_llvm_emsdk
 goto :add_llvm_end
