@@ -82,7 +82,9 @@ rem * optional:  LLVM/Clang (for QDoc)
 rem              https://doc.qt.io/qt-6/qdoc-guide-clang.html
 rem              https://github.com/qt-creator/qt-creator/blob/master/README.md#getting-llvmclang-for-the-clang-code-model
 rem * optional:  Perl (for opus optimization)
-rem * optional:  node.js 14 or newer (for QtWebEngine, QtPdf)  see: ...
+rem * optional:  node.js 14 or newer (for QtWebEngine, QtPdf)
+rem * optional:  gperf (for QtWebEngine, QtPdf)
+rem * optional:  bison (for QtWebEngine, QtPdf) see https://github.com/akimd/bison
 rem * optional:  gRPC and Protobuf packages (for QtGRPC and QtProtobuf) 
 rem              -> install gRPC and Protobuf via vcpkg: https://doc.qt.io/qt-6/qtprotobuf-installation-windows-vcpkg.html
 rem                 ".\vcpkg.exe install grpc:x64-windows"
@@ -137,14 +139,10 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :Exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+call "%MAKER_SCRIPTS%\ensure_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available - trying to build from sources
-  call "%MAKER_ROOT%\build_llvm.bat"
-  call "%MAKER_SCRIPTS%\validate_llvm.bat"
-  if %ERRORLEVEL% NEQ 0 (
-    goto :Exit
-  )
+  echo warning: LLVM CLANG is not available
+  goto :Exit
 )
 rem validate node.js 
 call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
