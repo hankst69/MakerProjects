@@ -1,15 +1,15 @@
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 
 :_msvs_available
-call "%MAKER_SCRIPTS%\validate_python.bat" 1>nul
+call "%MAKER_BUILD%\validate_python.bat" 1>nul
 if "%ERRORLEVEL%" equ "0" goto :_python_available
 echo error: PYTHON not available
 exit /b 1
 
 :_python_available
 rem ensure msvs available and matches
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" "%PYTHON_ARCHITECTURE%" 1>nul
+call "%MAKER_BUILD%\ensure_msvs.bat" "%PYTHON_ARCHITECTURE%" 1>nul
 if "%ERRORLEVEL%" equ "0" goto :_msvs_matches_python
 echo error: MSVS not available or incompatible
 exit /b 2

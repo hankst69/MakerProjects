@@ -1,5 +1,5 @@
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 
 set _VERSION=
 set _REBUILD=
@@ -29,7 +29,7 @@ set "_LLVM_TGT_ARCH=x64"
 rem (1) *** cloning LLVM sources ***
 rem defines: _LLVM_DIR
 rem defines: _LLVM_SOURCES_DIR
-call "%MAKER_ROOT%\clone_llvm.bat" %_LLVM_VERSION%
+call "%MAKER_BUILD%\clone_llvm.bat" %_LLVM_VERSION%
 if "%_LLVM_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if "%_LLVM_SOURCES_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if not exist "%_LLVM_DIR%" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
@@ -57,12 +57,12 @@ echo *** THIS REQUIRES Cmake 3.16 or newer
 echo.
 
 rem validate msvs and ensure amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 %_LLVM_TGT_ARCH%
+call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 %_LLVM_TGT_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
@@ -123,10 +123,10 @@ set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 
 if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :Exit
 
-call "%MAKER_SCRIPTS%\validate_llvm.bat" 1>nul 2>nul
+call "%MAKER_BUILD%\validate_llvm.bat" 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
 
 :Exit
 cd "%_LLVM_DIR%"
-call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+call "%MAKER_BUILD%\validate_llvm.bat" --no_errors

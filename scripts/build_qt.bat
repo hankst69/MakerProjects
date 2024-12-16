@@ -33,7 +33,7 @@ set _QT_BUILD_TYPE=Release
 
 
 rem (1) *** cloning QT sources ***
-call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
+call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
 if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
@@ -123,35 +123,35 @@ echo *** OPTIONAL: gperf (for QtWebEngine)
 echo.
 
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate ninja
-call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors
+call "%MAKER_BUILD%\validate_ninja.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_SCRIPTS%\ensure_llvm.bat" --no_errors
+call "%MAKER_BUILD%\ensure_llvm.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :Exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors
+call "%MAKER_BUILD%\validate_perl.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :Exit
 )
 rem validate python
-call "%MAKER_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
 if %ERRORLEVEL% NEQ 0 goto :Exit
 if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
@@ -161,34 +161,34 @@ if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
 rem (5) *** setup QT dependencies ***
 
 rem validate node.js 
-call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
+call "%MAKER_BUILD%\ensure_nodejs.bat" GEQ14 --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   goto :Exit
 )
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
 rem WARNING: QtWebEngine won't be built. Tool gperf is required.
-call "%MAKER_SCRIPTS%\ensure_gperf.bat" --no_errors
+call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: gperf is not available
+  echo warning: GPERF is not available
   rem goto :Exit
 )
 rem ensure bison
 rem WARNING: QtWebEngine won't be built. Tool bison is required.
-call "%MAKER_SCRIPTS%\ensure_bison.bat" --no_errors
+call "%MAKER_BUILD%\ensure_bison.bat" --no_errors
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: bison is not available
+  echo warning: BISON is not available
   rem goto :Exit
 )
 
 
 rem setup gRPC
-rem call "%MAKER_ROOT%\build_grpc.bat" x64-windows
+rem call "%MAKER_BUILD%\build_grpc.bat" x64-windows
   rem pushd "%_QT_DIR%"
   rem call vcpkg install grpc:x64-windows
   rem popd
 rem setup Protobuf
-rem call "%MAKER_ROOT%\build_protobuf.bat" x64-windows
+rem call "%MAKER_BUILD%\build_protobuf.bat" x64-windows
   rem pushd "%_QT_DIR%"
   rem call vcpkg install protobuf protobuf:x64-windows
   rem popd

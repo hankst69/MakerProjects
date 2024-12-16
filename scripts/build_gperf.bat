@@ -1,6 +1,6 @@
 @rem https://github.com/gperftools/gperftools
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 set "_BGP_START_DIR=%cd%"
 
 set _VERSION=
@@ -30,7 +30,7 @@ set "_GP_TGT_ARCH=x64"
 
 rem (1) *** cloning GPerf sources ***
 echo GPERF-CLONE %_GP_VERSION%
-call "%MAKER_ROOT%\clone_gperf.bat" %_GP_VERSION%
+call "%MAKER_BUILD%\clone_gperf.bat" %_GP_VERSION%
 echo GPERF-CLONE %_GP_VERSION% done
 
 rem defines: _GP_DIR
@@ -42,7 +42,6 @@ if not exist "%_GP_SOURCES_DIR%" (echo cloning gperf %_GP_VERSION% failed &goto 
 
 set "_GP_BUILD_DIR=%_GP_DIR%\gperf_build%_GP_VERSION%"
 set "_GP_BIN_DIR=%_GP_DIR%\gperf%_GP_VERSION%"
-
 
 rem (2) *** cleaning QT build if demanded ***
 if "%_REBUILD%" equ "true" (
@@ -64,12 +63,12 @@ rem * mandatory: CMake 3.16 or newer
 rem * mandatory: 
 rem * mandatory: MSVC2019 or MSVC2022 or Mingw-w64 13.1
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
@@ -99,9 +98,9 @@ call cmake --install .
 echo GPERF-INSTALL done
 
 :ensure_gp
-call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
 :Exit
 cd "%_GP_DIR%"
-call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION%
+call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION%

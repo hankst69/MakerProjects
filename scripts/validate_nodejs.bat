@@ -1,2 +1,1 @@
-@rem validate node.js
-@call "%~dp0validate.bat" "NODEJS" "node --version" "call node --version" %*
+@call "%~dp0core\validate.bat" "NODEJS" "node --version" "call node --version" %*

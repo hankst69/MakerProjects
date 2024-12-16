@@ -3,7 +3,7 @@
 call "%~dp0\maker_env.bat"
 set "_BMK_START_DIR=%cd%"
 
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
 
 if exist "%MAKER_BIN%\make.bat" (
@@ -15,7 +15,7 @@ if exist "%MAKER_BIN%\make.bat" (
   if "%_VERSION_NR%" neq "" goto :test_make_success
 )
 
-call "%MAKER_ROOT%\build_choco.bat"
+call "%MAKER_BUILD%\build_choco.bat"
 rem defines: _CHOCO_DIR
 rem defines: _CHOCO_BIN
 
@@ -29,18 +29,18 @@ if not exist "%_CHOCO_BIN%\bin\make.exe" (
 
 echo @call "%%_CHOCO_BIN%%\bin\make.exe" %%* >"%MAKER_BIN%\make.bat"
 
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%MAKER_BIN%;%Path%"
 
 
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 (
   echo error: installing MAKE failed
   goto :exit_script
 )
 
 :test_make_success
-call "%MAKER_SCRIPTS%\validate_make.bat"
+call "%MAKER_BUILD%\validate_make.bat"
 
 :exit_script
 cd /d "%_BMK_START_DIR%"

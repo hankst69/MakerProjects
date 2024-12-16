@@ -34,10 +34,10 @@ rem todo: unzip bison into %_BISON_DIR%
 if not exist "%_BISON_BIN_DIR%\bin\bison.exe" goto :Exit
 
 :validate
-call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
 set PATH=%PATH%;"%_BISON_BIN_DIR%\bin"
 
 :Exit
 cd "%_BISON_DIR%"
-call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+call "%MAKER_BUILD%\validate_bison.bat" --no_errors

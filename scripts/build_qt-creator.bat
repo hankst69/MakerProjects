@@ -63,32 +63,32 @@ echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
 echo *** THIS REQUIRES Python 3
 echo.
 
-call "%MAKER_ROOT%\clone_qt.bat" %_QT_VERSION%
+call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION%
 rem set "_QT_DIR=%MAKER_TOOLS%\Qt"
 set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
 
 rem --- validate python
-call "%MAKER_SCRIPTS%\validate_python.bat" 3
+call "%MAKER_BUILD%\validate_python.bat" 3
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem --- ensure proper MSVS 2019 is available where target architecture matches python architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
+call "%MAKER_BUILD%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem -- ensure make is available
-call "%MAKER_SCRIPTS%\validate_make.bat" GEQ3 1>nul
-if %ERRORLEVEL% NEQ 0 call "%MAKER_ROOT%\build_make.bat"
-call "%MAKER_SCRIPTS%\validate_make.bat"
+call "%MAKER_BUILD%\validate_make.bat" GEQ3 1>nul
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_make.bat"
+call "%MAKER_BUILD%\validate_make.bat" GEQ3
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 
 rem -- ensure qt_install makefiles are available
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
-  call "%MAKER_ROOT%\scripts\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
+  call "%MAKER_BUILD%\core\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
 )
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
   echo error: QT Make files not available

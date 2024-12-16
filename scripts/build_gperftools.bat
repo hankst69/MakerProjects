@@ -1,6 +1,6 @@
 @rem https://github.com/gperftools/gperftools
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 set "_BGPT_START_DIR=%cd%"
 
 set _VERSION=
@@ -30,7 +30,7 @@ set _GPT_BUILD_TYPE=Release
 
 
 rem (1) *** cloning GPerf sources ***
-call "%MAKER_ROOT%\clone_gperftools.bat" %_GPT_VERSION%
+call "%MAKER_BUILD%\clone_gperftools.bat" %_GPT_VERSION%
 rem defines: _GPT_DIR
 rem defines: _GPT_SOURCES_DIR
 if "%_GPT_DIR%" EQU "" (echo cloning gperf %_GPT_VERSION% failed &goto :Exit)
@@ -62,12 +62,12 @@ rem * mandatory: CMake 3.16 or newer
 rem * mandatory: 
 rem * mandatory: MSVC2019 or MSVC2022 or Mingw-w64 13.1
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
@@ -104,9 +104,9 @@ echo GPERFTOOLS-INSTALL done
 
 rem :ensure_gpt
 if not exist "%_GPT_BIN_DIR%\bin\tcmalloc_minimal.dll" goto :Exit
-call "%MAKER_SCRIPTS%\validate_gperftools.bat" %_GPT_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_gperftools.bat" %_GPT_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GPT_BIN_DIR%\bin"
 
 :Exit
 cd "%_GPT_DIR%"
-"%MAKER_SCRIPTS%\validate_gperftools.bat" %_GPT_VERSION%
+"%MAKER_BUILD%\validate_gperftools.bat" %_GPT_VERSION%

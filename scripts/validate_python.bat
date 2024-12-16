@@ -1,5 +1,5 @@
 @echo off
-set "_SCRIPT_ROOT=%~dp0"
+set "_SCRIPT_ROOT=%~dp0core"
 set PYTHON_ARCHITECTURE=
 set PYTHON_EXE=
 set PYTHON_VERSION=

@@ -3,14 +3,14 @@
 @rem https://github.com/vedderb/vesc_tool
 @rem http://github.com/vedderb/bldc
 @echo off
-call "%~dp0\maker_env.bat"
+set "MAKER_BUILD=%~dp0"
 set "_BVESC_START_DIR=%cd%"
 
 echo.
 echo 1) ensure Make is available
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
-if %ERRORLEVEL% NEQ 0 call "%MAKER_ROOT%\build_make.bat"
-call "%MAKER_SCRIPTS%\validate_make.bat"
+call "%MAKER_BUILD%\validate_make.bat" 1>nul
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_make.bat"
+call "%MAKER_BUILD%\validate_make.bat"
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
@@ -18,7 +18,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo 2) ensure Qt-Creator is available
 call which qtcreator 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 call "%MAKER_ROOT%\build_qt-creator.bat"
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt-creator.bat"
 call which qtcreator 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
   echo error: QtCreator is not available
@@ -27,7 +27,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo 3) clone VESC-FW and VESC Tool
-call "%MAKER_ROOT%\clone_vesc.bat"
+call "%MAKER_BUILD%\clone_vesc.bat"
 rem defines: _VESC_DIR
 rem defines: _VESC_TOOL_DIR
 rem defines: _VESC_FW_DIR
