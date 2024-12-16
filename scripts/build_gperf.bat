@@ -29,7 +29,10 @@ set "_GP_TGT_ARCH=x64"
 
 
 rem (1) *** cloning GPerf sources ***
+echo GPERF-CLONE %_GP_VERSION%
 call "%MAKER_ROOT%\clone_gperf.bat" %_GP_VERSION%
+echo GPERF-CLONE %_GP_VERSION% done
+
 rem defines: _GP_DIR
 rem defines: _GP_SOURCES_DIR
 if "%_GP_DIR%" EQU "" (echo cloning gperf %_GP_VERSION% failed &goto :Exit)
@@ -72,6 +75,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :configure_gp
+echo.
 echo GPERF-CONFIG %_GP_VERSION% %_GP_BUILD_TYPE% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% %_GP_TGT_ARCH%)
 cd "%_GP_SOURCES_DIR%"
 echo cmake -S "%_GP_SOURCES_DIR%" -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
@@ -79,12 +83,14 @@ call cmake -S . -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH
 echo GPERF-CONFIG done
 
 :build_gp
+echo.
 echo GPERF-BUILD (%_GP_BUILD_DIR%)
 cd "%_GP_BUILD_DIR%"
 call cmake --build . --parallel 4 --config %_GP_BUILD_TYPE%
 echo GPERF-BUILD done
 
 :install_gp
+echo.
 echo GPERF-INSTALL (%_GP_BIN_DIR%)
 cd "%_GP_BUILD_DIR%"
 call cmake --install .
@@ -93,10 +99,9 @@ call cmake --install .
 echo GPERF-INSTALL done
 
 :ensure_gp
-if not exist "%_GP_BIN_DIR%\bin\gperf.exe" goto :Exit
 call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
 :Exit
 cd "%_GP_DIR%"
-"%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION%
+call "%MAKER_SCRIPTS%\validate_gperf.bat" %_GP_VERSION%
