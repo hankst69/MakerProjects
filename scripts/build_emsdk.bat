@@ -1,6 +1,6 @@
 @rem https://emscripten.org/docs/getting_started/downloads.html
 @echo off
-set "MAKER_BUILD=%~dp0"
+set "MAKER_BUILD=%~dp0" 
 set "_EMSDK_START_DIR=%cd%"
 
 rem -- clone EMSDK
