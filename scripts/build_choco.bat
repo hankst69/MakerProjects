@@ -1,6 +1,6 @@
 @rem https://github.com/chocolatey/choco?tab=readme-ov-file#compiling--building-source
 @echo off
-call "%~dp0\maker_env.bat"
+call "%~dp0\maker_env.bat" %*
 
 set "_CHOCO_BIN=%MAKER_BIN%\.choco"
 
