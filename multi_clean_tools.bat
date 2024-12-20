@@ -1,3 +1,6 @@
+@for /f "tokens=*" %%i in (%0) do @echo %%i
+@goto :EOF
+
 @echo off
 call "%~dp0\maker_env.bat"
 
