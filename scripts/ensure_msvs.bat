@@ -1,21 +1,16 @@
 @echo off
-set "MAKER_BUILD=%~dp0"
+call "%~dp0\maker_env.bat" %*
 
-set _EMSVS_TGT_ARCHITECTURE=
-set _EMSVS_TGT_VERSION=
-set _EMSVS_NO_WARNINGS=
-set _EMSVS_NO_ERRORS=
-set _EMSVS_NO_INFO=
-:param_loop
-if /I "%~1" equ "x86"   (set "_EMSVS_TGT_ARCHITECTURE=x86" &shift &goto :param_loop)
-if /I "%~1" equ "x64"   (set "_EMSVS_TGT_ARCHITECTURE=x64" &shift &goto :param_loop)
-if /I "%~1" equ "amd64" (set "_EMSVS_TGT_ARCHITECTURE=x64" &shift &goto :param_loop)
-if /I "%~1" equ "--no_warnings" (set "_EMSVS_NO_WARNINGS=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "--no_errors"   (set "_EMSVS_NO_ERRORS=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "--no_info"     (set "_EMSVS_NO_INFO=%~1" &shift &goto :param_loop)
-if "%~1" neq "" if "%_TGT_VERSION%" equ "" (set "_EMSVS_TGT_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq ""         (echo warning: unknown argument '%~1' &shift &goto :param_loop)
+set "_EMSVS_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
+set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION%"
+set "_EMSVS_NO_WARNINGS=%MAKER_ENV_NOWARNINGS%"
+set "_EMSVS_NO_ERRORS=%MAKER_ENV_NOERROS%"
+set "_EMSVS_NO_INFO=%MAKER_ENV_NOINFOS%"
 
+if "%MAKER_ENV_UNKNOWN_ARGS%" neq "" (echo warning: unknown argument/s '%MAKER_ENV_UNKNOWN_ARGS%')
+if "%MAKER_ENV_UNKNOWN_SWITHCES%" neq "" (echo warning: unknown switch/es '%MAKER_ENV_UNKNOWN_SWITHCES%')
+
+if "%_EMSVS_TGT_ARCHITECTURE%" equ "amd64" (set "_EMSVS_TGT_ARCHITECTURE=x64")
 if "%_EMSVS_TGT_ARCHITECTURE%" neq "" goto :test_msvs
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: no target architecture specified in command line arguments
 exit /b 1

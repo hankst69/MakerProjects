@@ -1,1 +1,1 @@
-@call "%~dp0core\maker_env.bat"
+@call "%~dp0\core\maker_env.bat" %*
