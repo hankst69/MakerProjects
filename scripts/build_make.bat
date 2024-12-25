@@ -1,7 +1,13 @@
 @rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
+@rem >choco install make
+@rem >winget show --id ezwinports.make
+@rem >winget install --id ezwinports.make
 @echo off
-call "%~dp0\maker_env.bat"
 set "_BMK_START_DIR=%cd%"
+
+call "%~dp0\maker_env.bat"
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
+
 
 call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
@@ -15,10 +21,13 @@ if exist "%MAKER_BIN%\make.bat" (
   if "%_VERSION_NR%" neq "" goto :test_make_success
 )
 
-call "%MAKER_BUILD%\build_choco.bat"
+call "%MAKER_BUILD%\ensure_choco.bat"
+if %ERRORLEVEL% NEQ 0 (
+  echo error: CHOCO is not available
+  goto :exit_script
+)
 rem defines: _CHOCO_DIR
 rem defines: _CHOCO_BIN
-
 if not exist "%_CHOCO_BIN%\bin\make.exe" (
   call choco install make
   if not exist "%_CHOCO_BIN%\bin\make.exe" (
@@ -31,8 +40,6 @@ echo @call "%%_CHOCO_BIN%%\bin\make.exe" %%* >"%MAKER_BIN%\make.bat"
 
 call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%MAKER_BIN%;%Path%"
-
-
 call "%MAKER_BUILD%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 (
   echo error: installing MAKE failed

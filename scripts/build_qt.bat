@@ -84,7 +84,8 @@ rem              https://github.com/qt-creator/qt-creator/blob/master/README.md#
 rem * optional:  Perl (for opus optimization)
 rem * optional:  node.js 14 or newer (for QtWebEngine, QtPdf)
 rem * optional:  gperf (for QtWebEngine, QtPdf)
-rem * optional:  bison (for QtWebEngine, QtPdf) see https://gnuwin32.sourceforge.net/packages/bison.htm  https://github.com/akimd/bison ,
+rem * optional:  bison (for QtWebEngine, QtPdf) see https://gnuwin32.sourceforge.net/packages/bison.htm  https://github.com/akimd/bison 
+rem * optional:  flex  (for QtWebEngine, QtPdf) 
 rem * optional:  gRPC and Protobuf packages (for QtGRPC and QtProtobuf) 
 rem              -> install gRPC and Protobuf via vcpkg: https://doc.qt.io/qt-6/qtprotobuf-installation-windows-vcpkg.html
 rem                 ".\vcpkg.exe install grpc:x64-windows"
@@ -152,9 +153,10 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem validate python
 call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
-if %ERRORLEVEL% NEQ 0 goto :Exit
-if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
-  echo warning: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+if %ERRORLEVEL% NEQ 0 (
+  if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
+    echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+  goto :Exit
 )
 
 
@@ -180,6 +182,8 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :Exit
 )
+rem esnure flex
+rem Support check for QtWebEngine failed: Tool flex is required.
 
 
 rem setup gRPC
@@ -207,7 +211,7 @@ rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
 mkdir "%_QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info >"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -Wno-dev>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
