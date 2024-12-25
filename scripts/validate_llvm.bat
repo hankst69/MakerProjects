@@ -1,1 +1,1 @@
-@call "%~dp0core\validate.bat" "LLVM-CLANG" "clang --version" "for /f ""tokens=2,3 delims= "" %%%%i in ('call clang --version') do if ""%%%%i"" equ ""version"" for /f ""tokens=1,* delims=g"" %%%%k in (""%%%%j"") do echo %%%%k" %*
+@call "%~dp0core\generic_validate.bat" "LLVM-CLANG" "clang --version" "for /f ""tokens=2,3 delims= "" %%%%i in ('call clang --version') do if ""%%%%i"" equ ""version"" for /f ""tokens=1,* delims=g"" %%%%k in (""%%%%j"") do echo %%%%k" %*

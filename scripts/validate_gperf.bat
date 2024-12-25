@@ -1,1 +1,1 @@
-@call "%~dp0core\validate.bat" "GPERF" "gperf --version" "for /f ""tokens=1-3 delims= "" %%%%i in ('call gperf --version') do if /I %%%%j EQU gperf for /f ""tokens=1,* delims=-"" %%%%l in ('echo %%%%k') do echo %%%%l.%%%%m" %*
+@call "%~dp0core\generic_validate.bat" "GPERF" "gperf --version" "for /f ""tokens=1-3 delims= "" %%%%i in ('call gperf --version') do if /I %%%%j EQU gperf for /f ""tokens=1,* delims=-"" %%%%l in ('echo %%%%k') do echo %%%%l.%%%%m" %*

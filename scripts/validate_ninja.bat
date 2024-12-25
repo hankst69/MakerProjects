@@ -1,1 +1,1 @@
-@call "%~dp0core\validate.bat" "NINJA" "ninja --version" "call ninja --version" %*
+@call "%~dp0core\generic_validate.bat" "NINJA" "ninja --version" "call ninja --version" %*
