@@ -1,1 +1,1 @@
-@call "%~dp0core\validate.bat" "NODEJS" "node --version" "call node --version" %*
+@call "%~dp0core\generic_validate.bat" "NODEJS" "node --version" "call node --version" %*

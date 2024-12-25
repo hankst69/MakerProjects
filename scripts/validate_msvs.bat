@@ -7,7 +7,7 @@ set MSVS_VERSION_MINOR=
 set MSVS_VERSION_PATCH=
 set MSVS_TARGET_ARCHITECTURE=
 
-@call "%~dp0core\validate.bat" "MSVS" "msbuild -version" "echo %VSCMD_VER%" "--tool_arch:%VSCMD_ARG_TGT_ARCH%" %*
+@call "%~dp0core\generic_validate.bat" "MSVS" "msbuild -version" "echo %VSCMD_VER%" "--tool_arch:%VSCMD_ARG_TGT_ARCH%" %*
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 set "MSVS_TARGET_ARCHITECTURE=%VSCMD_ARG_TGT_ARCH%"
