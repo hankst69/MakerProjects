@@ -153,7 +153,7 @@ call :_clean_script_variables
 exit /b 5
 
 :_tool_version_available
-call "%_VALIDATE_SCRIPT_ROOT%\split_version.bat" "%_VALIDATE_VERSION%" --no_info %_VALIDATE_NO_ERRORS%
+call "%_VALIDATE_SCRIPT_ROOT%\split_version.bat" "%_VALIDATE_VERSION%" --no_info %_VALIDATE_NO_WARNINGS% %_VALIDATE_NO_ERRORS%
 if %ERRORLEVEL% equ 0 goto :_tool_version_split_ok
 if "%_VALIDATE_NO_ERRORS%" equ "" echo error 6%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' not available or invalid
 call :_clean_script_variables

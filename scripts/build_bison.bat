@@ -12,13 +12,15 @@ set "_BISON_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_BISON_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 
 rem apply defaults
-if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=2.4.1
+rem if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=2.4.1
 if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=2.7.0
 rem if "%_BISON_BUILD_TYPE%" equ "" set _BISON_BUILD_TYPE=Release
 rem set "_BISON_TGT_ARCH=x64"
 
+set ERRORLEVEL=
 call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 goto :test_bison_succes
+if %ERRORLEVEL% EQU 0 goto :exit_script
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem install/build bison
 rem a) install using predownloaded zip files:
@@ -60,9 +62,11 @@ goto :test_bison_succes
 :test_bison_succes
 call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 set "Path=%MAKER_BIN%;%Path%"
 
 :exit_script
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 cd /d "%_BMBS_START_DIR%"
 set _BMBS_START_DIR=
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% --no_errors --no_warnings
+call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% %MAKER_ENV_VERBOSE%
