@@ -4,30 +4,17 @@
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
 @echo off
-call "%~dp0\maker_env.bat"
 set "_BQT_START_DIR=%cd%"
 
-set _VERSION=
-set _REBUILD=
-set _BUILD_TYPE=
-:param_loop
-if "%~1" equ "" goto :param_loop_exit
-set "_ARG_=%~1"
-if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "Debug"      (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "Release"    (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if "%~1" neq "" if "%_VERSION%" equ "" (set "_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq "" (echo error: unknown argument '%~1' &shift &goto :param_loop)
-:param_loop_exit
-set _ARG_=
+call "%~dp0\maker_env.bat" %*
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
-set "_QT_TGT_ARCH=x64"
-set "_QT_VERSION=%_VERSION%"
-set "_QT_BUILD_TYPE=%_BUILD_TYPE%"
+set "_QT_VERSION=%MAKER_ENV_VERSION%"
+set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
+set "_QT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
+set "_REBUILD=%MAKER_ENV_REBUILD%"
 rem apply defaults
+if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
 set _QT_BUILD_TYPE=Release
 
@@ -152,13 +139,13 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :Exit
 )
 rem validate python
-call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%MAKER_BUILD%\validate_python.bat" GEQ3 "%MSVS_TARGET_ARCHITECTURE%"
 if %ERRORLEVEL% NEQ 0 (
   if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
     echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+  )
   goto :Exit
 )
-
 
 rem (5) *** setup QT dependencies ***
 
@@ -184,7 +171,11 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem esnure flex
 rem Support check for QtWebEngine failed: Tool flex is required.
-
+call "%MAKER_BUILD%\ensure_flex.bat" --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: FLEX is not available
+  rem goto :Exit
+)
 
 rem setup gRPC
 rem call "%MAKER_BUILD%\build_grpc.bat" x64-windows

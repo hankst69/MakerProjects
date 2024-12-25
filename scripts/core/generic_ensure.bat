@@ -17,6 +17,6 @@ if "%MAKER_ENV_VERBOSE%" neq "" echo on
 call "%MAKER_BUILD%\build_%PROJ_NAME%.bat" %PROJ_ARGS%
 :Exit
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
-call "%MAKER_BUILD%\validate_%PROJ_NAME%.bat" %PROJ_ARGS%
+call "%MAKER_BUILD%\validate_%PROJ_NAME%.bat" --no_warnings %MAKER_ENV_VERBOSE% %PROJ_ARGS%
 cd /d "%__CURRENT_DIR__%"
 set __CURRENT_DIR__=
