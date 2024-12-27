@@ -43,14 +43,13 @@ rem       -> goto :test_bison_succes
 rem
 rem c) install using choco:
 set "_BISON_BIN_DIR=%MAKER_BIN%"
-set "_CHOCO_BIN_BIN=%MAKER_BIN%\.choco\bin"
-
-if exist "%_CHOCO_BIN_BIN%\win_bison.exe" goto :win_bison_installed
 call "%MAKER_BUILD%\ensure_choco.bat"
 if %ERRORLEVEL% NEQ 0 (
   echo error: CHOCO is not available
   goto :exit_script
 )
+set "_CHOCO_BIN_BIN=%_CHOCO_BIN%\bin"
+if exist "%_CHOCO_BIN_BIN%\win_bison.exe" goto :win_bison_installed
 call choco install winflexbison --yes --force
 if not exist "%_CHOCO_BIN_BIN%\win_bison.exe" (
   echo. error: install BISON failed
