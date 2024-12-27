@@ -33,7 +33,7 @@ set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
 
 rem (2) *** cleaning QT build if demanded ***
-if "%_REBUILD%" equ "true" (
+if "%_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
@@ -80,20 +80,8 @@ rem                 ".\vcpkg.exe install protobuf protobuf:x64-windows"
 rem              -> build gRPC from source:     https://github.com/grpc/grpc/blob/v1.60.0/BUILDING.md#windows
 rem              -> build Protobuf from source: https://github.com/protocolbuffers/protobuf/blob/main/cmake/README.md#windows-builds
 rem 
-rem -- Configuration summary shown below. It has also been written to D:/GIT/han/MakerProjects/Qt/qt_build_6.6.3/config.summary
-rem -- Configure with --log-level=STATUS or higher to increase CMake's message verbosity. The log level does not persist across reconfigurations.
-rem Note: Hunspell in Qt Virtual Keyboard is not enabled. Spelling correction will not be available.
-rem WARNING: QDoc will not be compiled, probably because clang's C and C++ libraries could not be located. This means that you cannot build the Qt documentation.
-rem You may need to set CMAKE_PREFIX_PATH or LLVM_INSTALL_DIR to the location of your llvm installation.
-rem Other than clang's libraries, you may need to install another package, such as clang itself, to provide the ClangConfig.cmake file needed to detect your libraries. Once this
-rem file is in place, the configure script may be able to detect your system-installed libraries without further environment variables.
-rem On macOS, you can use Homebrew's llvm package.
-rem You will also need to set the FEATURE_clang CMake variable to ON to re-evaluate this check.
-rem WARNING: Clang-based lupdate parser will not be available. LLVM and Clang C++ libraries have not been found.
-rem You will need to set the FEATURE_clangcpp CMake variable to ON to re-evaluate this check.
-rem WARNING: QtWebEngine won't be built. node.js version 14 or later is required.
-rem WARNING: QtPdf won't be built. node.js version 14 or later is required.
-rem WARNING: No perl found, compiling opus without some optimizations.
+rem call "%_QT_SOURCES_DIR%\configure.bat" --help
+rem 
 echo.
 echo rebuilding Qt %_QT_VERSION% from sources
 echo see https://doc.qt.io/qt-6/windows-building.html
@@ -176,7 +164,6 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :Exit
 )
-
 rem setup gRPC
 rem call "%MAKER_BUILD%\build_grpc.bat" x64-windows
   rem pushd "%_QT_DIR%"
@@ -195,6 +182,7 @@ rem call python -m pip wheel html5lib
 
 rem (6) *** configure QT build ***
 :qt_configure
+echo "%_QT_SOURCES_DIR%\configure.bat"  %%*>"%MAKER_BIN%\qtconfigure.bat"
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 echo QT-CONFIGURE %_QT_VERSION%
 rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
@@ -202,7 +190,9 @@ rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
 mkdir "%_QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -Wno-dev>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" --help>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+echo. "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
