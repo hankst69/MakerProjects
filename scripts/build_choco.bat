@@ -1,17 +1,29 @@
 @rem https://github.com/chocolatey/choco?tab=readme-ov-file#compiling--building-source
 @echo off
+set "_BCO_START_DIR=%cd%"
+
 call "%~dp0\maker_env.bat" %*
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set "_CHOCO_BIN=%MAKER_BIN%\.choco"
+if exist "%ChocolateyInstall%\choco.exe" set "_CHOCO_BIN=%ChocolateyInstall%"
+
+rem init with command line arguments
+set "_CHOCO_VERSION=%MAKER_ENV_VERSION%"
+rem apply defaults
+rem if "%_CHOCO_VERSION%"    equ "" set _CHOCO_VERSION=2.2.2
+
+rem take shortcut if possible
+set ERRORLEVEL=
+call "%MAKER_BUILD%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :exit_script
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
+
+
+rem install/build...
 
 rem echo.
 rem echo install CHOCO
-
-call "%MAKER_BUILD%\validate_choco.bat" 1>nul
-if %ERRORLEVEL% EQU 0 (
-  rem echo CHOCO already available
-  goto :test_choco_success
-)
 
 if not exist "%_CHOCO_BIN%\choco.exe" (
   echo.
@@ -52,9 +64,10 @@ rem echo @call choco.exe %%* --allow-unofficial --debug>>"%MAKER_BIN%\choco.bat"
 echo @call choco.exe %%* --allow-unofficial >>"%MAKER_BIN%\choco.bat"
 echo @popd>>"%MAKER_BIN%\choco.bat"
 
-call "%MAKER_BUILD%\validate_choco.bat"
+call "%MAKER_BUILD%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%MAKER_BIN%;%Path%"
 
-:test_choco_success
-call "%MAKER_BUILD%\validate_choco.bat"
-if %ERRORLEVEL% NEQ 0 echo error: installing CHOCO failed
+
+:exit_script
+cd /d "%_BCO_START_DIR%"
+"%MAKER_BUILD%\validate_choco.bat" %_CHOCO_VERSION%
