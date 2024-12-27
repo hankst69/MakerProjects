@@ -1,33 +1,28 @@
 @rem https://github.com/gperftools/gperftools
 @echo off
-set "MAKER_BUILD=%~dp0"
 set "_BGPT_START_DIR=%cd%"
 
-set _VERSION=
-set _REBUILD=
-set _BUILD_TYPE=
-:param_loop
-if "%~1" equ "" goto :param_loop_exit
-set "_ARG_=%~1"
-if /I "%~1" equ "--rebuild"  (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"         (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "Debug"      (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "Release"    (set "_BUILD_TYPE=%~1" &shift &goto :param_loop)
-if /I "%_ARG_:~0,1%" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if /I "!_ARG_:~0,1!" equ "-" (echo unknown switch '%~1' &shift &goto :param_loop)
-if "%~1" neq "" if "%_VERSION%" equ "" (set "_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq "" (echo error: unknown argument '%~1' &shift &goto :param_loop)
-:param_loop_exit
-set _ARG_=
+call "%~dp0\maker_env.bat" %*
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
-set "_GPT_VERSION=%_VERSION%"
-set "_GPT_BUILD_TYPE=%_BUILD_TYPE%"
+rem init with command line arguments
+set "_GPT_VERSION=%MAKER_ENV_VERSION%"
+set "_GPT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
+set "_GPT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
+
 rem apply defaults
 if "%_GPT_VERSION%" equ "" set _GPT_VERSION=
 if "%_GPT_BUILD_TYPE%" equ "" set _GPT_=Release
 set "_GPT_TGT_ARCH=x64"
 set _GPT_BUILD_TYPE=Release
 
+rem take shortcut if possible
+set ERRORLEVEL=
+call "%MAKER_BUILD%\validate_gperftools.bat" %_BISON_VERSION% 1>nul 2>nul
+if %ERRORLEVEL% EQU 0 goto :Exit
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
+
+rem install/build...
 
 rem (1) *** cloning GPerf sources ***
 call "%MAKER_BUILD%\clone_gperftools.bat" %_GPT_VERSION%
