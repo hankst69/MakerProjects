@@ -7,6 +7,7 @@ set "_BMBS_START_DIR=%cd%"
 call "%~dp0\maker_env.bat" %*
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
+rem init with command line arguments
 set "_BISON_VERSION=%MAKER_ENV_VERSION%"
 set "_BISON_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_BISON_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
@@ -17,12 +18,14 @@ if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=2.7.0
 rem if "%_BISON_BUILD_TYPE%" equ "" set _BISON_BUILD_TYPE=Release
 rem set "_BISON_TGT_ARCH=x64"
 
+rem take shortcut if possible
 set ERRORLEVEL=
 call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
-rem install/build bison
+rem install/build...
+
 rem a) install using predownloaded zip files:
 rem set "_BISON_DIR=%MAKER_TOOLS%\Bison"
 rem set "_BISON_BIN_DIR=%_BISON_DIR%\bison-%_BISON_VERSION%"
@@ -40,22 +43,22 @@ rem       -> goto :test_bison_succes
 rem
 rem c) install using choco:
 set "_BISON_BIN_DIR=%MAKER_BIN%"
-if not exist "%MAKER_BIN%\.choco\bin\win_bison.exe" (
-  call "%MAKER_BUILD%\ensure_choco.bat"
-  if %ERRORLEVEL% NEQ 0 (
-    echo error: CHOCO is not available
-    goto :exit_script
-  )
-  call choco install winflexbison -y --force
-    if not exist "%_CHOCO_BIN%\bin\bison.exe" (
-      echo. error: install BISON failed
-      goto :exit_script
-    )
-  )
+set "_CHOCO_BIN_BIN=%MAKER_BIN%\.choco\bin"
+
+if exist "%_CHOCO_BIN_BIN%\win_bison.exe" goto :win_bison_installed
+call "%MAKER_BUILD%\ensure_choco.bat"
+if %ERRORLEVEL% NEQ 0 (
+  echo error: CHOCO is not available
+  goto :exit_script
 )
-if not exist "%MAKER_BIN%\.choco\bin\win_bison.exe" goto :exit_script
-echo @call "%%MAKER_BIN%%\.choco\bin\win_bison.exe" %%* >"%MAKER_BIN%\bison.bat"
-echo @call "%%MAKER_BIN%%\.choco\bin\win_flex.exe" %%* >"%MAKER_BIN%\flex.bat"
+call choco install winflexbison --yes --force
+if not exist "%_CHOCO_BIN_BIN%\win_bison.exe" (
+  echo. error: install BISON failed
+  goto :exit_script
+)
+:win_bison_installed
+echo @call "%_CHOCO_BIN_BIN%\win_bison.exe" %%* >"%MAKER_BIN%\bison.bat"
+echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_BIN%\flex.bat"
 goto :test_bison_succes
 
 
