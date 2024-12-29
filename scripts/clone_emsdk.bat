@@ -4,8 +4,8 @@ call "%~dp0\maker_env.bat" %*
 
 set "_EMSDK_VERSION=%MAKER_ENV_VERSION%"
 rem apply defaults
-if "%_EMSDK_VERSION%"  equ "" set _EMSDK_VERSION=1.38.45
-if "%_EMSDK_VERSION%"  equ "" set "_EMSDK_VERSION=3.1.67" &rem (current latest as of 2024/09)
+rem if "%_EMSDK_VERSION%"  equ "" set _EMSDK_VERSION=1.38.45
+rem if "%_EMSDK_VERSION%"  equ "" set "_EMSDK_VERSION=3.1.67" &rem (current latest as of 2024/09)
 if "%_EMSDK_VERSION%"  equ "" set _EMSDK_VERSION=latest
 
 set "_EMSDK_DIR=%MAKER_TOOLS%\Emsdk"
