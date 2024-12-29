@@ -32,6 +32,20 @@ set "_QT_BUILD_DIR=%_QT_DIR%\qt_build_%_QT_VERSION%"
 set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
 
+rem (2) *** specify LLVM version ***
+set _QT_LLVM_VER=14
+call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ
+if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=18
+call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ
+if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
+
+if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" set _QT_LLVM_VER=
+if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" (
+  pushd "%_QT_SOURCES_DIR%"
+  call 7z x "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
+  popd 
+)
+
 rem (2) *** cleaning QT build if demanded ***
 if "%_REBUILD%" neq "" (
   echo preparing rebuild...
@@ -115,7 +129,7 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :Exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_BUILD%\ensure_llvm.bat" --no_errors
+call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :Exit
