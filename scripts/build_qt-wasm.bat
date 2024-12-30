@@ -6,7 +6,7 @@ call "%~dp0\maker_env.bat" %*
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
-set "_REBUILD=%MAKER_ENV_REBUILD%"
+set "_QTW_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
@@ -85,15 +85,24 @@ echo.
 if "%MAKER_ENV_VERBOSE%" neq "" set _QT
 if "%MAKER_ENV_VERBOSE%" neq "" echo.
 
+if "%_QTW_REBUILD%" neq "" (
+  rmdir /s /q "%_QT_WASM_BUILD_DIR%"
+)
 
 rem 2) configure QT-WASM
 :qt_configure
 if exist "%_QT_WASM_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE WASM %_QT_VERSION% already done &goto :qt_configure_done
+rem WARNING: QDoc will not be compiled, probably because clang's C and C++ libraries could not be located. This means that you cannot build the Qt documentation.
+rem You may need to set CMAKE_PREFIX_PATH or LLVM_INSTALL_DIR to the location of your llvm installation.
+rem Other than clang's libraries, you may need to install another package, such as clang itself, to provide the ClangConfig.cmake file needed to detect your libraries. Once this
+rem file is in place, the configure script may be able to detect your system-installed libraries without further environment variables.
 echo QT-CONFIGURE WASM %_QT_VERSION%
 rmdir /s /q "%_QT_WASM_BUILD_DIR%"
 mkdir "%_QT_WASM_BUILD_DIR%"
 pushd "%_QT_WASM_BUILD_DIR%"
-call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+echo LLVM_INSTALL_DIR: "%LLVM_INSTALL_DIR%"
+call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" -D LLVM_INSTALL_DIR="%LLVM_INSTALL_DIR%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -LLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 popd
 :qt_configure_done
