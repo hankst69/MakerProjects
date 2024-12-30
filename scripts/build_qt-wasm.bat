@@ -45,16 +45,16 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
 )
+rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
+call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: LLVM CLANG is not available
+  goto :Exit
+)
 rem validate emsdk (for Qt6.6 -> EMSDK 3.1.37) see https://doc.qt.io/qt-6/wasm.html
 call "%MAKER_BUILD%\ensure_emsdk.bat" 3.1.37 --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: EMSDK is not available
-  goto :Exit
-)
-rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_BUILD%\ensure_llvm.bat" --no_errors
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
   goto :Exit
 )
 rem validate perl (for QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)

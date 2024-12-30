@@ -69,12 +69,12 @@ call clang++ --version
 
 echo.
 echo.
-call wasm32-clang --version
-echo.
-call wasm32-wasi-clang --version
-echo.
-call wasm2js --version
-echo.
+rem call wasm32-clang --version
+rem echo.
+rem call wasm32-wasi-clang --version
+rem echo.
+rem call wasm2js --version
+rem echo.
 call emcc --version
 rem call em++ --version
 
