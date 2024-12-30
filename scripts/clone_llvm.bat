@@ -6,7 +6,7 @@ call "%~dp0\maker_env.bat"
 set _LLVM_VERSION=
 if "%~1" neq "" set "_LLVM_VERSION=%~1"
 
-set "_LLVM_DIR=%MAKER_TOOLS%\LLVM%_LLVM_VERSION%"
+set "_LLVM_DIR=%MAKER_TOOLS%\LLVM"
 set "_LLVM_SOURCES_DIR=%_LLVM_DIR%\llvm-project%_LLVM_VERSION%"
 if "%_LLVM_VERSION%" neq "" goto :llvm_clone_version
 
