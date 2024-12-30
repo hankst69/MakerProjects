@@ -23,7 +23,7 @@ rem if not exist "%_QT_SOURCES_DIR%" mkdir "%_QT_SOURCES_DIR%"
 if exist "%_QT_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QT_VERSION% already done &goto :qt_clone_done
 
 rem --- ensure perl (is required for cloning the qt submodules)
-call "%MAKER_SCRIPTS%\validate_perl.bat"
+call "%MAKER_BUILD%\validate_perl.bat"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 echo.
 

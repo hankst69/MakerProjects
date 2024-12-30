@@ -3,7 +3,7 @@
 set "_BQTW_START_DIR=%cd%"
 
 call "%~dp0\maker_env.bat" %*
-rem if "%MAKER_ENV_VERBOSE%" neq "" echo on
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
 set "_REBUILD=%MAKER_ENV_REBUILD%"
