@@ -22,7 +22,7 @@ if "%_QT_SOURCES_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit
 if not exist "%_QT_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_SOURCES_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 
-call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" --use_llvm20_patch
+call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" --use_llvm20_patch %MAKER_ENV_VERBOSE%
 rem defines: _QT_BIN_DIR
 if "%_QT_BIN_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_BIN_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
@@ -30,41 +30,41 @@ if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo building Qt %_QT_VERSIO
 
 rem echo test msvs
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
+call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate ninja
-call "%MAKER_BUILD%\validate_ninja.bat" --no_errors
+call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
 )
 rem validate llvm (set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors
+call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :Exit
 )
 rem validate emsdk (for Qt6.6 -> EMSDK 3.1.37) see https://doc.qt.io/qt-6/wasm.html
-call "%MAKER_BUILD%\ensure_emsdk.bat" 3.1.37 --no_errors
+call "%MAKER_BUILD%\ensure_emsdk.bat" 3.1.37 --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: EMSDK is not available
   goto :Exit
 )
 rem validate perl (for QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%MAKER_BUILD%\validate_perl.bat" --no_errors
+call "%MAKER_BUILD%\validate_perl.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :Exit
 )
 rem validate python
-call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   rem if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
   rem   echo warning: PYTHON architecture '%PYTHON_ARCHITECTURE%' does not match MSVS target architecture '%MSVS_TARGET_ARCHITECTURE%'
@@ -73,7 +73,7 @@ if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
-rem call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors
+rem call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors %MAKER_ENV_VERBOSE%
 rem if %ERRORLEVEL% NEQ 0 (
 rem   echo warning: GPERF is not available
 rem   rem goto :Exit

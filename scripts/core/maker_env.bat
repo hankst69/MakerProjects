@@ -12,6 +12,8 @@ set "MAKER_BUILD=%MAKER_ROOT%\scripts"
 set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
 set "MAKER_BIN=%MAKER_ROOT%\.tools"
 
+if "%~1" equ "" goto :exit
+if /I "%~1" equ "--keep" goto :param_loop
 set MAKER_ENV_NOERROS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
@@ -62,5 +64,6 @@ set __ARG_RAW__=
 
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
 
+:exit
 rem list env:
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_

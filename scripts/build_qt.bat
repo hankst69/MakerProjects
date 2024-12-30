@@ -7,7 +7,7 @@
 set "_BQT_START_DIR=%cd%"
 
 call "%~dp0\maker_env.bat" %*
-if "%MAKER_ENV_VERBOSE%" neq "" echo on
+rem if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
 set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
@@ -31,30 +31,33 @@ if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Ex
 set "_QT_BUILD_DIR=%_QT_DIR%\qt_build_%_QT_VERSION%"
 set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
-
 rem (2) *** specify LLVM version ***
 set _QT_LLVM_VER=14
-call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ
+call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=18
-call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ
+call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
-
+rem echo MAKER_ENV_UNKNOWN_SWITCHES: '%MAKER_ENV_UNKNOWN_SWITCHES%'
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" set _QT_LLVM_VER=
+echo QT_LLVM_VER: %_QT_LLVM_VER%
+
+rem (3) *** patch Qt sources ***
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" (
-  pushd "%_QT_SOURCES_DIR%"
+  pushd "%_QT_SOURCES_DIR%\qttools"
   call 7z x "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
   popd 
 )
 
-rem (2) *** cleaning QT build if demanded ***
+if "%MAKER_ENV_VERBOSE%" neq "" set _QT
+
+rem (4) *** cleaning QT build if demanded ***
 if "%_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 )
 
-
-rem (3) *** testing for existing QT build ***
+rem (5) *** testing for existing QT build ***
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
 if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :build_qt
 call which Qt6WebSockets.dll 1>nul 2>nul
@@ -68,7 +71,7 @@ goto :Exit
 :build_qt
 
 
-rem (4) *** ensuring prerequisites ***
+rem (6) *** ensuring prerequisites ***
 
 rem https://doc.qt.io/qt-6/windows-building.html
 rem building Qt (libs and tools) requires:
@@ -109,9 +112,8 @@ echo *** OTPIONAL: LLVM/Clang
 echo *** OTPIONAL: Node.js
 echo *** OTPIONAL: gRPC
 echo *** OTPIONAL: Protobuf
-echo *** OPTIONAL: gperf (for QtWebEngine)
+echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
 echo.
-
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
 if %ERRORLEVEL% NEQ 0 (
@@ -149,8 +151,7 @@ if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 
-rem (5) *** setup QT dependencies ***
-
+rem (7) *** setup QT dependencies ***
 rem validate node.js 
 call "%MAKER_BUILD%\ensure_nodejs.bat" GEQ14 --no_errors
 if %ERRORLEVEL% NEQ 0 (
@@ -194,7 +195,7 @@ call python -m pip install html5lib
 rem call python -m pip wheel html5lib
 
 
-rem (6) *** configure QT build ***
+rem (8) *** configure QT build ***
 :qt_configure
 echo "%_QT_SOURCES_DIR%\configure.bat"  %%*>"%MAKER_BIN%\qtconfigure.bat"
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
@@ -210,7 +211,7 @@ call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-d
 popd
 :qt_configure_done
 
-rem (7) *** perform QT build ***
+rem (9) *** perform QT build ***
 :qt_build
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 echo QT-BUILD %_QT_VERSION%
@@ -219,7 +220,7 @@ call cmake --build . --parallel 4
 popd
 :qt_build_done
 
-rem (8) *** perform QT install ***
+rem (10) *** perform QT install ***
 :qt_install
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_install_do
 if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_install_do
@@ -241,8 +242,7 @@ goto :Exit
 rem -- create shortcuts
 echo @start /D "%_QT_BIN_DIR%\bin" /MAX /B %_QT_BIN_DIR%\bin\designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
 
-
-rem (9) post configure QT
+rem (11) post configure QT
 rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 :Exit
