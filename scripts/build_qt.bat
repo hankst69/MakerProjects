@@ -44,7 +44,7 @@ echo QT_LLVM_VER: %_QT_LLVM_VER%
 rem (3) *** patch Qt sources ***
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" (
   pushd "%_QT_SOURCES_DIR%\qttools"
-  call 7z x "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
+  call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
   popd 
 )
 
