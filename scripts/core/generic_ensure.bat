@@ -12,7 +12,7 @@ set __START_DIR__=
 
 call "%MAKER_BUILD%\validate_%PROJ_NAME%.bat" %PROJ_ARGS% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
-echo warning: %PROJ_NAME% is not available - trying to build from sources
+echo warning: %PROJ_NAME% %MAKER_ENV_VERSION% is not available - trying to build from sources
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 call "%MAKER_BUILD%\build_%PROJ_NAME%.bat" %PROJ_ARGS%
 :Exit

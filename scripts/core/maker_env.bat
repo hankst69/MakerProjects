@@ -40,8 +40,8 @@ if /I "%__ARG__%" equ "--no_info"     (set "MAKER_ENV_NOINFOS=--no_info" &goto :
 if /I "%__ARG__%" equ "-ni"           (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
 if /I "%__ARG__%" equ "--verbose"     (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
 if /I "%__ARG__%" equ "-v"            (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
-if /I "%__ARG__%" equ "--rebuild"     (set "MAKER_ENV_REBUILD=--rebuild" &shift &goto :param_loop)
-if /I "%__ARG__%" equ "-r"            (set "MAKER_ENV_REBUILD=--rebuild" &shift &goto :param_loop)
+if /I "%__ARG__%" equ "--rebuild"     (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
+if /I "%__ARG__%" equ "-r"            (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
 if /I "%__ARG__%" equ "--help"        (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 if /I "%__ARG__%" equ "-h"            (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 if /I "%__ARG__%" equ "-?"            (set "MAKER_ENV_HELP=--help" &goto :param_loop)
@@ -55,7 +55,7 @@ if /I "%__ARG__%" equ "x86"           (set "MAKER_ENV_ARCHITECTURE=x86"   &goto 
 if /I "%__ARG__%" equ "x64"           (set "MAKER_ENV_ARCHITECTURE=x64"   &goto :param_loop)
 if /I "%__ARG__%" equ "amd64"         (set "MAKER_ENV_ARCHITECTURE=amd64" &goto :param_loop)
 rem handle known free args:
-if /I "%__ARG__%" neq "" if "%MAKER_ENV_VERSION%" equ "" (set "MAKER_ENV_VERSION=%__ARG_RAW__%" &goto :param_loop)
+if /I "%__ARG__%" neq "" if "%MAKER_ENV_VERSION%" equ "" (set "MAKER_ENV_VERSION=%__ARG__%" &goto :param_loop)
 rem handle unknown args:
 if /I "%__ARG__%" neq "" (set "MAKER_ENV_UNKNOWN_ARGS=%MAKER_ENV_UNKNOWN_ARGS% %__ARG_RAW__%" &goto :param_loop)
 :param_loop_exit
@@ -63,6 +63,23 @@ set __ARG__=
 set __ARG_RAW__=
 
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
+
+rem split unknonw args and switches
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
+:split_unknown_args
+set MAKER_ENV_UNKNOWN_ARG_1=
+set MAKER_ENV_UNKNOWN_ARG_2=
+set MAKER_ENV_UNKNOWN_ARG_3=
+set MAKER_ENV_UNKNOWN_ARG_4=
+if "%MAKER_ENV_UNKNOWN_ARGS%" equ "" goto :split_unknown_switches
+for /f "tokens=1,2,3,* delims= " %%i in ('echo %MAKER_ENV_UNKNOWN_ARGS%') do set "MAKER_ENV_UNKNOWN_ARG_1=%%~i" &set "MAKER_ENV_UNKNOWN_ARG_2=%%~j" &set "MAKER_ENV_UNKNOWN_ARG_2=%%~k"
+:split_unknown_switches
+set MAKER_ENV_UNKNOWN_SWITCH_1=
+set MAKER_ENV_UNKNOWN_SWITCH_2=
+set MAKER_ENV_UNKNOWN_SWITCH_3=
+set MAKER_ENV_UNKNOWN_SWITCH_4=
+if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :exit
+for /f "tokens=1,2,3,* delims= " %%i in ('echo %MAKER_ENV_UNKNOWN_SWITCHES%') do set "MAKER_ENV_UNKNOWN_SWITCH_1=%%~i" &set "MAKER_ENV_UNKNOWN_SWITCH_2=%%~j" &set "MAKER_ENV_UNKNOWN_SWITCH_3=%%~k"
 
 :exit
 rem list env:
