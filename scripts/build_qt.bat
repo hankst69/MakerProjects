@@ -18,9 +18,8 @@ if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
 set _QT_BUILD_TYPE=Release
 
-
 rem (1) *** cloning QT sources ***
-call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION%
+call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %MAKER_ENV_UNKNOWN_SWITCHES%
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
 if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
@@ -37,16 +36,15 @@ call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=18
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
-rem echo MAKER_ENV_UNKNOWN_SWITCHES: '%MAKER_ENV_UNKNOWN_SWITCHES%'
-if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" set _QT_LLVM_VER=
-echo QT_LLVM_VER: %_QT_LLVM_VER%
 
 rem (3) *** patch Qt sources ***
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" (
   pushd "%_QT_SOURCES_DIR%\qttools"
-  call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
+  call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
   popd 
+  set _QT_LLVM_VER=
 )
+echo QT_LLVM_VER: %_QT_LLVM_VER%
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _QT
 
