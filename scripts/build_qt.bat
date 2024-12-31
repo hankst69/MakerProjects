@@ -28,7 +28,7 @@ if "%_QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 
-set "_QT_BUILD_DIR=%_QT_DIR%\qt_build_%_QT_VERSION%"
+set "_QT_BUILD_DIR=%_QT_DIR%\qt_build%_QT_VERSION%"
 set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 
 rem (2) *** specify LLVM version ***
@@ -42,7 +42,7 @@ if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" set _QT_LLVM_VER=
 echo QT_LLVM_VER: %_QT_LLVM_VER%
 
 rem (3) *** patch Qt sources ***
-if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ " --use_llvm20_patch" (
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" (
   pushd "%_QT_SOURCES_DIR%\qttools"
   call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z"
   popd 

@@ -8,13 +8,16 @@
 @rem - see: https://stackoverflow.com/questions/23885449/unable-to-resolve-unable-to-get-local-issuer-certificate-using-git-on-windows
 @rem -  do: git config --global http.sslbackend schannel
 @echo off
-call "%~dp0\maker_env.bat"
+call "%~dp0\maker_env.bat" %*
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set _QT_VERSION=6.6.3
-if "%~1" neq "" set "_QT_VERSION=%~1"
+set _QT_SRC_NAME=qt_sources
+if "%MAKER_ENV_VERSION%" neq "" set "_QT_VERSION=%MAKER_ENV_VERSION%"
+if "%MAKER_ENV_UNKNOWN_ARG_1%" neq "" set "_QT_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
 
 set "_QT_DIR=%MAKER_TOOLS%\Qt"
-set "_QT_SOURCES_DIR=%_QT_DIR%\qt_sources_%_QT_VERSION%\"
+set "_QT_SOURCES_DIR=%_QT_DIR%\%_QT_SRC_NAME%_%_QT_VERSION%\"
 
 rem --- cloning QT
 :qt_clone
