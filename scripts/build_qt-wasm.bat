@@ -22,6 +22,7 @@ if "%_QT_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if "%_QT_SOURCES_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_SOURCES_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
+
 call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" --use_llvm20_patch %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (echo building Qt %_QT_VERSION% failed &goto :Exit)
 rem defines: _QT_BIN_DIR

@@ -65,7 +65,6 @@ set __ARG_RAW__=
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
 
 rem split unknonw args and switches
-if "%MAKER_ENV_VERBOSE%" neq "" echo on
 :split_unknown_args
 set MAKER_ENV_UNKNOWN_ARG_1=
 set MAKER_ENV_UNKNOWN_ARG_2=
