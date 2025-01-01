@@ -12,8 +12,8 @@ set "MAKER_BUILD=%MAKER_ROOT%\scripts"
 set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
 set "MAKER_BIN=%MAKER_ROOT%\.tools"
 
-if "%~1" equ "" goto :exit
-if /I "%~1" equ "--keep" goto :param_loop
+rem if "%~1" equ "" goto :exit
+if /I "%~1" equ "--keep" shift &goto :param_loop
 set MAKER_ENV_NOERROS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
@@ -26,6 +26,7 @@ set MAKER_ENV_BUILDTYPE=
 set MAKER_ENV_UNKNOWN_SWITCHES=
 set MAKER_ENV_UNKNOWN_ARGS=
 set MAKER_ENV_ALL_ARGS=
+for /L %%i in (1,1,10) do set MAKER_ENV_UNKNOWN_ARG_%%i=&set MAKER_ENV_UNKNOWN_SWITCH_%%i=
 :param_loop
 set "__ARG_RAW__=%1"
 set "__ARG__=%~1"
@@ -65,20 +66,15 @@ set __ARG_RAW__=
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
 
 rem split unknonw args and switches
+SETLOCAL ENABLEDELAYEDEXPANSION
 :split_unknown_args
-set MAKER_ENV_UNKNOWN_ARG_1=
-set MAKER_ENV_UNKNOWN_ARG_2=
-set MAKER_ENV_UNKNOWN_ARG_3=
-set MAKER_ENV_UNKNOWN_ARG_4=
 if "%MAKER_ENV_UNKNOWN_ARGS%" equ "" goto :split_unknown_switches
-for /f "tokens=1,2,3,* delims= " %%i in ('echo %MAKER_ENV_UNKNOWN_ARGS%') do set "MAKER_ENV_UNKNOWN_ARG_1=%%~i" &set "MAKER_ENV_UNKNOWN_ARG_2=%%~j" &set "MAKER_ENV_UNKNOWN_ARG_2=%%~k"
+set _QT_ARG_ASSIGNED=
+for %%j in (%MAKER_ENV_UNKNOWN_ARGS%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_ARG_%%i!" equ "" set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j" &set _QT_ARG_ASSIGNED=done
 :split_unknown_switches
-set MAKER_ENV_UNKNOWN_SWITCH_1=
-set MAKER_ENV_UNKNOWN_SWITCH_2=
-set MAKER_ENV_UNKNOWN_SWITCH_3=
-set MAKER_ENV_UNKNOWN_SWITCH_4=
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :exit
-for /f "tokens=1,2,3,* delims= " %%i in ('echo %MAKER_ENV_UNKNOWN_SWITCHES%') do set "MAKER_ENV_UNKNOWN_SWITCH_1=%%~i" &set "MAKER_ENV_UNKNOWN_SWITCH_2=%%~j" &set "MAKER_ENV_UNKNOWN_SWITCH_3=%%~k"
+set _QT_ARG_ASSIGNED=
+for %%j in (%MAKER_ENV_UNKNOWN_SWITCHES%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_SWITCH_%%i!" equ "" set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j" &set _QT_ARG_ASSIGNED=done
 
 :exit
 rem list env:

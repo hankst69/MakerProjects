@@ -23,7 +23,7 @@ if "%_QT_SOURCES_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit
 if not exist "%_QT_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_SOURCES_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 
-call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" --use_llvm20_patch %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (echo building Qt %_QT_VERSION% failed &goto :Exit)
 rem defines: _QT_BIN_DIR
 if "%_QT_BIN_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
@@ -86,6 +86,7 @@ call "%MAKER_BUILD%\clone_qt.bat" "%_QT_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE%
 set "_QT_WASM_BUILD_DIR=%_QT_SOURCES_DIR%"
 echo.
 if "%_QTW_REBUILD%" neq "" (
+  cd /d "%_BQTW_START_DIR%"
   rmdir /s /q "%_QT_WASM_BUILD_DIR%"
   call "%MAKER_BUILD%\clone_qt.bat" "%_QT_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE%
 )
@@ -96,22 +97,21 @@ if "%MAKER_ENV_VERBOSE%" neq "" echo.
 
 rem 2) configure QT-WASM
 :qt_configure
-if exist "%_QT_WASM_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE WASM %_QT_VERSION% already done &goto :qt_configure_done
+rem if exist "%_QT_WASM_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE WASM %_QT_VERSION% already done &goto :qt_configure_done
 echo QT-CONFIGURE WASM %_QT_VERSION%
-rmdir /s /q "%_QT_WASM_BUILD_DIR%"
-mkdir "%_QT_WASM_BUILD_DIR%"
+rem rmdir /s /q "%_QT_WASM_BUILD_DIR%"
+rem mkdir "%_QT_WASM_BUILD_DIR%"
 pushd "%_QT_WASM_BUILD_DIR%"
 rem WARNING: QDoc will not be compiled, probably because clang's C and C++ libraries could not be located. This means that you cannot build the Qt documentation.
 rem You may need to set CMAKE_PREFIX_PATH or LLVM_INSTALL_DIR to the location of your llvm installation.
 rem Other than clang's libraries, you may need to install another package, such as clang itself, to provide the ClangConfig.cmake file needed to detect your libraries. Once this
 rem file is in place, the configure script may be able to detect your system-installed libraries without further environment variables.
 rem echo LLVM_INSTALL_DIR: "%LLVM_INSTALL_DIR%"
-call configure -qt-host-path "%_QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-
+call configure -qt-host-path "%_QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR:~\=/%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call configure -qt-host-path "%_QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" -D LLVM_INSTALL_DIR="%LLVM_INSTALL_DIR%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -LLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 popd
 :qt_configure_done
 
