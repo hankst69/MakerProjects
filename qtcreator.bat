@@ -1,3 +1,3 @@
-@call "%~dp0\build_qt-creator.bat"
+@call "%~dp0\build.bat" qt-creator
 @echo starting Qt-Creator
-@call "%MAKER_BIN%\qtcreator.bat"
+@call "%MAKER_BIN%\qtcreator.bat" %*
