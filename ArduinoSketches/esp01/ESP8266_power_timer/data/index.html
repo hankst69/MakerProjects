@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="600"/>
+  <title>ESP8266 Power Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+  <h2>ESP8266 Power Timer<br>
+ <div id="OnOff">%IS_ON%</div>
+         <div id="clock">00:00:00</div>
+  </h2>
+  <div class="content">
+				   <a href="/setOff"><button class="button %OFF_SELECTED%">OFF</button></a>
+				   <a href="/setOn"><button class="button %ON_SELECTED%">ON</button></a><br>
+				   <a href="/setAuto"><button class="button %AUTO_SELECTED%">AUTO</button></a>
+				   <br>
+   <div class="card-grid">
+        <div class="card">
+            <div class="time">
+              <form action="/setTimeOnOff">
+						    <label><strong>On Time</strong></label>
+						    <div class="time-field">
+				  			  <input type="time" id="TIME_ON" name="TIME_ON" value="%TIME_ON%" min="00:00:00" max="24:00:00" required>
+						    </div>
+						    <label><strong>Off Time</strong></label>
+						    <div class="time-field">
+					  		  <input type="time" id="TIME_OFF" name="TIME_OFF" value="%TIME_OFF%" min="00:00:00" max="24:00:00" required>
+						    </div>
+						    <br>
+						    <button type="submit" class="buttonLong">Set On/Off Times</button>
+					    </form>
+
+            </div>
+              <br>
+              <a href="/settz.html"><button class="buttonLong">Set Time Zone</button></a> 
+              <br>%TZ_DESC%
+  </div>
+
+ <script>
+ // refresh on window gaining focus to update to current correct time.
+ // while focused will reload every 10mins (meta http-equiv="refresh" content="600") to keep this second counter below accurate
+ window.onblur= function() {window.onfocus= function () {location.reload(true)}};
+function updateTime(k) {
+    "use strict";
+    // appending 0 before time elements if less than 10 
+    if (k < 10) {
+        return "0" + k;
+    }
+    return k;
+}
+
+function displayTime(time_sec) {
+    "use strict";
+    var c = time_sec;
+    var hour = Math.floor(c / (60 * 60));
+    var rem = (c - (hour * (60 * 60)));
+    var min = Math.floor(rem / 60);
+    var sec = rem - min * 60;
+    if (hour > 23) {
+        hour = hour %% 24;
+    }
+    var midday = "AM";
+    midday = (hour >= 12) ? "PM" : "AM";
+    hour = (hour === 0) ? 12 : ((hour > 12) ? (hour - 12) : hour);
+    hour = updateTime(hour);
+    min = updateTime(min);
+    return (hour + " : " + min + " " + midday);
+}
+
+let c = %TIME_CURRENT_S% - 1; 
+//let c = 100000000; 
+
+function currentTime() {
+    c = c + 1;
+    var hour = Math.floor(c / (60 * 60));
+    var rem = (c - (hour * (60 * 60)));
+    var min = Math.floor(rem / 60);
+    var sec = rem - min * 60;
+    if (hour > 23) {
+        hour = hour %% 24;
+    }
+    if (%TIMER_AUTO_SETTING%) { // == 1 only if AUTO else 0
+      if (c == %TIME_ON_SEC%) {
+        document.getElementById("OnOff").innerText = 'is ON';
+      }
+      if (c == %TIME_OFF_SEC%) {
+        document.getElementById("OnOff").innerText = 'is OFF';
+      }
+    }
+    var midday = "AM";
+    midday = (hour >= 12) ? "PM" : "AM"; // assigning AM/PM 
+    hour = (hour === 0) ? 12 : ((hour > 12) ? (hour - 12) : hour); // assigning hour in 12-hour format 
+    hour = updateTime(hour);
+    min = updateTime(min);
+    sec = updateTime(sec);
+    if (%HAVE_SNTP%) {
+      document.getElementById("clock").innerText = hour + " : " + min + " : " + sec + " " + midday; // adding time to the div
+    } else {
+      document.getElementById("clock").innerText = "waiting for NTP response";
+    }
+    var t = setTimeout(currentTime, 1000); // setting timer 
+}
+currentTime();
+</script>
+  
+</body>
+</html>

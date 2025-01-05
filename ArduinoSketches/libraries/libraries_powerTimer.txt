@@ -1,0 +1,5 @@
+https://www.forward.com.au/pfod/HomeAutomation/PowerTimer/libraries.zip
+ESPAsyncTCP-master
+ESPAsyncWebServer-master
+SafeString
+
