@@ -23,19 +23,19 @@ static Stream* debugPtr = NULL;  // local to this file
 // this project does not use the double reboot file
 // if you uncomment the next line
 // powering up then off withing 10 sec will go into wifiConfig mode on next power up
-// #define DOUBLE_REBOOT_CONFIG_SETUP
+#define DOUBLE_REBOOT_CONFIG_SETUP
 
 // replace these with your network's SSID and password and the static IP you want for this Power Timer web server.
 #define wifiSSID ""
 #define wifPassword ""
-#define wifiStaticIP "10.1.1.212"
+#define wifiStaticIP "192.168.178.255"
 // NOTE: choose an IP on your network!!
 
 #define wifiWebConfigPASSWORD "12345678"
-#define wifiWebConfigAP "PwrTmr"
+#define wifiWebConfigAP "IOTconfigAP"
 
-static  IPAddress local_ip = IPAddress(10, 1, 1, 1);
-static  IPAddress gateway_ip = IPAddress(10, 1, 1, 1);
+static  IPAddress local_ip = IPAddress(192, 1, 1, 1);
+static  IPAddress gateway_ip = IPAddress(192, 1, 1, 1);
 static  IPAddress subnet_ip = IPAddress(255, 255, 255, 0);
 
 millisDelay endConfigTimer;

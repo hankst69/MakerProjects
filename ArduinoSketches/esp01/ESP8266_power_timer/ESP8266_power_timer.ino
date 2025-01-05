@@ -32,7 +32,7 @@ static Stream* debugPtr = NULL;  // local to this file
 
 #include <TZ.h>  // for list of pre-generated TZ POSIX strings
 // set a compiled default TZ here. Can be overrided/edited later by webpage.
-#define DEFAULT_TZ TZ_Australia_Sydney
+#define DEFAULT_TZ TZ_Europe_Berlin
 
 // see wifiConfig.cpp to set the AccessPoint ssid and password, default is ESP8266_wifiConfig / 1234567890
 
@@ -42,7 +42,7 @@ static Stream* debugPtr = NULL;  // local to this file
 // NOTE: use 330R resistor to short GPIO0 to GND for programming to prevent shorting out GPIO0 output while being driven high
 // then Reset to put into programming mode
 // add 1000uF capacitor across pins 1(+ve) and 2(-ve) of the opto-isolator on the relay board to prevent the relay turning on momentarily on power up/reboot
-int relayPin = 0;  // GPIO0 low to drive relay, i.e. sink
+int relayPin = 1; //0;  // GPIO0 low to drive relay, i.e. sink
 bool relayWasOn = false;
 bool relayTurnedOnInAuto = false;
 
