@@ -1,0 +1,7 @@
+http://www.lcdwiki.com/3.5inch_Arduino_Display-UNO
+http://www.lcdwiki.com/res/Program/Arduino/3.5inch/UNO_8BIT_ILI9486_MAR3501_V1.1/3.5inch_Arduino_8BIT_Module_ILI9486_MAR3501_V1.1.zip
+>3.5inch_Arduino_8BIT_Module_ILI9486_MAR3501_V1.1\1-Demo\Demo_Arduino\Install libraries
+LCDWIKI_GUI
+LCDWIKI_KBV
+TouchScreen
+
