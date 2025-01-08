@@ -33,30 +33,50 @@ RTC_DS3231 rtc;
 #define MENU_RotaryEncoderDisplay 1
 #define MENU_ServoTestDisplay 2
 #define MENU_MaxEntry 2
-void updateThermoClockDisplay();
-void updateRotaryEncoderDisplay();
-void updateServoTestDisplay();
 int menuEntry = MENU_ThermoClockDisplay;
-#define DISPLAY_UPDATE_INTERVAL_SECS 5
-DateTime lastDisplayUpdate((uint32_t)0);
+int menuEntry_last = -1;
+bool menuEntry_change_on_rotaryEncoder_pressed = true;
+int rotateMenuSelection(int entry) {
+  if (!menuEntry_change_on_rotaryEncoder_pressed) {
+    return entry;
+  }
+  entry++;
+  if (entry > MENU_MaxEntry) {
+    entry = 0;
+  }
+  return entry;
+}
+
+//void updateThermoClockDisplay();
+//void updateRotaryEncoderDisplay();
+//void updateServoTestDisplay();
+#define DISPLAY_UPDATE_INTERVAL_MILLISECONDS 500
+#define DISPLAY_UPDATE_DELAY_MILLISECONDS 2
+int display_update_milliseonds = 0;
 
 void displayUpdateLoop() {
-  DateTime now = rtc.now();
-  TimeSpan span = now - lastDisplayUpdate;
-  if (span.seconds() < DISPLAY_UPDATE_INTERVAL_SECS) {
-    delay(10);
+  if (display_update_milliseonds < DISPLAY_UPDATE_INTERVAL_MILLISECONDS) {
+    display_update_milliseonds += DISPLAY_UPDATE_DELAY_MILLISECONDS;
+    delay(DISPLAY_UPDATE_DELAY_MILLISECONDS);
     return;
   }
-  lastDisplayUpdate = now;
+  display_update_milliseonds = 0;
 
-  Serial.println("displayUpdateLoop()");
+  if (menuEntry != menuEntry_last) {
+    menuEntry_last = menuEntry;
+    oled.clear();
+  }
 
   switch (menuEntry) {
     case MENU_ThermoClockDisplay:
       updateThermoClockDisplay();
       break;
     case MENU_RotaryEncoderDisplay:
-      updateRotaryEncoderDisplay();
+      menuEntry_change_on_rotaryEncoder_pressed = false;
+      if (updateRotaryEncoderDisplay()) {
+        menuEntry_change_on_rotaryEncoder_pressed = true;
+        menuEntry = rotateMenuSelection(menuEntry);
+      }
       break;
     case MENU_ServoTestDisplay:
       updateServoTestDisplay();
@@ -66,42 +86,41 @@ void displayUpdateLoop() {
   }
 }
 
-void onRotaryEncoderTasterPressed(bool pressed, void *data) {
+void onRotaryEncoderTasterPressed(bool pressed, void* data) {
   Serial.print("onRotaryEncoderTasterPressed(");
   Serial.print(pressed);
+  Serial.print(",");
+  Serial.print((int)data);
   Serial.println(")");
   if (pressed) {
-
-    /*int* menuId = (int*)data;
-    (*menuId)++;
-    if (*menuId > MENU_MaxEntry) {
-      *menuId = 0;
-    }*/
-    menuEntry++;
-    if (menuEntry > MENU_MaxEntry) {
-      menuEntry = 0;
-    }    
+    //int* intPtr = (int*)data;
+    //*intPtr = rotateMenuSelection(*intPtr);
+    menuEntry = rotateMenuSelection(menuEntry);
     Serial.print("menuEntry = ");
     Serial.println(menuEntry);
   }
 }
 
-void updateRotaryEncoderDisplay() {
+bool updateRotaryEncoderDisplay() {
   char strBuffer[256];
   bool pressed = rotaryEncoderGetPressed(); 
   int pos = rotaryEncoderGetPosition();
 
-  oled.clear();
+  oled.home();
   oled.println("Rotary Encoder");
   oled.println();
   sprintf(strBuffer, "position: %i\0", pos);
-  oled.println(strBuffer);
+  oled.print(strBuffer); 
+  oled.clearToEOL();
+  oled.println();
   sprintf(strBuffer, " pressed: %i\0", pressed);
   oled.println(strBuffer);
+
+  return pressed && !pos;
 }
 
 void updateServoTestDisplay() {
-  oled.clear();
+  oled.home();
   oled.println("Sevo Test");
   oled.println();
 }
@@ -113,7 +132,8 @@ void setup() {
   Serial.begin(9600);
 
   // init RotaryEncoder
-  rotaryEncoderInit(onRotaryEncoderTasterPressed); //, &menuEntry);
+  //rotaryEncoderInit(onRotaryEncoderTasterPressed, &menuEntry);
+  rotaryEncoderInit(onRotaryEncoderTasterPressed);
 
   // init I2C interface
   Wire.begin();
@@ -171,7 +191,7 @@ int rotaryEncoderGetPosition() {
 }
 
 bool rotaryEncoderGetPressed() {
-  return !digitalRead(ROTARYENC_SW_PIN);
+  return rotaryenc_taster;
 }
 
 void rotaryEncoderInit(RotaryEncoderTasterPressedFunction callback, void* callback_datacontext) {
@@ -215,17 +235,28 @@ void rotaryEncoderLoop() {
 
 //------------------------------------------------------------------------------
 // ThermoClock
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+char dateStr[256];
+char timeStr[256];
+//DateTime lastDisplayUpdate;
+
 void updateThermoClockDisplay() {
-  char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-
   DateTime now = rtc.now();
-
-  char dateStr[256];
   sprintf(dateStr, "%02d.%02d.%04d\0", now.day(), now.month(), now.year());
-  char timeStr[256];
   sprintf(timeStr, "%02d:%02d:%02d\0", now.hour(), now.minute(), now.second());
+  
+  // DateTime now = rtc.now();
+  // TimeSpan span = now - lastDisplayUpdate;
+  // auto spanSecs = span.seconds(); 
+  // //Serial.print(".");
+  // if (spanSecs * 1000 < DISPLAY_UPDATE_INTERVAL_MILLISECONDS) {
+  //   Serial.println(spanSecs);
+  //   delay(100);
+  //   return;
+  // }
+  // lastDisplayUpdate = now;
 
-  oled.clear();
+  oled.home();
   oled.println("Thermometer Clock");
   oled.println();
   oled.print(daysOfTheWeek[now.dayOfTheWeek()]);
@@ -264,38 +295,3 @@ void updateThermoClockDisplay() {
 */
   oled.println();
 }
-
-
-
-/*
-void setup() {
-  pinMode(CLK_PIN, INPUT_PULLUP);
-  pinMode(DT_PIN, INPUT_PULLUP);
-  pinMode(SW_PIN, INPUT_PULLUP);
-  Serial.begin(9600);
-}
-void loop() {
-	n = digitalRead(CLK_PIN);
-	taster = !digitalRead(SW_PIN);
-	if(taster != last_taster) {
-	  Serial.print(position);
-	  Serial.print("|");
-	  Serial.println(taster);
-	  delay(10);
-	  last_taster = taster;
-	}
-	// one tab
-	if((last_position == 0) && (n == HIGH)) {
-	  if(digitalRead(DT_PIN) == LOW) {
-	    position++;
-	  }
-	  else {
-	    position--;
-	  }
-	  Serial.print(position);
-	  Serial.print("|");
-	  Serial.println(taster);
-	}
-	last_position = n;
-}
-*/
