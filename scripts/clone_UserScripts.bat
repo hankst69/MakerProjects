@@ -1,4 +1,10 @@
+@rem https://github.com/hankst69/UserScript-KnowHow
+@rem https://github.com/hankst69/UserScripts
 @echo off
-rem @call "%~dp0scripts\clone_in_folder.bat" "%~dp0projects\web\UserScripts" "https://github.com/hankst69/UserScripts" --switchBranch TestBranch --changeDir --dummy 123 --silent
-@call "%~dp0scripts\clone_in_folder.bat" "%~dp0projects\web\UserScript-KnowHow" "https://github.com/hankst69/UserScript-KnowHow"
-@call "%~dp0scripts\clone_in_folder.bat" "%~dp0projects\web\UserScripts" "https://github.com/hankst69/UserScripts" --changeDir
+call "%~dp0\maker_env.bat"
+
+set "_USERSCRIPTS_DIR=%MAKER_PROJECTS%\Web\UserScripts"
+set "_USERSCRIPTS_KNOWHOW_DIR=%MAKER_PROJECTS%\Web\KnowHow"
+
+@call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_KNOWHOW_DIR%" "https://github.com/hankst69/UserScript-KnowHow"
+@call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_DIR%" "https://github.com/hankst69/UserScripts" --changeDir --switchBranch DLWSMEDIA_with_HLSPlayer
