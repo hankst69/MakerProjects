@@ -1,3 +1,8 @@
 @rem https://github.com/hankst69/Python.git
-@call "%~dp0scripts\clone_in_folder.bat" "%~dp0projects\Python" "https://github.com/hankst69/Python.git" --changeDir
-@call "%~dp0scripts\clone_in_folder.bat" "%~dp0projects\Python\Jupyter\SimpleITK-Notebooks" "https://github.com/InsightSoftwareConsortium/SimpleITK-Notebooks.git"
+@echo off
+call "%~dp0\maker_env.bat"
+
+set "_PYTHON_PROJECTS_DIR=%MAKER_PROJECTS%\Python"
+
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_PYTHON_PROJECTS_DIR%" "https://github.com/hankst69/Python.git" --changeDir
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_PYTHON_PROJECTS_DIR%\Jupyter\SimpleITK-Notebooks" "https://github.com/InsightSoftwareConsortium/SimpleITK-Notebooks.git"
