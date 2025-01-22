@@ -26,8 +26,8 @@ if "%_GR_SOURCES_DIR%" EQU "" (echo cloning GammaRay %_GR_VERSION% failed &goto 
 if not exist "%_GR_DIR%" (echo cloning GammaRay %_GR_VERSION% failed &goto :Exit)
 if not exist "%_GR_SOURCES_DIR%" (echo cloning GammaRay %_GR_VERSION% failed &goto :Exit)
 
-set "_GR_BUILD_DIR=%_GR_DIR%\gammaray_build%_GR_VERSION%"
-set "_GR_BIN_DIR=%_GR_DIR%\gammaray%_GR_VERSION%"
+set "_GR_BUILD_DIR=%_GR_DIR%\GammaRay_build%_GR_VERSION%"
+set "_GR_BIN_DIR=%_GR_DIR%\GammaRay%_GR_VERSION%"
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _GR
 
@@ -111,7 +111,7 @@ mkdir "%_GR_BIN_DIR%"
 mkdir "%_GR_BUILD_DIR%"
 pushd "%_GR_BUILD_DIR%"
 rem call cmake -S "%_GR_SOURCES_DIR%" -G Ninja -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%"
-call cmake -S "%_GR_SOURCES_DIR%" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%"  
+call cmake -S "%_GR_SOURCES_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%"
 popd
 :gr_configure_done
 
@@ -147,7 +147,7 @@ rem echo @start /D "%_QT_BIN_DIR%\bin" /MAX /B %_QT_BIN_DIR%\bin\designer.exe %%
 
 :Exit
 cd /d "%_GR_DIR%"
-cd /d "%_BQT_START_DIR%"
+cd /d "%_BGR_START_DIR%"
 set _BGR_START_DIR=
 set _REBUILD=
 rem set _GR_VERSION=

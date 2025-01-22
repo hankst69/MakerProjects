@@ -4,7 +4,7 @@
 call "%~dp0\maker_env.bat" %*
 
 set "_GR_VERSION=%MAKER_ENV_VERSION%"
-set "_GR_SRC_NAME=gammaray_sources"
+set "_GR_SRC_NAME=GammaRay_sources"
 
 rem apply explicite clone-folder-name:
 if "%MAKER_ENV_UNKNOWN_ARG_1%" neq "" set "_GR_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
