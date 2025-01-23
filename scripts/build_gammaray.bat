@@ -87,12 +87,10 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem ensure qt
 call "%MAKER_BUILD%\validate_qt.bat" GEQ6.3
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat"
+call "%MAKER_BUILD%\validate_qt.bat" GEQ6.3
 if %ERRORLEVEL% NEQ 0 (
-  call "%MAKER_BUILD%\build_qt.bat"
-  call "%MAKER_BUILD%\validate_qt.bat" GEQ6.3
-  if %ERRORLEVEL% NEQ 0 (
-    goto :Exit
-  )
+  goto :Exit
 )
 rem validate ninja
 call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
@@ -111,7 +109,7 @@ mkdir "%_GR_BIN_DIR%"
 mkdir "%_GR_BUILD_DIR%"
 pushd "%_GR_BUILD_DIR%"
 rem call cmake -S "%_GR_SOURCES_DIR%" -G Ninja -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%"
-call cmake -S "%_GR_SOURCES_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%"
+call cmake -S "%_GR_SOURCES_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GR_BUILD_TYPE%"
 popd
 :gr_configure_done
 
