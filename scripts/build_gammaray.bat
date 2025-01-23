@@ -4,7 +4,6 @@
 set "_BGR_START_DIR=%cd%"
 
 call "%~dp0\maker_env.bat" %*
-rem if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 set "_GR_VERSION=%MAKER_ENV_VERSION%"
 set "_GT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
@@ -15,10 +14,11 @@ rem apply defaults
 if "%_GR_TGT_ARCH%" equ "" set "_GR_TGT_ARCH=x64"
 rem if "%_GR_VERSION%" equ "" set _GR_VERSION=3.1
 set _GR_BUILD_TYPE=Release
+set _GR_TGT_ARCH=x64
 
 
 rem *** cloning sources ***
-call "%MAKER_BUILD%\clone_gammaray.bat" %_GR_VERSION% %MAKER_ENV_VERBOSE% %MAKER_ENV_UNKNOWN_SWITCHES%
+call "%MAKER_BUILD%\clone_gammaray.bat" %_GR_VERSION% %MAKER_ENV_VERBOSE% %MAKER_ENV_UNKNOWN_SWITCHES% --silent
 rem defines: _GR_DIR
 rem defines: _GR_SOURCES_DIR
 if "%_GR_DIR%" EQU "" (echo cloning GammaRay %_GR_VERSION% failed &goto :Exit)
@@ -41,17 +41,26 @@ if "%_REBUILD%" neq "" (
 
 
 rem *** testing for existing GR build ***
-rem todo...
-goto :build_gr
-rem if not exist "%_GR_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
-rem if not exist "%_GR_BIN_DIR%\bin\lupdate.exe" goto :build_gr
-rem call which Qt6WebSockets.dll 1>nul 2>nul
-rem if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :gr_install_done
-rem set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-rem call which Qt6WebSockets.dll 1>nul 2>nul
-rem if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :gr_install_done
-rem echo error: QT %_QT_VERSION% seems to be prebuild but is not working
-rem echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
+if not exist "%_GR_BIN_DIR%\bin\gammaray.exe" goto :build_gr
+call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
+if %ERRORLEVEL% EQU 0 (
+  echo GAMMARAY %_GR_VERSION% already available
+  goto :gr_install_done
+)
+if %ERRORLEVEL% EQU 4 set "PATH=%_GR_BIN_DIR%\bin;%PATH%"
+call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
+if %ERRORLEVEL% EQU 0 (
+  echo GAMMARAY %_GR_VERSION% already available
+  goto :gr_install_done
+)
+call "%MAKER_BUILD%\build_qt.bat"
+call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
+if %ERRORLEVEL% EQU 0 (
+  echo GAMMARAY %_GR_VERSION% already available
+  goto :gr_install_done
+)
+echo error: GAMMARAY %_GR_VERSION% seems to be prebuild but is not working
+echo try rebuilding via '%~n0 --rebuild %_GR_VERSION%'
 goto :Exit
 
 
@@ -102,34 +111,39 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem *** configure GR build ***
 :gr_configure
-echo GAMMARAY-CONFIGURE %_GR_VERSION%
+echo.
+echo GAMMARAY-CONFIGURE %_GR_VERSION% (%_GR_BUILD_TYPE%)
 rmdir /s /q "%_GR_BUILD_DIR%" 1>nul 2>nul
 rmdir /s /q "%_GR_BIN_DIR%" 1>nul 2>nul 
 mkdir "%_GR_BIN_DIR%"
 mkdir "%_GR_BUILD_DIR%"
-pushd "%_GR_BUILD_DIR%"
-rem call cmake -S "%_GR_SOURCES_DIR%" -G Ninja -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%"
-call cmake -S "%_GR_SOURCES_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GR_BUILD_TYPE%"
-popd
+rem pushd "%_GR_BUILD_DIR%"
+rem call cmake -S "%_GR_SOURCES_DIR%" -G Ninja -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" .
+rem popd
+echo cmake -S "%_GR_SOURCES_DIR%" -B "%_GR_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_GR_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_GR_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%"
+call cmake -S "%_GR_SOURCES_DIR%" -B "%_GR_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_GR_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_GR_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_GR_BIN_DIR%" -DCMAKE_PREFIX_PATH="%_QT_BIN_DIR%"
 :gr_configure_done
 
 
 rem *** perform GR build ***
 :gr_build
-echo GAMMARAY-BUILD %_GR_VERSION%
+echo.
+echo GAMMARAY-BUILD %_GR_VERSION% (%_GR_BUILD_TYPE%)
 pushd "%_GR_BUILD_DIR%"
-call cmake --build .
+call cmake --build . --parallel 4 --config %_GR_BUILD_TYPE%
 popd
 :gr_build_done
 
 rem *** perform QT install ***
 :gr_install
 :gr_install_do
-  echo GAMMARAY-INSTALL %_GR_VERSION%
+  echo.
+  echo GAMMARAY-INSTALL %_GR_VERSION% (%_GR_BUILD_TYPE%)
   pushd "%_GR_BUILD_DIR%"
   call cmake --install .
   popd
 :gr_install_test
+
 rem todo...
 goto :gr_install_done
 rem call which Qt6WebSockets.dll 1>nul 2>nul
@@ -138,9 +152,11 @@ rem call which Qt6WebSockets.dll 1>nul 2>nul
 rem if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% available &goto :gr_install_done
 rem echo error: QT-INSTALL %_QT_VERSION% failed
 goto :Exit
+
 :gr_install_done
 rem -- create shortcuts
-rem echo @start /D "%_QT_BIN_DIR%\bin" /MAX /B %_QT_BIN_DIR%\bin\designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
+echo @start /D "%_GR_BIN_DIR%\bin" /MAX /B %_GR_BIN_DIR%\bin\gammaray.exe %%*>"%MAKER_BIN%\gammaray.bat"
+call "%MAKER_BUILD%\validate_gammaray.bat"
 
 
 :Exit

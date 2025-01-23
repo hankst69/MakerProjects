@@ -20,7 +20,7 @@ if "%~1" neq "" if "%_GIT_CLONE_URL%"  equ "" (set "_GIT_CLONE_URL=%~1" &set "_G
 if "%~1" neq "" (set "_FREE_ARGS=%_FREE_ARGS% %1"&shift &goto :param_loop)
 if "%_TARGET_DIR%" equ "" echo error: missing argument 'target-folder' &goto :Usage
 if "%_GIT_CLONE_URL%" equ "" echo error: missing argument 'git-repo-url' &goto :Usage
-goto :Start &rem disable this statement for debugging
+if "%MAKER_ENV_VERBOSE%" equ "" goto :Start
 echo _TARGET_DIR        = "%_TARGET_DIR%"
 echo _TARGET_DIR        = "%_GIT_CLONE_URL%"
 echo _GIT_CLONE_REPO    = "%_GIT_CLONE_REPO%"
@@ -28,7 +28,6 @@ echo _SILENT_CLONE_MODE = "%_SILENT_CLONE_MODE%"
 echo _SWITCH_BRANCH     = "%_SWITCH_BRANCH%"
 echo _CHANGE_DIR        = "%_CHANGE_DIR%"
 echo _FREE_ARGS         = %_FREE_ARGS%
-rem goto :Exit
 goto :Start
 
 :Usage
@@ -62,14 +61,24 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
     echo ******************************************************************************************
     echo * '%_GIT_CLONE_REPO%' is already cloned in '%_TARGET_DIR%'
     rem echo * to clone '%_GIT_CLONE_REPO%' freshly, remove all content via: 'rmdir /s /q "%_TARGET_DIR%"'
-	echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
+	  echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
     echo ******************************************************************************************
   )
   pushd "%_TARGET_DIR%"
-  git remote -v
-  if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
-  git status
-  git fetch
+  if "%_SILENT_CLONE_MODE%" neq "true" (
+    git remote -v
+    if "%_SWITCH_BRANCH%" neq "" (
+      echo.
+      git switch %_SWITCH_BRANCH%
+    )
+    git status
+    git fetch
+  ) else (
+    if "%_SWITCH_BRANCH%" neq "" (
+      echo.
+      git switch %_SWITCH_BRANCH% 1>nul 2>nul
+    )
+  )
   popd
   if "%_CHANGE_DIR%" neq "" (cd "%_TARGET_DIR%")
 ) else (
@@ -83,7 +92,7 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   echo *  ^(you can do so with 'rmdir /s /q "%_TARGET_DIR%"'^)
   echo ******************************************************************************************
 )
-echo.
+if "%_SILENT_CLONE_MODE%" neq "true" echo.
 set _GIT_REPO=
 goto :Exit
 

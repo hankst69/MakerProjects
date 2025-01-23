@@ -1,0 +1,1 @@
+@call "%~dp0core\generic_validate.bat" "GammaRay" "gammaray.exe --version" "for /f ""tokens=1-3 delims= "" %%%%i in ('call gammaray.exe --version') do if /I %%%%i_%%%%j EQU GammaRay_version echo %%%%k" %*

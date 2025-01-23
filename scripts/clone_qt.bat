@@ -22,7 +22,7 @@ set "_QT_SOURCES_DIR=%_QT_DIR%\%_QT_SRC_NAME%_%_QT_VERSION%\"
 
 set _QT_CHANGE_DIR=
 set _QT_SILENT_CLONE_MODE=
-if "%MAKER_ENV_UNKNOWN_ARGS%" equ "" goto :qt_clone
+if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :qt_clone
 for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do if /I "%%~i" equ "--changeDir" set _QT_CHANGE_DIR=--changeDir
 for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do if /I "%%~i" equ "--silent"    set _QT_SILENT_CLONE_MODE=--silent
 set _QT_CHANGE_DIR=true
