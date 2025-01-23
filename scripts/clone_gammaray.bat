@@ -16,6 +16,12 @@ rem define folders:
 set "_GR_DIR=%MAKER_TOOLS%\Qt"
 set "_GR_SOURCES_DIR=%_GR_DIR%\%_GR_SRC_NAME%%_GR_VERSION%"
 
+set _GR_SILENT_CLONE_MODE=
+if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :gr_clone
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do if /I "%%~i" equ "--silent"    set _GR_SILENT_CLONE_MODE=--silent
+
+
+:gr_clone
 rem print debug info:
 if "%MAKER_ENV_VERBOSE%" neq "" set _GR
 
@@ -24,13 +30,13 @@ rem --- cloning GarmmaRay
 if "%_GR_VERSION%" neq "" goto :gr_clone_version
 
 :gr_clone_latest
-echo GAMMARAY-CLONE %_GR_VERSION%
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/KDAB/GammaRay.git" --switchBranch master
+if "%_GR_SILENT_CLONE_MODE%" equ "" echo GAMMARAY-CLONE %_GR_VERSION%
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/KDAB/GammaRay.git" --switchBranch master %_GR_SILENT_CLONE_MODE%
 goto :gr_clone_done
 
 :gr_clone_version
-echo GAMMARAY-CLONE %_GR_VERSION%
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/KDAB/GammaRay.git" --switchBranch %_GR_VERSION%
+if "%_GR_SILENT_CLONE_MODE%" equ "" echo GAMMARAY-CLONE %_GR_VERSION%
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/KDAB/GammaRay.git" --switchBranch %_GR_VERSION% %_GR_SILENT_CLONE_MODE%
 goto :gr_clone_done
 
 :gr_clone_done
