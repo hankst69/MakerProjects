@@ -13,6 +13,8 @@
 //#define OLED_TYPE Adafruit128x32
 #define OLED_TYPE Adafruit128x64
 
+//#define NULL_PTR NULL //stddef.h
+
 // Servo definitions:
 #define SERVO_OUT_PIN 9
 
@@ -259,7 +261,7 @@ void updateThermoClockDisplay() {
 int rotaryenc_position_min = -50;
 int rotaryenc_position_max = 50;
 int rotaryenc_position = 0;
-bool rotaryenc_taster = LOW;
+bool rotaryenc_taster = LOW; // from Arduino.h
 int rotaryenc_last_position = 0;
 bool rotaryenc_last_taster = LOW;
 RotaryEncoderPressedCallback rotaryenc_pressed_callback = nullptr;

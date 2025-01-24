@@ -1,34 +1,15 @@
-#include <Wire.h>
-#include <SSD1306Ascii.h>
-#include <SSD1306AsciiWire.h>
-#include <RTClib.h>
-#include <Servo.h>
-#include <RotaryEncoder.h>
-
-
-// OLED I2C definitions:
-#define OLED_I2C_ADDRESS 0x3C // 0X3C+SA0 - 0x3C or 0x3D
-#define OLED_RST_PIN -1 // Define proper RST_PIN if required.
-//#define OLED_TYPE Adafruit128x32
-#define OLED_TYPE Adafruit128x64
-
-// Servo definitions:
-#define SERVO_OUT_PIN 9
+#include "RotaryEncoder.h"
 
 // RotaryEncoder definitions:
 #define ROTARYENC_CLK_PIN 2
 #define ROTARYENC_DT_PIN 3
 #define ROTARYENC_SW_PIN 4
 
-// globals 
-SSD1306AsciiWire oled;
-RTC_DS3231 rtc;
-Servo servo;
-RotaryEncoder rotaryenc;
+// forward declarations
+void onRotaryEncoderTasterPressed(bool pressed, void* data);
 
-//void updateThermoClockDisplay();
-//void updateRotaryEncoderDisplay();
-//void updateServoTestDisplay();
+// globals 
+RotaryEncoder rotaryenc;
 
 //------------------------------------------------------------------------------
 void setup() {
@@ -38,43 +19,6 @@ void setup() {
   // init RotaryEncoder
   rotaryenc.init(ROTARYENC_CLK_PIN, ROTARYENC_DT_PIN, ROTARYENC_SW_PIN,
     onRotaryEncoderTasterPressed);
-
-  // init Servo control
-  servo.attach(SERVO_OUT_PIN);
-  
-  // init I2C interface
-  Wire.begin();
-  Wire.setClock(400000L);
-
-  // init OLED device
-#if OLED_RST_PIN >= 0
-  oled.begin(&OLED_TYPE, OLED_I2C_ADDRESS, OLED_RST_PIN);
-#else
-  oled.begin(&OLED_TYPE, OLED_I2C_ADDRESS);
-#endif
-  oled.setFont(System5x7);
-  oled.clear();
-
-  // init RTC device
-  if (!rtc.begin()) {
-    oled.println("Couldn't find RTC");
-    while (1) delay(10);
-  }
-  if (rtc.lostPower()) {
-    oled.println("RTC lost power, let's set the time!");
-    // When time needs to be set on a new device, or after a power loss, the
-    // following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    // This line sets the RTC with an explicit date & time, for example to set
-    // January 21, 2014 at 3am you would call:
-    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
-  }
-  // When time needs to be re-set on a previously configured device, the
-  // following line sets the RTC to the date & time this sketch was compiled
-  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  // This line sets the RTC with an explicit date & time, for example to set
-  // January 21, 2014 at 3am you would call:
-  // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
 }
 
 //------------------------------------------------------------------------------
@@ -82,6 +26,7 @@ void loop() {
   rotaryenc.loop();
   displayUpdateLoop();
 }
+
 
 //------------------------------------------------------------------------------
 // APP logic
@@ -103,7 +48,7 @@ int rotateMenuSelection(int entry) {
   return entry;
 }
 
-#define DISPLAY_UPDATE_INTERVAL_MILLISECONDS 500
+#define DISPLAY_UPDATE_INTERVAL_MILLISECONDS 1000
 #define DISPLAY_UPDATE_DELAY_MILLISECONDS 2
 int display_update_milliseonds = 0;
 
@@ -117,7 +62,6 @@ void displayUpdateLoop() {
 
   if (menuEntry != menuEntry_last) {
     menuEntry_last = menuEntry;
-    oled.clear();
     rotaryenc.resetPosition();
   }
 
@@ -125,6 +69,7 @@ void displayUpdateLoop() {
     case MENU_ThermoClockDisplay:
       updateThermoClockDisplay();
       break;
+
     case MENU_RotaryEncoderDisplay:
       menuEntry_change_on_rotaryEncoder_pressed = false;
       if (updateRotaryEncoderDisplay()) {
@@ -132,14 +77,17 @@ void displayUpdateLoop() {
         menuEntry = rotateMenuSelection(menuEntry);
       }
       break;
+
     case MENU_ServoTestDisplay:
       updateServoTestDisplay();
       break;
+
     default:
       menuEntry = 0;
   }
 }
 
+//------------------------------------------------------------------------------
 void onRotaryEncoderTasterPressed(bool pressed, void* data) {
   Serial.print("onRotaryEncoderTasterPressed(");
   Serial.print(pressed);
@@ -162,13 +110,12 @@ bool updateRotaryEncoderDisplay() {
   bool pressed = rotaryenc.getPressed(); 
   int pos = rotaryenc.getPosition();
 
-  oled.home();
-  oled.println("Rotary Encoder");
-  oled.println();
-  oled.print("position: "); oled.print(pos); oled.clearToEOL();
-  oled.println();
-  oled.print(" pressed: "); oled.print(pressed); oled.clearToEOL();
-  oled.println();
+  Serial.println("Rotary Encoder");
+  Serial.println();
+  Serial.print("position: "); Serial.print(pos);
+  Serial.println();
+  Serial.print(" pressed: "); Serial.print(pressed);
+  Serial.println();
   return pressed && !pos;
 }
 
@@ -178,21 +125,24 @@ void updateServoTestDisplay() {
   // https://docs.arduino.cc/learn/electronics/servo-motors/
   int pos = rotaryenc.getPosition();
 
-  oled.home();
-  oled.println("Servo Test");
-  oled.println();
-  oled.print("position: "); oled.print(pos); oled.clearToEOL();
-  oled.println();
+  // init serial interface for printing debug infos to SerialMonitor
+  Serial.println("Servo Test");
+  Serial.println();
+  Serial.print("position: "); Serial.print(pos); 
+  Serial.println();
 
-  int val = map(pos, -50, 50, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
-  servo.write(val);                   // sets the servo position according to the scaled value
-  delay(15);                           // waits for the servo to get ther
+  //int val = map(pos, -50, 50, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
+  //servo1.write(val);                   // sets the servo position according to the scaled value
+  //delay(15);                           // waits for the servo to get ther
 }
 
 //------------------------------------------------------------------------------
 // ThermoClock
 //DateTime lastDisplayUpdate;
 void updateThermoClockDisplay() {
+ 
+  Serial.println("Thermometer Clock");
+  /*
   char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
   char dateStr[256];
   char timeStr[256];
@@ -227,6 +177,7 @@ void updateThermoClockDisplay() {
   Serial.print("s = ");
   Serial.print(now.unixtime() / 86400L);
   Serial.println("d");
+  */
 /*
   // calculate a date which is 7 days, 12 hours, 30 minutes, 6 seconds into the future
   DateTime future (now + TimeSpan(7,12,30,6));
