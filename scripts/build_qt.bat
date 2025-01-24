@@ -21,9 +21,12 @@ if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
 set _QT_BUILD_TYPE=Release
 set _QT_USE_LLVM20_PATCH=true
+set _QT_CMAKE_VERSION=GEQ3.22
+
 
 rem (1) *** cloning QT sources ***
-call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %MAKER_ENV_UNKNOWN_SWITCHES%
+call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% --silent
+cd /d "%_BQT_START_DIR%"
 rem defines: _QT_DIR
 rem defines: _QT_SOURCES_DIR
 if "%_QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
@@ -77,7 +80,7 @@ rem (6) *** ensuring prerequisites ***
 rem https://doc.qt.io/qt-6/windows-building.html
 rem building Qt (libs and tools) requires:
 rem
-rem * mandatory: CMake 3.16 or newer
+rem * mandatory: CMake 3.22 or newer
 rem * mandatory: Python 3
 rem * mandatory: MSVC2019 or MSVC2022 or Mingw-w64 13.1
 rem              whatever compiler is used it has to be set up to create "amd64" targets
@@ -106,7 +109,7 @@ echo see https://doc.qt.io/qt-6/windows-building.html
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw-w64
 echo *** THIS REQUIRES Python 3
-echo *** THIS REQUIRES Cmake 3.16 or newer
+echo *** THIS REQUIRES Cmake 3.22 or newer
 echo *** OTPIONAL: Ninja
 echo *** OTPIONAL: Perl
 echo *** OTPIONAL: LLVM/Clang
@@ -121,7 +124,7 @@ if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16 %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
@@ -207,8 +210,12 @@ mkdir "%_QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
 call "%_QT_SOURCES_DIR%\configure.bat" --help>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
+rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
+rem   building against version 1929.  You can turn off this version check by
+rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
 echo. "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK="ON">>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
