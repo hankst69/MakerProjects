@@ -1,3 +1,4 @@
+@rem https://github.com/hankst69/GammaRay.git
 @rem https://github.com/KDAB/GammaRay.git
 @rem https://github.com/KDAB/GammaRay/blob/master/INSTALL.md
 @echo off
@@ -31,7 +32,7 @@ if "%_GR_VERSION%" neq "" goto :gr_clone_version
 
 :gr_clone_latest
 if "%_GR_SILENT_CLONE_MODE%" equ "" echo GAMMARAY-CLONE %_GR_VERSION%
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/KDAB/GammaRay.git" --switchBranch master %_GR_SILENT_CLONE_MODE%
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GR_SOURCES_DIR%" "https://github.com/hankst69/GammaRay.git" --switchBranch master %_GR_SILENT_CLONE_MODE%
 goto :gr_clone_done
 
 :gr_clone_version
