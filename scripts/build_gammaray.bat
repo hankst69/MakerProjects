@@ -16,9 +16,19 @@ rem if "%_GR_VERSION%" equ "" set _GR_VERSION=3.1
 set _GR_BUILD_TYPE=Release
 set _GR_TGT_ARCH=x64
 
+rem define target QT framework and build system
+rem defaults:
+set _GR_MSVS_VERSION=GEQ2019
+set _GR_CMAKE_VERSION=GEQ3.16
+set _GR_QT_VERSION=GEQ6.3
+rem if we build GammaRay 3.0 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
+if "%_GR_VERSION%" equ "3.0" set _GR_QT_VERSION=15.12
+if "%_GR_VERSION%" equ "3.0" set _GR_MSVS_VERSION=2019
+if "%_GR_VERSION%" equ "3.0" set _GR_CMAKE_VERSION=GEQ3.22
 
 rem *** cloning sources ***
-call "%MAKER_BUILD%\clone_gammaray.bat" %_GR_VERSION% %MAKER_ENV_VERBOSE% %MAKER_ENV_UNKNOWN_SWITCHES% --silent
+call "%MAKER_BUILD%\clone_gammaray.bat" %_GR_VERSION% %MAKER_ENV_VERBOSE% --silent
+cd /d "%_BGR_START_DIR%"
 rem defines: _GR_DIR
 rem defines: _GR_SOURCES_DIR
 if "%_GR_DIR%" EQU "" (echo cloning GammaRay %_GR_VERSION% failed &goto :Exit)
@@ -85,19 +95,12 @@ echo *** THIS REQUIRES VisualStudio 2019 or 2022
 echo *** OTPIONAL: Ninja
 echo.
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_msvs.bat" %_GR_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16 %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :Exit
-)
-rem ensure qt
-call "%MAKER_BUILD%\validate_qt.bat" GEQ6.3
-if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat"
-call "%MAKER_BUILD%\validate_qt.bat" GEQ6.3
+call "%MAKER_BUILD%\validate_cmake.bat" %_GR_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
@@ -106,6 +109,15 @@ call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :Exit
+)
+rem ensure qt
+call "%MAKER_BUILD%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% EQU 0 goto :gr_configure
+if "%_GR_VERSION%" neq "3.0" call "%MAKER_BUILD%\build_qt.bat"
+if "%_GR_VERSION%" equ "3.0" call "%MAKER_BUILD%\build_qt.bat" %_GR_QT_VERSION%
+call "%MAKER_BUILD%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
 )
 
 
