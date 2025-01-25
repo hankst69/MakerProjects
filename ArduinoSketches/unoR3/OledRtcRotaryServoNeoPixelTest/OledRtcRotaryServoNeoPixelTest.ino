@@ -4,7 +4,11 @@
 #include <RTClib.h>
 #include <Servo.h>
 #include <RotaryEncoder.h>
+#include "NeoMatrixGFXDemo.h"
 
+// NeoPixelMatrix definitions:
+#define NEOPIXEL_PIN 6
+#define NEOPIXEL_BRIGHTNESS 10 //Max is 255, 32 is a conservative value to not overload
 
 // OLED I2C definitions:
 #define OLED_I2C_ADDRESS 0x3C // 0X3C+SA0 - 0x3C or 0x3D
@@ -25,10 +29,12 @@ SSD1306AsciiWire oled;
 RTC_DS3231 rtc;
 Servo servo;
 RotaryEncoder rotaryenc;
+NeoMatrixGFXDemo neomatrixdemo;
 
 //void updateThermoClockDisplay();
 //void updateRotaryEncoderDisplay();
 //void updateServoTestDisplay();
+
 
 //------------------------------------------------------------------------------
 void setup() {
@@ -75,6 +81,9 @@ void setup() {
   // This line sets the RTC with an explicit date & time, for example to set
   // January 21, 2014 at 3am you would call:
   // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+
+  // init NeoMatrixDemo
+  neomatrixdemo.setup(NEOPIXEL_PIN, NEOPIXEL_BRIGHTNESS);
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +97,8 @@ void loop() {
 #define MENU_ThermoClockDisplay 0
 #define MENU_RotaryEncoderDisplay 1
 #define MENU_ServoTestDisplay 2
-#define MENU_MaxEntry 2
+#define MENU_NeoMatrixDemo 3
+#define MENU_MaxEntry 3
 int menuEntry = MENU_ThermoClockDisplay;
 int menuEntry_last = -1;
 bool menuEntry_change_on_rotaryEncoder_pressed = true;
@@ -129,15 +139,19 @@ void displayUpdateLoop() {
       menuEntry_change_on_rotaryEncoder_pressed = false;
       if (updateRotaryEncoderDisplay()) {
         menuEntry_change_on_rotaryEncoder_pressed = true;
-        menuEntry = rotateMenuSelection(menuEntry);
+        menuEntry = rotateMenuSelection(menuEntry_last);
       }
       break;
     case MENU_ServoTestDisplay:
       updateServoTestDisplay();
       break;
+    case MENU_NeoMatrixDemo:
+      updateNeoPixelMatrixDisplay();
+      break;
     default:
       menuEntry = 0;
   }
+  display_update_milliseonds = 0;
 }
 
 void onRotaryEncoderTasterPressed(bool pressed, void* data) {
@@ -149,10 +163,27 @@ void onRotaryEncoderTasterPressed(bool pressed, void* data) {
   if (pressed) {
     //int* intPtr = (int*)data;
     //*intPtr = rotateMenuSelection(*intPtr);
-    menuEntry = rotateMenuSelection(menuEntry);
-    Serial.print("menuEntry = ");
-    Serial.println(menuEntry);
+    menuEntry = rotateMenuSelection(menuEntry_last);
+    if (menuEntry != menuEntry_last) {
+      Serial.print("menuEntry = ");
+      Serial.println(menuEntry);
+      oled.println();
+      oled.println("stopping...");
+    }
   }
+}
+
+
+//------------------------------------------------------------------------------
+// NeoPixel Matrix Test
+void updateNeoPixelMatrixDisplay() {
+  oled.home();
+  oled.println("NeoPixel 8x8 Matrix");
+  oled.println();
+  oled.println("demo running...");
+  neomatrixdemo.play();
+  // switch to next menu automatically
+  menuEntry = rotateMenuSelection(menuEntry_last);  
 }
 
 //------------------------------------------------------------------------------
