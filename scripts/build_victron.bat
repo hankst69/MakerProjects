@@ -105,7 +105,7 @@ rmdir /s /q "%_VCG_BUILD_DIR%" 1>nul 2>nul
 rmdir /s /q "%_VCG_BIN_DIR%" 1>nul 2>nul 
 mkdir "%_VCG_BIN_DIR%"
 mkdir "%_VCG_BUILD_DIR%"
-rem next 3 lines only work if the buzikld folder is a sub folder within the source folder:
+rem next 3 lines only work if the build folder is a sub folder within the source folder:
 rem pushd "%_VCG_BUILD_DIR%"
 rem call "%QT_CMAKE%" -DCMAKE_BUILD_TYPE=MinSizeRel ..\
 rem popd
