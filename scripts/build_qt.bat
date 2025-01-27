@@ -68,6 +68,7 @@ if "%_REBUILD%" neq "" (
 rem (5) *** testing for existing QT build ***
 if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
 if not exist "%QT_BIN_DIR%\bin\lupdate.exe" goto :build_qt
+if not exist "%QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :build_qt
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
 set "PATH=%PATH%;%QT_BIN_DIR%\bin"
@@ -212,8 +213,10 @@ rem   "C:/GIT/Maker/tools/Qt/qt6.6.3/lib/cmake/Qt6Mqtt/Qt6MqttConfig.cmake" does
 rem   NOT exist
 rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
-:qt_configure
+:qt_configure_test
+if not exist "%QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
+:qt_configure
 echo QT-CONFIGURE %_QT_VERSION%
 rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 rmdir /s /q "%QT_BIN_DIR%" 1>nul 2>nul 
@@ -226,7 +229,7 @@ rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
 rem   building against version 1929.  You can turn off this version check by
 rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
 echo. "%_QT_SOURCES_DIR%\configure.bat" -prefix "%QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK="ON">>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
