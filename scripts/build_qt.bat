@@ -35,7 +35,11 @@ if not exist "%_QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 if not exist "%_QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :Exit)
 
 set "_QT_BUILD_DIR=%_QT_DIR%\qt_build%_QT_VERSION%"
-set "_QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
+
+set "QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
+set "QT_CMAKE=%QT_BIN_DIR%\bin\qt-cmake.bat"
+echo "%_QT_SOURCES_DIR%\configure.bat"  %%*>"%MAKER_BIN%\qtconfigure.bat"
+
 
 rem (2) *** specify LLVM version ***
 set _QT_LLVM_VER=14
@@ -57,16 +61,16 @@ if "%MAKER_ENV_VERBOSE%" neq "" set _QT
 rem (4) *** cleaning QT build if demanded ***
 if "%_REBUILD%" neq "" (
   echo preparing rebuild...
-  rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
+  rmdir /s /q "%QT_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 )
 
 rem (5) *** testing for existing QT build ***
-if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
-if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :build_qt
+if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :build_qt
+if not exist "%QT_BIN_DIR%\bin\lupdate.exe" goto :build_qt
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
-set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+set "PATH=%PATH%;%QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
 echo error: QT %_QT_VERSION% seems to be prebuild but is not working
@@ -200,13 +204,20 @@ rem call python -m pip wheel html5lib
 
 
 rem (8) *** configure QT build ***
+rem but it set Qt6_FOUND to FALSE so package "Qt6" is considered to be NOT
+rem   FOUND.  Reason given by package:
+rem   Failed to find required Qt component "Mqtt".
+rem   Expected Config file at
+rem   "C:/GIT/Maker/tools/Qt/qt6.6.3/lib/cmake/Qt6Mqtt/Qt6MqttConfig.cmake" does
+rem   NOT exist
+rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
+rem   package was not found.
 :qt_configure
-echo "%_QT_SOURCES_DIR%\configure.bat"  %%*>"%MAKER_BIN%\qtconfigure.bat"
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 echo QT-CONFIGURE %_QT_VERSION%
 rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
-rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul 
-mkdir "%_QT_BIN_DIR%"
+rmdir /s /q "%QT_BIN_DIR%" 1>nul 2>nul 
+mkdir "%QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
 call "%_QT_SOURCES_DIR%\configure.bat" --help>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
@@ -214,14 +225,14 @@ rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
 rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
 rem   building against version 1929.  You can turn off this version check by
 rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
-echo. "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
-call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK="ON">>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+echo. "%_QT_SOURCES_DIR%\configure.bat" -prefix "%QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -prefix "%QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK="ON">>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 popd
 :qt_configure_done
 
 rem (9) *** perform QT build ***
 :qt_build
-if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
+if exist "%QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 echo QT-BUILD %_QT_VERSION%
 pushd "%_QT_BUILD_DIR%"
 call cmake --build . --parallel 4
@@ -230,28 +241,28 @@ popd
 
 rem (10) *** perform QT install ***
 :qt_install
-if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_install_do
-if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_install_do
+if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_install_do
+if not exist "%QT_BIN_DIR%\bin\lupdate.exe" goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
   echo QT-INSTALL %_QT_VERSION%
   pushd "%_QT_BUILD_DIR%"
   call cmake --install .
   popd
-  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
+  if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
 :qt_install_test
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% available &goto :qt_install_done
 echo error: QT-INSTALL %_QT_VERSION% failed
 goto :Exit
 :qt_install_done
 rem -- create shortcuts
-echo @start /D "%_QT_BIN_DIR%\bin" /MAX /B %_QT_BIN_DIR%\bin\designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
+echo @start /D "%QT_BIN_DIR%\bin" /MAX /B %QT_BIN_DIR%\bin\designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
 
 rem (11) post configure QT
-rem call "_QT_BIN_DIR%/bin/qt-configure-module.bat"
+rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 :Exit
 cd /d "%_QT_DIR%"
@@ -262,4 +273,3 @@ rem set _QT_VERSION=
 rem set _QT_DIR=
 rem set _QT_SOURCES_DIR=
 rem set _QT_BUILD_DIR=
-rem set _QT_BIN_DIR=

@@ -25,10 +25,10 @@ if not exist "%_QT_SOURCES_DIR%" (echo building Qt %_QT_VERSION% failed &goto :E
 
 call "%MAKER_BUILD%\build_qt.bat" "%_QT_VERSION%" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (echo building Qt %_QT_VERSION% failed &goto :Exit)
-rem defines: _QT_BIN_DIR
-if "%_QT_BIN_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
-if not exist "%_QT_BIN_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
-if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo building Qt %_QT_VERSION% failed &goto :Exit)
+rem defines: QT_BIN_DIR
+if "%QT_BIN_DIR%" EQU "" (echo building Qt %_QT_VERSION% failed &goto :Exit)
+if not exist "%QT_BIN_DIR%" (echo building Qt %_QT_VERSION% failed &goto :Exit)
+if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo building Qt %_QT_VERSION% failed &goto :Exit)
 
 rem echo test msvs
 rem ensure msvs version and amd64 target architecture
@@ -107,18 +107,18 @@ rem You may need to set CMAKE_PREFIX_PATH or LLVM_INSTALL_DIR to the location of
 rem Other than clang's libraries, you may need to install another package, such as clang itself, to provide the ClangConfig.cmake file needed to detect your libraries. Once this
 rem file is in place, the configure script may be able to detect your system-installed libraries without further environment variables.
 rem echo LLVM_INSTALL_DIR: "%LLVM_INSTALL_DIR%"
-call configure -qt-host-path "%_QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR:~\=/%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call configure -qt-host-path "%_QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
-rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%_QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+call configure -qt-host-path "%QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR:~\=/%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call configure -qt-host-path "%QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR%" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -I "%_LLVM_BIN_DIR%\include" -L "%_LLVM_BIN_DIR%\lib" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" >"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
+rem call "%_QT_SOURCES_DIR%\configure.bat" -qt-host-path "%QT_BIN_DIR%" -platform wasm-emscripten -prefix "%_QT_WASM_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR "%LLVM_INSTALL_DIR%" -FEATURE_clang on FEATURE_clangcpp on>"%_QT_DIR%\qt_build_%_QT_VERSION%_wasm_configure.log"
 popd
 :qt_configure_done
 
 
 rem 3) build QT-WASM
 :qt_build
-rem if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD WASM %_QT_VERSION% already done &goto :qt_build_done
+rem if exist "%QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD WASM %_QT_VERSION% already done &goto :qt_build_done
 echo QT-BUILD WASM %_QT_VERSION%
 pushd "%_QT_WASM_BUILD_DIR%"
 rem call cmake --build . --parallel
@@ -136,7 +136,7 @@ rem 4) install QT-WASM
 :qt_install
 rem if ... echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% already done
 rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
-rem set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+rem set "PATH=%PATH%;%QT_BIN_DIR%\bin"
 rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
 :qt_install_done
 
@@ -145,9 +145,5 @@ rem echo QT-INSTALL echo QT-INSTALL WASM %_QT_VERSION% done
 cd /d "%_QT_DIR%"
 cd /d "%_BQTW_START_DIR%"
 set _BQTW_START_DIR=
-rem set _QT_VERSION=
-rem set _QT_DIR=
-rem set _QT_SOURCES_DIR=
-rem set _QT_BUILD_DIR=
-rem set _QT_BIN_DIR=
 rem set _QT_WASM_BUILD_DIR=
+rem set _QTW_REBUILD=
