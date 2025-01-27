@@ -12,6 +12,11 @@ set "MAKER_BUILD=%MAKER_ROOT%\scripts"
 set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
 set "MAKER_BIN=%MAKER_ROOT%\.tools"
 
+if not exist "%MAKER_BIN%" mkdir "%MAKER_BIN%"
+echo @echo MAKER_ENV_ACTIVE>"%MAKER_BIN%\maker_env_test.bat"
+call maker_env_test.bat 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%MAKER_BIN%"
+
 rem if "%~1" equ "" goto :exit
 if /I "%~1" equ "--keep" shift &goto :param_loop
 set MAKER_ENV_NOERROS=
