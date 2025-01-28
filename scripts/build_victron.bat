@@ -35,9 +35,12 @@ if not exist "%VICTRON_GUIV2_SRC_DIR%" (echo cloning Victron GUI-V2 failed &goto
 set "_VCG_DIR=%VICTRON_DIR%"
 set "_VCG_SOURCES_DIR=%VICTRON_GUIV2_SRC_DIR%"
 set "_VCG_BUILD_DIR=%VICTRON_GUIV2_BASE_DIR%_build%VICTRON_GUIV2_VERSION%"
-set "_VCG_BIN_DIR=%_VICTRON_GUIV2_BASEDIR%%VICTRON_GUIV2_VERSION%"
+set "_VCG_BIN_DIR=%VICTRON_GUIV2_BASE_DIR%%VICTRON_GUIV2_VERSION%"
 
-if "%MAKER_ENV_VERBOSE%" neq "" set _VCG
+if "%MAKER_ENV_VERBOSE%" neq "" set _VCG_
+rem echo "%_VCG_BIN_DIR%\bin\venus-gui-v2.exe"
+rem dir "%_VCG_BIN_DIR%\bin\venus-gui-v2.exe"
+rem goto :EOF
 
 
 rem *** cleaning old build if demanded ***
@@ -50,27 +53,10 @@ if "%_VCG_REBUILD%" neq "" (
 
 rem *** testing for existing build ***
 goto :_rebuild
-rem todo adapt to Venus-QT-Gui...
-if not exist "%VCG_BIN_DIR%\bin\gammaray.exe" goto :_rebuild
-call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
-if %ERRORLEVEL% EQU 0 (
-  echo GAMMARAY %VCG_VERSION% already available
-  goto :_install_done
-)
-if %ERRORLEVEL% EQU 4 set "PATH=%VCG_BIN_DIR%\bin;%PATH%"
-call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
-if %ERRORLEVEL% EQU 0 (
-  echo GAMMARAY %VCG_VERSION% already available
-  goto :_install_done
-)
-call "%MAKER_BUILD%\build_qt.bat"
-call "%MAKER_BUILD%\validate_gammaray.bat" 1>nul
-if %ERRORLEVEL% EQU 0 (
-  echo GAMMARAY %VCG_VERSION% already available
-  goto :_install_done
-)
-echo error: GAMMARAY %VCG_VERSION% seems to be prebuild but is not working
-echo try rebuilding via '%~n0 --rebuild %VCG_VERSION%'
+if not exist "%_VCG_BIN_DIR%\bin\venus-gui-v2.exe" goto :_rebuild
+goto :_install_test
+rem not used here
+rem echo try rebuilding via '%~n0 --rebuild %_VCG_VERSION%'
 goto :_exit
 
 
@@ -150,6 +136,7 @@ popd
 
 :_install_test
 rem todo: validate install success...
+if not exist "%_VCG_BIN_DIR%\bin\venus-gui-v2.exe" echo error: Victron-GUI build failed &goto :_exit
 goto :_install_done
 rem call which Qt6WebSockets.dll 1>nul 2>nul
 rem if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%QT_BIN_DIR%\bin"
@@ -159,13 +146,14 @@ rem echo error: QT-INSTALL %_QT_VERSION% failed
 goto :_exit
 
 :_install_done
-rem -- create shortcuts
-rem echo @start /D "%_GR_BIN_DIR%\bin" /MAX /B %_GR_BIN_DIR%\bin\gammaray.exe %%*>"%MAKER_BIN%\gammaray.bat"
-rem call "%MAKER_BUILD%\validate_victron-gui.bat"
+set "VCG_BIN_DIR=%_VCG_BIN_DIR%"
+set "VCG_VERSION=%_VCG_VERSION%"
+cd /d "%VCG_BIN_DIR%\bin"
+echo %cd%>venus-gui-v2.exe --mock
+start /D "%VCG_BIN_DIR%\bin" /MAX /B %VCG_BIN_DIR%\bin\venus-gui-v2.exe --mock
 
 
 :_exit
-cd /d "%_VCG_DIR%"
-cd /d "%_BVCG_START_DIR%"
+rem cd /d "%_BVCG_START_DIR%"
 set _BVCG_START_DIR=
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_VCG_"

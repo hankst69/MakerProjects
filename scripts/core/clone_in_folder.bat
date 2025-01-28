@@ -55,7 +55,11 @@ doskey home="%_SCRIPT_ROOT%home.cmd"
 if not exist "%_TARGET_DIR%\.git\config" goto :Clone
 set _GIT_CURRENT_URL=
 set _GIT_CURRENT_REPO=
-for /f "tokens=3" %%u in ('grep ".git" "%_TARGET_DIR%\.git\config"') do if "%%~u" neq "" (set "_GIT_CURRENT_URL=%%~u" & set "_GIT_CURRENT_REPO=%%~nxu")
+pushd "%_TARGET_DIR%"
+rem for /f "tokens=3" %%u in ('grep ".git" "%_TARGET_DIR%\.git\config"') do @if "%%~u" neq "" (set "_GIT_CURRENT_URL=%%~u" & set "_GIT_CURRENT_REPO=%%~nxu")
+for /f "tokens=2" %%u in ('call git remote -v') do @if "%%~u" neq "" (set "_GIT_CURRENT_URL=%%~u" & set "_GIT_CURRENT_REPO=%%~nxu")
+rem echo "%_GIT_CURRENT_REPO%" "%_GIT_CURRENT_URL%"
+popd
 if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   if "%_SILENT_CLONE_MODE%" neq "true" (
     echo ******************************************************************************************
