@@ -24,7 +24,11 @@ set "VICTRON_GUIV2_SRC_DIR=%VICTRON_GUIV2_BASE_DIR%_source"
 set "VICTRON_HTMLAPP_DIR=%VICTRON_DIR%\venus-html5-app"
 
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_GUIV2_SRC_DIR%" "https://github.com/victronenergy/gui-v2.git" %*
+rem we also have to clone the needed submodules (veutil and qzxing ..)
+pushd "%VICTRON_GUIV2_SRC_DIR%"
 call git submodule update --init
+popd
+
 
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_HTMLAPP_DIR%" "https://github.com/victronenergy/venus-html5-app.git" %*
 
