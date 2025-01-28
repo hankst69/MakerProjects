@@ -38,7 +38,8 @@ set "_QT_BUILD_DIR=%_QT_DIR%\qt_build%_QT_VERSION%"
 
 set "QT_BIN_DIR=%_QT_DIR%\qt%_QT_VERSION%"
 set "QT_CMAKE=%QT_BIN_DIR%\bin\qt-cmake.bat"
-echo "%_QT_SOURCES_DIR%\configure.bat"  %%*>"%MAKER_BIN%\qtconfigure.bat"
+echo @"%_QT_SOURCES_DIR%\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
+echo @"%_QT_SOURCES_DIR%\qtbase\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 
 
 rem (2) *** specify LLVM version ***
@@ -223,7 +224,10 @@ rmdir /s /q "%QT_BIN_DIR%" 1>nul 2>nul
 mkdir "%QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 pushd "%_QT_BUILD_DIR%"
-call "%_QT_SOURCES_DIR%\configure.bat" --help>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" --help >"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+echo. >>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+call "%_QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+echo. >>"%_QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
 rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
 rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
 rem   building against version 1929.  You can turn off this version check by
@@ -240,6 +244,9 @@ echo QT-BUILD %_QT_VERSION%
 pushd "%_QT_BUILD_DIR%"
 call cmake --build . --parallel 4
 popd
+pushd "%_QT_BUILD_DIR%\qtmqtt"
+call cmake --build . --parallel 4
+popd
 :qt_build_done
 
 rem (10) *** perform QT install ***
@@ -251,6 +258,9 @@ goto :qt_install_test
   echo QT-INSTALL %_QT_VERSION%
   pushd "%_QT_BUILD_DIR%"
   call cmake --install .
+  popd
+  pushd "%_QT_BUILD_DIR%\qtmqtt"
+  call cmake --build . --parallel 4
   popd
   if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
 :qt_install_test
