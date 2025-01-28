@@ -11,13 +11,13 @@ set "_VCG_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_VCG_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
-if "%_VCG_TGT_ARCH%" equ "" set "_VCG_TGT_ARCH=x64"
-set _VCG_BUILD_TYPE=Release
+if "%_VCG_TGT_ARCH%"   equ "" set _VCG_TGT_ARCH=x64
+if "%_VCG_BUILD_TYPE%" equ "" set _VCG_BUILD_TYPE=MinSizeRel
+rem apply hardcoded values
 set _VCG_TGT_ARCH=x64
-
-rem define target QT framework and build system defaults:
-set _VCG_QT_VERSION=6.6.3
-set _VCG_MSVS_VERSION=GEQ2019
+set _VCG_BUILD_TYPE=Debug
+set _VCG_BUILD_TYPE=Release
+set _VCG_BUILD_TYPE=MinSizeRel
 
 
 rem *** clone Victron GUI-V2 ***
@@ -69,6 +69,12 @@ echo.
 echo *** THIS REQUIRES QT6.3.3 REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 echo *** THIS REQUIRES VisualStudio 2019 or 2022
 echo.
+rem define target QT framework and build system versions:
+rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
+set _VCG_QT_VERSION=6.6.3
+set _VCG_MSVS_VERSION=GEQ2019
+set _VCG_NINJA_VERSION=
+set _VCG_BUILD_SYSTEM=NINJA
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_VCG_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
@@ -82,9 +88,10 @@ if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 rem validate ninja
-call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_ninja.bat" %_VCG_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NINJA is not available
+  echo warning: NINJA is not available - switchng to MSVS build system
+  set _VCG_BUILD_SYSTEM=MSVS
   rem goto :Exit
 )
 
@@ -104,13 +111,19 @@ rem popd
 rem
 pushd "%_VCG_BUILD_DIR%"
 rem
-rem          qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
-rem call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"  -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
-rem call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"  --log-level=VERBOSE  -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
-rem
+if /I "%_VCG_BUILD_SYSTEM%" equ "NINJA" goto :_configure_4_ninja
+if /I "%_VCG_BUILD_SYSTEM%" equ "MSVS" goto :_configure_4_msvs
+:_configure_4_ninja
  echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
  call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
-popd
+ popd
+ goto :_configure_done
+:_configure_4_msvs
+ echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
+ call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"  -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+ rem  "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%" --log-level=VERBOSE
+ popd
+ goto :_configure_done
 :_configure_done
 
 
@@ -149,8 +162,10 @@ goto :_exit
 set "VCG_BIN_DIR=%_VCG_BIN_DIR%"
 set "VCG_VERSION=%_VCG_VERSION%"
 cd /d "%VCG_BIN_DIR%\bin"
-echo %cd%>venus-gui-v2.exe --mock
-start /D "%VCG_BIN_DIR%\bin" /MAX /B %VCG_BIN_DIR%\bin\venus-gui-v2.exe --mock
+echo.
+echo to start venus-gui-v2 in demo modus:
+echo %cd%^>venus-gui-v2.exe --mock
+start /D "%VCG_BIN_DIR%\bin" /MAX /B venus-gui-v2.exe --mock
 
 
 :_exit
