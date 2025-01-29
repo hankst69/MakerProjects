@@ -81,8 +81,12 @@ if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 rem ensure qt
-call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
+rem call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
+rem if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
+call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
+if %ERRORLEVEL% NEQ 0 (
+  goto :_exit
+)
 call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
