@@ -19,7 +19,7 @@ if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.6.3
 if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
 rem define folders
 set "_QTC_DIR=%MAKER_TOOLS%\Qt"
-set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%_%_QTC_VERSION%\"
+set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%%_QTC_VERSION%\"
 
 set _QTC_SILENT_CLONE_MODE=
 for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--silent" set _QTC_SILENT_CLONE_MODE=--silent
