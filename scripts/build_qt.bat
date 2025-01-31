@@ -63,6 +63,7 @@ if "%_QT_REBUILD%" neq "" (
 )
 
 rem (5) *** testing for existing QT build ***
+echo on
 if not exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" goto :qt_rebuild
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_rebuild
 if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
@@ -222,7 +223,7 @@ mkdir "%_QT_BIN_DIR%"
 mkdir "%_QT_BUILD_DIR%"
 :qt_configure
   echo QT-CONFIGURE %_QT_VERSION%
-  pushd "%_QT_BUILD_DIR%"
+  cd /d "%_QT_BUILD_DIR%"
   call "%QT_SOURCES_DIR%\configure.bat" --help >"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   echo. >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
@@ -233,7 +234,6 @@ mkdir "%_QT_BUILD_DIR%"
   rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
   echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
-popd
 :qt_configure_done
 
 rem (9-1) *** perform QT Basic build ***
@@ -241,9 +241,8 @@ rem (9-1) *** perform QT Basic build ***
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 :qt_build
   echo QT-BUILD %_QT_VERSION%
-  pushd "%_QT_BUILD_DIR%"
+  cd /d "%_QT_BUILD_DIR%"
   call cmake --build . --parallel 4
-  popd
 :qt_build_done
 
 rem (9-2) *** perform QT Modules build ***
@@ -251,9 +250,8 @@ rem (9-2) *** perform QT Modules build ***
 if exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done &goto :qt_modules_build_done
 :qt_modules_build
   echo QT-BUILD %_QT_VERSION%
-  pushd "%_QT_BUILD_DIR%\qtmqtt"
+  cd /d "%_QT_BUILD_DIR%\qtmqtt"
   call cmake --build . --parallel 4
-  popd
 :qt_modules_build_done
 
 
@@ -265,12 +263,10 @@ if not exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
   echo QT-INSTALL %_QT_VERSION%
-  pushd "%_QT_BUILD_DIR%"
+  cd /d "%_QT_BUILD_DIR%"
   call cmake --install .
-  popd
-  pushd "%_QT_BUILD_DIR%\qtmqtt"
+  cd /d "%_QT_BUILD_DIR%\qtmqtt"
   call cmake --install .
-  popd
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
 :qt_install_test
 call which Qt6WebSockets.dll 1>nul 2>nul
@@ -287,6 +283,7 @@ set "QT_BIN_DIR=%_QT_BIN_DIR%"
 set "QT_VERSION=%_QT_VERSION%"
 set "QT_CMAKE=%_QT_BIN_DIR%\bin\qt-cmake.bat"
 set "QT_LLVM_VER=%_QT_LLVM_VER%"
+if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 echo @"%QT_SOURCES_DIR%\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 echo @"%QT_SOURCES_DIR%\qtbase\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 echo @start /D "%QT_BIN_DIR%\bin" /MAX /B designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"

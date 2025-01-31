@@ -15,14 +15,14 @@ if "%_VCG_TGT_ARCH%"   equ "" set _VCG_TGT_ARCH=x64
 if "%_VCG_BUILD_TYPE%" equ "" set _VCG_BUILD_TYPE=MinSizeRel
 rem apply hardcoded values
 set _VCG_TGT_ARCH=x64
-set _VCG_BUILD_TYPE=Debug
-set _VCG_BUILD_TYPE=Release
+rem set _VCG_BUILD_TYPE=Debug
+rem set _VCG_BUILD_TYPE=Release
 set _VCG_BUILD_TYPE=MinSizeRel
 
 
 rem *** clone Victron GUI-V2 ***
-echo VENUS-GUIV2-CLONE %MAKER_ENV_VERSION%
-call "%MAKER_BUILD%\clone_victron.bat" %MAKER_ENV_VERSION% %MAKER_ENV_VERBOSE% --silent
+echo VENUS-GUIV2-CLONE %_VCG_VERSION%
+call "%MAKER_BUILD%\clone_victron.bat" %_VCG_VERSION% %MAKER_ENV_VERBOSE% --silent
 rem defines: VICTRON_DIR
 rem defines: VICTRON_GUIV2_VERSION
 rem defines: VICTRON_GUIV2_BASE_DIR
@@ -83,7 +83,7 @@ if %ERRORLEVEL% NEQ 0 (
 rem ensure qt
 rem call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 rem if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
-call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
+call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
@@ -113,20 +113,18 @@ rem pushd "%_VCG_BUILD_DIR%"
 rem call "%QT_CMAKE%" -DCMAKE_BUILD_TYPE=MinSizeRel ..\
 rem popd
 rem
-pushd "%_VCG_BUILD_DIR%"
+cd /d "%_VCG_BUILD_DIR%"
 rem
 if /I "%_VCG_BUILD_SYSTEM%" equ "NINJA" goto :_configure_4_ninja
 if /I "%_VCG_BUILD_SYSTEM%" equ "MSVS" goto :_configure_4_msvs
 :_configure_4_ninja
  echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
  call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
- popd
  goto :_configure_done
 :_configure_4_msvs
  echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"
  call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%"  -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
  rem  "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%" --log-level=VERBOSE
- popd
  goto :_configure_done
 :_configure_done
 
@@ -135,9 +133,8 @@ rem *** cmake build ***
 :_build
 echo.
 echo VENUS-GUIV2-BUILD %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE%)
-pushd "%_VCG_BUILD_DIR%"
+cd /d "%_VCG_BUILD_DIR%"
 call cmake --build . --parallel 4 --config %_VCG_BUILD_TYPE%
-popd
 :_build_done
 
 
@@ -147,9 +144,8 @@ rem todo: skip install when already done...
 :_install_do
 echo.
 echo VENUS-GUIV2-INSTALL %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE%)
-pushd "%_VCG_BUILD_DIR%"
+cd /d "%_VCG_BUILD_DIR%"
 call cmake --install .
-popd
 
 :_install_test
 rem todo: validate install success...
@@ -165,6 +161,7 @@ goto :_exit
 :_install_done
 set "VCG_BIN_DIR=%_VCG_BIN_DIR%"
 set "VCG_VERSION=%_VCG_VERSION%"
+if "%MAKER_ENV_VERBOSE%" neq "" set VCG_
 cd /d "%VCG_BIN_DIR%\bin"
 echo.
 echo to start venus-gui-v2 in demo modus:
@@ -173,6 +170,7 @@ start /D "%VCG_BIN_DIR%\bin" /MAX /B venus-gui-v2.exe --mock
 
 
 :_exit
-rem cd /d "%_BVCG_START_DIR%"
+cd /d "%_BVCG_START_DIR%"
+cd /d "%VICTRON_DIR%"
 set _BVCG_START_DIR=
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_VCG_"

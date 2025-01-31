@@ -135,6 +135,7 @@ rem echo.
 goto :EOF
 
 :_execute
+if "%_VALIDATE_VERBOSE%" neq "" echo VALIDATE: '%_VALIDATE_NAME% %_VALIDATE_TGT_ARCHITECTURE% %_VALIDATE_TGT_VERSION_COMPARE% %_VALIDATE_TGT_VERSION%'
 call %_VALIDATE_TEST_CMD% 1>nul 2>nul
 if %ERRORLEVEL% equ 0 goto :_tool_available
 if "%_VALIDATE_NO_ERRORS%" equ "" echo error 4%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% not available
