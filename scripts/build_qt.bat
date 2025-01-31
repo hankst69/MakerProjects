@@ -34,6 +34,8 @@ if "%QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exi
 if not exist "%QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 
+if "%MAKER_ENV_VERBOSE%" neq "" set QT_
+
 set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%"
 
@@ -61,9 +63,11 @@ if "%_QT_REBUILD%" neq "" (
   rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 )
+if not exist "%_QT_BIN_DIR%" mkdir "%_QT_BIN_DIR%"
+if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
+
 
 rem (5) *** testing for existing QT build ***
-echo on
 if not exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" goto :qt_rebuild
 if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_rebuild
 if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
@@ -217,10 +221,6 @@ rem   package was not found.
 :qt_configure_test
 if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
-rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
-rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul 
-mkdir "%_QT_BIN_DIR%"
-mkdir "%_QT_BUILD_DIR%"
 :qt_configure
   echo QT-CONFIGURE %_QT_VERSION%
   cd /d "%_QT_BUILD_DIR%"
@@ -250,6 +250,7 @@ rem (9-2) *** perform QT Modules build ***
 if exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done &goto :qt_modules_build_done
 :qt_modules_build
   echo QT-BUILD %_QT_VERSION%
+  if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   call cmake --build . --parallel 4
 :qt_modules_build_done

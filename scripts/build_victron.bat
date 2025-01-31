@@ -49,6 +49,8 @@ if "%_VCG_REBUILD%" neq "" (
   rmdir /s /q "%_VCG_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_VCG_BUILD_DIR%" 1>nul 2>nul
 )
+if not exist "%_VCG_BIN_DIR%" mkdir "%_VCG_BIN_DIR%"
+if not exist "%_VCG_BUILD_DIR%" mkdir "%_VCG_BUILD_DIR%"
 
 
 rem *** testing for existing build ***
@@ -80,13 +82,6 @@ call "%MAKER_BUILD%\ensure_msvs.bat" %_VCG_MSVS_VERSION% amd64 %MAKER_ENV_VERBOS
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
-rem ensure qt
-rem call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
-rem if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION%
-call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
-)
 call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
@@ -98,16 +93,20 @@ if %ERRORLEVEL% NEQ 0 (
   set _VCG_BUILD_SYSTEM=MSVS
   rem goto :Exit
 )
+rem ensure qt
+call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% EQU 0 goto :_configure
+call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :_exit
+)
 
 
 rem *** cmake configure ***
 :_configure
 echo.
 echo VENUS-GUIV2-CONFIGURE %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE%)
-rmdir /s /q "%_VCG_BUILD_DIR%" 1>nul 2>nul
-rmdir /s /q "%_VCG_BIN_DIR%" 1>nul 2>nul 
-mkdir "%_VCG_BIN_DIR%"
-mkdir "%_VCG_BUILD_DIR%"
 rem next 3 lines only work if the build folder is a sub folder within the source folder:
 rem pushd "%_VCG_BUILD_DIR%"
 rem call "%QT_CMAKE%" -DCMAKE_BUILD_TYPE=MinSizeRel ..\
