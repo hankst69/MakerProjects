@@ -23,6 +23,7 @@ set MAKER_ENV_NOERROS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
 set MAKER_ENV_VERBOSE=
+set MAKER_ENV_SILENT=
 set MAKER_ENV_REBUILD=
 set MAKER_ENV_HELP=
 set MAKER_ENV_VERSION=
@@ -38,28 +39,31 @@ set "__ARG__=%~1"
 if "%__ARG__%" equ "" goto :param_loop_exit
 shift
 rem handle known switches:
-if /I "%__ARG__%" equ "--no_errors"   (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
-if /I "%__ARG__%" equ "-ne"           (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
-if /I "%__ARG__%" equ "--no_warnings" (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
-if /I "%__ARG__%" equ "-nw"           (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
-if /I "%__ARG__%" equ "--no_info"     (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
-if /I "%__ARG__%" equ "-ni"           (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
-if /I "%__ARG__%" equ "--verbose"     (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
-if /I "%__ARG__%" equ "-v"            (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
-if /I "%__ARG__%" equ "--rebuild"     (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
-if /I "%__ARG__%" equ "-r"            (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
-if /I "%__ARG__%" equ "--help"        (set "MAKER_ENV_HELP=--help" &goto :param_loop)
-if /I "%__ARG__%" equ "-h"            (set "MAKER_ENV_HELP=--help" &goto :param_loop)
-if /I "%__ARG__%" equ "-?"            (set "MAKER_ENV_HELP=--help" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
+if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_warnings"  (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
+if /I "%__ARG__%" equ "-nw"            (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_info"      (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
+if /I "%__ARG__%" equ "-ni"            (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
+if /I "%__ARG__%" equ "--verbose"      (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
+if /I "%__ARG__%" equ "-v"             (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
+if /I "%__ARG__%" equ "--silent"       (set "MAKER_ENV_SILENT=--silent"  &goto :param_loop)
+if /I "%__ARG__%" equ "-s"             (set "MAKER_ENV_SILENT=--silent"  &goto :param_loop)
+if /I "%__ARG__%" equ "--rebuild"      (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
+if /I "%__ARG__%" equ "-r"             (set "MAKER_ENV_REBUILD=--rebuild" &goto :param_loop)
+if /I "%__ARG__%" equ "--help"         (set "MAKER_ENV_HELP=--help" &goto :param_loop)
+if /I "%__ARG__%" equ "-h"             (set "MAKER_ENV_HELP=--help" &goto :param_loop)
+if /I "%__ARG__%" equ "-?"             (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 rem handle unknown switches:
 if /I "%__ARG__:~0,1%" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
 if /I "%__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
 rem handle known named args:
-if /I "%__ARG__%" equ equ "Debug"     (set "MAKER_ENV_BUILDTYPE=Debug"    &goto :param_loop)
-if /I "%__ARG__%" equ equ "Release"   (set "MAKER_ENV_BUILDTYPE=Release"  &goto :param_loop)
-if /I "%__ARG__%" equ "x86"           (set "MAKER_ENV_ARCHITECTURE=x86"   &goto :param_loop)
-if /I "%__ARG__%" equ "x64"           (set "MAKER_ENV_ARCHITECTURE=x64"   &goto :param_loop)
-if /I "%__ARG__%" equ "amd64"         (set "MAKER_ENV_ARCHITECTURE=amd64" &goto :param_loop)
+if /I "%__ARG__%" equ equ "Debug"      (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
+if /I "%__ARG__%" equ equ "Release"    (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
+if /I "%__ARG__%" equ equ "MinSizeRel" (set "MAKER_ENV_BUILDTYPE=MinSizeRel" &goto :param_loop)
+if /I "%__ARG__%" equ "x86"            (set "MAKER_ENV_ARCHITECTURE=x86"     &goto :param_loop)
+if /I "%__ARG__%" equ "x64"            (set "MAKER_ENV_ARCHITECTURE=x64"     &goto :param_loop)
+if /I "%__ARG__%" equ "amd64"          (set "MAKER_ENV_ARCHITECTURE=amd64"   &goto :param_loop)
 rem handle known free args:
 if /I "%__ARG__%" neq "" if "%MAKER_ENV_VERSION%" equ "" (set "MAKER_ENV_VERSION=%__ARG__%" &goto :param_loop)
 rem handle unknown args:
@@ -71,16 +75,45 @@ set __ARG_RAW__=
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
 
 rem split unknonw args and switches
-SETLOCAL ENABLEDELAYEDEXPANSION
 :split_unknown_args
 if "%MAKER_ENV_UNKNOWN_ARGS%" equ "" goto :split_unknown_switches
+SETLOCAL ENABLEDELAYEDEXPANSION
+echo @echo off>"%TEMP%\_split_free_args.bat"
 set _QT_ARG_ASSIGNED=
-for %%j in (%MAKER_ENV_UNKNOWN_ARGS%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_ARG_%%i!" equ "" set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j" &set _QT_ARG_ASSIGNED=done
+for %%j in (%MAKER_ENV_UNKNOWN_ARGS%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_ARG_%%i!" equ "" set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j" &set _QT_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
+rem if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_ENV_UNKNOWN_ARG
+ENDLOCAL
+call "%TEMP%\_split_free_args.bat"
+del "%TEMP%\_split_free_args.bat"
 :split_unknown_switches
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :exit
+SETLOCAL ENABLEDELAYEDEXPANSION
 set _QT_ARG_ASSIGNED=
-for %%j in (%MAKER_ENV_UNKNOWN_SWITCHES%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_SWITCH_%%i!" equ "" set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j" &set _QT_ARG_ASSIGNED=done
+for %%j in (%MAKER_ENV_UNKNOWN_SWITCHES%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_SWITCH_%%i!" equ "" set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j" &set _QT_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
+rem if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_ENV_UNKNOWN_SWITCH
+ENDLOCAL
+call "%TEMP%\_split_free_args.bat"
+del "%TEMP%\_split_free_args.bat"
 
 :exit
 rem list env:
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_
+rem show help:
+if "%MAKER_ENV_HELP%" neq "" (
+  echo.
+  echo MAKER_ENV [switches] [version] [build_type] [architecture] [free_args] [free_switches]
+  echo switches:
+  echo   --no_errors   ^| -ne
+  echo   --no_warnings ^| -nw
+  echo   --no_info     ^| -ni
+  echo   --verbose     ^| -v
+  echo   --silent      ^| -s
+  echo   --rebuild     ^| -r
+  echo   --help        ^| -h ^| -?
+  echo version:
+  echo   any-version-nr
+  echo build_type:
+  echo   Debug ^| Release ^| MinSizeRel
+  echo architecture:
+  echo   x86 ^| x64 ^| amd64
+)
