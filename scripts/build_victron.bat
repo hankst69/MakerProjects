@@ -1,10 +1,9 @@
 @rem https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui-v2#building-for-desktop
 @echo off
-set "_BVCG_START_DIR=%cd%"
-
 call "%~dp0\maker_env.bat" %*
-call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_VCG_" 1>nul 2>nul
 
+call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_VCG_" 1>nul 2>nul
+set "_VCG_START_DIR=%cd%"
 set "_VCG_VERSION=%MAKER_ENV_VERSION%"
 set "_VCG_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_VCG_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
@@ -19,10 +18,13 @@ rem set _VCG_BUILD_TYPE=Debug
 rem set _VCG_BUILD_TYPE=Release
 set _VCG_BUILD_TYPE=MinSizeRel
 
+rem welcome
+echo BUILDING VENUS-GUIV2 %_VCG_VERSION%
+
 
 rem *** clone Victron GUI-V2 ***
-echo VENUS-GUIV2-CLONE %_VCG_VERSION%
 call "%MAKER_BUILD%\clone_victron.bat" %_VCG_VERSION% %MAKER_ENV_VERBOSE% --silent
+cd /d "%_VCG_START_DIR%"
 rem defines: VICTRON_DIR
 rem defines: VICTRON_GUIV2_VERSION
 rem defines: VICTRON_GUIV2_BASE_DIR
@@ -65,7 +67,7 @@ goto :_exit
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo building Victron Venus-GUI-V2 %VICTRON_GUIV2_VERSION% from sources
+echo BUILDING Victron Venus-GUI-V2 %VICTRON_GUIV2_VERSION% from sources
 echo see https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui-v2#building-for-desktop
 echo.
 echo *** THIS REQUIRES QT6.3.3 REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
@@ -79,10 +81,6 @@ set _VCG_NINJA_VERSION=
 set _VCG_BUILD_SYSTEM=NINJA
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_VCG_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
-)
-call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
@@ -164,12 +162,13 @@ if "%MAKER_ENV_VERBOSE%" neq "" set VCG_
 cd /d "%VCG_BIN_DIR%\bin"
 echo.
 echo to start venus-gui-v2 in demo modus:
-echo %cd%^>venus-gui-v2.exe --mock
-start /D "%VCG_BIN_DIR%\bin" /MAX /B venus-gui-v2.exe --mock
+rem echo %cd%^>venus-gui-v2.exe --mock
+echo %cd%\venus-gui-v2.exe --mock
+rem start /D "%VCG_BIN_DIR%\bin" /MAX /B venus-gui-v2.exe --mock
+start /D "%VCG_BIN_DIR%\bin" venus-gui-v2.exe --mock
 
 
 :_exit
-cd /d "%_BVCG_START_DIR%"
-cd /d "%VICTRON_DIR%"
-set _BVCG_START_DIR=
+cd /d "%_VCG_START_DIR%"
+rem cd /d "%VICTRON_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_VCG_"

@@ -4,11 +4,10 @@
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
 @echo off
-set "_BQT_START_DIR=%cd%"
-
 call "%~dp0\maker_env.bat" %*
-call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 
+call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
+set "_QT_START_DIR=%cd%"
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
 set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_QT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
@@ -23,10 +22,12 @@ set _QT_BUILD_TYPE=Release
 set _QT_USE_LLVM20_PATCH=true
 set _QT_CMAKE_VERSION=GEQ3.22
 
+rem welcome
+echo BUILDING QT %_QT_VERSION%
 
 rem (1) *** cloning QT sources ***
 call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% --silent
-cd /d "%_BQT_START_DIR%"
+cd /d "%_QT_START_DIR%"
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR
 if "%QT_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
@@ -56,6 +57,7 @@ if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER
 )
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
+
 
 rem (4) *** cleaning QT build if demanded ***
 if "%_QT_REBUILD%" neq "" (
@@ -219,30 +221,56 @@ rem   NOT exist
 rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
 :qt_configure_test
-if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
+rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
+if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
 :qt_configure
   echo QT-CONFIGURE %_QT_VERSION%
+  if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
-  call "%QT_SOURCES_DIR%\configure.bat" --help >"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  echo. >"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  call "%QT_SOURCES_DIR%\configure.bat" --help >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   echo. >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   echo. >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
   rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
   rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
   rem   building against version 1929.  You can turn off this version check by
   rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
-  echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  set _QT_CONFIGURE_RETRIES=0
+  :qt_configure_do
+  echo. >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  echo. >>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  cd /d "%_QT_BUILD_DIR%"
   call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -release -force-debug-info -separate-debug-info -- --log-level=VERBOSE -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON>>"%QT_DIR%\qt_build_%_QT_VERSION%_configure.log"
+  rem validate QtMqtt configuration done
+  if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qt_configure_done
+  if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
+  if "%_QT_CONFIGURE_RETRIES%" equ "0" set _QT_CONFIGURE_RETRIES=1
+  if "%_QT_CONFIGURE_RETRIES%" equ ""  set _QT_CONFIGURE_RETRIES=1
+  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
+  goto :qt_configure_do
 :qt_configure_done
 
 rem (9-1) *** perform QT Basic build ***
 :qt_build_test
+set _QT_BUILD_RETRIES=0
+if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-BUILD %_QT_VERSION% not yet done or incomplete &goto :qt_build
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 :qt_build
   echo QT-BUILD %_QT_VERSION%
+  if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   call cmake --build . --parallel 4
+  rem validate build done
+  if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
+  if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
+  if "%_QT_BUILD_RETRIES%" equ "0" set _QT_BUILD_RETRIES=1
+  if "%_QT_BUILD_RETRIES%" equ ""  set _QT_BUILD_RETRIES=1
+  if "%_QT_BUILD_RETRIES%" equ "2" echo QT-BUILD incomplete after %_QT_BUILD_RETRIES% tries & goto :qt_build_done
+  goto :qt_build
 :qt_build_done
 
 rem (9-2) *** perform QT Modules build ***
@@ -293,7 +321,6 @@ rem (11) post configure QT
 rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 :qt_exit
-cd /d "%_BQT_START_DIR%"
-set _BQT_START_DIR=
+cd /d "%_QT_START_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% incomplete &exit /b 1
