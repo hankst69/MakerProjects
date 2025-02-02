@@ -14,15 +14,18 @@ call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QTC_" 1>nul 2>nul
 rem assign target version and folder from commandline args
 set "_QTC_VERSION=%MAKER_ENV_VERSION%"
 set "_QTC_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
+set "_QTC_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
+set _QTC_INIT_SUBMODULES=
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules" set _QTC_INIT_SUBMODULES=--init_submodules
+
 rem apply defaults
 if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.6.3
 if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
+rem set _QTC_INIT_SUBMODULES=--init_submodules
+
 rem define folders
 set "_QTC_DIR=%MAKER_TOOLS%\Qt"
 set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%%_QTC_VERSION%\"
-
-set _QTC_SILENT_CLONE_MODE=
-for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--silent" set _QTC_SILENT_CLONE_MODE=--silent
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _QTC_
 if exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QTC_VERSION% already done &goto :qt_clone_done
@@ -37,6 +40,7 @@ call "%MAKER_BUILD%\validate_perl.bat"
 if %ERRORLEVEL% NEQ 0 goto :EOF
 echo.
 
+
 echo QT-CLONE %_QTC_VERSION%
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QTC_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QTC_VERSION% %_QTC_SILENT_CLONE_MODE%
 pushd "%_QTC_SOURCES_DIR%"
@@ -45,6 +49,7 @@ if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_D
 if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository"
 rem "%_QTC_SOURCES_DIR%\configure" -init-submodules
 rem "%_QTC_SOURCES_DIR%\configure" -init-submodules -submodules qtdeclarative
+if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule update --init --recursive
 popd
 echo QT-CLONE %_QTC_VERSION% done
 
