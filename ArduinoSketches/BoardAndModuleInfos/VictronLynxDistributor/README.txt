@@ -3,9 +3,9 @@ https://www.victronenergy.com/upload/documents/Lynx_Distributor/24531-Lynx_Distr
 
 I2C device addresses:
 DIP off off -> A -> 0x08
-DIP on off -> B -> 0x09
-DIP off on -> C -> 0x0A
-DIP on on -> D -> 0x0B
+DIP on  off -> B -> 0x09
+DIP off on  -> C -> 0x0A
+DIP on  on  -> D -> 0x0B
 
 Fuses from left to right when outlets down (regular Distributor orientation)
 Fuse Code when defect:
