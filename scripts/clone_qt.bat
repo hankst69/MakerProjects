@@ -15,13 +15,18 @@ rem assign target version and folder from commandline args
 set "_QTC_VERSION=%MAKER_ENV_VERSION%"
 set "_QTC_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
 set "_QTC_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
+set _QTC_CLEAN_BEFORE_CLONE=
 set _QTC_INIT_SUBMODULES=
-for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules" set _QTC_INIT_SUBMODULES=--init_submodules
+set _QTC_CLONE_SUBMODULES=
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clean_before_clone" set _QTC_CLEAN_BEFORE_CLONE=true
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules" set _QTC_INIT_SUBMODULES=true
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_submodules" set _QTC_CLONE_SUBMODULES=-true
 
 rem apply defaults
 if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.6.3
 if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
-rem set _QTC_INIT_SUBMODULES=--init_submodules
+if "%_QTC_INIT_SUBMODULES%" equ "" set _QTC_INIT_SUBMODULES=true
+rem if "%_QTC_CLONE_SUBMODULES%" equ "" set _QTC_CLONE_SUBMODULES=true
 
 rem define folders
 set "_QTC_DIR=%MAKER_TOOLS%\Qt"
@@ -42,14 +47,17 @@ echo.
 
 
 echo QT-CLONE %_QTC_VERSION%
+rem 1) clone repository
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QTC_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QTC_VERSION% %_QTC_SILENT_CLONE_MODE%
 pushd "%_QTC_SOURCES_DIR%"
+rem 2) configure the repository
 call git pull
 if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat"
 if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository"
-rem "%_QTC_SOURCES_DIR%\configure" -init-submodules
-rem "%_QTC_SOURCES_DIR%\configure" -init-submodules -submodules qtdeclarative
-if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule update --init --recursive
+rem 3) init submodules
+if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule init
+rem 4) clone submodules
+if "%_QTC_CLONE_SUBMODULES%" neq "" call git submodule update --init --recursive
 popd
 echo QT-CLONE %_QTC_VERSION% done
 
