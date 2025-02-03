@@ -14,7 +14,7 @@ rem apply defaults
 if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
 
 set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
-if "%_QTW_REBUILD%" neq "" set set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
+if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
 
 
 rem (1) *** build QT ***
@@ -166,16 +166,20 @@ rem if exist "%_QTW_BUILD_DIR%\qtbase\cmake_install.cmake" echo QT-CONFIGURE WAS
 echo QT-CONFIGURE WASM %_QTW_VERSION%
 if not exist "%_QTW_BUILD_DIR%" mkdir "%_QTW_BUILD_DIR%"
 if not exist "%_QTW_BUILD_DIR%\qtbase" mkdir "%_QTW_BUILD_DIR%\qtbase"
-set _QTW_CONFIGURE_RETRIES=0
+set "_QTW_LLVM_INSTALL_DIR=%LLVM_INSTALL_DIR:\=/%"
+set "_QTW_CLANG_INSTALL_DIR=%_QTW_LLVM_INSTALL_DIR%"
+set "_QTW_PREFIX_DIR=%_QTW_BUILD_DIR:\=/%qtbase"
+set "_QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
+set _QTW_RETRIES=0
 :qtw_configure_do
   cd /d "%_QTW_BUILD_DIR%"
-  call "%_QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR:~\=/%"
+  call "%_QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
   if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qtw_configure_done
-  if "%_QTW_CONFIGURE_RETRIES%" equ "2" set _QTW_CONFIGURE_RETRIES=3
-  if "%_QTW_CONFIGURE_RETRIES%" equ "1" set _QTW_CONFIGURE_RETRIES=2
-  if "%_QTW_CONFIGURE_RETRIES%" equ "0" set _QTW_CONFIGURE_RETRIES=1
-  if "%_QTW_CONFIGURE_RETRIES%" equ ""  set _QTW_CONFIGURE_RETRIES=1
-  if "%_QTW_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE WASM incomplete after %_QTW_CONFIGURE_RETRIES% tries & goto :qtw_configure_done
+  if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=3
+  if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=2
+  if "%_QTW_RETRIES%" equ "0" set _QTW_RETRIES=1
+  if "%_QTW_RETRIES%" equ ""  set _QTW_RETRIES=1
+  if "%_QTW_RETRIES%" equ "1" echo QT-CONFIGURE WASM incomplete after %_QTW_RETRIES% tries & goto :qtw_configure_done
   goto :qtw_configure_do
 :qtw_configure_done
 
@@ -184,14 +188,21 @@ rem (8) *** build QT-WASM ***
 :qtw_build
 rem if exist "%QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD WASM %_QTW_VERSION% already done &goto :qt_build_done
 echo QT-BUILD WASM %_QTW_VERSION%
-cd /d "%_QTW_BUILD_DIR%"
-call cmake --build . -t qtbase -t qtdeclarative
-call cmake --build . -t qtbase -t qtdeclarative
-rem https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
-call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
-call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
-rem future WASM supported modules:
-rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+set _QTW_RETRIES=0
+:qtw_build_do
+  cd /d "%_QTW_BUILD_DIR%"
+  call cmake --build . -t qtbase -t qtdeclarative
+  rem https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
+  call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+  rem future WASM supported modules:
+  rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+  rem if exist "%_QTW_BUILD_DIR%\qtbase\bin\qtloader.js" goto :qtw_build_done
+  if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=3
+  if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=2
+  if "%_QTW_RETRIES%" equ "0" set _QTW_RETRIES=1
+  if "%_QTW_RETRIES%" equ ""  set _QTW_RETRIES=1
+  if "%_QTW_RETRIES%" equ "1" echo QT-BUILD WASM incomplete after %_QTW_RETRIES% tries & goto :qtw_build_done
+  goto :qtw_build_do
 :qtw_build_done
 
 

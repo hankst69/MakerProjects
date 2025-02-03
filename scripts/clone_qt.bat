@@ -33,6 +33,12 @@ set "_QTC_DIR=%MAKER_TOOLS%\Qt"
 set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%%_QTC_VERSION%\"
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _QTC_
+
+if "%_QTC_CLEAN_BEFORE_CLONE%" neq "" (
+  cd /d "%MAKER_ROOT%"
+  echo preparing fresh clone by cleaning target folder
+  rmdir /s /q "%_QTC_SOURCES_DIR%" 1>nul 2>nul
+)
 if exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" echo QT-CLONE %_QTC_VERSION% already done &goto :qt_clone_done
 
 
