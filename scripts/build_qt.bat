@@ -21,12 +21,14 @@ if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
 set _QT_BUILD_TYPE=Release
 set _QT_USE_LLVM20_PATCH=true
 set _QT_CMAKE_VERSION=GEQ3.22
+rem set _QT_CLONE_OPTIONS=--silent --init_submodules
+set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
 
 rem welcome
 echo BUILDING QT %_QT_VERSION%
 
 rem (1) *** cloning QT sources ***
-call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% --silent
+call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
 cd /d "%_QT_START_DIR%"
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR

@@ -13,6 +13,9 @@ set "_QTW_REBUILD=%MAKER_ENV_REBUILD%"
 rem apply defaults
 if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
 
+set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+if "%_QTW_REBUILD%" neq "" set set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
+
 
 rem (1) *** build QT ***
 rem we need a QT Host version of same version as the target QT-QWASM we like to build
@@ -38,23 +41,14 @@ if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo error: Qt %_QTW_VERSION%
 
 
 rem (2) *** clone qt again for wasm-build ***
-call "%MAKER_BUILD%\clone_qt.bat" "%_QTW_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE% --init_submodules
+call "%MAKER_BUILD%\clone_qt.bat" "%_QTW_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE% %_QTW_CLONE_OPTIONS%
+rem defines: QT_DIR
+rem defines: QT_SOURCES_DIR
+rem clone_qt might switch folder so we switch back:
 cd /d "%_QTW_START_DIR%"
-
-rem (3) *** prepare folders ***
-rem set "_QTW_BIN_DIR=%QT_DIR%\qtwasm%_QTW_VERSION%"
-rem set "_QTW_BUILD_DIR=%QT_DIR%\qtwasm_build%_QTW_VERSION%"
+rem with QT-WASM the Build-Dir is the Source_Dir
 set "_QTW_BUILD_DIR=%QT_SOURCES_DIR%"
-if "%_QTW_REBUILD%" neq "" (
-  echo preparing rebuild...
-  rem rmdir /s /q "%_QTW_BIN_DIR%" 1>nul 2>nul
-  rmdir /s /q "%_QTW_BUILD_DIR%" 1>nul 2>nul
-  call "%MAKER_BUILD%\clone_qt.bat" "%_QTW_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE% --init_submodules
-)
 
-
-if not exist "%_QTW_BUILD_DIR%\qtcanvas3d\qtcanvas3d.pro" call git submodule update --init --recursive
-cd /d "%_QTW_START_DIR%"
 
 if "%MAKER_ENV_VERBOSE%" neq "" set _QTW_
 
@@ -177,6 +171,7 @@ set _QTW_CONFIGURE_RETRIES=0
   cd /d "%_QTW_BUILD_DIR%"
   call "%_QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QT_BIN_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_BUILD_DIR%\qtbase" -- -DLLVM_INSTALL_DIR="%LLVM_INSTALL_DIR:~\=/%"
   if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qtw_configure_done
+  if "%_QTW_CONFIGURE_RETRIES%" equ "2" set _QTW_CONFIGURE_RETRIES=3
   if "%_QTW_CONFIGURE_RETRIES%" equ "1" set _QTW_CONFIGURE_RETRIES=2
   if "%_QTW_CONFIGURE_RETRIES%" equ "0" set _QTW_CONFIGURE_RETRIES=1
   if "%_QTW_CONFIGURE_RETRIES%" equ ""  set _QTW_CONFIGURE_RETRIES=1
@@ -191,12 +186,10 @@ rem if exist "%QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD WASM %_QTW_VERSION% a
 echo QT-BUILD WASM %_QTW_VERSION%
 cd /d "%_QTW_BUILD_DIR%"
 call cmake --build . -t qtbase -t qtdeclarative
-call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
-rem call cmake --help
-rem call cmake --build . --parallel 4
-rem call cmake --build . -t qtbase -t qtdeclarative [-t another_module]
+call cmake --build . -t qtbase -t qtdeclarative
 rem https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
-rem call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
 rem future WASM supported modules:
 rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
 :qtw_build_done
