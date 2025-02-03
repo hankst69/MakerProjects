@@ -8,24 +8,13 @@ aqtinstall.log
 /.tools
 /tools/*
 !/tools/packages
+
 /projects/*
-/Solar2024
+/3D-Print
+#/ArduinoSketches
 
 #/ArduinoSketches/libraries
 #/ArduinoSketches/esp01/espBode
 #/ArduinoSketches/esp01/espBode-awg
 #/ArduinoSketches/esp01/espBode-main
 #/ArduinoSketches/esp01/espBode-master
-#/ProjectAWGControl/espBode
-#/ProjectAWGControl/espBode-master
-#/ProjectAWGControl/fygen
-#/ProjectWebCam/html5_rtsp_player
-#/Choco
-#/CSharp
-#/CSharp/Choco
-#/CSharp/SOLID
-#/CSharp/IPTools
-#/Emsdk
-#/Qt
-#/Victron
-#/VESC
