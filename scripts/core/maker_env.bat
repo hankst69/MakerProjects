@@ -6,11 +6,14 @@ popd
 rem strip "\" suffix:
 if "%MAKER_ROOT:~-1%" equ "\" set "MAKER_ROOT=%MAKER_ROOT:~0,-1%"
 
-set "MAKER_TOOLS=%MAKER_ROOT%\tools"
-set "MAKER_SCRIPTS=%MAKER_ROOT%\scripts\core"
-set "MAKER_BUILD=%MAKER_ROOT%\scripts"
-set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
 set "MAKER_BIN=%MAKER_ROOT%\.tools"
+set "MAKER_BUILD=%MAKER_ROOT%\scripts"
+set "MAKER_SCRIPTS=%MAKER_ROOT%\scripts\core"
+set "MAKER_TOOLS=%MAKER_ROOT%\tools"
+set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
+set "MAKER_PROJECTS_DOTNET=%MAKER_PROJECTS%\.Net"
+set "MAKER_PROJECTS_PYTHON=%MAKER_PROJECTS%\Python"
+set "MAKER_PROJECTS_WEB=%MAKER_PROJECTS%\Web"
 
 if not exist "%MAKER_BIN%" mkdir "%MAKER_BIN%"
 echo @echo MAKER_ENV_ACTIVE>"%MAKER_BIN%\maker_env_test.bat"
