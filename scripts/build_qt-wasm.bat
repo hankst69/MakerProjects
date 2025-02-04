@@ -68,95 +68,89 @@ rem todo:
 rem  for Qt6.6 -> EMSDK 3.1.37
 rem  see https://doc.qt.io/qt-6/wasm.html
 set _QTW_EMSDK_VERTSION=3.1.37
+set _QTW_GCC_VERTSION=
 
-
-rem (5) *** ensure EMSDK is available ***
-call "%MAKER_BUILD%\ensure_emsdk.bat" %_QTW_EMSDK_VERTSION% --no_errors %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: EMSDK is not available
-  goto :qtw_exit
-)
 
 
 :qtw_rebuild
-rem (6) *** ensure prerequisites (note that build_qt already ensures most of the prerequisites below) ***
+rem (5) *** ensure prerequisites (note that build_qt already ensures most of the prerequisites below) ***
 rem 
-rem echo.
-rem echo rebuilding Qt %_QT_VERSION% from sources
-rem echo see https://doc.qt.io/qt-6/windows-building.html
-rem echo.
-rem echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw-w64
-rem echo *** THIS REQUIRES Python 3
-rem echo *** THIS REQUIRES Cmake 3.22 or newer
-rem echo *** OTPIONAL: Ninja
-rem echo *** OTPIONAL: Perl
-rem echo *** OTPIONAL: LLVM/Clang
-rem echo *** OTPIONAL: Node.js
-rem echo *** OTPIONAL: gRPC
-rem echo *** OTPIONAL: Protobuf
-rem echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
-rem echo.
-rem ensure msvs version and amd64 target architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :qtw_exit
-)
-rem validate cmake
+echo.
+echo rebuilding Qt-WASM %_QT_VERSION% from sources
+echo see https://doc.qt.io/qt-6/wasm.html
+echo.
+echo *** THIS REQUIRES EMSDK in proper version matching QT-Version ***
+echo *** THIS REQUIRES GCC (MinGW)
+echo *** THIS REQUIRES LLVM/Clang
+echo *** THIS REQUIRES Cmake 3.22 or newer
+echo *** THIS REQUIRES Ninja
 call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :qtw_exit
 )
-rem validate ninja
 call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
-  rem goto :qtw_exit
-)
-rem validate python
-call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%" %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: PYTHON is not available
   goto :qtw_exit
 )
-rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 call "%MAKER_BUILD%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :qtw_exit
 )
-rem validate node.js 
-call "%MAKER_BUILD%\ensure_nodejs.bat" GEQ14 --no_errors
+call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERTSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NODE.JS is not available
+  echo warning: GCC is not available
   goto :qtw_exit
 )
-rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
-rem WARNING: QtWebEngine won't be built. Tool gperf is required.
-call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors
+call "%MAKER_BUILD%\ensure_emsdk.bat" %_QTW_EMSDK_VERTSION% --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: EMSDK is not available
+  goto :qtw_exit
+)
+rem echo *** OTPIONAL: VisualStudio 2019 or 2022
+rem echo *** OTPIONAL: Node.js
+rem echo *** OTPIONAL: Python 3
+rem echo *** OTPIONAL: Perl
+rem echo *** OTPIONAL: gRPC
+rem echo *** OTPIONAL: Protobuf
+rem echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
+rem echo.
+rem ensure msvs version and amd64 target architecture
+rem call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_ENV_VERBOSE%
+rem if %ERRORLEVEL% NEQ 0 (
+rem   goto :qtw_exit
+rem )
+call "%MAKER_BUILD%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%" %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: PYTHON is not available
+  rem goto :qtw_exit
+)
+call "%MAKER_BUILD%\validate_nodejs.bat" GEQ14 --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NODE.JS is not available
+  rem goto :qtw_exit
+)
+call "%MAKER_BUILD%\validate_gperf.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GPERF is not available
   rem goto :qtw_exit
 )
-rem ensure bison
-rem WARNING: QtWebEngine won't be built. Tool bison is required.
-call "%MAKER_BUILD%\ensure_bison.bat" --no_errors
+call "%MAKER_BUILD%\validate_bison.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :qtw_exit
 )
-rem esnure flex
-rem Support check for QtWebEngine failed: Tool flex is required.
-call "%MAKER_BUILD%\ensure_flex.bat" --no_errors
+call "%MAKER_BUILD%\validate_flex.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :qtw_exit
 )
-rem validate perl (for QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-rem call "%MAKER_BUILD%\validate_perl.bat" --no_errors %MAKER_ENV_VERBOSE%
-rem if %ERRORLEVEL% NEQ 0 (
-rem   echo warning: PERL is not available
-rem   rem goto :qtw_exit
-rem )
+call "%MAKER_BUILD%\validate_perl.bat" --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: PERL is not available
+  rem goto :qtw_exit
+)
 
 
 rem (7) *** configure QT-WASM ***
