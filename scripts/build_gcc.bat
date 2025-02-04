@@ -18,11 +18,16 @@ if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem a) install via unzip from:
+rem    https://winlibs.com/
 rem    https://github.com/brechtsanders/winlibs_mingw/releases/download/14.2.0posix-19.1.1-12.0.0-ucrt-r2/winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2.7z
+rem    https://github.com/brechtsanders/winlibs_mingw
 rem set "_GCC_BIN_DIR=%MAKER_BIN%\mingw"
 
 
 rem b) install using choco install mingw:
+rem see .choco\lib-bad\mingw\13.2.0\tools\chocolateyinstall.ps1 
+rem   -> 'C:\ProgramData\mingw64' (hardcoded path)
+rem   -> Install-ChocolateyPath cmdlet issue (this choco cmdlet is missing)
 set "_GCC_BIN_DIR=C:\ProgramData\mingw64"
 set "_GCC_BIN_BIN_DIR=C:\ProgramData\mingw64\mingw64\bin"
 if exist "%_GCC_BIN_BIN_DIR%\gcc.exe" goto :win_GCC_installed
