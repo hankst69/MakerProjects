@@ -30,7 +30,6 @@ if not exist "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%.bat" (
   goto :Exit
 )
 
-echo call "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%.bat" %_PROJECT_ARGS%
 call "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%.bat" %_PROJECT_ARGS%
 
 :Exit
