@@ -168,12 +168,30 @@ set _QTW_RETRIES=0
 :qtw_configure_do
   cd /d "%_QTW_BUILD_DIR%"
   call "%_QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
-  if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qtw_configure_done
+  rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+  rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Core\Qt6CoreConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Gui\Qt6GuiConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Network\Qt6NetworkConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Widgets\Qt6WidgetsConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Qml\Qt6QmlConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Quick\Qt6QuickConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6QuickControls2\Qt6QuickControls2Config.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6QuickLayouts\Qt6QuickLayoutsConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Core5Compat\Qt6Core5CompatConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6ImageFormats\Qt6ImageFormatsConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6OpenGL\Qt6OpenGLConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Svg\Qt6SvgConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6WebSockets\Qt6WebSocketsConfig.cmake" goto :qtw_configure_retry
+  if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qtw_configure_retry
+  rem if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6DBus\Qt6DBusConfig.cmake" goto :qtw_configure_retry
+  goto :qtw_configure_done
+:qtw_configure_retry
   if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=3
   if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=2
   if "%_QTW_RETRIES%" equ "0" set _QTW_RETRIES=1
   if "%_QTW_RETRIES%" equ ""  set _QTW_RETRIES=1
-  if "%_QTW_RETRIES%" equ "1" echo QT-CONFIGURE WASM incomplete after %_QTW_RETRIES% tries & goto :qtw_configure_done
+  if "%_QTW_RETRIES%" equ "2" echo QT-CONFIGURE WASM incomplete after %_QTW_RETRIES% tries & goto :qtw_configure_done
   goto :qtw_configure_do
 :qtw_configure_done
 
