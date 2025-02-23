@@ -10,8 +10,8 @@ set "_APPLETV_DIR=%MAKER_PROJECTS%\AppleTv"
 
 set "_APPLETV_JB_XCode_DIR=%_APPLETV_DIR%\AppleTV3_JailBreak_Blackb0x"
 set "_APPLETV_JB_UnoUsb_DIR=%_APPLETV_DIR%\AppleTV3_JailBreak_checkm8-a5"
-set "_APPLETV_JB_UnoHostLib_DIR%_APPLETV_DIR%\ArduinoUno_UsbHostShieldLib2.0"
-set "_APPLETV_JB_IPWNDFU_DIR%_APPLETV_DIR%\IOS-JailBreakTool_ipwndfu"
+set "_APPLETV_JB_UnoHostLib_DIR=%_APPLETV_DIR%\ArduinoUno_UsbHostShieldLib2.0"
+set "_APPLETV_JB_IPWNDFU_DIR=%_APPLETV_DIR%\IOS-JailBreakTool_ipwndfu"
 
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_APPLETV_JB_XCode_DIR%" "https://github.com/NSSpiral/Blackb0x.git" %*
 
