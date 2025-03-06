@@ -428,7 +428,7 @@ void MultiFuncShield::blinkLeds(byte leds, byte enabled)
   }
 }
 
-
+ 
 // ----------------------------------------------------------------------------------------------------
 void MultiFuncShield::write(int integer)
 {
@@ -438,34 +438,32 @@ void MultiFuncShield::write(int integer)
   {
     displayText[3] = DISPLAY_OVERFLOW_ERROR;
     write(displayText);
+    return;
   }
-  else if (integer == 0)
+
+  if (integer == 0)
   {
     displayText[3] = '0';
     write (displayText);
+    return;
   }
-  else
+
+  byte sign = 0;
+  if (integer < 0)
   {
-    byte sign = 0;
-    if (integer < 0)
-    {
-      sign = 1;
-      integer = integer * -1;
-    }
-    
-    byte idx = 3;
-    for (; idx >=0 && integer !=0; integer /= 10, idx--)
-    {
-      displayText[idx]=(integer % 10) + '0';
-    }
-    
-    if (sign)
-    {
-      displayText[idx] = '-';
-    }
-    
-    write (displayText);
+    sign = 1;
+    integer = integer * -1;
   }
+  int16_t idx = 3;
+  for (; idx >=0 && integer != 0; integer /= 10, idx--)
+  {
+    displayText[idx]=(integer % 10) + '0';
+  }
+  if (sign)
+  {
+    displayText[idx] = '-';
+  }
+  write (displayText);
 }
 
 
