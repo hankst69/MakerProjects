@@ -11,10 +11,16 @@ aqtinstall.log
 
 /projects/*
 /3D-Print
-#/ArduinoSketches
 
+#/ArduinoSketches
 #/ArduinoSketches/libraries
+
+#/KnowHow/**/*.vhdx
+#/KnowHow/**/*.img
+
+
 #/ArduinoSketches/esp01/espBode
 #/ArduinoSketches/esp01/espBode-awg
 #/ArduinoSketches/esp01/espBode-main
 #/ArduinoSketches/esp01/espBode-master
+
