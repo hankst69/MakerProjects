@@ -15,8 +15,8 @@ aqtinstall.log
 #/ArduinoSketches
 #/ArduinoSketches/libraries
 
-#/KnowHow/**/*.vhdx
-#/KnowHow/**/*.img
+/KnowHow/**/*.vhdx
+/KnowHow/**/*.img
 
 
 #/ArduinoSketches/esp01/espBode
