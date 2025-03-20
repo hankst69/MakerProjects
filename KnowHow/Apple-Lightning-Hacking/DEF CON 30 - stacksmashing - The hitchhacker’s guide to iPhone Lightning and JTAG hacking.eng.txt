@@ -1,0 +1,313 @@
+all right uh coming up next uh we have a talk on the iphone it's called the hitchhiker's guide
+to iphone lightning and jtag hat hacking so please help me welcome to the stage stack smashing
+hello let's get started this is going to be fast-paced talk so we got to hurry
+first off about me my name is thomas roth i'm probably better known as tech smashing on twitter
+and youtube and yeah i do i'm a security researcher i do hardware i do software all
+kinds of stuff and before we can get started with the actual talk we have to say thank you
+to a couple of people so first off carlo maranio who is like my partner in crime on this talk
+basically we designed the hardware together um collaborated on this then uh jiska caro and fabian
+fabian who just have been a great support answered a ton of questions listened to my rumbling about
+debugging swd issues and so on um then lily aka bendy cactus who
+just gave me a lot of hints and tips when i was stuck and just was was contributed some great
+information then john aka nyan satan who basically documented a lot of the stuff you're about to see
+and a lot of the information that i used in this talk is based on his research and also lambda
+concept who are the vendors of the bonobo cable they published a lot of things as open source that
+have been really really helpful for this talk now lightning what's so special about lightning
+lightning is this proprietary connector by apple that you can find on iphones and it's reversible
+so it has eight contacts on both sides however if we look on the device sites side it really only
+has contacts on the bottom so it's just eight signals if you look at the connector with the
+contacts on the bottom we count them like this one to eight and lightning normally is you know used
+for all that kind of stuff so for me it's not really interesting however if you take a look at
+at some of the less common iphone accessories you can find that there are actually a couple
+of interesting things going on so for example you can get something called a dcsd or alex cable
+which basically you plug it into the iphone and it gives you a serial console onto the iphone and
+so if you plug it in you boot your iphone you get like the boot lock and so on especially on
+a jailbroken iphone so that's pretty interesting
+and there's also something really cool called the kensi cable the kensi cable gives you jtech on
+the iphone so it allows you to debug the actual iphone now the kensi cable is an apple internal
+device you can sometimes get them on like the gray and black market um so it's not really an
+option if you want to do like let's say legit security research because you can't start off
+with a stolen device um but luckily for us lambda concept built a commercial version of this called
+the bonobo cable um it's apparently really interesting because it's a really interesting
+thing to work with because it's a really really great technology and it's going to be really
+great i unfortunately never had one um the issue is it's been out of stock for the past few years
+and so i have friends who work at universities and do iphone security research and they cannot
+do jtech research simply because they can't get the hardware now i'm a hardware hacker and after
+visiting those friends and a couple of drinks in the mission was clear we have to build our own
+to do that we have to first understand lightning itself
+itself. If we look at the lightning connector, we have the pins, we have obviously a ground signal,
+we have power for charging and so on, and then we have two differential pairs. So we have L0
+positive and negative, and L1 positive and negative, and these two differential pairs can
+be configured to different protocols. So for example, if you have a USB cable, they will be
+configured to USB. If you have a DCSD cable, they will do UART and so on and so forth. And we also
+have two ID pins, and now normally we only use one of these. They are basically used by the cable
+to tell the iPhone what it should do, and the reason we have two is that the lightning cable
+is actually not symmetric when you turn it around, but the ID pin on the actual plug is on a different
+pin depending on the orientation you plug it in. And so when you plug in the lightning connector,
+the iPhone can actually tell which way you plugged it in. Now, lightning cables are always active.
+Even if you have a lightning to USB cable, it actually, in the plug,
+itself contains a small microcontroller that talks to the iPhone and tells it, hey, I'm a lightning
+cable, and it even sends over its serial number to authenticate itself. So it's pretty fancy. I'm not
+sure if it's necessary, but it's there. And the way this authentication is done is via a protocol
+called SDQ or ID bus, just two words for the same bus. And inside the iPhone, there's basically
+directly connected to the lightning connector a small chip called TreeStar or Hydra on your
+devices. And this TreeStar chip is on the bottom connected directly to lightning, and then
+internally connected to the internal serial buses, to USB, to JTAG. And on engineering iPhones,
+it's even connected to the baseband UART. And so it's pretty interesting. And when you plug in
+the lightning cable, the iPhone will basically ask the cable, hey, what do you want? And then
+the USB cable will say, hey, please speak USB, or please speak, I don't know, serial, JTAG, whatever.
+If the cable says, please speak USB, then the iPhone will basically change, for example, the differential
+pair to be USB, or to be UART, and so on and so forth. Now, SDQ is pretty well known. Like, it's not
+really secret. It's been known for years. It's based on the OneWire standard. Even I released, like,
+an analyzer for it in 2018. And overall, it's pretty well documented. So I'm not going to go too deep
+into the physical details. But all you have to know is that it's a simple OneWire protocol. So basically,
+one wire that connects both accessories. You don't have, like, TX and RX. It's really just
+OneWire. And the data looks somewhat like this. If we zoom in on a single byte here,
+basically, we encode ones as a short low pulse and a long high pulse, and we encode zeros as a
+long low pulse and a short high pulse. And data is transmitted least significant bit first, and so
+this would encode to hex 0F. Now, if we want to talk to, let's say, the lightning cable, the iPhone
+would then, for example, send hex 0F. Then it would send a break. Then there's a short delay for the
+inputs to switch over for the direction. And then the lightning cable would answer on exactly the same data
+line. And now, a lot of people implement this on FPGAs and so on. But if you know me, I like to go very
+cheap on my stuff. And so there's only one option for me, the Raspberry Pi Pico. It's just $4, not $20 or $100.
+And it's super,
+well suited for this because it runs at 3.3 volts, which is exactly the voltage we need. And it has
+something called programmable I.O., which is this feature that lets you very easily implement
+protocols directly in hardware. It's basically a small state machine CPU core that has its own
+instruction set, and you can just implement STQ in hardware on this thing. And the best part is,
+you can actually buy it because it's not actually affected by the chip shortage. So, yeah, it's
+pretty good.
+The issue is that we need a lightning connector. And I said, you can't just cut off a USB to lightning cable
+because there's a chip in the plug itself. And so you can't simply, you know, abuse that. But there are these
+nice breakouts, who, by the way, over there, sent to me this one. Unfortunately, if you count the number of
+signals, it's just five signals. But lightning actually has eight signals. And so those are nice for some basic
+experimentation. And we basically did our first steps on lightning. And we're going to go through some of these
+let's say, with a similar one.
+In this case, we were sniffing a DCSD cable.
+But then, Bendy Katus actually recommended to me
+that the Lightning extension cords you can get on Amazon
+contain all eight signals.
+And even better, if you cut one apart,
+all the cables are nicely colored,
+and the color scheme is identical
+to the default jumper wire color scheme.
+And so you can really easily build one of these,
+and then plug it into a breadboard
+or directly onto the Pico.
+Here's the signal description.
+This is also on the GitHub, as you will see.
+So if you want to experiment,
+this is the layout we found on most cables.
+Then you hook it all up,
+and then you have a device to explore Lightning.
+You will notice that I marked the Lightning connector,
+because as said, it's not symmetric.
+You actually have to decide for one side.
+And then you hook it up to the Pico,
+and you want to implement SDQ.
+And it turns out that implementing SDQ is super simple.
+You don't have to read this code.
+I just want to show how relatively short it is.
+It's just like 40 instructions, and you are done.
+And then 20 lines of code to start talking SDQ.
+To test all this and see whether we really
+can talk to the iPhone, our goal was
+to build a simple DCSD cable.
+As I've mentioned, DCSD is this iPhone to serial cable.
+And the basic idea is that we have our iPhone,
+and we have our Pico.
+And the iPhone, when we plug in the Lightning cable,
+will ask, hey, who's there?
+And it does so with a four-byte request. 7.4.sdk.
+And it does so with a four-byte request. 7.4.sdk.
+And it does so with a four-byte request. 7.4.sdk.
+At the end, we have a CSC8.
+Doesn't really matter too much.
+And then we simply respond with this eight-byte response,
+which just tells the iPhone, hey, please
+configure Lightning to speak UART.
+And the tree start chip in the iPhone will do exactly that.
+It will take one of the differential pairs,
+and it will switch it to UART.
+And then all we have to do, really, on the Pico
+is receive UART signals and turns out this is super simple it takes like less
+than 50 lines of code to do this and then you have a DCSD cable and we check
+this out we plug in the iPhone it boots up and we have a $5 DCSD cable without
+you know without having done too much this is pretty cool but DCSD cables can
+be very easily bought on like Aliexpress and so on and it's not really what we're
+interested in we are here for JTAG now JTAG on the iPhone is actually not JTAG
+it's SWD which is serial wire debug it's basically like JTAG but only uses two
+signals and the big issue is that production iPhones obviously have JTAG
+turned off because they don't want you to debug the iPhone but if you have a
+checkmate-able iPhone you can actually use a jailbreak to basically first
+compromise the iPhone the boot ROM and then we can do something called demotion
+which is basically a jailbreak and then we can do something called demotion
+where we set an internal register to a different value and then suddenly JTAG
+is re-enabled and this is all done by iPod and DFU and this has been known for
+years by the way like this is nothing new just want to clarify but now we
+actually want to start talking JTAG to the iPhone right and so we need a plan
+the plan is super simple first we set lightning to JTAG via SDQ we just set it
+to UART so we we already know how to do this basically all we do is we respond
+respond to the who's there request
+with this time a different byte.
+And by the way, all these bytes for the responses
+are documented by Nyan Cat, sorry, Nyan Satan.
+And so you can find a lot of details about this online
+and we also have our own documentation
+on some more details.
+And then the iPhone, the tree start chip,
+will reconfigure all the pins on the iPhone
+and then we actually have directly the SWD clock
+and IO signal exposed on the lightning connector.
+And so all we have to do now is,
+we just connect the debug probe with OpenOCD, right?
+What could possibly go wrong?
+And even better, Lambda Concept,
+who are the vendors of the Bonobo cable,
+they actually published an OpenOCD fork
+that supports, has like special support
+for the iPhone and so on.
+And even better, they supply us
+with all the configuration files
+we need to actually talk to the chip.
+Because for like, if you want to debug a chip,
+there are all these definitions
+on where switch peripheral and so on.
+And so forth.
+And they provide us all of this.
+And so I decided to hook this up
+in the messiest way possible,
+because, yeah, basically what I did
+is I just connected my iPhone,
+brought the lightning stuff out to a breadboard,
+connected a logic analyzer
+so that I can actually see what's going on,
+connected the P code that will actually tell the iPhone
+to go into SWD mode,
+and then I used a ready-to-use debug probe
+just to see, just to get it working, basically.
+And so I hooked this all up,
+and so we are ready to go,
+and so it doesn't work.
+It turns out that switching over to SWD is really easy.
+And if we actually connect with the debugger,
+we can even see that it finds the debug port,
+like the hex number on the bottom is basically,
+if you Google it, that's an iPhone.
+And so we do have some kind of debugging connection
+to the iPhone.
+But if we want to actually debug something,
+this is a screenshot from my iPhone.
+This is from OpenOCD.
+It doesn't work.
+The state of all CPUs is unknown,
+and I have zero clue how to turn them on.
+And how do you debug this?
+Because my issue was I have no clue about SWD.
+I've used JTAG a million times.
+I've used SWD probably even more.
+But how do you debug if you just,
+we didn't even have a working Kenzie or Bonobo cable.
+We didn't have a known working system that we could sniff.
+This is all basically partially reverse engineered,
+partially combined from public information and so on.
+And so yeah, what do you do?
+You get a nice book for the evening
+called the SWD Specification.
+You read it twice.
+I hope you understand at least a quarter of it.
+And then you start to logic analyze it.
+And you see what bits are actually going over the wire
+and so on.
+Simple, right?
+So I hooked up my logic.
+analyzer i debugged the signal didn't make sense to me turns out the logic analyzer is broken the
+swd plugin for the logic analyzer just simply was not great and so first you get to fix the logic
+analyzer much fun then you see that openocd doesn't handle some swd things correctly and
+so basically when you when you send an swd command to a chip it can respond with acknowledgement or
+knock or wait and it turns out openocd with by default doesn't support the weight response and
+in the logic analyzer i could see i get a weight response but my debug probe just ignores it and
+keeps going so obviously you implement swd by hand and so you again open the specification
+and you write as a completely custom partially custom swd stack
+and at this point it still didn't work we handled the weight bits we handled everything
+was
+looking perfect and it still didn't work and now then you're at a point in time where you
+can potentially sync 200 hours without success because you simply have no clue what's going on
+and so i just started randomly trying everything i could find randomly setting bits clearing bits
+and so on i basically built kind of a fuzzer for some parts of the swd protocol that tries to just
+flip bits until maybe we get successful and it turns out a single bit that resets the
+certain peripheral was wrong
+that was a tough day because you spent so much time just wasted completely wasted on a single bit
+but then you have a great moment which is you you hook up openocd you hook up your iphone
+you hit return and it connects no errors everything is fine it tells you yes i'm
+listening for a gdb connection i'm listening for an openocd connection and so you hook up openocd
+and you check what do our cpu cores do and this time we can see cpu zero halted cpu one power off
+no more unknown states except for the scp which has a different reason
+it's all working and to prove that we can hook up gdb connect to to it and we can actually
+inspect the registers we actually built a five dollar cancel cable so yes that was a great moment
+so yeah and now at this point in time it was all a bit um complicated because you know i had a big
+pile of code the branch was literally called clusterfuck um and so now it was time to clean
+up and you know put everything together make everything work nicely together and in the end
+we had this awesome firmware for the raspberry pi pico that can be used as an sdq bridge um
+contains self contains in the pico a full swd probe
+for which we added support to openocd for and it's fully open source now obviously the
+the cables that are used for debugging iphones they all have very awesome names based on monkeys
+so you have the can see cable the bonobo you have the chimp cable and the con cable
+luckily for us they didn't select the coolest monkey which is the tamarin monkey
+and so our firmware is called the tamarin cable and you can find it as open source now
+online it's fully works it's pretty simple to use you plug it in it will give you two
+actually three usb devices two serial ports the first report just lets you you know
+dj select between j tag dcsd mode you can even reset the device which is pretty cool so it turns
+out that there are a couple of basically secret j tag sorry secret sdq commands that bandi katz
+was found and basically just randomly i think posted them on twitter and i was like hey how's
+How did you find those?
+And so it turns out, by fuzzing Lightning,
+you can actually find some undocumented commands,
+and this allows you to reset the device
+and go into DFU mode.
+If you've never jailbroken an iPhone before,
+you have to hold power and volume down,
+and at precisely eight seconds,
+you have to release the buttons,
+and then Checkmate is not really a super stable exploit,
+so then you get to do it again and again
+and again and again.
+With this, it's like a single tap.
+You just click Reset and enter DFU,
+and it goes into DFU, and you can just try 100 times.
+So honestly, this is the third best feature of this thing.
+Now, to make this all a bit nicer,
+we also developed custom hardware
+that we call the tammering cable,
+which basically also exposes, it has a USB hub on there,
+so you can do both JTAG and also USB data at the same time,
+and just as we were ready to order 1,000 pieces of this,
+turns out there's this thing
+going on called the chip shortage.
+You might have heard of it,
+and so all USB hubs we could think of were just out of stock,
+and so we had to build the chip shortage addition,
+which instead of a hub, simply adds two USB ports
+and just makes it a bit cleaner,
+like you can make a nice short cable,
+plug it in and so on,
+but this has zero advantages,
+except it's less messy over the cable itself,
+so this is not a sales pitch, but this is coming up.
+If you're interested, we will probably do a production run.
+Follow me on Twitter.
+And you will get notified when it comes out.
+And with that, releases,
+there's a lot of different things
+that we've had to build for this.
+So first off, the tammering cable firmware
+is now open source.
+We forked OpenOCD, added support for our tammering SWD probe.
+We forked the SWD analyzer off the logic analyzer,
+and there's also the SDQ analyzer plugin,
+and I think some of the repos are still private,
+but the tammering cable is open.
+As soon as I'm on a Wi-Fi that doesn't scare me,
+I will change the GitHub visibility.
+And with that, thank you very much.
+That's all I have for you today.
