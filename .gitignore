@@ -17,6 +17,8 @@ aqtinstall.log
 
 /KnowHow/**/*.vhdx
 /KnowHow/**/*.img
+/KnowHow/**/rufus.log
+/KnowHow/**/rufus.ini
 
 
 #/ArduinoSketches/esp01/espBode

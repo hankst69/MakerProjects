@@ -1,0 +1,1256 @@
+<!DOCTYPE html> <html lang=de dir=ltr data-google-analytics-opt-out class="gtoydbfwa idc0_350" style><!--
+ Page saved with SingleFile 
+ url: https://www.mikrocontroller.net/topic/374554 
+ saved date: Sun Apr 06 2025 22:54:14 GMT+0200 (Mitteleuropäische Sommerzeit)
+--><meta charset=utf-8>
+<title>
+ LibUSB32 Windows 10 - Mikrocontroller.net
+ </title>
+<meta name=viewport content="width=device-width,initial-scale=1.0">
+<style>:root{--sf-img-6: url("data:image/png;base64,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")}</style><style>html{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}*,*:before,*:after{-webkit-box-sizing:inherit;-moz-box-sizing:inherit;box-sizing:inherit}.clear{clear:both}div.box{background-color:#F5F5F5;padding:1ex;margin-top:0.8ex;margin-bottom:0.8ex;border:1px solid #CACACA}a img{border:0}img{image-orientation:from-image}html{line-height:1.5;font-size:15.5px}body{padding:0}#outer-container{padding:0;max-width:1200px;margin:0 auto 20px auto;overflow:visible}#twocolumns{border-spacing:2px;border-collapse:collapse;width:100%;margin:0}#main{background-color:#FFF;margin:0;padding-left:20px;padding-right:20px;padding-bottom:20px;vertical-align:top;border-right:1px solid #CACACA;border-bottom:1px solid #CACACA}#main h1{margin-bottom:0;padding-bottom:0;font-size:1.7em}.sidebar{padding:6px;margin:0;vertical-align:top;background-image:url(data:image/webp;base64,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);background-color:#F4F4F4;background-repeat:repeat;background-position:0-40px;border-bottom:1px solid #CACACA}.sidebar ul li{font-size:0.85rem}#sidebar-left{border-right:1px solid #CACACA;border-left:1px solid #CACACA;width:173px}.sticky{position:-webkit-sticky;position:-moz-sticky;position:-ms-sticky;position:-o-sticky;position:sticky;top:15px}#sidebar-right{vertical-align:top;border-right:1px solid #CACACA;border-left:1px solid #CACACA;display:none;padding-right:0;padding-left:0}#bottom{clear:both;text-align:center;margin:0;padding:1ex;font-size:0.85rem}a:visited{color:#002050}a:hover{text-decoration:underline}.sidebar a:visited{color:#02a}hr{background-color:#CACACA;color:#CACACA}ul.nav-first{list-style-type:none;padding:0;margin:0}ul.nav-first ul{list-style-type:square;margin-left:0;padding-left:2.5ex}ul.nav-icons{list-style-type:none;padding:0;margin:0}ul.nav-icons ul{list-style-type:none;margin:10px 0;padding-left:0.5ex}ul.nav-icons li a{display:flex;align-items:baseline}ul.nav-icons .icons{margin-right:10px}.unselectable{-moz-user-select:-moz-none;-webkit-user-select:none;user-select:none}@media only screen and (min-width:1280px){#sidebar-right{display:table-cell!important;width:300px!important}}@media only screen and (min-width:701px) and (max-width:845px){#sidebar-left{display:none!important}}.highslide-container div{font-size:10pt}.highslide-container table{background:none}.highslide-outline{background:white}.highslide-loading{display:block;color:black;font-size:9px;font-weight:bold;text-transform:uppercase;text-decoration:none;padding:3px;border:1px solid white;background-color:white;padding-left:22px;background-image:url(data:image/gif;base64,R0lGODlhEAAQAPIAAP///8LCwkJCQgAAAGJiYoKCgpKSkgAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQECgD/ACwAAAAAEAAQAAADMwi63P4wyklrC0IEKsYQnAdOmGYFBLExwboQWcG2LlDEgWHQLUsUOd2mBzEUCgZKa+dIAAAh+QQFCgAHACwAAAIADgAOAAADMggQIqEwAjGGkJJaHJnjC0E8IEA0RQkUDaEGREG+hjFzda0aRWEsN0ggYBsOX0YVUJIAACH5BAUKAAcALAAAAAAKABAAAAMwCLohEmuJMYQKhTRqAXGF4UBA4RDRRRTkZRjt8r4pYBRhHQRwzcS/nW4HvBR9yEgCACH5BAUKAAcALAAAAAAOAA4AAAMyCLpRFCsuIkSRIBjT6qsQsG0BUQTCMAiKURRGlK5KoIU1mOFYbfOYHzA47BmPyKQykgAAIfkEBQoABwAsAAAAABAACgAAAysIumEWK0rnZAzQlPIKgQwmdoJQXGJElISEuR5oWUEpz4owDAIe6Twfw5YAACH5BAUKAAcALAIAAAAOAA4AAAMwCKoR+681CGUzxtEZCqaP4RngEmBayRREChaCUKgAERN015ZB7FKCwUBACw5zPkUCACH5BAUKAAcALAYAAAAKABAAAAMrCLrcziG8GB2VFk9j9AoF5xhFmHUQUXgKIQiEErzgWyjCMAiBiuU7C82RAAAh+QQFCgAHACwCAAIADgAOAAADLgi63P4wyglCmNbKfPcNgtApgWF0wjAIjHkq6RoQRVkUBhnOIQGYo0Wht6EFFQkAOw==);background-repeat:no-repeat;background-position:3px 1px}.left{float:left}form label{margin-right:1ex}.forum .post{padding:0;margin-bottom:0.9ex;margin-top:0.9ex;padding-bottom:0.4ex}.forum .post pre{margin:0;font-size:0.94rem;line-height:1.4em;font-family:monospace,sans-serif;white-space:pre-wrap}.forum .new-post .subject{text-decoration:underline}.forum .post .subject{background-color:#FFAA00;color:black;margin-bottom:0px;padding-left:0.5rem;padding:0.3rem;font-size:0.94rem}.forum .post .subject a{color:black}.forum .post .info{margin:0.5rem;font-size:0.94rem}.forum .post .info .author{float:left}.forum .post .info .date{float:right}.forum .post hr{margin:0;margin-bottom:1ex;height:1px}.forum .post .text{font-size:1.0rem;line-height:1.5;margin:0.5em}.forum .post .text :first-child{margin-top:0}.forum .post .text :last-child{margin-bottom:0}.forum .post .text{word-wrap:break-word;word-break:break-word}.attribution-line a{color:inherit!important}.forum .post .foot{margin:0;text-align:right;padding:3px;font-size:0.8em}.menuitem:before{content:" | "}.menuitem:first-child:before{content:""}.forum .topic .foot a{padding-left:3px;padding-right:3px;padding-bottom:1px;padding-top:1px;text-decoration:none}.forum .post a.wiki{color:#0000A0}.forum .post span.quoting-level-1{color:#007000}.forum .post span.quoting-level-2{color:#000070}.forum .topic-subscription img{position:relative;top:-2px;vertical-align:middle}div.navbar{margin-top:1.5ex;margin-bottom:1.5ex;font-size:0.94rem}div.navbar a{color:#1047A9}h1#pageName{margin-top:0.6ex;padding:0}h1#pageName small{font-size:0.42em;padding:0;display:block}h1#pageName small a{color:#02A!important}@media only screen and (max-width:767px){}@media only screen and (max-width:900px){.post .text pre{white-space:pre-wrap}}@media only screen and (max-width:700px){#sidebar-left{display:block;width:100%;border-bottom:1px solid #A0A0A0;overflow:hidden;max-height:0em;transition:max-height 0.2s ease-out;padding:0}#sidebar-left .nav-first{column-width:190px}#sidebar-left .nav-first li:last-child{break-before:avoid}#sidebar-left hr{display:none}ul.nav-first>li{margin-right:0.5em;margin-left:0.5em;font-size:1em}#main{display:block}html{margin:0;-webkit-text-size-adjust:none}}@media only screen and (max-width:480px){}/*!
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2017 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ *//*!
+ * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=ceae3e064154cb2dd9e90104cfca456b)
+ * Config saved to config.json and https://gist.github.com/ceae3e064154cb2dd9e90104cfca456b
+ *//*!
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ *//*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}header,nav{display:block}a{background-color:transparent}a:active,a:hover{outline:0}b,strong{font-weight:bold}h1{font-size:2em;margin:0.67em 0}hr{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}input{color:inherit;font:inherit;margin:0}input[type="submit"]{-webkit-appearance:button;cursor:pointer}table{border-collapse:collapse;border-spacing:0}td{padding:0}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}*:before,*:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html{-webkit-tap-highlight-color:rgba(0,0,0,0)}body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.5;color:#333333}input{font-family:inherit;font-size:inherit;line-height:inherit}a{color:#02a;text-decoration:none}a:hover,a:focus{color:#02a;text-decoration:underline}a:focus{outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}img{vertical-align:middle}hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eeeeee}.container{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px}@media (min-width:768px){.container{width:750px}}@media (min-width:992px){.navbar.navbar-default .container{width:100%}}@media (min-width:1200px){.container{width:1170px}}@media (min-width:768px){}@media (min-width:992px){}@media (min-width:1200px){}label{display:inline-block;max-width:100%;margin-bottom:5px}@media screen and (-webkit-min-device-pixel-ratio:0){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}.navbar{position:relative;margin-bottom:20px;border:1px solid transparent}@media (min-width:768px){.navbar{border-radius:4px}}@media (min-width:768px){.navbar-header{float:left}}@media (min-width:768px){}@media (max-device-width:480px) and (orientation:landscape){}.container>.navbar-header{margin-right:-15px;margin-left:-15px}@media (min-width:768px){.container>.navbar-header{margin-right:0;margin-left:0}}@media (min-width:768px){}@media (min-width:768px){}.navbar-brand{float:left;font-size:18px;line-height:20px}.navbar-brand:hover,.navbar-brand:focus{text-decoration:none}.navbar-brand>img{display:block}@media (min-width:768px){.navbar>.container .navbar-brand{margin-left:-15px}}@media (min-width:768px){}@media (max-width:767px){}@media (min-width:768px){}@media (min-width:768px){}@media (max-width:767px){}@media (min-width:768px){}@media (min-width:768px){}@media (min-width:768px){}.navbar-default{background-color:#f8f8f8;border-color:#e7e7e7}.navbar-default .navbar-brand{color:#777777}.navbar-default .navbar-brand:hover,.navbar-default .navbar-brand:focus{color:#5e5e5e;background-color:transparent}@media (max-width:767px){}@media (max-width:767px){}.clearfix:before,.clearfix:after,.container:before,.container:after,.container-fluid:before,.container-fluid:after,.row:before,.row:after,.form-horizontal .form-group:before,.form-horizontal .form-group:after,.nav:before,.nav:after,.navbar:before,.navbar:after,.navbar-header:before,.navbar-header:after,.navbar-collapse:before,.navbar-collapse:after{content:" ";display:table}.clearfix:after,.container:after,.container-fluid:after,.row:after,.form-horizontal .form-group:after,.nav:after,.navbar:after,.navbar-header:after,.navbar-collapse:after{clear:both}@-ms-viewport{width:device-width}@media (max-width:767px){}@media (max-width:767px){}@media (max-width:767px){}@media (max-width:767px){}@media (min-width:768px) and (max-width:991px){}@media (min-width:768px) and (max-width:991px){}@media (min-width:768px) and (max-width:991px){}@media (min-width:768px) and (max-width:991px){}@media (min-width:992px) and (max-width:1199px){}@media (min-width:992px) and (max-width:1199px){}@media (min-width:992px) and (max-width:1199px){}@media (min-width:992px) and (max-width:1199px){}@media (min-width:1200px){}@media (min-width:1200px){}@media (min-width:1200px){}@media (min-width:1200px){}@media (max-width:767px){}@media (min-width:768px) and (max-width:991px){}@media (min-width:992px) and (max-width:1199px){}@media (min-width:1200px){}header nav.navbar-default{background:#ffb122;border:0;border-radius:0;margin:0;-webkit-box-shadow:0 4px 10px -6px black;-moz-box-shadow:0 4px 10px -6px black;box-shadow:0 4px 10px -6px black}header nav .navbar-header a{padding:8px 15px}header nav .navbar-header h1{margin:0}header nav .navbar-header h1 a img.logo{height:0.95em}@media only screen and (max-width:1198px){}@media only screen and (max-width:1024px){header nav.navbar-default .container{width:100%}header{max-height:100vh;overflow-y:scroll}}@media only screen and (max-width:980px){}@media only screen and (max-width:845px){header nav .navbar-header a{padding-left:7.5px}}@media only screen and (max-width:767px){}@media only screen and (max-width:375px){}header{position:fixed;transition:top 0.2s ease-in-out;z-index:1;width:100%}.nav-up{top:-55px}@media only screen and (min-width:700px){}@media only screen and (min-width:768px){}@media only screen and (max-width:767px){}.navbar-header{display:flex;flex-direction:row-reverse;align-items:center}.navbar-header h1{flex-grow:1}@media only screen and (max-width:767px){}body{background-color:#F8F8F8}.container{max-width:1230px}#nav-top .navbar:before,#nav-middle .navbar:before,#nav-bottom .navbar:before{display:block;content:none}#main{border:0px}#outer-container{margin-top:40px}@media only screen and (max-width:767px){#twocolumns{table-layout:fixed}}@media only screen and (max-width:480px){}@font-face{font-family:"icomoon";src:url(data:application/font-woff;base64,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)format("woff");font-weight:normal;font-style:normal}[class*=" mikro-"]{font-family:"icomoon"!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.mikro-analogtechnik:before{content:""}.mikro-mikrocontroller-elektronik:before{content:""}.mikro-pc-hardware-software:before{content:""}.mikro-dsp:before{content:""}.mikro-platinen:before{content:""}.mikro-pc-programmierung:before{content:""}.mikro-markt:before{content:""}.mikro-gcc:before{content:""}.mikro-fpga-vhdl-cpld:before{content:""}.mikro-hausbus:before{content:""}.mikro-codesammlung:before{content:""}.mikro-hf:before{content:""}.mikro-ausbildung-studium-beruf:before{content:""}.mikro-offtopic:before{content:""}.mikro-mechanik:before{content:""}.mikro-website:before{content:""}.mikro-fahrzeugelektronik:before{content:""}</style>
+<link rel=canonical href=https://www.mikrocontroller.net/topic/374554>
+<meta name=csrf-param content=authenticity_token>
+<meta name=csrf-token content="8u1gPJ3kC2VRFS6XWh29IYmkpt5wugLKBFAKv4lwHJCLC7WYnEDLBNedBPB49DOnMWHFrcYkvel5ImTiQtZtFQ==">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mikrocontroller und Digitale Elektronik","item":"https://www.mikrocontroller.net/forum/1"}]}</script>
+<meta property=og:site_name content=Mikrocontroller.net>
+<meta property=og:title content="LibUSB32 Windows 10">
+<link rel=alternate type=application/atom+xml title="Mikrocontroller.net Newsfeed" href=https://www.mikrocontroller.net/newsfeed>
+<link rel=alternate type=application/atom+xml title="Neue Beiträge in allen Foren" href=https://www.mikrocontroller.net/feed/global>
+<link rel=alternate type=application/atom+xml title='Neue Beiträge im Forum "Mikrocontroller und Digitale Elektronik"' href=https://www.mikrocontroller.net/feed/forum/1>
+<link rel=alternate type=application/atom+xml title='Neue Beiträge im Thread "LibUSB32 Windows 10"' href=https://www.mikrocontroller.net/feed/topic/374554>
+<meta name=robots content=NOODP>
+<link rel=search type=application/opensearchdescription+xml title=Mikrocontroller.net href=https://www.mikrocontroller.net/searchplugin.xml>
+<meta name=google-translate-customization content=5ced0b84f202ea5b-ae0c3756d2b00e02-g6a9f31b5bb528ccf-17>
+<style>#MathJax_Message{position:fixed;left:1em;bottom:1.5em;background-color:#E6E6E6;border:1px solid #959595;margin:0px;padding:2px 8px;z-index:102;color:black;font-size:80%;width:auto;white-space:nowrap}</style><meta http-equiv=origin-trial content="AlK2UR5SkAlj8jjdEc9p3F3xuFYlF6LYjAML3EOqw1g26eCwWPjdmecULvBH5MVPoqKYrOfPhYVL71xAXI1IBQoAAAB8eyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv=origin-trial content="Amm8/NmvvQfhwCib6I7ZsmUxiSCfOxWxHayJwyU1r3gRIItzr7bNQid6O8ZYaE1GSQTa69WwhPC9flq/oYkRBwsAAACCeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv=origin-trial content=A9wSqI5i0iwGdf6L1CERNdmsTPgVu44ewj8QxTBYgsv1LCPUVF7YmWOvTappqB1139jAymxUW/RO8zmMqo4zlAAAAACNeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiRmxlZGdlQmlkZGluZ0FuZEF1Y3Rpb25TZXJ2ZXIiLCJleHBpcnkiOjE3MzY4MTI4MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9><meta http-equiv=origin-trial content=A+d7vJfYtay4OUbdtRPZA3y7bKQLsxaMEPmxgfhBGqKXNrdkCQeJlUwqa6EBbSfjwFtJWTrWIioXeMW+y8bWAgQAAACTeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiRmxlZGdlQmlkZGluZ0FuZEF1Y3Rpb25TZXJ2ZXIiLCJleHBpcnkiOjE3MzY4MTI4MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9><link href=https://securepubads.g.doubleclick.net/pagead/managed/dict/m202504030101/gpt rel=compression-dictionary><meta name=referrer content=no-referrer><link rel="shortcut icon" type=image/x-icon href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAAAAABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AIWFhQBfX18AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAIAAAAAAAAADAABAAEAAAwAAAAAAAAAAgwAAAEAAQAMAgAAAAAAAAAMAAEBAQEADAAAAAAAAAACDAAAAAAAAAwCAAAAAAAAAAwAAAEBAQAMAAAAAAAAAAIMAAEAAAAADAIAAAAAAAAADAAAAQEBAAwAAAAAAAAAAgwAAAAAAAAMAgAAAAAAAAAMAAEBAQAADAAAAAAAAAACDAAAAQABAAwCAAAAAAAAAAwAAQEBAAAMAAAAAAAAAAIMAAAAAAAADAIAAAAAAAAADAAAAAAAAAwAAAAAAAAAAAAAAAMDAAAAAAAAAPAPAADgBwAA8A8AAOAHAADwDwAA4AcAAPAPAADgBwAA8A8AAOAHAADwDwAA4AcAAPAPAADgBwAA8A8AAPAPAAA="><style>.sf-hidden{display:none!important}</style><meta http-equiv=content-security-policy content="default-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:;"></head>
+<body><div id=MathJax_Message style=display:none></div>
+ <header class=nav-up>
+ <nav class="navbar navbar-default">
+ <div class=container>
+ <div class=navbar-header>
+ <button type=button class="navbar-toggle collapsed main-menu-toggle sf-hidden" data-toggle=collapse data-target=#main-nav-collapse aria-expanded=false>
+ 
+ 
+ 
+ 
+ </button>
+ <button type=button class="navbar-toggle collapsed login-toggle sf-hidden" data-toggle=collapse data-target=#login-nav-collapse aria-expanded=false>
+ 
+ </button>
+ <button type=button class="navbar-toggle collapsed search-toggle sf-hidden" data-toggle=collapse data-target aria-expanded=false>
+ 
+ </button>
+ <h1>
+ <a href=https://www.mikrocontroller.net/ class=navbar-brand>
+ <img src=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBoZWlnaHQ9IjU2IiB3aWR0aD0iNTk1IiB2aWV3Qm94PSIwIDAgNTk1IDU2IiBpZD0ic3ZnMiIgdmVyc2lvbj0iMS4xIj4KCTxzdHlsZT4uYXtmaWxsLW9wYWNpdHk6MTtmaWxsLXJ1bGU6bm9uemVybztmaWxsOiMwMDAwMDA7c3Ryb2tlOm5vbmU7fTwvc3R5bGU+Cgk8bWV0YWRhdGEgaWQ9Im1ldGFkYXRhOCIvPgoJPGcgdHJhbnNmb3JtPSJtYXRyaXgoMSAwIDAgLTEgMSA1NSkiIGlkPSJnMTAiPgoJCTxnIGlkPSJnMTQiPgoJCQk8ZyBpZD0iZzE2Ij4KCQkJCTxwYXRoIGlkPSJwYXRoMjIiIGQ9Im01NS45MDQgMzEuNGMtMS4yMjIgMi4wNzgtMi44NzIgMy42MDUtNC45NDkgNC41ODItMi4wMTYgMS4wMzktNC4yNzcgMS41MjgtNi43MjEgMS41MjgtMi42MjcgMC01LjEzMi0wLjYxMS03LjQ1My0xLjg5NC0yLjMyMi0xLjIyMi00LjAzMy0zLjA1NS01LjE5NC01LjQzOC0xLjAzOCAyLjM4My0yLjY4OCA0LjIxNi00Ljk0OSA1LjQzOC0yLjE5OSAxLjI4My00LjcwNCAxLjg5NC03LjM5MyAxLjg5NC0yLjUwNCAwLTQuODI2LTAuNTUtNi45MDMtMS43MTEtMi4xMzktMS4xNjEtMy43ODktMi44NzEtNS4wMS01LjEzMmwtMC4zNjcgNi4xMUgwVjAuMTE4aDcuODgxdjE5LjQ5YzAgMi42MjggMC40MjggNC43NjYgMS4zNDUgNi40NzcgMC45NzcgMS43MTEgMi4xMzggMi45MzIgMy42MDQgMy43ODggMS40NjcgMC43OTQgMi45OTQgMS4xNjEgNC41ODMgMS4xNjEgMi4yNiAwIDQuMDkzLTAuNjcyIDUuNDk4LTIuMDE3IDEuMzQ0LTEuNDA1IDIuMDE3LTMuNDgyIDIuMDE3LTYuNDE1VjAuMTE4aDcuODgxdjE5LjkxOGMwIDMuNDIyIDAuOTE3IDYuMTEgMi43NSA4LjA2NSAxLjgzMiAxLjk1NSA0LjA5MyAyLjkzMyA2Ljc4MSAyLjkzMyAyLjI2MSAwIDQuMDk0LTAuNjcyIDUuNDk5LTIuMDE3IDEuMzQ0LTEuNDA1IDIuMDE2LTMuNDgyIDIuMDE2LTYuNDE1VjAuMTE4aDcuODgydjIzLjc2N2MwIDIuOTk0LTAuNjExIDUuNDk5LTEuODMzIDcuNTE1IiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGgyNCIgZD0iTTc3LjQxIDM2Ljc3N1YwLjExOGgtNy44MnYyOC43NzdsNy44MiA3Ljg4MiIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoMjYiIGQ9Im03My41NDUgNDIuOTMzYzEuNjYyIDAgMi45NDUgMC40MyAzLjg0OSAxLjI4MyAwLjkwNCAwLjg1NiAxLjM1NyAyLjA2NSAxLjM1NyAzLjYzMSAwIDEuNTYzLTAuNDUzIDIuNzU5LTEuMzU3IDMuNTkyLTAuOTA0IDAuODMyLTIuMTg3IDEuMjQ3LTMuODQ5IDEuMjQ3LTEuNjYyIDAtMi45NTktMC40MTUtMy44ODctMS4yNDctMC45MjgtMC44MzMtMS4zOTMtMi4wMjktMS4zOTMtMy41OTIgMC0xLjU2NiAwLjQ2NS0yLjc3NSAxLjM5My0zLjYzMSAwLjkyOC0wLjg1MyAyLjIyNS0xLjI4MyAzLjg4Ny0xLjI4MyIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoMjgiIGQ9Im0xMTAuMjggMjIuNDE5IDEzLjk5MSAxNC4zNThoLTkuMjI1TDk3LjUxMSAxOC44MTR2MzQuNDU5aC03LjgyVjAuMTE4aDcuODJ2OS43NzZsNy4yNyA3LjQ1NCAxMS4zMDQtMTcuMjNoOS4xMDNMMTEwLjI4IDIyLjQxOSIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoMzAiIGQ9Im0xNTEuMzM4IDM3LjUxYy01LjY4MyAwLTkuNTMxLTIuNDQ0LTExLjYwOS03LjMzMmwtMC42MTEgNi41OTloLTYuNzIxVjAuMTE4aDcuODgydjE5LjQyOWMwIDIuMzIyIDAuNDI4IDQuMzM4IDEuMzQ0IDUuOTg4IDAuOTE3IDEuNzExIDIuMDc4IDIuOTMzIDMuNDIyIDMuNzg4IDEuNDA1IDAuNzk0IDIuODcxIDEuMjIyIDQuNDYgMS4yMjIgMS45NTUgMCAzLjQ4Mi0wLjMwNiA0LjY0My0wLjk3OGwxLjIyMiA3LjIxYy0wLjk3NyAwLjQ4OS0yLjMyMiAwLjczMy00LjAzMiAwLjczMyIgY2xhc3M9ImEiLz4KCQkJPC9nPgoJCTwvZz4KCQk8ZyBpZD0iZzMyIj4KCQkJPGcgaWQ9ImczNCI+CgkJCQk8cGF0aCBpZD0icGF0aDQwIiBkPSJtMTg1LjY3NCA5LjY1Yy0xLjgzMy0yLjI2MS00LjM5OS0zLjM2MS03LjY5OC0zLjM2MS0zLjM2IDAtNS45MjcgMS4xLTcuNjk4IDMuMjk5LTEuNzcyIDIuMjYxLTIuNjg5IDUuNDM4LTIuNjg5IDkuNTkzIDAgNC4xNTQgMC45MTcgNy4zMzEgMi42ODkgOS41OTIgMS43NzEgMi4xOTkgNC4zMzggMy4yOTkgNy42OTggMy4yOTkgMy4yOTkgMCA1Ljg2NS0xLjEgNy42OTgtMy4zNiAxLjc3Mi0yLjI2MSAyLjY4OS01LjQzNyAyLjY4OS05LjUzMSAwLTQuMDk0LTAuOTE3LTcuMjcxLTIuNjg5LTkuNTMxem01LjY4MiAyMy41MjJjLTMuMjM4IDMuMzYtNy42OTggNS4wNzEtMTMuMzggNS4wNzEtNS43NDMgMC0xMC4yMDMtMS43MTEtMTMuNDQxLTUuMDcxLTMuMjM5LTMuMzYtNC44MjctOC4wMDMtNC44MjctMTMuOTkxIDAtNS45ODggMS41ODgtMTAuNjMxIDQuODI3LTEzLjk5MSAzLjIzOC0zLjM2MSA3LjY5OC01LjA3MiAxMy40NDEtNS4wNzIgNS42ODIgMCAxMC4xNDIgMS43MTEgMTMuMzggNS4wNzIgMy4yMzggMy4zNiA0LjgyNyA4LjAwMyA0LjgyNyAxMy45OTEgMCA1Ljk4OC0xLjU4OSAxMC42MzEtNC44MjcgMTMuOTkxIiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGg0MiIgZD0ibTIyOS4yNjggMzUuNjAxYzIuNTcyLTEuNzQgNC40MTktNC4xNzcgNS41NDgtNy4zMTNsLTMuNDU1LTEuNjE1Yy0wLjgzMyAyLjY5Mi0yLjIyOSA0Ljc1MS00LjE4NiA2LjE3Mi0xLjk2MiAxLjQxOS00LjQxIDIuMTMyLTcuMzUgMi4xMzItNC4yNiAwLTcuNTkzLTEuNDEtOS45OTItNC4yMjctMi40MDEtMi44MTctMy42LTYuNjk4LTMuNi0xMS42NDYgMC00Ljk5NiAxLjE4Ni04Ljg5IDMuNTY0LTExLjY4MiAyLjM3NC0yLjc5MyA1LjY5My00LjE4OSA5Ljk1Ni00LjE4OSAzLjEzNCAwIDUuNzkyIDAuNzcyIDcuOTcxIDIuMzE1IDIuMTc5IDEuNTQzIDMuNTE0IDMuNjg2IDQuMDA1IDYuNDI4bDMuMzgxLTEuMTc0QzIzNC4xMjggNy40NjkgMjMyLjI3OSA0LjgzOCAyMjkuNTYyIDIuOTAzIDIyNi44NDIgMC45NjYgMjIzLjU5NyAwIDIxOS44MjUgMGMtNS40MzcgMC05LjY3NSAxLjY5LTEyLjcxMiA1LjA3MS0zLjAzNiAzLjM4LTQuNTU0IDguMDU3LTQuNTU0IDE0LjAzMyAwIDUuOTc2IDEuNTI5IDEwLjY1NSA0LjU5MyAxNC4wMzYgMy4wNTkgMy4zNzggNy4zMTEgNS4wNjggMTIuNzQ4IDUuMDY4IDMuNjcyIDAgNi43OTUtMC44NjkgOS4zNjgtMi42MDciIGNsYXNzPSJhIi8+CgkJCQk8cGF0aCBpZD0icGF0aDQ0IiBkPSJtMjQ5Ljk1MSAzMC43ODljLTIuNDQ4LTIuODQyLTMuNjcyLTYuNzM3LTMuNjcyLTExLjY4NSAwLTQuOTQ5IDEuMjI0LTguODQzIDMuNjcyLTExLjY4MiAyLjQ1MS0yLjg0MiA1LjgyOS00LjI2MSAxMC4xNDEtNC4yNjEgNC4zMDkgMCA3LjY4OSAxLjQxOSAxMC4xNCA0LjI2MSAyLjQ0OCAyLjgzOSAzLjY3NCA2LjczMyAzLjY3NCAxMS42ODIgMCA0Ljk0OC0xLjIyNiA4Ljg0My0zLjY3NCAxMS42ODUtMi40NTEgMi44MzktNS44MzEgNC4yNi0xMC4xNCA0LjI2LTQuMzEyIDAtNy42OS0xLjQyMS0xMC4xNDEtNC4yNnptMjIuOTYyIDIuMzEyYzMuMTExLTMuNDAzIDQuNjY2LTguMDcxIDQuNjY2LTEzLjk5NyAwLTUuOTI2LTEuNTU1LTEwLjU5Mi00LjY2Ni0xMy45OTdDMjY5LjgwMiAxLjcwMSAyNjUuNTMgMCAyNjAuMDkyIDBjLTUuNDM3IDAtOS43MTEgMS43MDEtMTIuODIyIDUuMTA3LTMuMTEyIDMuNDA1LTQuNjY2IDguMDcxLTQuNjY2IDEzLjk5NyAwIDUuOTI2IDEuNTU0IDEwLjU5NCA0LjY2NiAxMy45OTcgMy4xMTEgMy40MDUgNy4zODUgNS4xMDcgMTIuODIyIDUuMTA3IDUuNDM4IDAgOS43MS0xLjcwMiAxMi44MjEtNS4xMDciIGNsYXNzPSJhIi8+CgkJCQk8cGF0aCBpZD0icGF0aDQ2IiBkPSJtMzE1LjY3NiAzMy45NDdjMi41NzMtMi4zNTMgMy44NTgtNS43MzEgMy44NTgtMTAuMTQxVjBoLTMuNjczdjIyLjYzMmMwIDMuOTE2LTAuOTU3IDYuODMzLTIuODY2IDguNzQzLTEuOTEgMS45MDktNC41MzMgMi44NjYtNy44NjMgMi44NjYtMi4zNTEgMC00LjUzLTAuNTQtNi41NC0xLjYxNy0yLjAwOS0xLjA3Ny0zLjYxMS0yLjY0NS00LjgxMi00LjcwMi0xLjItMi4wNTctMS43OTktNC40NTgtMS43OTktNy4yMDJWMGgtMy42NzV2MzYuNzM5aDMuMzA2bDAuMTQ3LTcuNDIxYzEuMTc3IDIuNjQ1IDIuOTc4IDQuNjY2IDUuNDAxIDYuMDYyIDIuNDI2IDEuMzk2IDUuMjA0IDIuMDkzIDguMzQgMi4wOTMgNC4yMTEgMCA3LjYwNS0xLjE3NSAxMC4xNzYtMy41MjYiIGNsYXNzPSJhIi8+CgkJCQk8cGF0aCBpZD0icGF0aDQ4IiBkPSJtMzUxLjU3MSAzLjA4NmMtMC45ODItMC45OC0yLjE4MS0xLjc0LTMuNi0yLjI3OEMzNDYuNTQ4IDAuMjcxIDM0NC45ODIgMCAzNDMuMjY3IDBjLTIuOTg2IDAtNS4zMjYgMC44MjEtNy4wMTYgMi40NjItMS42OTEgMS42NC0yLjUzNSA0LjEyNy0yLjUzNSA3LjQ1OHYyNC4zOTRoLTcuMzQ5djMuMTYxaDcuMzQ5djkuMTg0bDMuNjczIDEuMDI4VjM3LjQ3NWgxMy44MTRWMzQuMzE0SDMzNy4zODlWMTAuNDMzYzAtMi4zMDEgMC41NTItNC4wNTIgMS42NTQtNS4yNTEgMS4xMDItMS4yMDIgMi43MDYtMS44MDEgNC44MTMtMS44MDEgMi40NDggMCA0LjU3OSAwLjkwNCA2LjM5MiAyLjcxOWwxLjMyMy0zLjAxNCIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoNTAiIGQ9Im0zNzkuMDUgMzYuMjI0LTAuOTU1LTMuNDUzYy0xLjEyNyAwLjg4Mi0yLjY5NSAxLjMyMy00LjcwMiAxLjMyMy0xLjg2MiAwLTMuNjE0LTAuNTc3LTUuMjU0LTEuNzI4LTEuNjQzLTEuMTUtMi45NjQtMi43NjgtMy45NjktNC44NDktMS4wMDItMi4wODItMS41MDUtNC4zOTctMS41MDUtNi45NDJWMGgtMy42NzR2MzYuNzM5aDMuMDg2bDAuNDQxLTcuNDk2YzEuMDI4IDIuNTk4IDIuNTYgNC42MTggNC41OTEgNi4wNjIgMi4wMzIgMS40NDYgNC40NzIgMi4xNjggNy4zMTEgMi4xNjggMS45NiAwIDMuNTAzLTAuNDE3IDQuNjMtMS4yNDkiIGNsYXNzPSJhIi8+CgkJCQk8cGF0aCBpZD0icGF0aDUyIiBkPSJtMzg5Ljk5OSAzMC43ODljLTIuNDQ4LTIuODQyLTMuNjcyLTYuNzM3LTMuNjcyLTExLjY4NSAwLTQuOTQ5IDEuMjI0LTguODQzIDMuNjcyLTExLjY4MiAyLjQ1LTIuODQyIDUuODI5LTQuMjYxIDEwLjE0MS00LjI2MSA0LjMwOSAwIDcuNjg5IDEuNDE5IDEwLjE0IDQuMjYxIDIuNDQ4IDIuODM5IDMuNjc0IDYuNzMzIDMuNjc0IDExLjY4MiAwIDQuOTQ4LTEuMjI2IDguODQzLTMuNjc0IDExLjY4NS0yLjQ1MSAyLjgzOS01LjgzMSA0LjI2LTEwLjE0IDQuMjYtNC4zMTIgMC03LjY5MS0xLjQyMS0xMC4xNDEtNC4yNnptMjIuOTYyIDIuMzEyYzMuMTExLTMuNDAzIDQuNjY2LTguMDcxIDQuNjY2LTEzLjk5NyAwLTUuOTI2LTEuNTU1LTEwLjU5Mi00LjY2Ni0xMy45OTdDNDA5Ljg1IDEuNzAxIDQwNS41NzggMCA0MDAuMTQgMGMtNS40MzcgMC05LjcxMSAxLjcwMS0xMi44MjIgNS4xMDctMy4xMTIgMy40MDUtNC42NjYgOC4wNzEtNC42NjYgMTMuOTk3IDAgNS45MjYgMS41NTQgMTAuNTk0IDQuNjY2IDEzLjk5NyAzLjExMSAzLjQwNSA3LjM4NSA1LjEwNyAxMi44MjIgNS4xMDcgNS40MzggMCA5LjcxLTEuNzAyIDEyLjgyMS01LjEwNyIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoNTQiIGQ9Im00MzEuNzM1IDkuNjI1YzAtMi4yNTMgMC4zNTUtMy44NDYgMS4wNjUtNC43NzQgMC43MDktMC45MzIgMS44OTYtMS4zOTYgMy41NjQtMS4zOTYgMC45OCAwIDEuODEgMC4wNzIgMi40OTggMC4yMiAwLjY4NiAwLjE0NyAxLjQ2OSAwLjQxNiAyLjM1MSAwLjgwN0w0NDAuNjk5IDAuOTU1QzQzOS4zMjYgMC4zMTkgNDM3LjcxIDAgNDM1Ljg0OCAwYy0yLjY0NSAwLTQuNjA0IDAuNzQ3LTUuODc2IDIuMjQyLTEuMjc2IDEuNDk0LTEuOTEyIDMuODMxLTEuOTEyIDcuMDE3djQ1LjExNGgzLjY3NVY5LjYyNSIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoNTYiIGQ9Im00NTEuODY2IDkuNjI1YzAtMi4yNTMgMC4zNTUtMy44NDYgMS4wNjYtNC43NzQgMC43MDgtMC45MzIgMS44OTYtMS4zOTYgMy41NjMtMS4zOTYgMC45OCAwIDEuODExIDAuMDcyIDIuNDk4IDAuMjIgMC42ODYgMC4xNDcgMS40NjkgMC40MTYgMi4zNTEgMC44MDdMNDYwLjgzMSAwLjk1NUM0NTkuNDU3IDAuMzE5IDQ1Ny44NDIgMCA0NTUuOTc5IDBjLTIuNjQ1IDAtNC42MDQgMC43NDctNS44NzYgMi4yNDItMS4yNzYgMS40OTQtMS45MTIgMy44MzEtMS45MTIgNy4wMTd2NDUuMTE0aDMuNjc1VjkuNjI1IiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGg1OCIgZD0ibTQ3My40NjggMzEuMjY2Yy0yLjMwNC0yLjQ3NS0zLjYtNS45NDItMy44OTQtMTAuMzk3aDI1Ljg2NWMtMC4yNDcgNC40MDgtMS40NiA3Ljg2MS0zLjYzOSAxMC4zNTktMi4xNzkgMi40OTgtNS4xNTQgMy43NDktOC45MjYgMy43NDktMy45NjkgMC03LjEwMy0xLjIzOC05LjQwNi0zLjcxMXptMjUuMjc3LTEzLjcwNWgtMjkuMTcxYzAuMjQ0LTQuNTA4IDEuNTc5LTguMDIyIDQuMDA1LTEwLjU0NCAyLjQyNS0yLjUyMyA1LjY2OC0zLjc4NCA5LjczNi0zLjc4NCAyLjg5IDAgNS4zNzQgMC41ODkgNy40NTggMS43NjMgMi4wODIgMS4xNzcgMy41ODYgMi44NDIgNC41MTkgNC45OThsMy4wODYtMS42MThDNDk3LjAwNSA1LjY4MiA0OTUuMDQ1IDMuNjEzIDQ5Mi41IDIuMTY4IDQ4OS45NTIgMC43MjQgNDg2Ljg5IDAgNDgzLjMxNSAwYy01LjQzNyAwLTkuNjg5IDEuNjktMTIuNzQ4IDUuMDcxLTMuMDY0IDMuMzgtNC41OTMgOC4wNTctNC41OTMgMTQuMDMzIDAgNS45NzYgMS40ODIgMTAuNjU1IDQuNDQ2IDE0LjAzNiAyLjk2MiAzLjM3OCA3LjExNCA1LjA2OCAxMi40NTQgNS4wNjggNC45OTYgMCA4LjkxNS0xLjY2NSAxMS43NTctNC45OTYgMi44NC0zLjMzMSA0LjI2MS03Ljc0MSA0LjI2MS0xMy4yMjYgMC0wLjgzMi0wLjA1LTEuNjQyLTAuMTQ3LTIuNDI1IiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGg2MCIgZD0ibTUyOS40NTYgMzYuMjI0LTAuOTU1LTMuNDUzYy0xLjEyNiAwLjg4Mi0yLjY5NCAxLjMyMy00LjcwMSAxLjMyMy0xLjg2MyAwLTMuNjE0LTAuNTc3LTUuMjU0LTEuNzI4LTEuNjQzLTEuMTUtMi45NjUtMi43NjgtMy45NjktNC44NDktMS4wMDMtMi4wODItMS41MDUtNC4zOTctMS41MDUtNi45NDJWMGgtMy42NzV2MzYuNzM5aDMuMDg3bDAuNDQxLTcuNDk2YzEuMDI3IDIuNTk4IDIuNTU5IDQuNjE4IDQuNTkxIDYuMDYyIDIuMDMyIDEuNDQ2IDQuNDcxIDIuMTY4IDcuMzExIDIuMTY4IDEuOTU5IDAgMy41MDMtMC40MTcgNC42MjktMS4yNDkiIGNsYXNzPSJhIi8+CgkJCQk8cGF0aCBpZD0icGF0aDYyIiBkPSJtNTMyLjM4NCAzLjAwNGMwLjMxNS0wLjMxNSAwLjQ3Mi0wLjcyNSAwLjQ3Mi0xLjIyNyAwLTAuNTA1LTAuMTU3LTAuOTE0LTAuNDcyLTEuMjI5LTAuMzE1LTAuMzE0LTAuNzI0LTAuNDcyLTEuMjI4LTAuNDcyLTAuNTAzIDAtMC45MTMgMC4xNTgtMS4yMjcgMC40NzItMC4zMTYgMC4zMTUtMC40NzMgMC43MjQtMC40NzMgMS4yMjkgMCAwLjUwMiAwLjE1NyAwLjkxMiAwLjQ3MyAxLjIyNyAwLjMxNCAwLjMxNSAwLjcyNCAwLjQ3MyAxLjIyNyAwLjQ3MyAwLjUwNCAwIDAuOTEzLTAuMTU4IDEuMjI4LTAuNDczIiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGg2NCIgZD0ibTU1Mi43NTEgMTcuNDU4YzEuMzIzLTEuMjExIDEuOTg0LTIuOTQ4IDEuOTg0LTUuMjE2VjBoLTEuODg5djExLjYzOGMwIDIuMDE1LTAuNDkyIDMuNTE0LTEuNDc0IDQuNDk3LTAuOTgyIDAuOTgyLTIuMzMxIDEuNDc0LTQuMDQ0IDEuNDc0LTEuMjA5IDAtMi4zMjktMC4yNzgtMy4zNjMtMC44MzItMS4wMzMtMC41NTQtMS44NTctMS4zNi0yLjQ3NS0yLjQxOC0wLjYxNi0xLjA1OC0wLjkyNS0yLjI5Mi0wLjkyNS0zLjcwNFYwaC0xLjg4OXYxOC44OTNoMS43bDAuMDc1LTMuODE2YzAuNjA1IDEuMzYgMS41MzIgMi4zOTkgMi43NzggMy4xMTcgMS4yNDcgMC43MTggMi42NzYgMS4wNzcgNC4yODkgMS4wNzcgMi4xNjUgMCAzLjkxMS0wLjYwNCA1LjIzMy0xLjgxMyIgY2xhc3M9ImEiLz4KCQkJCTxwYXRoIGlkPSJwYXRoNjYiIGQ9Im01NjMuOTE3IDE2LjA3OWMtMS4xODUtMS4yNzMtMS44NTItMy4wNTYtMi4wMDMtNS4zNDdoMTMuMzAxYy0wLjEyNyAyLjI2Ny0wLjc1IDQuMDQyLTEuODcxIDUuMzI3LTEuMTIgMS4yODQtMi42NTEgMS45MjgtNC41OSAxLjkyOC0yLjA0MSAwLTMuNjUzLTAuNjM3LTQuODM3LTEuOTA4em0xMi45OTgtNy4wNDhoLTE1LjAwMWMwLjEyNi0yLjMxOCAwLjgxMi00LjEyNSAyLjA2LTUuNDIzIDEuMjQ3LTEuMjk3IDIuOTE0LTEuOTQ1IDUuMDA3LTEuOTQ1IDEuNDg2IDAgMi43NjMgMC4zMDIgMy44MzUgMC45MDYgMS4wNyAwLjYwNSAxLjg0NCAxLjQ2MiAyLjMyNCAyLjU3MWwxLjU4Ny0wLjgzMkM1NzYuMDIgMi45MjIgNTc1LjAxMyAxLjg1OCA1NzMuNzA0IDEuMTE1IDU3Mi4zOTMgMC4zNzIgNTcwLjgxOSAwIDU2OC45ODEgMGMtMi43OTcgMC00Ljk4MyAwLjg2OS02LjU1NiAyLjYwOC0xLjU3NiAxLjczOC0yLjM2MiA0LjE0My0yLjM2MiA3LjIxNiAwIDMuMDczIDAuNzYyIDUuNDggMi4yODYgNy4yMTggMS41MjMgMS43MzcgMy42NTkgMi42MDcgNi40MDUgMi42MDcgMi41NjkgMCA0LjU4NC0wLjg1NyA2LjA0Ni0yLjU3IDEuNDYtMS43MTIgMi4xOTEtMy45OCAyLjE5MS02LjgwMSAwLTAuNDI4LTAuMDI2LTAuODQ1LTAuMDc2LTEuMjQ3IiBjbGFzcz0iYSIvPgoJCQkJPHBhdGggaWQ9InBhdGg2OCIgZD0iTTU5Mi40MDggMS41ODdDNTkxLjkwMyAxLjA4MyA1OTEuMjg2IDAuNjkyIDU5MC41NTYgMC40MTUgNTg5LjgyNCAwLjE0IDU4OS4wMTkgMCA1ODguMTM3IDBjLTEuNTM2IDAtMi43MzkgMC40MjItMy42MDggMS4yNjYtMC44NjkgMC44NDQtMS4zMDMgMi4xMjItMS4zMDMgMy44MzV2MTIuNTQ1aC0zLjc4djEuNjI2aDMuNzh2NC43MjNsMS44ODggMC41Mjh2LTUuMjUxaDcuMTA0di0xLjYyNmgtNy4xMDRWNS4zNjVjMC0xLjE4MyAwLjI4NC0yLjA4NCAwLjg1MS0yLjcgMC41NjYtMC42MTggMS4zOTEtMC45MjcgMi40NzUtMC45MjcgMS4yNTkgMCAyLjM1NSAwLjQ2NiAzLjI4NyAxLjM5OWwwLjY4MS0xLjU1IiBjbGFzcz0iYSIvPgoJCQk8L2c+CgkJPC9nPgoJPC9nPgo8L3N2Zz4K alt=mikrocontroller.net class=logo>
+ </a>
+ </h1>
+ <div class="pull-left mobile-search sf-hidden">
+ 
+ </div>
+ </div>
+ <div class="collapse navbar-collapse navbar-right sf-hidden" id=login-nav-collapse>
+ 
+ </div>
+ <div class="collapse navbar-collapse navbar-right sf-hidden" id=main-nav-collapse>
+ 
+ 
+ </div>
+ </div>
+ </nav>
+</header>
+<div id=outer-container>
+ <table id=twocolumns>
+ <tbody><tr><td id=sidebar-left class=sidebar>
+<div class=nav-container>
+ <ul class=nav-icons>
+ <li>
+ <b><a href=https://www.mikrocontroller.net/forum/all>Forum</a></b>
+ <ul>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/mikrocontroller-elektronik><i class="icons mikro-mikrocontroller-elektronik"></i> µC &amp; Elektronik</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/analogtechnik><i class="icons mikro-analogtechnik"></i> Analogtechnik</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/fpga-vhdl-cpld><i class="icons mikro-fpga-vhdl-cpld"></i> FPGA, VHDL &amp; Co.</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/dsp><i class="icons mikro-dsp"></i> DSP</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/gcc><i class="icons mikro-gcc"></i>Compiler &amp; IDEs</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/codesammlung><i class="icons mikro-codesammlung"></i>Projekte &amp; Code</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/markt><i class="icons mikro-markt"></i>Markt</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/platinen><i class="icons mikro-platinen"></i>Platinen</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/mechanik><i class="icons mikro-mechanik"></i>Mechanik &amp; Werkzeug</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/hf><i class="icons mikro-hf"></i>HF, Funk &amp; Felder</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/fahrzeugelektronik><i class="icons mikro-fahrzeugelektronik"></i>Fahrzeugelektronik</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/hausbus><i class="icons mikro-hausbus"></i>Haus &amp; Smart Home</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/pc-programmierung><i class="icons mikro-pc-programmierung"></i>PC-Programmierung</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/pc-hardware-software><i class="icons mikro-pc-hardware-software"></i>PC Hard- &amp; Software</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/ausbildung-studium-beruf><i class="icons mikro-ausbildung-studium-beruf"></i>Ausbildung &amp; Beruf</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/offtopic><i class="icons mikro-offtopic"></i>Offtopic</a>
+ </li>
+ <li>
+ <a href=https://www.mikrocontroller.net/forum/website><i class="icons mikro-website"></i>Webseite</a>
+ </li>
+ </ul>
+ </li>
+ <li><b><a href=https://www.mikrocontroller.net/articles/Hauptseite>Artikelübersicht</a></b></li>
+ <li><b><a href=https://www.mikrocontroller.net/articles/Spezial:Recentchanges>Letzte Änderungen</a></b></li>
+ </ul>
+</div>
+ <div class=nav-container>
+ <ul class=nav-first>
+ <b>&nbsp;</b>
+ <li>
+ <ul>
+ <li><a href=https://www.mikrocontroller.net/forum>Forenliste</a></li> <li><a href=https://www.mikrocontroller.net/forum/mikrocontroller-elektronik>Threadliste</a></li> <li><a href="https://www.mikrocontroller.net/topic/new?forum_id=1">Neuer Beitrag</a></li> <li><a href=https://www.mikrocontroller.net/search>Suchen</a></li> <li><a href=https://www.mikrocontroller.net/user/list>Benutzerliste</a></li> <li><a href=https://www.mikrocontroller.net/attachment/gallery>Bildergalerie</a></li> <li><a href=https://www.mikrocontroller.net/user/help>Hilfe</a></li> <li><a href=https://www.mikrocontroller.net/user/register>Anmelden</a></li>
+ <li><a href=https://www.mikrocontroller.net/user/login>Login</a></li>
+ </ul>
+ </li>
+ </ul>
+ </div>
+<div id=adliste class="adtxt adunit bannerad"></div>
+<div id=sdfj391></div>
+<hr>
+<div id=first-adframe class="adframe sticky" style=padding:0;margin:0;text-align:center>
+ 
+ 
+ 
+ <div id=div-gpt-ad-1549567092597-0 style=height:600px;width:160px;display:none data-google-query-id=CO7iwdSkxIwDFYLLEQgdw0syug>
+ 
+ </div>
+ 
+ </div>
+ <div style=padding-top:10px></div>
+ </td>
+ <td id=main>
+<div id=container>
+ 
+ 
+ <h1 id=pageName style=float:left><small><a href=https://www.mikrocontroller.net/forum/1>Forum: Mikrocontroller und Digitale Elektronik</a></small> LibUSB32 Windows 10</h1>
+ <br style=clear:both>
+ 
+ <div id=nav-top><div class=navbar>
+ <span class=left>
+ <span class=menuitem><a href=https://www.mikrocontroller.net/forum>Forenliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/forum/mikrocontroller-elektronik>Threadliste</a></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/new?forum_id=1">Neuer Beitrag</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/search>Suchen</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/register>Anmelden</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/list>Benutzerliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/attachment/gallery>Bildergalerie</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/help>Hilfe</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/login>Login</a></span>
+ </span>
+ <br class=clear>
+</div>
+</div>
+ <div id=content>
+ <div class=forum>
+ <div class=topic id=topic data-id=374554 data-user-id>
+ 
+ 
+ <a name=new id=new></a>
+ 
+<div id=4240048 class="post box root-post post-userid- post-id-4240048 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4240048:" data-created-at=1439994717000 data-updated-at=1439994717000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4240048 href=#4240048>LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-19T16:31:57+02:00>19.08.2015 16:31</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Hallo,
+
+seit neuestem werden meine <a title="Link zu Wiki-Artikel" class=wiki href=https://www.mikrocontroller.net/articles/AVR>AVR</a>'s nicht mehr korrekt von LibUSB32 unter 
+Windows 10 erkannt. Ist das nur lokal bei mir so ? In der Preview 
+funktionierte alles erwartungsgemäß.
+
+Danke für Hinweise
+ K.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-move sf-hidden"></span> <span class="menuitem postmenuitem-lock sf-hidden"></span> <span class="menuitem postmenuitem-lock_for_guests sf-hidden"></span> <span class="menuitem postmenuitem-set_sticky_true sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class="menuitem postmenuitem-merge sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240048#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240164 class="post box post-userid- post-id-4240164 new-post" data-attributionline="Peter schrieb im Beitrag #4240164:" data-created-at=1440000617000 data-updated-at=1440000617000 data-user-id data-guest-name=Peter>
+ <div class=subject>
+ <a name=4240164 href=#4240164>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Peter</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-19T18:10:17+02:00>19.08.2015 18:10</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>welcher USB? HID, VCP, CDC, MSD, ...?</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240164#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240234 class="post box post-userid- post-id-4240234 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4240234:" data-created-at=1440003974000 data-updated-at=1440003974000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4240234 href=#4240234>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-19T19:06:14+02:00>19.08.2015 19:06</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Hi
+
+also ich nutze nicht die Option als HID-Gerät wie Maus Joy oder Key.
+Statdessen wird das Gerät unterhalb von usb_lib_23 gelistet 
+(HardwareManager)
+und von mir direkt angesprochen, aus einem cpp Programm.
+
+Die Auflistung findet nun nicht mehr statt.
+
+Ging auch immer prima, im Moment ist es so, das ich zb. mit ArduinoIDE 
+via Digispark den Code auf den <a title="Link zu Wiki-Artikel" class=wiki href=https://www.mikrocontroller.net/articles/AVR>AVR</a> laden kann, dann aber dieser nicht 
+als win_usb_lib_32 device gelistet wird, und somit auch nicht iteriert 
+werden kann. Das ist jetzt neu unter W10 aufgekommen in der Preview von 
+W10 lief alles.
+
+Ich befürchte das sich da etwas verändert hat, bezüglich der ID und der 
+zuordnung des Gerätes..
+
+Danke für Hinweise
+ Grüße
+  K.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240234#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240483 class="post box post-userid-34525 post-id-4240483 new-post" data-attributionline="Jim M. schrieb im Beitrag #4240483:" data-created-at=1440015377000 data-updated-at=1440015377000 data-user-id=34525 data-guest-name>
+ <div class=subject>
+ <a name=4240483 href=#4240483>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Jim M.
+ (<a href=https://www.mikrocontroller.net/user/show/turboj>turboj</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-19T22:16:17+02:00>19.08.2015 22:16</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Abhilfe: Libusb mittels Zadig installieren:
+<a class=postedlink href=http://zadig.akeo.ie/ rel=nofollow>http://zadig.akeo.ie/</a>
+
+Achtung: Du muss wissen, ob deine Software LibUSB-Win32, LibUSBk oder 
+WinUSB braucht,, und das korrekt einstellen. Kann man aber auch notfalls 
+durchprobieren, ich würde auf LibUSB-Win32 tippen.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240483#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240490 class="post box post-userid- post-id-4240490 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4240490:" data-created-at=1440015883000 data-updated-at=1440015883000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4240490 href=#4240490>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-19T22:24:43+02:00>19.08.2015 22:24</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Hallo,
+
+genau das war es, ich habe mir ein Driver "Kit" erstellen lassen mit dem
+Tool libusb-win32-bin-1.2.6.0/Bin/inf-wizard.exe
+
+Das funktinierte dann sofort, heißt das ich kann davon ausgehen,
+das auf einem fremden Rechner das erstellte "Kit" = (inf datei drv usw)
+nicht funktioniert so wie ich es nun erlebt habe mit dem alten 
+erstellten "Kit" ?
+
+
+Danke für Hinweise
+ K.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240490#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240712 class="post box post-userid-34525 post-id-4240712 new-post" data-attributionline="Jim M. schrieb im Beitrag #4240712:" data-created-at=1440049881000 data-updated-at=1440049881000 data-user-id=34525 data-guest-name>
+ <div class=subject>
+ <a name=4240712 href=#4240712>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Jim M.
+ (<a href=https://www.mikrocontroller.net/user/show/turboj>turboj</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T07:51:21+02:00>20.08.2015 07:51</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Doku Lesen. Das Zertifikat für die .inf macht Zadig jeweils neu und 
+schmeisst den Root-Key weg, nachdem er im System als "vertrauenswürdig" 
+installiert wurde. Dadurch geht das "Kit" immer nur auf <b>genau dieser</b> 
+Windows Installation.
+
+Ausname: Mann nimmt auch das "vertrauenswürdige" Zertifikat auf die neue 
+Installation mit, aber einfach Zadig.exe ausführen dürfte viel schneller 
+gehen.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240712#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4240754 class="post box post-userid-61460 post-id-4240754 new-post" data-attributionline="Clemens L. schrieb im Beitrag #4240754:" data-created-at=1440053029000 data-updated-at=1440053029000 data-user-id=61460 data-guest-name>
+ <div class=subject>
+ <a name=4240754 href=#4240754>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Clemens L.
+ (<a href=https://www.mikrocontroller.net/user/show/c_l>c_l</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T08:43:49+02:00>20.08.2015 08:43</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4240234 href=#4240234>Karsten S. schrieb:</a></span>
+<span class=quoting-level-1>&gt; also ich nutze nicht die Option als HID-Gerät wie Maus Joy oder Key.</span>
+<span class=quoting-level-1>&gt; Statdessen wird das Gerät unterhalb von usb_lib_23 gelistet (HardwareManager)</span>
+<span class=quoting-level-1>&gt; und von mir direkt angesprochen, aus einem cpp Programm.</span>
+
+Ich würde dir empfehlen, falls möglich, die Firmware WinUSB-kompatibel 
+zu machen. Der Zugriff über den LibUSB-Treiber ist dann immer noch 
+möglich, aber auf modernen Windows-Versionen kannst du stattdessen den 
+WinUSB-Treiber benutzen, der nicht mehr extra installiert werden muss.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4240754#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241074 class="post box post-userid- post-id-4241074 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4241074:" data-created-at=1440069014000 data-updated-at=1440069014000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4241074 href=#4241074>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T13:10:14+02:00>20.08.2015 13:10</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Danke verstehe ,
+
+Ja WinUsb , aber dann wieder nicht für Windows XP ?
+
+Danke euch!
+
+Grüsschen
+ K.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241074#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241144 class="post box post-userid-61460 post-id-4241144 new-post" data-attributionline="Clemens L. schrieb im Beitrag #4241144:" data-created-at=1440071959000 data-updated-at=1440071959000 data-user-id=61460 data-guest-name>
+ <div class=subject>
+ <a name=4241144 href=#4241144>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Clemens L.
+ (<a href=https://www.mikrocontroller.net/user/show/c_l>c_l</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T13:59:19+02:00>20.08.2015 13:59</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241074 href=#4241074>Karsten S. schrieb:</a></span>
+<span class=quoting-level-1>&gt; WinUsb , aber dann wieder nicht für Windows XP ?</span>
+
+Die "eigentlichen" Funktionen deiner Firmware werden dadurch nicht 
+verändern, du kannst also immer noch mit LibUSB darauf zugreifen.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241144#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241238 class="post box post-userid-1545 post-id-4241238 new-post" data-attributionline="Christian R. schrieb im Beitrag #4241238:" data-created-at=1440076504000 data-updated-at=1440076504000 data-user-id=1545 data-guest-name>
+ <div class=subject>
+ <a name=4241238 href=#4241238>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Christian R.
+ (<a href=https://www.mikrocontroller.net/user/show/supachris>supachris</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T15:15:04+02:00>20.08.2015 15:15</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241074 href=#4241074>Karsten S. schrieb:</a></span>
+<span class=quoting-level-1>&gt; Ja WinUsb , aber dann wieder nicht für Windows XP ?</span>
+
+Doch. WinUSB wird ab XP SP2 mit ausgeliefert. Die Firmware kann so 
+bleiben, es sei denn, du benutzt ISO Streaming. Das kann WinUSB 
+zumindest bis einschließlich Windows 7 nicht.
+Wir haben extrem gute Erfahrungen mit WinUSB, läuft absolut zuverlässig 
+und ist einfach ansprechbar.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241238#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241318 class="post box post-userid- post-id-4241318 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4241318:" data-created-at=1440079317000 data-updated-at=1440079317000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4241318 href=#4241318>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T16:01:57+02:00>20.08.2015 16:01</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Naja einfach, es ist wohl ein heiden Aufwand habe gerade die
+specs gesichtet. Die fülle der Informationen zum Theme ist
+umfangreich, hast Du einen Hinweis für ein "Easy" Example ?
+
+Danke für Hinweise
+ Lg
+  K.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241318#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241326 class="post box post-userid-1545 post-id-4241326 new-post" data-attributionline="Christian R. schrieb im Beitrag #4241326:" data-created-at=1440079603000 data-updated-at=1440079603000 data-user-id=1545 data-guest-name>
+ <div class=subject>
+ <a name=4241326 href=#4241326>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Christian R.
+ (<a href=https://www.mikrocontroller.net/user/show/supachris>supachris</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T16:06:43+02:00>20.08.2015 16:06</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Heiden Aufwand? Naja wir sind hier gestartet:
+<a class=postedlink href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff540196(v=vs.85).aspx" rel=nofollow>https://msdn.microsoft.com/en-us/library/windows/hardware/ff540196(v=vs.85).aspx</a>
+
+Zwei Handles anfordern und dann Gerät öffnen...und dann kannst du auf 
+die Pipes schreiben und lesen...</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241326#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241410 class="post box post-userid- post-id-4241410 new-post" data-attributionline="Pit schrieb im Beitrag #4241410:" data-created-at=1440084655000 data-updated-at=1440084655000 data-user-id data-guest-name=Pit>
+ <div class=subject>
+ <a name=4241410 href=#4241410>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Pit</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T17:30:55+02:00>20.08.2015 17:30</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Wenn ich auf WinUSB umstelle brauche ich dann noch den ganzen Mist mit 
+.inf und Zertifikaten oder fällt das dann auch weg?
+
+Gruß Peter</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241410#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241420 class="post box post-userid- post-id-4241420 new-post" data-attributionline="Peter II schrieb im Beitrag #4241420:" data-created-at=1440085196000 data-updated-at=1440085196000 data-user-id data-guest-name="Peter II">
+ <div class=subject>
+ <a name=4241420 href=#4241420>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Peter II</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T17:39:56+02:00>20.08.2015 17:39</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241410 href=#4241410>Pit schrieb:</a></span>
+<span class=quoting-level-1>&gt; Wenn ich auf WinUSB umstelle brauche ich dann noch den ganzen Mist mit</span>
+<span class=quoting-level-1>&gt; .inf und Zertifikaten oder fällt das dann auch weg?</span>
+
+steht zumindest nichts davon da.
+
+<a class=postedlink href="https://msdn.microsoft.com/en-us/library/windows/hardware/hh450799(v=vs.85).aspx" rel=nofollow>https://msdn.microsoft.com/en-us/library/windows/hardware/hh450799(v=vs.85).aspx</a></pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241420#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241439 class="post box post-userid- post-id-4241439 new-post" data-attributionline="Pit schrieb im Beitrag #4241439:" data-created-at=1440085950000 data-updated-at=1440085950000 data-user-id data-guest-name=Pit>
+ <div class=subject>
+ <a name=4241439 href=#4241439>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Pit</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T17:52:30+02:00>20.08.2015 17:52</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241420 href=#4241420>Peter II schrieb:</a></span>
+<span class=quoting-level-1>&gt; steht zumindest nichts davon da.</span>
+
+Oben schreibst Du,Du hast das schon gemacht und hier schreibst Du, dass 
+Du es nicht weisst. Was nun?</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241439#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241441 class="post box post-userid- post-id-4241441 new-post" data-attributionline="Peter II schrieb im Beitrag #4241441:" data-created-at=1440086023000 data-updated-at=1440086023000 data-user-id data-guest-name="Peter II">
+ <div class=subject>
+ <a name=4241441 href=#4241441>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Peter II</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T17:53:43+02:00>20.08.2015 17:53</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241439 href=#4241439>Pit schrieb:</a></span>
+<span class=quoting-level-1>&gt; Peter II schrieb:</span>
+<span class=quoting-level-2>&gt;&gt; steht zumindest nichts davon da.</span>
+<span class=quoting-level-1>&gt;</span>
+<span class=quoting-level-1>&gt; Oben schreibst Du,Du hast das schon gemacht und hier schreibst Du, dass</span>
+<span class=quoting-level-1>&gt; Du es nicht weisst. Was nun?</span>
+
+eventuell mal die Namen vergleichen? Ich hatte hier noch gar nichts 
+geschrieben.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241441#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241454 class="post box post-userid- post-id-4241454 new-post" data-attributionline="Pit schrieb im Beitrag #4241454:" data-created-at=1440086543000 data-updated-at=1440086543000 data-user-id data-guest-name=Pit>
+ <div class=subject>
+ <a name=4241454 href=#4241454>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Pit</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T18:02:23+02:00>20.08.2015 18:02</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241441 href=#4241441>Peter II schrieb:</a></span>
+<span class=quoting-level-1>&gt; eventuell mal die Namen vergleichen? Ich hatte hier noch gar nichts</span>
+<span class=quoting-level-1>&gt; geschrieben.</span>
+
+Da war ich wohl etwas übereifrig - ich bitte um Nachsicht.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241454#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4241594 class="post box post-userid-1545 post-id-4241594 new-post" data-attributionline="Christian R. schrieb im Beitrag #4241594:" data-created-at=1440091559000 data-updated-at=1440091559000 data-user-id=1545 data-guest-name>
+ <div class=subject>
+ <a name=4241594 href=#4241594>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ Christian R.
+ (<a href=https://www.mikrocontroller.net/user/show/supachris>supachris</a>)
+ 
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-08-20T19:25:59+02:00>20.08.2015 19:25</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre><span class=attribution-line><a class=link-to-post data-post-id=4241410 href=#4241410>Pit schrieb:</a></span>
+<span class=quoting-level-1>&gt; Wenn ich auf WinUSB umstelle brauche ich dann noch den ganzen Mist mit</span>
+<span class=quoting-level-1>&gt; .inf und Zertifikaten oder fällt das dann auch weg?</span>
+<span class=quoting-level-1>&gt;</span>
+<span class=quoting-level-1>&gt; Gruß Peter</span>
+
+Naja eine inf brauchst du schon, bei LibUsb genauso. Die gibts als 
+Template da auf der msdn Seite. Signatur muss nicht sein, denn WinUSB 
+ist ja schon im Windows drin, also muss nix kopiert werden. Noch 
+einfacher gehts mit der neuen WinUsb Erkennung über die OS String 
+Descriptoren von MS, aber das geht dann meines Wissens erst ab Windows 7 
+oder 8. Da wird dann automatisch der Treiber zugeordnet und das Gerät 
+taucht als WinUSB Gerät auf. Naturlich geht dann kein eigener Name und 
+keine eigene Driver GUID.</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4241594#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ 
+ 
+<div id=4364804 class="post box post-userid- post-id-4364804 new-post" data-attributionline="Kahn P. schrieb im Beitrag #4364804:" data-created-at=1448495584000 data-updated-at=1448495584000 data-user-id data-guest-name="Kahn P.">
+ <div class=subject>
+ <a name=4364804 href=#4364804>Re: LibUSB32 Windows 10</a>
+ </div>
+ <div class=info>
+ <div class=author>
+ von
+ <span class=name>
+ <i>Kahn P.</i> (Gast)
+ 
+ 
+ </span>
+ </div>
+ <div class=date>
+ <span class=created><time class=datetime datetime=2015-11-26T00:53:04+01:00>26.11.2015 00:53</time></span>
+ </div>
+ <br style=clear:both>
+ </div>
+ 
+ <hr style=clear:both>
+ <div class="post-vote-links noprint sf-hidden" style=float:right;font-size:10px>
+ Lesenswert?
+ 
+ </div>
+ <div class=text>
+ <pre>Hallo,
+
+ich habe jetzt via VS2015 mit dem XP DDK einen Opener geschrieben mit 
+dem
+ich den <a title="Link zu Wiki-Artikel" class=wiki href=https://www.mikrocontroller.net/articles/AVR>AVR</a> auslesen kann. Leider verwende ich noch immer zdiag.exe um
+mein Treiberpaket zu installieren. Ich möchte natürlich eine *.inf
+Datei die direkt nur WinUSB.sys verwendet.
+
+Meine *inf von ZDiag verwendet also immer libusb.sys
+jede Veränderung bezüglich Vendor oder anderer Einträge führt dazu, das 
+der Baustein nicht mehr als Universal Serial Gerät in der Hardwareliste 
+erscheint. Lediglich mit dieser *.INF von ZDiag.exe kann ich das Gerät 
+als
+WinUSB Gerät mit meinem c++ Programm erfolgreich öffnen.
+
+Vielen Dank für Hinweise was ich da verändern kann.
+ Karsten
+
+
+; DigiUSB.inf
+; Copyright (c) 2010-2014 libusb (GNU LGPL)
+[Strings]
+DeviceName = "DigiUSB"
+VendorName = "Van Ooijen Technische Informatica"
+SourceName = "DigiUSB Install Disk"
+DeviceID   = "VID_16C0&amp;PID_05DF"
+DeviceGUID = "{23F89E5D-616F-4DA0-AA2B-D08123AFDF2C}"
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = "Universal Serial Bus devices"
+ClassGuid   = {88bae032-5a81-49f0-bc3d-a4ff138216d6}
+Provider    = "libusb.info"
+CatalogFile = DigiUSB.cat
+DriverVer   = 06/18/2013, 6.1.7600.16385
+
+[ClassInstall32]
+Addreg = WinUSBDeviceClassReg
+
+[WinUSBDeviceClassReg]
+HKR,,,0,"Universal Serial Bus devices"
+HKR,,Icon,,-20
+
+[Manufacturer]
+%VendorName% = libusbDevice_WinUSB,NTx86,NTamd64,NTia64
+
+[libusbDevice_WinUSB.NTx86]
+%DeviceName% = USB_Install, USB\%DeviceID%
+
+[libusbDevice_WinUSB.NTamd64]
+%DeviceName% = USB_Install, USB\%DeviceID%
+
+[libusbDevice_WinUSB.NTia64]
+%DeviceName% = USB_Install, USB\%DeviceID%
+
+[USB_Install]
+Include = winusb.inf
+Needs   = WINUSB.NT
+
+[USB_Install.Services]
+Include    = winusb.inf
+AddService = WinUSB,0x00000002,WinUSB_ServiceInstall
+
+[WinUSB_ServiceInstall]
+DisplayName   = "WinUSB - Kernel Driver 06/18/2013 6.1.7600.16385"
+ServiceType   = 1
+StartType     = 3
+ErrorControl  = 1
+ServiceBinary = %12%\WinUSB.sys
+
+[USB_Install.Wdf]
+KmdfService = WINUSB, WinUsb_Install
+
+[WinUSB_Install]
+KmdfLibraryVersion = 1.9
+
+[USB_Install.HW]
+AddReg = AddDeviceInterfaceGUID
+
+[NoDeviceInterfaceGUID]
+; Avoids adding a DeviceInterfaceGUID for generic driver
+
+[AddDeviceInterfaceGUID]
+HKR,,DeviceInterfaceGUIDs,0x10000,%DeviceGUID%
+
+[USB_Install.CoInstallers]
+AddReg    = CoInstallers_AddReg
+CopyFiles = CoInstallers_CopyFiles
+
+[CoInstallers_AddReg]
+HKR,,CoInstallers32,0x00010000,"WdfCoInstaller01009.dll,WdfCoInstaller", 
+"WinUSBCoInstaller2.dll"
+
+[CoInstallers_CopyFiles]
+WinUSBCoInstaller2.dll
+WdfCoInstaller01009.dll
+
+[DestinationDirs]
+CoInstallers_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %SourceName%
+
+[SourceDisksFiles.x86]
+WinUSBCoInstaller2.dll  = 1,x86
+WdfCoInstaller01009.dll = 1,x86
+
+[SourceDisksFiles.amd64]
+WinUSBCoInstaller2.dll  = 1,amd64
+WdfCoInstaller01009.dll = 1,amd64
+
+[SourceDisksFiles.ia64]
+WinUSBCoInstaller2.dll  = 1,ia64
+WdfCoInstaller01009.dll = 1,ia64</pre>
+ </div>
+ <br style=clear:both>
+ <div class="foot unselectable">
+ <span class="menuitem postmenuitem-report sf-hidden"></span> <span class="menuitem postmenuitem-edit sf-hidden"></span> <span class="menuitem postmenuitem-delete sf-hidden"></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/374554?reply_to=4364804#postform" rel=nofollow>Markierten Text zitieren</a></span> <span class=menuitem><a href=#postform rel=nofollow>Antwort</a></span> <span class="menuitem postmenuitem-replyto sf-hidden"></span>
+ </div>
+</div>
+ <div id=nav-middle><div class=navbar>
+ <span class=left>
+ <span class=menuitem><a href=https://www.mikrocontroller.net/forum>Forenliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/forum/mikrocontroller-elektronik>Threadliste</a></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/new?forum_id=1">Neuer Beitrag</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/search>Suchen</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/register>Anmelden</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/list>Benutzerliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/attachment/gallery>Bildergalerie</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/help>Hilfe</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/login>Login</a></span>
+ </span>
+ <br class=clear>
+</div>
+</div>
+ <div class="topic-subscription noprint">
+ <a href=https://www.mikrocontroller.net/topic/subscribe/374554><img src="data:image/webp;base64,UklGRlgCAABXRUJQVlA4TEsCAAAvD8ADEPcEobZt1co69353AULQv4e3cIdre9dwGwCSoswu7hYR0X8F1EIFTvZ+PzNwa9tWrcx73scjKIDceyCjcmrQCtz93rvZ1rYtY39zJNKJBjSpvJncks2EnV8EY4DBGIAJY/hxBYwNGOywMcCEkSGahCJiYyIiIYaJ0RAEMME4wgJhY2OBkTsJEHne5DmRGJNNnpQ0IZIAMc03TZEDwlfaEUrdQ/vv6APOrpVOYPiHSRsieV2YMnQeg5xUSteAYFxJuWgtJT4YpICgVojRC0z/SHT+7qWdZa3Ha0j+6i7ks0AhhhUNosmYTwoxxBDzB8adSyVdSCEyFL0M/xDHOJ7ZYSOdbxZ7LIAftBCI5/ZuVfk9nn5rVcX79jXcTdfXyyZtLhwXX/J0XVnuy9OSp2vW+z3nfbObRwCmhSzJDZNiLPrh1HS2K8W6q8sz9Esi/Cej7G8HPp9nHh+33dv3dbm5n9dAChRg7Y+cpzVa4AEeAwQBAMtGs23bNs/mzratnoez7bv5tacfJBH9n4Div3/0DQyPjI6NT05Nz8zO7cTfyTw8AAAHABaDZvl3+9ltdoFWI5NKxFR3d2RzkFgTc/ClErGI4ulqDSBDRFN1zE0TCQnezpa3IDJB1BtrezwEnK+3uQQGkQ2izlJV1+FytjfUl0aD2+skc6XVUNbUWH5/cnx4u7VKr7ApFXK16u708fXmILEfCnM5TAYdHj2/oK6uM/G9tZXlpcWF+eQDCoCndPH77MU56uz66weF1OUTTOV+APOfaZgvAgA=" alt> Thread beobachten</a>
+ |
+ <a href=https://www.mikrocontroller.net/user/disable_post_pagination><img src=data:image/webp;base64,UklGRr4AAABXRUJQVlA4TLIAAAAvD8ADEIWD2LZVZbelkEdxtwZ0+G7Yexf770CGCEaRJEnZQ8dyaCBoZKABSesCf7x4pcK2bRsp6dApLJwkyEajqJzuN8Z4N93JTleIuTlbGDvZ6rzcGom523F+o+Ds/I/EeEc/0dz1Jhut5URiLRcxV6PJFpB4VYkZY0hAfncXlVREOAq0c1XL6SEY7+GqYQgb4eIJsdV5uDGEQqVx6WE8x2n5KtF4QUGi+vg4KCIbUTkY alt> Seitenaufteilung abschalten</a>
+ </div>
+ <a name=postform></a>
+<div class=box><b>Bitte melde dich an um einen Beitrag zu schreiben. Anmeldung ist kostenlos und dauert nur eine Minute.</b>
+<div class=box>
+ <strong>Bestehender Account</strong>
+ <br>
+ 
+ <form action="https://www.mikrocontroller.net/user/login?method=post" accept-charset=UTF-8 method=post>
+ 
+ <table>
+ <tbody><tr>
+ <td>
+ <label for=name>Benutzername oder E-Mail-Adresse</label>
+ </td>
+ <td>
+ <input type=text name=name id=name size=20 value>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <label for=password>Passwort</label>
+ </td>
+ <td>
+ <input type=password name=password id=password size=20>
+ </td>
+ </tr>
+ </table>
+ <input type=submit value=Login name=submit>
+ <input type=submit value="Ich habe mein Passwort vergessen" name=i_forgot_my_password>
+ 
+</form></div>
+<div class=box>
+ <strong>Schon ein Account bei Google/GoogleMail? Keine Anmeldung erforderlich!</strong><br>
+ <a href="https://www.mikrocontroller.net/user/login_google?url=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid">Mit Google-Account einloggen</a>
+ 
+</div>
+<div class=box>
+ <strong>Noch kein Account?</strong> <a href=https://www.mikrocontroller.net/user/register>Hier anmelden.</a>
+</div>
+</div>
+ </div>
+</div>
+ </div>
+ <div id=nav-bottom><div class=navbar>
+ <span class=left>
+ <span class=menuitem><a href=https://www.mikrocontroller.net/forum>Forenliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/forum/mikrocontroller-elektronik>Threadliste</a></span> <span class=menuitem><a href="https://www.mikrocontroller.net/topic/new?forum_id=1">Neuer Beitrag</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/search>Suchen</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/register>Anmelden</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/list>Benutzerliste</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/attachment/gallery>Bildergalerie</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/help>Hilfe</a></span> <span class=menuitem><a href=https://www.mikrocontroller.net/user/login>Login</a></span>
+ </span>
+ <br class=clear>
+</div>
+</div>
+ 
+ 
+</div>
+ </td>
+<style class=sf-hidden>@media screen and (min-width:1250px){#sidebar-right{display:table-cell}#outer-container{max-width:100%}}@media screen and (min-width:1400px){#sidebar-right{display:table-cell;width:312px}#outer-container{max-width:1390px}.navbar.navbar-default .container{max-width:1390px}}</style>
+<td id=sidebar-right class=sidebar>
+<hr>
+<div id=right-ad-div style=padding:0;text-align:center class=sticky>
+ 
+ <div id=div-gpt-ad-1549487225707-0 style=text-align:center;padding-bottom:10px data-google-query-id=CO3iwdSkxIwDFYLLEQgdw0syug>
+ 
+ <div id=google_ads_iframe_/62616433/Mikrocontroller_Right_Sidebar_1_0__container__ style="border:0pt none;display:inline-block;width:300px;height:600px"><iframe frameborder=0 id=google_ads_iframe_/62616433/Mikrocontroller_Right_Sidebar_1_0 title="3rd party ad content" name scrolling=no marginwidth=0 marginheight=0 width=300 height=600 data-is-safeframe=true sandbox="allow-popups allow-top-navigation-by-user-activation" allow=private-state-token-redemption;attribution-reporting aria-label=Advertisement tabindex=0 data-google-container-id=1 style=border:0px;vertical-align:bottom data-load-complete=true srcdoc="<!DOCTYPE html> <html data-google-analytics-opt-out lang=en class=&quot;rgciqxdwh idc0_350&quot;><meta charset=utf-8>
+<title>SafeFrame Container</title>
+<meta http-equiv=origin-trial content=AxjhRadLCARYRJawRjMjq4U8V8okQvSnrBIJWdMajuEkN3/DfVAcLcFhMVrUWnOXagwlI8dQD84FwJDGj9ohqAYAAABveyJvcmlnaW4iOiJodHRwczovL2dvb2dsZWFkc2VydmljZXMuY29tOjQ0MyIsImZlYXR1cmUiOiJGZXRjaExhdGVyQVBJIiwiZXhwaXJ5IjoxNzI1NDA3OTk5LCJpc1RoaXJkUGFydHkiOnRydWV9><meta http-equiv=origin-trial content=AxjhRadLCARYRJawRjMjq4U8V8okQvSnrBIJWdMajuEkN3/DfVAcLcFhMVrUWnOXagwlI8dQD84FwJDGj9ohqAYAAABveyJvcmlnaW4iOiJodHRwczovL2dvb2dsZWFkc2VydmljZXMuY29tOjQ0MyIsImZlYXR1cmUiOiJGZXRjaExhdGVyQVBJIiwiZXhwaXJ5IjoxNzI1NDA3OTk5LCJpc1RoaXJkUGFydHkiOnRydWV9><meta name=viewport content=&quot;width=device-width, initial-scale=1.0&quot;><meta http-equiv=X-UA-Compatible content=&quot;ie=edge&quot;><title class=sf-hidden>Document</title><meta name=referrer content=no-referrer><style>.sf-hidden{display:none!important}</style><meta http-equiv=content-security-policy content=&quot;default-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:;&quot;><body leftmargin=0 topmargin=0 marginwidth=0 marginheight=0 class=jar><style class=sf-hidden>div{margin:0;padding:0}.abgc{display:block;height:15px;position:absolute;right:17px;top:1px;text-rendering:geometricPrecision;z-index:2147483646}.abgb{display:inline-block;height:15px}.jar .abgc,.jar .cbb{opacity:1}.abgc{cursor:pointer}.cbb{cursor:pointer;height:15px;width:15px;z-index:2147483646;background-color:#ffffff}.cbb svg{position:absolute;top:0;right:0;height:15px;width:15px;stroke:#00aecd;fill:#00aecd;stroke-width:1.25}.cbb:hover{cursor:pointer}.cbb:hover{background-color:#58585a}.cbb:hover svg{stroke:#ffffff}.abgb{position:absolute;right:0px;top:0px}.cbb{position:absolute;right:1px;top:1px}.abgb svg{display:inline-block;height:15px;width:auto;vertical-align:top}.abgc .il-wrap{background-color:#ffffff;height:15px;white-space:nowrap}.abgc .il-icon{display:inline-block}.abgc .il-icon{height:15px;width:15px}.abgc .il-icon svg{fill:#00aecd}</style><div id=abgc class=abgc dir=ltr><div id=abgb class=abgb><div class=il-wrap><div class=il-icon><svg xmlns=http://www.w3.org/2000/svg xmlns:xlink=http://www.w3.org/1999/xlink viewBox=&quot;0 0 15 15&quot;><circle cx=6 cy=6 r=0.67></circle><path d=M4.2,11.3Q3.3,11.8,3.3,10.75L3.3,4.1Q3.3,3.1,4.3,3.5L10.4,7.0Q12.0,7.5,10.4,8.0L6.65,10.0L6.65,7.75a0.65,0.65,0,1,0,-1.3,0L5.35,10.75a0.9,0.9,0,0,0,1.3,0.8L12.7,8.2Q13.7,7.5,12.7,6.7L3.3,1.6Q2.2,1.3,1.8,2.5L1.8,12.5Q2.2,13.9,3.3,13.3L4.8,12.5A0.3,0.3,0,1,0,4.2,11.3Z></path></svg></div></div></div><div id=abgs class=&quot;abgs sf-hidden&quot;></div></div><div id=cbb class=cbb tabindex=0 role=button><svg xmlns=http://www.w3.org/2000/svg xmlns:xlink=http://www.w3.org/1999/xlink viewBox=&quot;0 0 15 15&quot;><path d=M3.25,3.25l8.5,8.5M11.75,3.25l-8.5,8.5></path></svg></div><style class=sf-hidden>.mute_panel{z-index:2147483646}@keyframes mlskf{100%{transform:rotate(360deg)}}@keyframes mlsdkf{0%{stroke-dasharray:1,189;stroke-dashoffset:0}50%{stroke-dasharray:134,189;stroke-dashoffset:-53px}100%{stroke-dasharray:134,189;stroke-dashoffset:-188px}}</style><div id=mute_panel class=mute_panel aria-hidden=true><div id=abgac class=&quot;abgac sf-hidden&quot; aria-hidden=true></div></div><div class=GoogleActiveViewInnerContainer id=avic_CO3iwdSkxIwDFYLLEQgdw0syug style=left:0px;top:0px;width:100%;height:100%;position:fixed;pointer-events:none;z-index:-9999></div><div style=display:inline class=GoogleActiveViewElement data-google-av-cxn=&quot;https://pagead2.googlesyndication.com/pcs/activeview?xai=AKAOjsutfZqipOYxflz7wah06znLS_jlHyg2lu9ukq-LWFoI5mmv_ogIXUYfE-SrArytwbSfNjLf7OwvvmGiCfX7ZXelj5jotgggt3HfeNJdj7Ifx9x230NY71eJC2NqtDk4s72ISFTq_p3oaYkFBF6nFbkkhVFVI9nC-q9RLpG47uiqkxAshiaCog&amp;amp;sig=Cg0ArKJSzNppHaxENSeUEAE&quot; data-google-av-adk=115679346 data-google-av-metadata=&quot;la=0&amp;amp;xdi=0&amp;amp;&quot; data-google-av-ufs-integrator-metadata=CgIYABKcAgqPAmh0dHBzOi8vcGFnZWFkMi5nb29nbGVzeW5kaWNhdGlvbi5jb20vcGNzL2FjdGl2ZXZpZXc_eGFpPUFLQU9qc3V0ZlpxaXBPWXhmbHo3d2FoMDZ6bkxTX2psSHlnMmx1OXVrcS1MV0ZvSTVtbXZfb2dJWFVZZkUtU3JBcnl0d2JTZk5qTGY3T3d2dm1HaUNmWDdaWGVsajVqb3RnZ2d0M0hmZU5KZGo3SWZ4OXgyMzBOWTcxZUpDMk5xdERrNHM3MklTRlRxX3Azb2FZa0ZCRjZuRmJra2hWRlZJOW5DLXE5UkxwRzQ3dWlxa3hBc2hpYUNvZyZzaWc9Q2cwQXJLSlN6TnBwSGF4RU5TZVVFQUUSABoAIAEoADAEGh4KGkNPM2l3ZFNreEl3REZZTExFUWdkdzBzeXVnEAU data-google-av-override=-1 data-google-av-dm=2 data-google-av-aid=0 data-google-av-naid=1 data-google-av-slift data-google-av-cpmav data-google-av-btr=&quot;https://pagead2.googlesyndication.com/pcs/view?xai=AKAOjstaR6FjjwixMmt-qcJsMkLU2nabw8Ocb4bysQ27NNgEc4gonkufgZGKWYFh7dDIrG786HXEAkrbvGMnak21R6lLeZLC_N9b35TqeJYPxlio3eMhCfN0GaP-LF2tdBpg5d6jexGEWnjaSi-YIbL-z0pC9VujyZ4kvyqys3KVJw8AC5SBjP9A6QRY7PlDnZn2GfiB0V2WYvRIIt67mVG0Kqbzx_MqJK1kWFXx4BlO6s3qor5Gc0QoIP9B19w9rxbElubPbrzYoN_S4pCrFUpYdE8efI_xG8zLFkLMLOkp9qla3IsTmAntF1GRs6XdGAyjcRA9lh34uTgiliHxXIWhzXd8iLv9BnfIyeBhoZFTlL82pcvtaR7lgxuCTm1bJb-ji3wujYjWHkE0XzqPMzPyTfslwc4qnNGlpwS59r_-pg8vWlqOt0MF_FNfoMKP-iSJCg&amp;amp;sig=Cg0ArKJSzGFi1DQFQ7yHEAE&amp;amp;uach_m=%5BUACH%5D&amp;amp;urlfix=1&amp;amp;adurl=&quot; data-google-av-itpl=19 data-google-av-rs=4 data-google-av-flags=&quot;[&amp;quot;x%278440'9efotm(&amp;amp;753374%2bejvf/%27844>'9wuvb$&amp;amp;56533>!=|vqc)!273794&amp;amp;<qqvb/%<1735020!=nehu`/!364=5051!9abk{a($160210:3&amp;amp;<cbotf+*0150034:%2bejvf/%72;17613!=efdwa*'76463;21$?ebkpb$&amp;amp;0366717>*>bgipf+!3=712363%9aihwc)!7202<217'9efotm(&amp;amp;20061;48&amp;amp;>`dopb/%<1707200!=8(&amp;amp;2005575?&amp;amp;>`dopb/%<170642?!=|vqc)!7201;=50'9wuvb$&amp;amp;03641654*>bgipf+!3=731103%9aihwc)!7200?073'9efotm(&amp;amp;2004?51;&amp;amp;>`dopb/%<17>474>!=nehu`/!36406412!9abk{a($167745;=&amp;amp;<cbotf+*01254133%2pvs`/!36383624!9abk{a($167574>7&amp;amp;<qqvb/%<104=460!=nehu`/!363;42>7!9abk{a($1656;3?<&amp;amp;<cbotf+*01011776%2bejvf/%72>17266!=efdwa*'7616?=<=$?ebkpb$&amp;amp;0335225>*>bgipfz&amp;quot;]&quot; data-creative-load-listener>
+ 
+ 
+ 
+ 
+ 
+ 
+ <style class=sf-hidden>.ad-container{width:300px;overflow:hidden;min-height:600px;max-height:600px;font-family:Arial,sans-serif;background:#fff;display:flex;flex-direction:column}.ad-container .logo{text-align:center;background-color:#ff2100;padding-top:5px;padding-bottom:0px}.ad-container .logo img{display:inline-block;width:125px}.ad-container .button{color:#fff;font-size:12px;font-weight:bold;padding:2.5px 7px;display:inline-block;text-decoration:none;text-align:left;background-color:#ff2100}.ad-container .content{padding:0px;background:#fff;height:535px}.ad-container .content .item{display:block;color:#000;position:relative;text-decoration:none;padding:11px 12px;border-bottom:2px solid #cf9376}.ad-container .content .item:hover{background-color:#f6eaea}.ad-container .content .item:last-child{margin-bottom:0;border:0px}.ad-container .content .item .img-container{position:absolute;top:10px;right:10px;bottom:10px;padding:10px;width:60px;background-color:#d4d8fb;display:flex;justify-content:center}.ad-container .content .item .img-container img{width:60px;display:flex;align-self:center}.ad-container .content .item .item-content{padding-right:85px}.ad-container .content .item .item-content h3{margin:0;padding:0;font-size:15px;line-height:1;margin-bottom:4px;font-weight:normal;color:#480bbe}.ad-container .content .item .item-content p{margin:0;padding:0;font-size:14px;line-height:1.1;margin-bottom:5px;color:#000}</style>
+ 
+ 
+ <div class=container>
+ <div class=ad-container>
+ <div class=logo>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B33257911.417517445;dc_trk_aid=609918617;dc_trk_cid=96556747;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot;>
+ <img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAADDYAAAV2CAMAAADs4S3jAAAAM1BMVEUAAAD///////////////////////////////////////////////////////////////+3leKCAAAAEHRSTlMAECAwQFBgcICQoLDA0ODwVOCoyAAALglJREFUeNrswYEAAAAAgKD9qRepAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZg8OBAAAAACA/F8bQVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVhT04EAAAAAAA8n9tBFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV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&quot;>
+ </a>
+ </div>
+ <div class=content>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B33207817.417836640;dc_trk_aid=609955416;dc_trk_cid=202302943;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot; class=item>
+ <div class=item-content>
+ <h3>DigiKey | Analog Devices</h3>
+ <p>Energetisierung des Übergangs zu sauberer Energie.</p>
+ <div class=item-buttons>
+ <span class=button> Learn more </span>
+ </div>
+ </div>
+ <div class=img-container>
+ <img src=&quot;data:image/webp;base64,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&quot;>
+ </div>
+ </a>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B33159192.417836676;dc_trk_aid=609955036;dc_trk_cid=94479296;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot; class=item>
+ <div class=item-content>
+ <h3>CPUs der Serie STM32N6</h3>
+ <p>Für Industrie- und Verbraucheranwendungen</p>
+ <div class=item-buttons>
+ <span class=button> Learn more </span>
+ </div>
+ </div>
+ <div class=img-container>
+ <img src=data:image/webp;base64,UklGRhoFAABXRUJQVlA4TA4FAAAvT8ATEF/CoG0bQbckOwzHn+o/CARt2za3Nuk5HEHbts3tSTYMn/8fOJwb7//rauvupNZoMiKRSJRLRDEZ50CfyTgHislDMXkoRH9RrAHsTq6dMvedVK6MRCAgAmQyIoEkk5IIIqBUJnN3VJnMt0hZUagoDNRtbXPSbG+vKoqADqLGFnuPvSumnv8JyTAzye+v3HdE/x1IkiQlNaU7LCP3An7h0z91443kqxQv5DOe8MhrSF7OJx6wfzbnRdq68/Gw320369ViPpuOOez3up1W875Rr1XvyqVigIJ/+6bPAhFF/mBOO5FKEiRgpSykMzaQdeB6OeQh6BdIBihGUSLLUdyRDHbGvFZsl6RH5qLIA0IOPwqpB4gZgxErY56zzofCOHh4M+WSjEMJlRogobLUNWZ1w7gxUtFVbr4aV6YcufngLrL+YlpZzqiglvd592xambYjvHc3VIiYpUfzSphMIisHpY3JQ/hFfRqEppUyOh3R7PYGo/FkOpsvlqvNdndoC62Fs+G9oZXKAo6rMVvZXHar5WLO2cOUk/GA/V6lEKhluXAwrCymswA0UKxPrVzW9Vwvl/fheMVyJefH11eKszOstGxEjRprEE6SpeVmze1uj5o9uoQrUWAATeqvzTgnbDgAsq4X124cTgvXae7DM3CdpmsIURMFvf7MjI2E1HgyEOvjgYtqsjA+8bwLvFV4Hbs+VUKyMDKjn7TlyXiX600vJxLsZrE+X1rJNsJ9UdzQpuyaVZYsDfRQHA2ie3i35QX7cGZXTtdz0/NpIM1uHE8pG5BmqxoLmSjswmS3qdgdzmq3j1YUETReDSvjaq99wA9EHqSXpaCZlRcT1gnbsbVdlDroenSZFx4BF/D8nJeXZBCP0KwyIwEJpDJwbMv23JtBwS5VPFYbotwMqk3R6jd0ixcnk1FejbrjjS16k2GVc7bGu2IzHLcW60FvO19234DNaD2a+jKMsTcZlamMrdBJjo6VSRWXltif7h8ukzoX03p5sOsflyNuN4up0JjfGHBKZBjHgVXdoWcH56rYj2dYMVHdTjLTpTea4/SwH9yHJSEt3peT/MKAZSJ9Q57tZJ1evflUrYRlnu6v3dV4eT9b4NJrzlB7Gow3i5nw1avNzwzoJtMZRepwsp2P7ApFcRwMy+16Y9ApNlvt+yry9TLqhGAMSTEyeYVIqT5wYAWFVNaxHFiO5WQA0rUzyLpengAJEanoEO03g5skMhppq2/BzCkeOxCKUCgMBvo5YSEddaVV69OMz3cq6noWMdK2BoMUhoq7Fy2dpIUooWoBNwAjzZLCk0FlnLSiy1FJFdBBSo32xvGSsdKREYqFaVAKE3NaLomMTIa0zWFOvUaN3ll7k/xryXFrSWpUJ3H1ibPRViZuqGZ/gNDqTHWVd8lUzBgfJeK4gzfdTRKApUqUC4dSqoVat/OqJvwbqUOzPrxDSHhNDZsbFhSNnJhWmXZ6dQ39REptDI14pyg/ayulUKfyvQPxCS8e8YEEKXIeSNexnau6Uv51Wg47FtEITVspCykgGUWC5F/yD/AbwC+SP/mD/A7gGy7qUfnrr7x9UGwf5e0DvsnxNR5fVBFtBvAdP3/9TTBUf33/otrCz6qIbau8pSnXL1ZqjWar0xuOp4vNdn84h7w+PuEZL68vmpL5l+8/+DORygflaqPVHU4Xq81ufzidL7cNZbShfCX5xo/7W/3C56fn2Kb+sykA width=50>
+ </div>
+ </a>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B32936636.417517643;dc_trk_aid=609955441;dc_trk_cid=146474990;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot; class=item>
+ <div class=item-content>
+ <h3>Diskreter High-Side-Treiber NCV8460</h3>
+ <p>Erweiterten Schutzfunktionen</p>
+ <div class=item-buttons>
+ <span class=button> Learn more </span>
+ </div>
+ </div>
+ <div class=img-container>
+ <img src=&quot;data:image/webp;base64,UklGRtAEAABXRUJQVlA4TMMEAAAvT8ATEJfjuJEkKao5JPy3BAOwiCcv2O2uLDccR5LkKDOze4D/luAA/sj/qhZuA7BtG4qum/+/wWOuytwhEsD8R+xxiCUSS2KZZQWDgggYIVDUWu9giEF2YycaKCeflc7CCamymhWg0cxhxm5os3p651edkmjsVAblNDuttlhts9rw/AkIDfYl32jSqQ6MC2qXBg3trGA0+y9cNWh2OB6Ho1/u95NprhfWpilqf7VDTSPAGIhiUAvYKzwZ4c8/SGCBRVlgigxLLMhimWWzpVnptyBKUVA1OCRISkSJg5xMii02k5AgsQiKSQ26Xg+F1qDzeQNk27bTNo5TZmZmZmZmCie2KyuprWcq6v8nBsWQYQcR/XfgSG7b8HLAuZBWISXlC/RfGmJNnWPdfCXxRJayysNoxQhuR0m/vhNiPo/HuUpQ/JpNWdnuXMxayYUqLnK2nsiZV1l74jhuz9TN9GptlILj6PCNlH2VVVXd755KaoToprxdz0XGxoamR9kmUQkYYGgqsaFZxb3GiETjQs+ZlH17B1f7AYgHmklOWqIRddvZ7JsExAfA1M7bIhBc9dP7W9ahP6HfdIct4qMPxWRZAiHgbYJh3PXGwrTqxadiMu1Ts8RzfVhx4nX8UfY9lfLT9nJjZC2EZFUjHQsJKZ1UwTWybAPWJYD6cR2SA987eSdnbLrbDH5vAkFIrA7r+ZaSeVOABARgEZHOkOp7TM6+FX0QyplNRJrCqe8dKfcmg4/YNpgvKQiJpeNQ1p7u45z09g7l34AySQEYoULifiUWmE1tLbeylMyxCGUd3X6KiBB6uVhvDupYt9izL+WY5egdjnICPvII4RI6mx6sCVyOCykpFbAcHao2RVTa4neWmwOn/FUxzS5Hf58ByIso8SJe83RkY4ALWODnilOO7iTy8QnwPJfyCBWEQh2ltQez8UA7cs9V0U12q1mxPC/IBYQQzjslxG3NNfO+43D81JWcSSlMgsevzAgpAhITz7d7rtb2zvVNNPhcZjvaJpOaZlgGc18BP/UIqoAQyl//Dblix0Z3lvr8WfvkyJn29enAIGogTyGP0Efp+eCnyx2/dsLv47qxHevTDUsnqu/lDPIFLCKMm9o35/ngy2Pu85MlCIAvygIWnxOlccofzIawKXR/WiyhEdWHgZJASBREJ8LUcj8NjjPDYAlT80FiE5XwXdy2ls2Bai6w1VsAbOFJMWYEXCg8Jxpds7L7szxUFfjXfmcQjSkMYDppeQEj4f70IO5OnLWDw58QDq1jSVuYLiubtCAnMMIfz5ddP5y7jSPToWz88QVZB91kp5jKiIBw6WxsebaahovqHV0DnZ1iqiMSrsUsUU13Z37DP9KdmBoYFvsFSBYwSiRwG6XD6/MxGjpab00oI2QBI4zxFHUtjs1RnOp6n5yEYAgNIdv2Xe1fGvjt4iMQ/LjEFLooJO4e3V9rWFo+XOJpBKhaU3XiSQhDFO5ON2o8a9nSwXBEZ+26Y29CGLiUuPge8I5GS3T/qlou3Qlh4o+j9qWZZloBaH80QTMNdB2jWzODXCX8eKf2wdlG29dna2lFIL6gWJ1OjzbnfzlaGajrdkUaG/qerudoBSE+tbK5GexhFOW6O8TRf2SgAA==&quot; width=50>
+ </div>
+ </a>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B33112174.417836985;dc_trk_aid=609955078;dc_trk_cid=96556747;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot; class=item>
+ <div class=item-content>
+ <h3>Beschleunigungsmesser ADXL382</h3>
+ <p>Geringe Rauschdichte zeichnen sich aus</p>
+ <div class=item-buttons>
+ <span class=button> Learn more </span>
+ </div>
+ </div>
+ <div class=img-container>
+ <img src=data:image/webp;base64,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 width=50>
+ </div>
+ </a>
+ <a target=_blank href=&quot;https://pagead2.googlesyndication.com/pcs/click?xai=AKAOjsumY2RvvpW4OqniuclXjSr36ntw6blM97Mt90aLedeq9ZJL4SOj5V4SejWBKbL7WL144eVyzsBRxLAU7_2yfwxSrFbURnLciU2vL2caJ-OR4QdNOcOY-fMXhBqulkhNUhDjK1f3-94Se-EgI1Bd7levh8C2WaujmVmuiiXrKOcwtMvGPwF2PFnFxymkze2fmSSt8Pp1k7VK9DXDZiB0AU3xhQmvjMOE78hIJPwdVIGy9kLjYc-7bFmGKs0y5aGjOoTAB3fvAUigXVasmH4OUpNUiXk5fUQzdxHJFN934yP-oNI_b_3wmhEiJxPU04qdkBgataMYAmGbZHLucgLs4dOnR2jrM3M24hRiYFoOIhSOvs9zDxO5FCnF_daGYsP5PkuVNTIZ2dFFbvpZLm5saT7a7joFma_BKPzd&amp;amp;sig=Cg0ArKJSzEWi1ASlO48sEAE&amp;amp;fbs_aeid=%5Bgw_fbsaeid%5D&amp;amp;urlfix=1&amp;amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N4481.1818889MIKROCONTROLLER.NET/B33257911.417517445;dc_trk_aid=609918617;dc_trk_cid=96556747;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;gdpr=;gdpr_consent=;ltd=;dc_tdv=1&quot; class=item>
+ <div class=item-content>
+ <h3>IO-Link-Datenverbindungscontroller</h3>
+ <p>MAX22516 Transceiver und integriertem DC/DC-Wandler</p>
+ <div class=item-buttons>
+ <span class=button> Learn more </span>
+ </div>
+ </div>
+ <div class=img-container>
+ <img src=data:image/webp;base64,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>
+ </div>
+ </a>
+ </div>
+ </div>
+ </div>
+ <img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 attributionsrc border=0 height=1 width=1 alt=Advertisement>
+ <img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 attributionsrc border=0 height=1 width=1 alt=Advertisement>
+ <img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 attributionsrc border=0 height=1 width=1 alt=Advertisement>
+ <img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 attributionsrc border=0 height=1 width=1 alt=Advertisement>
+ <img src=data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 attributionsrc border=0 height=1 width=1 alt=Advertisement>
+ 
+</div><div style=&quot;bottom:0;right:0;width:300px;height:600px;background:initial!important;position:absolute!important;max-width:100%!important;max-height:100%!important;pointer-events:none!important;image-rendering:pixelated!important;z-index:2147483647;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAWBAMAAACrl3iAAAAABlBMVEUAAAD+AciWmZzWAAAAAnRSTlMAApidrBQAAACDSURBVBjTbZABEoVACELxBtz/tD9BbKtv06TTWxYB/le5uutnJ+ov9eVOIkz6RLm7CIrqZqelc2Zp5AzvKXfXy0mqUR6+W6r0jrJgqix63yAOhuxhNMkhYc8al9tc8HTCycRbxnfwOMGh7D15ZDY3YIwns9HlM+/IfhKcHc0fCVZm4AetEgYzc068xgAAAABJRU5ErkJggg==)!important&quot;></div>
+ 
+ 
+ 
+"></iframe></div></div>
+</div>
+</td>
+ </tr>
+ </table>
+ <div id=bottom>
+ <div id=impress>
+ <a href=https://www.mikrocontroller.net/contact>Kontakt/Impressum</a> – <a href=https://www.mikrocontroller.net/articles/Datenschutzerkl%C3%A4rung>Datenschutzerklärung</a> – <a href=https://www.mikrocontroller.net/user/conditions>Nutzungsbedingungen</a> – <a href=https://eetech.com/media/#mikrocontroller-net>Werbung auf Mikrocontroller.net</a>
+ </div>
+ <a href=https://www.mikrocontroller.net/util/rb></a>
+</div>
+</div> 
+<iframe name=google_ads_top_frame id=google_ads_top_frame style=display:none;position:fixed;left:-999px;top:-999px;width:0px;height:0px></iframe><div class=highslide-container style=padding:0px;border:none;margin:0px;position:absolute;left:0px;top:0px;width:100%;z-index:1001;direction:ltr><a class=highslide-loading title="Klick zum Abbrechen" href=javascript:void(0) style=position:absolute;top:-9999px;opacity:0.75;z-index:1>Lade...</a><div style=display:none></div><table cellspacing=0 style=padding:0px;border:none;margin:0px;visibility:hidden;position:absolute;border-collapse:collapse;width:0px><tbody style=padding:0px;border:none;margin:0px><tr style=padding:0px;border:none;margin:0px;height:auto><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) 0px 0px;height:20px;width:20px"><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) 0px -40px;height:20px;width:20px"><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) -20px 0px;height:20px;width:20px"><tr style=padding:0px;border:none;margin:0px;height:auto><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) 0px -80px;height:20px;width:20px"><td class="drop-shadow highslide-outline" style=padding:0px;border:none;margin:0px;position:relative><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) -20px -80px;height:20px;width:20px"><tr style=padding:0px;border:none;margin:0px;height:auto><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) 0px -20px;height:20px;width:20px"><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) 0px -60px;height:20px;width:20px"><td style="padding:0px;border:none;margin:0px;line-height:0;font-size:0px;background:var(--sf-img-6) -20px -20px;height:20px;width:20px"></table></div>
