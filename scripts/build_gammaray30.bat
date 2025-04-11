@@ -1,0 +1,1 @@
+@call "%~dp0build_gammaray.bat" 3.0

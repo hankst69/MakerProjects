@@ -20,9 +20,14 @@ if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
 set _QT_BUILD_TYPE=Release
 set _QT_USE_LLVM20_PATCH=true
+set _QT_MSVS_VERSION=GEQ2019
 set _QT_CMAKE_VERSION=GEQ3.22
 rem set _QT_CLONE_OPTIONS=--silent --init_submodules
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+
+rem if we build QT 5.12 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
+if "%_QT_VERSION%" equ "5.12" set _QT_CMAKE_VERSION=GEQ3.20
+if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
 
 rem welcome
 echo BUILDING QT %_QT_VERSION%
@@ -131,7 +136,7 @@ echo *** OTPIONAL: Protobuf
 echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
 echo.
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
