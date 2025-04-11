@@ -22,10 +22,11 @@ rem defaults:
 set _GR_MSVS_VERSION=GEQ2019
 set _GR_CMAKE_VERSION=GEQ3.22
 set _GR_QT_VERSION=GEQ6.3
+
 rem if we build GammaRay 3.0 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
 if "%_GR_VERSION%" equ "3.0" set _GR_QT_VERSION=5.12
-rem if "%_GR_VERSION%" equ "3.0" set _GR_MSVS_VERSION=2019
-rem if "%_GR_VERSION%" equ "3.0" set _GR_CMAKE_VERSION=GEQ3.22
+if "%_GR_VERSION%" equ "3.0" set _GR_MSVS_VERSION=2019
+if "%_GR_VERSION%" equ "3.0" set _GR_CMAKE_VERSION=GEQ3.20
 
 
 rem *** cloning sources ***
