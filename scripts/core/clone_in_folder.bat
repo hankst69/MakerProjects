@@ -9,12 +9,15 @@ set _GIT_CLONE_URL=
 set _GIT_CLONE_REPO=
 set _SILENT_CLONE_MODE=
 set _SWITCH_BRANCH=
+set _CHECKOUT_TAG=
 set _CHANGE_DIR=
 set _FREE_ARGS=
 :param_loop
 if /I "%~1" equ "--silent"       (set "_SILENT_CLONE_MODE=true" &shift &goto :param_loop)
 if /I "%~1" equ "--changeDir"    (set "_CHANGE_DIR=true" &shift &goto :param_loop)
 if /I "%~1" equ "--switchBranch" (set "_SWITCH_BRANCH=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "--checkoutTag"  (set "_CHECKOUT_TAG=%~2" &shift &shift &goto :param_loop)
+--checkout_tag
 if "%~1" neq "" if "%_TARGET_DIR%" equ "" (set "_TARGET_DIR=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_GIT_CLONE_URL%"  equ "" (set "_GIT_CLONE_URL=%~1" &set "_GIT_CLONE_REPO=%~nx1" &shift /1 &goto :param_loop)
 if "%~1" neq "" (set "_FREE_ARGS=%_FREE_ARGS% %1"&shift &goto :param_loop)
@@ -26,6 +29,7 @@ echo _TARGET_DIR        = "%_GIT_CLONE_URL%"
 echo _GIT_CLONE_REPO    = "%_GIT_CLONE_REPO%"
 echo _SILENT_CLONE_MODE = "%_SILENT_CLONE_MODE%"
 echo _SWITCH_BRANCH     = "%_SWITCH_BRANCH%"
+echo _CHECKOUT_TAG      = "%_CHECKOUT_TAG%"
 echo _CHANGE_DIR        = "%_CHANGE_DIR%"
 echo _FREE_ARGS         = %_FREE_ARGS%
 goto :Start
@@ -46,6 +50,7 @@ set _GIT_CLONE_URL=
 set _GIT_CLONE_REPO=
 set _SILENT_CLONE_MODE=
 set _SWITCH_BRANCH=
+set _CHECKOUT_TAG=
 set _CHANGE_DIR=
 set _FREE_ARGS=
 goto :EOF
@@ -109,8 +114,14 @@ echo ***************************************************************************
 rem )
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 pushd "%_TARGET_DIR%"
-echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
-git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" .
+if "%_CHECKOUT_TAG%" equ "" (
+  echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
+  git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" .
+) else (
+  rem https://stackoverflow.com/questions/20280726/how-to-clone-a-specific-git-tag
+  echo git clone --config core.autocrlf=false %_FREE_ARGS%  --depth 1 --branch "%_CHECKOUT_TAG%" "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
+  git clone --config core.autocrlf=false %_FREE_ARGS% --depth 1 --branch "%_CHECKOUT_TAG%" "%_GIT_CLONE_URL%" .
+)
 if %ERRORLEVEL% neq 0 (echo. & echo error: git clone failed & goto:EOF)
 if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
 if "%_SILENT_CLONE_MODE%" neq "true" (

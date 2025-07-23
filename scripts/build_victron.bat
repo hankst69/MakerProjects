@@ -70,15 +70,30 @@ echo.
 echo BUILDING Victron Venus-GUI-V2 %VICTRON_GUIV2_VERSION% from sources
 echo see https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui-v2#building-for-desktop
 echo.
-echo *** THIS REQUIRES QT6.3.3 REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
-echo *** THIS REQUIRES VisualStudio 2019 or 2022
-echo.
+rem D:\GIT\Maker\projects\-Victron\venus-guiv2\bin>venus-gui-v2.exe --version
+rem Victron gui version: v1.1.3
+rem -> QT 6.6.3
+rem D:\GIT\Maker>D:\GIT\Maker\projects\Victron\venus-guiv2\bin\venus-gui-v2.exe --version
+rem Victron gui version: v1.2.7
+rem -> QT 6.8.3
+rem
 rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
-set _VCG_QT_VERSION=6.6.3
 set _VCG_MSVS_VERSION=GEQ2019
 set _VCG_NINJA_VERSION=
 set _VCG_BUILD_SYSTEM=NINJA
+set _VCG_QT_VERSION=6.8.3
+
+call "%MAKER_SCRIPTS%\split_version.bat" "0.0.0" 1>nul
+if "%VICTRON_GUIV2_VERSION%" neq "" call "%MAKER_SCRIPTS%\split_version.bat" "%VICTRON_GUIV2_VERSION%"
+if "%VERSION_MAJOR%.%VERSION_MINOR%" equ "1.1" set _VCG_QT_VERSION=6.6.3
+rem seems newest VS2022 (July 2025) requires Qt6.8.3 for CMake and Ninja to work
+rem set _VCG_QT_VERSION=6.8.3
+
+rem echo *** THIS REQUIRES QT 6.6.3 REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
+echo *** THIS REQUIRES QT %_VCG_QT_VERSION% REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
+echo *** THIS REQUIRES VisualStudio 2019 or 2022
+echo.
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_VCG_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
@@ -92,12 +107,9 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :Exit
 )
 rem ensure qt
-call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% EQU 0 goto :_configure
-call "%MAKER_BUILD%\build_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
-call "%MAKER_BUILD%\validate_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
+   goto :_exit
 )
 
 
