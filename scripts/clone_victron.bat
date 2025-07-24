@@ -32,9 +32,9 @@ pushd "%VICTRON_GUIV2_SRC_DIR%"
 call git submodule update --init
 popd
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_HTMLAPP_DIR%" "https://github.com/victronenergy/venus-html5-app.git" %*
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_HTMLAPP_DIR%" "https://github.com/victronenergy/venus-html5-app.git" %VICTRON_SILENT_CLONE_MODE%
 
 rem set "VICTRON_VENUSOS_SRC_DIR=%_VICTRON_DIR%\venus-os_source"
-rem call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_VENUSOS_DIR%" "https://github.com/victronenergy/venus.git" %*
+rem call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%VICTRON_VENUSOS_DIR%" "https://github.com/victronenergy/venus.git" %VICTRON_SILENT_CLONE_MODE%
 
 cd /d "%VICTRON_DIR%"

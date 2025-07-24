@@ -17,7 +17,6 @@ if /I "%~1" equ "--silent"       (set "_SILENT_CLONE_MODE=true" &shift &goto :pa
 if /I "%~1" equ "--changeDir"    (set "_CHANGE_DIR=true" &shift &goto :param_loop)
 if /I "%~1" equ "--switchBranch" (set "_SWITCH_BRANCH=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--checkoutTag"  (set "_CHECKOUT_TAG=%~2" &shift &shift &goto :param_loop)
---checkout_tag
 if "%~1" neq "" if "%_TARGET_DIR%" equ "" (set "_TARGET_DIR=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_GIT_CLONE_URL%"  equ "" (set "_GIT_CLONE_URL=%~1" &set "_GIT_CLONE_REPO=%~nx1" &shift /1 &goto :param_loop)
 if "%~1" neq "" (set "_FREE_ARGS=%_FREE_ARGS% %1"&shift &goto :param_loop)
