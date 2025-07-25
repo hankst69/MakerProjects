@@ -11,10 +11,20 @@ set "_QTW_VERSION=%MAKER_ENV_VERSION%"
 set "_QTW_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
-if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
-
 set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
 if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
+
+rem if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
+if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.8.3
+
+rem (0) *** match _QTW_EMSDK_VERTSION to given _QTW_VERSION ***
+rem todo:
+rem  for Qt6.6 -> EMSDK 3.1.37
+rem  for Qt6.8 -> EMSDK 3.1.56
+rem  see https://doc.qt.io/qt-6/wasm.html
+set _QTW_EMSDK_VERTSION=3.1.37
+set _QTW_EMSDK_VERTSION=3.1.56
+set _QTW_GCC_VERTSION=
 
 
 rem (1) *** build QT ***
@@ -61,16 +71,6 @@ rem Building qt 6.6.1 for wasm_singlethread on Windows 10/11 seems to have a cou
 rem First, need to edit ~/Qt/6.6.1/wasm_singlethread/lib/cmake/Qt6BuildInternals/QtBuildInternalsExtra.cmake to ensure that the Qt paths are properly escaped (e.g. C:\\Development\\Qt\\6.6.1\\wasm_singlethread instead of C:\Development\Qt\6.6.1\wasm_singlethread
 rem Second, need to specify an install prefix manually (e.g. C:\Development\Qt\Tools\CMake_64\bin\cmake.exe --install . --prefix "C:\\Development\\Qt\\6.6.1\\wasm_singlethread" --verbose for the final step).
 rem See https://github.com/victronenergy/gui-v2/issues/441#issuecomment-1681609453 for full instructions.
-
-
-rem (4) *** match _QTW_EMSDK_VERTSION to given _QTW_VERSION ***
-rem todo:
-rem  for Qt6.6 -> EMSDK 3.1.37
-rem  see https://doc.qt.io/qt-6/wasm.html
-set _QTW_EMSDK_VERTSION=3.1.37
-set _QTW_GCC_VERTSION=
-
-
 
 :qtw_rebuild
 rem (5) *** ensure prerequisites (note that build_qt already ensures most of the prerequisites below) ***
