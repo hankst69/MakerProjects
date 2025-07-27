@@ -1,4 +1,6 @@
 @echo off
+rem since there exists typically already a Qt installation in the path (e.g. from Anaconda) we have to go the long way
+rem or maybe this has to move into build_qt.bat
 call "%~dp0\core\generic_ensure.bat" QT %*
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 if "%QT_BIN_DIR%" equ "" exit /b 0
