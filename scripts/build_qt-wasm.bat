@@ -10,14 +10,18 @@ if "%MAKER_ENV_VERBOSE%" neq "" echo on
 set "_QTW_VERSION=%MAKER_ENV_VERSION%"
 set "_QTW_REBUILD=%MAKER_ENV_REBUILD%"
 
-rem apply defaults
-set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
-if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
 
+rem (1) *** define QT-WASM version defaults and clone options ***
+rem set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+rem if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
+set "_QTW_CLONE_OPTIONS=--silent"
+if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone"
+rem version default:
 rem if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
 if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.8.3
 
-rem (0) *** match _QTW_EMSDK_VERSION to given _QTW_VERSION ***
+
+rem (2) *** match _QTW_EMSDK_VERSION to given _QTW_VERSION ***
 rem todo:
 rem  for Qt6.6 -> EMSDK 3.1.37
 rem  for Qt6.8 -> EMSDK 3.1.56
@@ -27,9 +31,18 @@ set _QTW_EMSDK_VERSION=3.1.56
 set _QTW_GCC_VERSION=
 
 
-rem (1) *** build QT ***
+rem (3) *** ensure QT Host ***
 rem we need a QT Host version of same version as the target QT-QWASM we like to build (but build with MinGW gcc!)
-call "%MAKER_BUILD%\ensure_qt.bat" %_QTW_VERSION% %MAKER_ENV_VERBOSE%
+rem
+:qtw_ensure_qt_host
+rem the qt build and ensure scripts are not working properly, we have to call it twice
+call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE% 1>nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: GCC is not available
+  goto :qtw_exit
+)
+call "%MAKER_BUILD%\ensure_qt.bat" %_QTW_VERSION% %MAKER_ENV_VERBOSE% --use_gcc
 if %ERRORLEVEL% NEQ 0 (
   echo building Qt %_QTW_VERSION% failed
   goto :qtw_exit
@@ -45,7 +58,9 @@ if not exist "%QT_BIN_DIR%" (echo error: Qt %_QTW_VERSION% not available &goto :
 if not exist "%QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" (echo error: Qt %_QT_VERSION% incomplete &goto :qtw_exit)
 if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo error: Qt %_QTW_VERSION% incomplete &goto :qtw_exit)
 
-rem (2) *** clone qt again for wasm-build ***
+
+rem (4) *** clone qt sources for wasm-build ***
+:qtw_clone_qt_wasm
 call "%MAKER_BUILD%\clone_qt.bat" "%_QTW_VERSION%" "qt-wasm" %MAKER_ENV_VERBOSE% %_QTW_CLONE_OPTIONS%
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR
@@ -63,7 +78,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" set QTW_
 if "%MAKER_ENV_VERBOSE%" neq "" set _QTW_
 
 
-rem (3) *** patch QT-WASM CMake files ***
+rem (5) *** patch QT-WASM CMake files ***
 rem https://ronakshah1009.wordpress.com/2020/07/28/build-wasm-on-windows-for-qt
 rem
 rem Note:
@@ -74,7 +89,7 @@ rem Second, need to specify an install prefix manually (e.g. C:\Development\Qt\T
 rem See https://github.com/victronenergy/gui-v2/issues/441#issuecomment-1681609453 for full instructions.
 
 :qtw_rebuild
-rem (5) *** ensure prerequisites (note that build_qt already ensures most of the prerequisites below) ***
+rem (6) *** ensure prerequisites (note that build_qt already ensures most of the prerequisites below) ***
 rem 
 echo.
 echo rebuilding Qt-WASM %_QT_VERSION% from sources
@@ -154,6 +169,7 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :qtw_exit
 )
 
+
 rem (7) *** configure QT-WASM ***
 :qtw_configure_test
 if exist "%QTW_BUILD_DIR%\qtbase\cmake_install.cmake" echo QT-CONFIGURE WASM %_QTW_VERSION% already done &goto :qtw_configure_done
@@ -170,12 +186,14 @@ set _QTW_RETRIES=0
   cd /d "%QTW_BUILD_DIR%"
   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32 -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -prefix "%_QTW_PREFIX_DIR%" -nomake examples -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
   rem maybe try above with explicite mingw32-make
 
   rem this is from "https://ronakshah1009.wordpress.com/2020/07/28/build-wasm-on-windows-for-qt"
   rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix %CD%\qtbase mingw32-make module-qtbase module-qtdeclarative
-  rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%" mingw32-make module-qtbase module-qtdeclarative -qt-host-path "%_QTW_HOST_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+  rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%" mingw32-make module-qtbase module-qtdeclarative -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+  rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%" mingw32-make module-qtbase module-qtdeclarative
+  rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%"
   
   rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
@@ -205,6 +223,10 @@ set _QTW_RETRIES=0
 :qtw_configure_done
 
 
+rem test to not build it
+rem goto :qtw_install
+
+
 rem (8) *** build QT-WASM ***
 :qtw_build_test
 if exist "%QTW_BIN_DIR%\bin\qtloader.js" echo QT-BUILD WASM %_QTW_VERSION% already done &goto :qtw_build_done
@@ -219,7 +241,7 @@ set _QTW_RETRIES=0
   rem call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem future WASM supported modules:
   rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
-  rem if exist "%QTW_BUILD_DIR%\qtbase\bin\qtloader.js" goto :qtw_build_done
+  if exist "%QTW_BUILD_DIR%\qtbase\bin\qtloader.js" goto :qtw_build_done
   if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=3
   if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=2
   if "%_QTW_RETRIES%" equ "0" set _QTW_RETRIES=1

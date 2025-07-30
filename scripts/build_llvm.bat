@@ -40,7 +40,7 @@ goto :_install_done
 
 
 rem (3) *** ensuring prerequisites ***
-_rebuild
+:_rebuild
 echo.
 echo rebuilding LLVM %_LLVM_VERSION% from sources
 echo see https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm
@@ -75,8 +75,8 @@ if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\Ali
   rem
   rem cmake -S D:\GIT\Maker\tools\LLVM\llvm-project\llvm -B D:\GIT\Maker\tools\LLVM\llvm_build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release --install-prefix D:\GIT\Maker\tools\LLVM\llvm --trace --fresh
   rem
-  echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
-  call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+  echo cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+  call cmake -S "%_LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_LLVM_TGT_ARCH% --install-prefix "%_LLVM_BIN_DIR%" -DLLVM_ENABLE_PROJECTS="clang;lld;" -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 :_configure_done
 echo LLVM-CONFIGURE %_LLVM_VERSION% done
 
@@ -110,18 +110,18 @@ if exist "%_LLVM_BIN_DIR%\bin\clang.exe" (
 
 rem (8) *** make LLVM available ***
 :_validate
+if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_exit
 set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_ENV_VERBOSE%" neq "" set LLVM_
-if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_exit
 
-call "%MAKER_BUILD%\validate_llvm.bat" 1>nul 2>nul
+call "%MAKER_BUILD%\validate_llvm.bat" "%_LLVM_VERSION%" 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :_exit
 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
 
 :_exit
 cd /d "%_LLVM_DIR%"
-cd /d "%_BLLVM_START_DIR=%"
+cd /d "%_BLLVM_START_DIR%"
 set _BLLVM_START_DIR=
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
 call "%MAKER_BUILD%\validate_llvm.bat" --no_errors
