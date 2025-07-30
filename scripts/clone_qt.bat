@@ -16,16 +16,18 @@ set "_QTC_VERSION=%MAKER_ENV_VERSION%"
 set "_QTC_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
 set "_QTC_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
 set _QTC_CLEAN_BEFORE_CLONE=
-set _QTC_INIT_SUBMODULES=
+set _QTC_INIT_SUBMODULES=true
 set _QTC_CLONE_SUBMODULES=
+set _QTC_NO_INIT=
 for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clean_before_clone" set _QTC_CLEAN_BEFORE_CLONE=true
-for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules" set _QTC_INIT_SUBMODULES=true
-for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_submodules" set _QTC_CLONE_SUBMODULES=-true
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules"    set _QTC_INIT_SUBMODULES=true
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_submodules"   set _QTC_CLONE_SUBMODULES=true
+for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--no_init"            set _QTC_INIT_SUBMODULES=&set _QTC_NO_INIT=true
 
 rem apply defaults
 if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.6.3
 if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
-if "%_QTC_INIT_SUBMODULES%" equ "" set _QTC_INIT_SUBMODULES=true
+rem if "%_QTC_INIT_SUBMODULES%" equ "" set _QTC_INIT_SUBMODULES=true
 rem if "%_QTC_CLONE_SUBMODULES%" equ "" set _QTC_CLONE_SUBMODULES=true
 
 rem define folders
@@ -58,8 +60,8 @@ call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QTC_SOURCES_DIR%" "https://code.qt
 pushd "%_QTC_SOURCES_DIR%"
 rem 2) configure the repository
 call git pull
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat"
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository"
+if "%_QTC_NO_INIT%" equ "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat"
+if "%_QTC_NO_INIT%" equ "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository"
 rem 3) init submodules
 if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule init
 rem 4) clone submodules
