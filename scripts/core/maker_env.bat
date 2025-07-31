@@ -42,6 +42,7 @@ set "__ARG__=%~1"
 if "%__ARG__%" equ "" goto :param_loop_exit
 shift
 rem handle known switches:
+if /I "%__ARG__%" equ "--"             (goto :param_loop)
 if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "--no_warnings"  (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
@@ -82,8 +83,8 @@ rem split unknonw args and switches
 if "%MAKER_ENV_UNKNOWN_ARGS%" equ "" goto :split_unknown_switches
 SETLOCAL ENABLEDELAYEDEXPANSION
 echo @echo off>"%TEMP%\_split_free_args.bat"
-set _QT_ARG_ASSIGNED=
-for %%j in (%MAKER_ENV_UNKNOWN_ARGS%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_ARG_%%i!" equ "" set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j" &set _QT_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
+set _MAKER_ENV_ARG_ASSIGNED=
+for %%j in (%MAKER_ENV_UNKNOWN_ARGS%) do set _MAKER_ENV_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_MAKER_ENV_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_ARG_%%i!" equ "" set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j" &set _MAKER_ENV_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_ARG_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
 rem if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_ENV_UNKNOWN_ARG
 ENDLOCAL
 call "%TEMP%\_split_free_args.bat"
@@ -91,8 +92,8 @@ del "%TEMP%\_split_free_args.bat"
 :split_unknown_switches
 if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :exit
 SETLOCAL ENABLEDELAYEDEXPANSION
-set _QT_ARG_ASSIGNED=
-for %%j in (%MAKER_ENV_UNKNOWN_SWITCHES%) do set _QT_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_QT_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_SWITCH_%%i!" equ "" set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j" &set _QT_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
+set _MAKER_ENV_ARG_ASSIGNED=
+for %%j in (%MAKER_ENV_UNKNOWN_SWITCHES%) do set _MAKER_ENV_ARG_ASSIGNED=&for /L %%i in (1,1,10) do if "!_MAKER_ENV_ARG_ASSIGNED!" equ "" if "!MAKER_ENV_UNKNOWN_SWITCH_%%i!" equ "" set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j" &set _MAKER_ENV_ARG_ASSIGNED=done &echo set "MAKER_ENV_UNKNOWN_SWITCH_%%i=%%~j">>"%TEMP%\_split_free_args.bat"
 rem if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_ENV_UNKNOWN_SWITCH
 ENDLOCAL
 call "%TEMP%\_split_free_args.bat"
