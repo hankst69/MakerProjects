@@ -356,4 +356,4 @@ rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 cd /d "%_QT_START_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %_QT_VERSION% incomplete &exit /b 1
-"%MAKER_TOOLS%\validate_qt.bat" "%QT_VERSION%" --no_warnings
+"%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings
