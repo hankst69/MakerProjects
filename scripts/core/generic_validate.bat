@@ -43,6 +43,7 @@ if /I "%_ARG_TMP_%" equ "-v"            (set "_VALIDATE_VERBOSE=--verbose" &goto
 if /I "%_ARG_TMP_%" equ "--help"        (set "_VALIDATE_HELP=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-h"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-?"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--"            (goto :param_loop)
 if '%_ARG_TMP_:~0,1%' equ '-' (echo warning%_VALIDATE_SCRIPT_NAME%: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
 if "%_VALIDATE_TGT_VERSION%" equ "" set "_VALIDATE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop
 echo warning%_VALIDATE_SCRIPT_NAME%: unknown argument '%_ARG_TMP_%'
