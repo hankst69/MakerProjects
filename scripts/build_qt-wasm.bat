@@ -21,13 +21,13 @@ rem if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.6.3
 if "%_QTW_VERSION%" equ "" set _QTW_VERSION=6.8.3
 
 
-rem (2) *** match _QTW_EMSDK_VERSION to given _QTW_VERSION ***
+rem (2) *** match QTW_EMSDK_VERSION to given _QTW_VERSION ***
 rem todo:
 rem  for Qt6.6 -> EMSDK 3.1.37
 rem  for Qt6.8 -> EMSDK 3.1.56
 rem  see https://doc.qt.io/qt-6/wasm.html
-set _QTW_EMSDK_VERSION=3.1.37
-set _QTW_EMSDK_VERSION=3.1.56
+set QTW_EMSDK_VERSION=3.1.37
+set QTW_EMSDK_VERSION=3.1.56
 set _QTW_GCC_VERSION=
 
 
@@ -68,7 +68,7 @@ rem clone_qt might switch folder so we switch back:
 cd /d "%_QTW_START_DIR%"
 rem with QT-WASM the Build-Dir is the Source_Dir
 set "QTW_BUILD_DIR=%QT_SOURCES_DIR%"
-set "QTW_BIN_DIR=%QTW_BUILD_DIR%qtbase\bin"
+set "QTW_BIN_DIR=%QTW_BUILD_DIR%qtbase"
 rem we clone also qt-wasm-examples
 set "QTW_EXAMPLES_DIR=%QT_DIR%\qt-webassembly-examples"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%QTW_EXAMPLES_DIR%" "https://github.com/msorvig/qt-webassembly-examples.git" %MAKER_ENV_VERBOSE% --silent
@@ -120,7 +120,7 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: GCC is not available
   goto :qtw_exit
 )
-call "%MAKER_BUILD%\ensure_emsdk.bat" %_QTW_EMSDK_VERSION% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_emsdk.bat" %QTW_EMSDK_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: EMSDK is not available
   goto :qtw_exit
