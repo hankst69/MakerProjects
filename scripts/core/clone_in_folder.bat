@@ -24,7 +24,7 @@ if "%_TARGET_DIR%" equ "" echo error: missing argument 'target-folder' &goto :Us
 if "%_GIT_CLONE_URL%" equ "" echo error: missing argument 'git-repo-url' &goto :Usage
 if "%MAKER_ENV_VERBOSE%" equ "" goto :Start
 echo _TARGET_DIR        = "%_TARGET_DIR%"
-echo _TARGET_DIR        = "%_GIT_CLONE_URL%"
+echo _GIT_CLONE_URL     = "%_GIT_CLONE_URL%"
 echo _GIT_CLONE_REPO    = "%_GIT_CLONE_REPO%"
 echo _SILENT_CLONE_MODE = "%_SILENT_CLONE_MODE%"
 echo _SWITCH_BRANCH     = "%_SWITCH_BRANCH%"

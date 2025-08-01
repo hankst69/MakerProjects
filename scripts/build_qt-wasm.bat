@@ -31,6 +31,8 @@ set QTW_EMSDK_VERSION=3.1.56
 set _QTW_GCC_VERSION=
 
 
+rem goto :qtw_clone_qt_wasm
+
 rem (3) *** ensure QT Host ***
 rem we need a QT Host version of same version as the target QT-QWASM we like to build (but build with MinGW gcc!)
 rem
@@ -103,26 +105,28 @@ echo *** THIS REQUIRES Cmake 3.22 or newer
 echo *** THIS REQUIRES Ninja
 call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: CMAKE GEQ3.16 is not available
   goto :qtw_exit
 )
 call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NINJA is not available
+  echo error: NINJA is not available
   goto :qtw_exit
 )
-call "%MAKER_BUILD%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
+  echo êrror: LLVM CLANG is not available
   goto :qtw_exit
 )
-call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: GCC is not available
+  echo error: GCC is not available
   goto :qtw_exit
 )
+echo on
 call "%MAKER_BUILD%\ensure_emsdk.bat" %QTW_EMSDK_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: EMSDK is not available
+  echo error: EMSDK is not available
   goto :qtw_exit
 )
 rem echo *** OTPIONAL: VisualStudio 2019 or 2022
