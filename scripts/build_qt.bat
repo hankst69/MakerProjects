@@ -90,9 +90,15 @@ if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
 
 
 rem (5) *** testing for existing QT build ***
-if not exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" goto :qt_rebuild
-if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" goto :qt_rebuild
-if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
+set "_QT_TEST_EXE_UIC=%_QT_BIN_DIR%\bin\uic.exe"
+set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
+set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\Qt6Mqtt.lib"
+if /I "%_QT_USE_GCC%" equ "true" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt.a"
+
+if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_rebuild
+if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_rebuild
+rem if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
+if not exist "%_QT_TEST_EXE_UIC%" goto :qt_rebuild
 rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
@@ -153,12 +159,12 @@ if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_
 if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" neq "true" (
   goto :qt_exit
 )
-if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
+if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" equ "true" (
   goto :qt_exit
 )
-if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\validate_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
-if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\validate_gcc.bat" %MAKER_ENV_VERBOSE%
+rem if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\validate_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
+rem if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\validate_gcc.bat" %MAKER_ENV_VERBOSE%
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
@@ -284,7 +290,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
 
 rem (9-1) *** perform QT Basic build ***
 :qt_build_test
-set _QT_BUILD_RETRIES=0
+set _QT_BUILD_RETRIES=1
 if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-BUILD %_QT_VERSION% not yet done or incomplete &goto :qt_build
 if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
 :qt_build
@@ -303,7 +309,7 @@ if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already do
 
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
-if exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done &goto :qt_modules_build_done
+if exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done &goto :qt_modules_build_done
 :qt_modules_build
   echo QT-BUILD %_QT_VERSION%
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
@@ -314,13 +320,9 @@ if exist "%QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done
 
 rem (10) *** perform QT install ***
 :qt_install
-set "_QT_TEST_EXE_UIC=%_QT_BIN_DIR%\bin\uic.exe"
-set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
-set "QT_TEST_LIB_MQTT=%QT_BIN_DIR%\lib\Qt6Mqtt.lib"
-if /I "%_QT_USE_GCC%" equ "true" set "QT_TEST_LIB_MQTT=%QT_BIN_DIR%\lib\libQt6Mqtt.a"
 if not exist "%_QT_TEST_EXE_UIC%" goto :qt_install_do
 if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_install_do
-if not exist "%QT_TEST_LIB_MQTT%" goto :qt_install_do
+if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
   echo QT-INSTALL %_QT_VERSION%
@@ -344,6 +346,7 @@ set "QT_BIN_DIR=%_QT_BIN_DIR%"
 set "QT_VERSION=%_QT_VERSION%"
 set "QT_CMAKE=%_QT_BIN_DIR%\bin\qt-cmake.bat"
 set "QT_LLVM_VER=%_QT_LLVM_VER%"
+set "QT_TEST_LIB_MQTT=%_QT_TEST_LIB_MQTT%"
 if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 rem echo @"%QT_SOURCES_DIR%\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 rem echo @"%QT_SOURCES_DIR%\qtbase\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
@@ -355,5 +358,5 @@ rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 :qt_exit
 cd /d "%_QT_START_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
-if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %_QT_VERSION% incomplete &exit /b 1
+if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% incomplete &exit /b 1
 "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings
