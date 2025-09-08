@@ -478,6 +478,7 @@ class SafeString : public Printable, public Print {
     size_t print(unsigned int, int = DEC);
     size_t print(long, int = DEC);
     size_t print(unsigned long, int = DEC);
+    size_t print(int64_t, int = DEC);
     size_t print(double, int = 2);
     size_t print(const __FlashStringHelper *);
     size_t print(const char*);
@@ -489,6 +490,7 @@ class SafeString : public Printable, public Print {
     size_t println(unsigned int, int = DEC);
     size_t println(long, int = DEC);
     size_t println(unsigned long, int = DEC);
+    size_t println(int64_t, int = DEC);
     size_t println(double, int = 2);
     size_t println(const __FlashStringHelper *);
     size_t println(const char*);
@@ -513,7 +515,7 @@ class SafeString : public Printable, public Print {
     
     @param d - the double to convert to text
     @param decs - the preferred number of decimial places to output (limited to <7).  This will be reduced automatically to fit the fixed width
-    @param width - fixed width the output is to padded/limited to
+    @param width - fixed width the output is to padded/limited to (+ve width padds on left, -ve width padds on right)
     @param forceSign - optional, defaults to false, if true the + sign is added for +ve numbers
     ****************************************************************************/
     size_t println(double d, int decs, int width, bool forceSign = false);
@@ -525,7 +527,7 @@ class SafeString : public Printable, public Print {
     
     @param d - the double to convert to text
     @param decs - the preferred number of decimial places to output(limited to <7).  This will be reduced automatically to fit the fixed width
-    @param width - fixed width the output is to padded/limited to
+    @param width - fixed width the output is to padded/limited to (+ve width padds on left, -ve width padds on right)
     @param forceSign - optional, defaults to false, if true the + sign is added for +ve numbers
     ****************************************************************************/
     size_t print(double d, int decs, int width, bool forceSign = false);
@@ -600,6 +602,15 @@ class SafeString : public Printable, public Print {
     
     @param num - the number to convert to text
     ****************************************************************************/
+    SafeString & operator = (int64_t num);
+    
+    /*************************************************************
+    Clears this SafeString and concatinates the text version of the argument
+    
+    If the value is null or invalid, or too large to be fit in the string's internal buffer the resulting SafeString will be empty
+    
+    @param num - the number to convert to text
+    ****************************************************************************/
     SafeString & operator = (float num);
 
     /*************************************************************
@@ -654,6 +665,7 @@ class SafeString : public Printable, public Print {
     SafeString & prefix(unsigned int num);
     SafeString & prefix(long num);
     SafeString & prefix(unsigned long num);
+    SafeString & prefix(int64_t num);
     SafeString & prefix(float num);
     SafeString & prefix(double num);
     SafeString & prefix(const __FlashStringHelper * str);
@@ -676,6 +688,7 @@ class SafeString : public Printable, public Print {
     SafeString & concat(unsigned int num);
     SafeString & concat(long num);
     SafeString & concat(unsigned long num);
+    SafeString & concat(int64_t num);
     SafeString & concat(float num);
     SafeString & concat(double num);
     SafeString & concat(const __FlashStringHelper * str);
@@ -732,6 +745,9 @@ class SafeString : public Printable, public Print {
     SafeString & operator -= (unsigned long num) {
       return prefix(num);
     }
+    SafeString & operator -= (int64_t num) {
+      return prefix(num);
+    }
     SafeString & operator -= (float num) {
       return prefix(num);
     }
@@ -777,6 +793,9 @@ class SafeString : public Printable, public Print {
       return concat(num);
     }
     SafeString & operator += (unsigned long num) {
+      return concat(num);
+    }
+    SafeString & operator += (int64_t num) {
       return concat(num);
     }
     SafeString & operator += (float num) {
@@ -1079,6 +1098,63 @@ class SafeString : public Printable, public Print {
       */
     int indexOfCharFrom(const char* chars, unsigned int fromIndex = 0);
 
+    /* *** utf8 methods ************/
+    // For endIdx <= length(), utf8index returns an index in the range endIdx-3 to endIdx
+    // such that using that index for substring will not split a valid utf8 code point
+    // if endIdx > length(), endIdx is set to length(); and the error flag is set
+    // endIdx == (unsigned int)(-1)  is treated as endIdx == length() returns a result without an error
+    //Code Points 	     1st-Byte 2nd-Byte 3rd-Byte 4th-Byte
+    //U+0000..U+007F 	    00..7F 			
+    //U+0080..U+07FF 	    C2..DF 	80..BF 		
+    //U+0800..U+0FFF 	    E0 	    A0..BF 	80..BF 	
+    //U+1000..U+CFFF 	    E1..EC 	80..BF 	80..BF 	
+    //U+D000..U+D7FF 	    ED 	    80..9F 	80..BF 	
+    //U+E000..U+FFFF 	    EE..EF 	80..BF 	80..BF 	
+    //U+10000..U+3FFFF 	  F0 	    90..BF 	80..BF 	80..BF
+    //U+40000..U+FFFFF 	  F1..F3 	80..BF 	80..BF 	80..BF
+    //U+100000..U+10FFFF 	F4 	    80..8F 	80..BF 	80..BF  
+    
+    /**
+      For endIdx <= length(), utf8index() returns an index in the range endIdx-3 to endIdx
+      such that using that index in substring() will not split a valid utf8 code point.
+      (see https://www.unicode.org/versions/Unicode16.0.0/core-spec/)
+      
+      @param endIdx - the index to the start searching back from to find as safe index to split on to preserve valid utf8 code points<br>
+      if endIdx > length(),  endIdx is set to length(); and the error flag is set.<br>
+      if endIdx == (unsigned int)(-1), it is treated as endIdx == length() and returns a result without error.
+      
+      @return result - index that the SafeString can be split at that will preserve valid uff8 code points.
+           
+      To take a substring() of a SafeString containing utf8 data while maintaining the integrity of the utf8 code points use <br>
+      <code>sfStr.substring(sfResult, 0, sfStr.utf8index(endIdx));</code><br>
+      Note: if sfStr only contains ASCII data (0x00 to 0x7F) the result is exactly the same as<br>
+      <code>sfStr.substring(sfResult, 0, endIdx);</code>
+      */
+    int utf8index(unsigned int endIdx);
+    
+    
+    // For startIdx < length(), utf8nextIndex returns an index in the range startIdx+1 to startIdx+4
+    // such that using that index for substring will not split a valid utf8 code point
+    // if startIdx > length(), (unsigned int)(-1) will be returned and the error flag is set
+    // if startIdx == (unsigned int)(-1), OR startIdx == length(),  (unsigned int)(-1) will be returned with no error
+    /**
+      For startIdx < length(), utf8nextIndex() returns an index in the range startIdx+1 to startIdx+4
+      such that using that index in substring() will not split a valid utf8 code point.
+      (see https://www.unicode.org/versions/Unicode16.0.0/core-spec/)
+      
+      @param startIdx - the index to the start from to find the next start of a valid utf8 code points<br>
+      if startIdx > length(),  (unsigned int)(-1) will be returned and the error flag is set<br>
+      if startIdx == (unsigned int)(-1), OR startIdx == length(),  (unsigned int)(-1) will be returned with no error
+      
+      @return result - the next index, after startIdx, that can start a valid utf8 code point.<br>
+      Using this index in substring() will preserve valid uff8 code points.
+           
+      To extract a single uft8 code point around idx use <br>
+      <code>sfStr.substring(sfResult, sfStr.utf8index(idx), sfStr.utf8nextIndex(idx));</code><br>
+      Note: if sfStr only contains ASCII data (0x00 to 0x7F) the result is exactly the same as<br>
+      <code>sfStr.substring(sfResult, idx, idx+1);</code>
+      */
+    int utf8nextIndex(unsigned int startIdx);
 
     /* *** substring methods ************/
     // substring is from beginIdx to end of string
@@ -1300,6 +1376,15 @@ class SafeString : public Printable, public Print {
         leading and trailing white space is allowed around a valid int
      */         
     unsigned char toInt(int & i) ;
+    
+    /**
+      convert the SafeString to a int64_t (for time_t long long).
+      @param l -- int64_t reference, where the result is stored. l is only updated if the conversion is successful
+      @return -- 0 if the SafeString is not a valid int, else return non-zero<br>
+        leading and trailing white space is allowed around a valid int
+     */         
+    unsigned char toInt64_t(int64_t &l) ;
+    
     /**
       convert the SafeString to a long.
       @param l -- long reference, where the result is stored. l is only updated if the conversion is successful
@@ -1930,6 +2015,8 @@ class SafeString : public Printable, public Print {
     size_t printInternal(long, int = DEC, bool assignOp = false);
     size_t printInternal(unsigned long, int = DEC, bool assignOp = false);
     size_t printInternal(double, int = 2, bool assignOp = false);
+    size_t printInternal(int64_t num, int base = 2, bool assignOp = false);
+
     void setError();
     void printlnErr()const ;
     void debugInternalMsg(bool _fullDebug) const ;
@@ -1953,6 +2040,7 @@ class SafeString : public Printable, public Print {
     static char emptyDebugRtnBuffer[1];
     void debugInternal(bool _fullDebug) const ;
     void debugInternalResultMsg(bool _fullDebug) const ;
+    void baseError(const __FlashStringHelper * methodName, int base) const ;
     void concatErr()const ;
     void concatAssignError() const;
     void prefixErr()const ;
@@ -1962,6 +2050,7 @@ class SafeString : public Printable, public Print {
     void warningMethod(const __FlashStringHelper * methodName) const ;
     void assignErrorMethod() const ;
     void outputFromIndexIfFullDebug(unsigned int fromIndex) const ;
+    int64_t strto_int64_t(const char *nptr, char **endptr, int base);
 };
 
 #include "SafeStringNameSpaceEnd.h"

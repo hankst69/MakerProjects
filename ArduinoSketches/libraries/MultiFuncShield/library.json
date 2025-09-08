@@ -1,7 +1,7 @@
 {
   "name": "MultiFuncShield",
   "keywords": "Multi function Shield, MFS, MultiFuncShield",
-  "description": "Allows easy use of multi function shield.",
+  "description": "A curated, community-maintained library for the popular Multi Function Shield (buttons, LEDs, displays, sensors, and more).",
   "authors":
   [
     {
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "https://github.com/hpsaturn/MultiFuncShield-Library.git"
   },
-  "version": "1.0.3",
+  "version": "1.0.6",
   "frameworks": "arduino",
   "platforms":
   [
@@ -28,7 +28,6 @@
   ],
   "dependencies":
   [
-    {"name":"TimerOne", "owner":"paulstoffregen", "version":"1.1.1"},
     {"name":"Servo", "version":"1.2.1"}
   ],
   "export": {
@@ -37,6 +36,8 @@
         ".github",
         ".travis.yml",
         ".gitignore",
+        "doc",
+        "images",
         "releases",
         "deploy.sh"
     ]

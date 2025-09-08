@@ -39,17 +39,17 @@
      use createBufferedOutput(name, size, mode); instead
      BufferedOutput(size_t _bufferSize, uint8_t *_buf, BufferedOutputMode mode, bool allOrNothing = true);
 
-     buf -- the user allocated buffer to store the bytes, must be at least bufferSize long.  Defaults to an internal 8 char buffer if buf is omitted or NULL
-     bufferSize -- number of bytes to buffer,max bufferSize is limited to 32766. Defaults to an internal 8 char buffer if bufferSize is < 8 or is omitted
-     mode -- BLOCK_IF_FULL, DROP_UNTIL_EMPTY or DROP_IF_FULL
-             BLOCK_IF_FULL,    like normal print, but with a buffer. Use this to see ALL the output, but will block the loop() when the output buffer fills
-             DROP_UNTIL_EMPTY, when the output buffer is full, drop any more chars until it completely empties.  ~~<CR><NL> is inserted in the output to show chars were dropped.
-                                 Useful when there too much output.  It allow multiple prints to be output consecutively to give meaning full output
-                                 avaliableForWrite() will return 0 from when the buffer fills until is empties
-             DROP_IF_FULL,     when the output buffer is full, drop any more chars until here is space.  ~~<CR><NL> is inserted in the output to show chars were dropped.
-     allOrNothing -- defaults to true,  If true AND output buffer not empty then if write(buf,size) will not all fit don't output any of it.
-                                    Else if false OR output buffer is empty then write(buf,size) will output partial data to fill output buffer.
-                     allOrNothing setting is ignored if mode is BLOCK_IF_FULL
+     buf -- the user allocated buffer to store the bytes, must be at least bufferSize long.  Defaults to an internal 8 char buffer if buf is omitted or NULL  
+     bufferSize -- number of bytes to buffer,max bufferSize is limited to 32766. Defaults to an internal 8 char buffer if bufferSize is < 8 or is omitted  
+     mode -- BLOCK_IF_FULL, DROP_UNTIL_EMPTY or DROP_IF_FULL  
+             BLOCK_IF_FULL,    like normal print, but with a buffer. Use this to see ALL the output, but will block the loop() when the output buffer fills  
+             DROP_UNTIL_EMPTY, when the output buffer is full, drop any more chars until it completely empties.  ~~<CR><NL> is inserted in the output to show chars were dropped.  
+                                 Useful when there too much output.  It allow multiple prints to be output consecutively to give meaning full output  
+                                 avaliableForWrite() will return 0 from when the buffer fills until is empties  
+             DROP_IF_FULL,     when the output buffer is full, drop any more chars until here is space.  ~~<CR><NL> is inserted in the output to show chars were dropped.  
+     allOrNothing -- defaults to true,  If true AND output buffer not empty then if write(buf,size) will not all fit don't output any of it.  
+                                    Else if false OR output buffer is empty then write(buf,size) will output partial data to fill output buffer.  
+                     allOrNothing setting is ignored if mode is BLOCK_IF_FULL  
 */
 
 BufferedOutput::BufferedOutput( size_t _bufferSize, uint8_t _buf[],  BufferedOutputMode _mode, bool _allOrNothing) {
@@ -516,6 +516,7 @@ size_t BufferedOutput::bytesToBeSent() {
   }
   return btbs;
 }
+static volatile bool inNextByteOut = false; // lock to prevent recursive calls to nextByteOut
 
 // NOTE nextByteOut will block if baudRate is set higher then actual i/o baudrate
 void BufferedOutput::nextByteOut() {
@@ -527,6 +528,11 @@ void BufferedOutput::nextByteOut() {
   //  delay(5000);
     return;
   }
+  if (inNextByteOut) {
+    return;
+  }
+  inNextByteOut = true;
+  
   if (mode != DROP_UNTIL_EMPTY) {
     waitForEmpty = false; // always skips a lot of the code below
   }
@@ -543,6 +549,7 @@ void BufferedOutput::nextByteOut() {
       // no txBuffer so using baudrate to release bytes instead of availableForWrite()
       sendTimerStart = micros(); // restart baudrate release timer
     }
+    inNextByteOut = false;
     return; // nothing to release
   }
 
@@ -570,6 +577,7 @@ void BufferedOutput::nextByteOut() {
     // if serialBytesWritten then wrote to txBuffer
     if ((!waitForEmpty) || serialBytesWritten || rb_available() ) { // if just wrote somthing or still have something to write then => waitForEmpty unchanged,
       //  also if waitForEmpty false no need to check (wrong mode)
+      inNextByteOut = false;
       return; // not empty
     }
     // here waitForEmpty true && noBytesWritten to txBuffer && rb_buffer empty
@@ -581,6 +589,7 @@ void BufferedOutput::nextByteOut() {
     if (avail >= txBufferSize) { // empty
       waitForEmpty = false;
     }
+    inNextByteOut = false;
     return;
   } // else no txBuffer release on timer
 
@@ -592,6 +601,7 @@ void BufferedOutput::nextByteOut() {
   // NOTE throw away any excess of (us - sendTimerStart) > us_perByte
   // output will be slower then specified
   if ((us - sendTimerStart) < us_perByte) {
+    inNextByteOut = false;
     return; // nothing to do not time to release next byte
   }
   // else send next byte
@@ -604,6 +614,7 @@ void BufferedOutput::nextByteOut() {
   if (rb_available() == 0) {
     waitForEmpty = false;
   }
+  inNextByteOut = false;
 }
 
 // always expect there to be at least 4 spaces available in the ringBuffer when this is called

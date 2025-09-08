@@ -56,6 +56,13 @@ See the top of each file for its license
 Note, this is NOT my work, I am simply hosting it for easy access. The original code belongs to [Forward Computing and Control Pty. Ltd](https://www.forward.com.au/pfod/ArduinoProgramming/SafeString/index.html).
 
 # Revisions
+V4.1.42 prevent recursive calls to nextByteOut(). Added utf8index() and utf8nextIndex()  
+V4.1.41 fixed millisDelay repeat after stop()/finish()  
+V4.1.40 add support for separate setting of on and off times for PinFlasher    
+V4.1.39 add int64_t for += and -= operators  
+V4.1.38 corrected print(int64_t)  
+V4.1.37 added print(int64_t) support and check for invalid bases.  
+V4.1.36 added toInt64_t for parsing time_t inputs.  
 V4.1.35 minor edit to BufferedOutput  
 V4.1.34 fixed SafeStringLengthTrim example (removed unsupported setLength() calls)  
 V4.1.33 fix for bool for SAM boards  

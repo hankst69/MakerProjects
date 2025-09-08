@@ -170,7 +170,7 @@ bool SafeString::classErrorFlag = false; // set true if any SafeString object ha
     else capacity == maxLen-1;   i.e. cSFPS( )
 */
 SafeString::SafeString(size_t maxLen, char *buf, const char* cstr, const char* _name, bool _fromBuffer, bool _fromPtr) {
-   errorFlag = false; // set to true if error detected, cleared on each call to hasError()
+  errorFlag = false; // set to true if error detected, cleared on each call to hasError()
   timeoutStart_ms = 0;
   noCharsRead = 0; // number of char read on last call to readUntilToken
   buffer = NULL;          // the actual char array
@@ -179,7 +179,7 @@ SafeString::SafeString(size_t maxLen, char *buf, const char* cstr, const char* _
   name = _name; // save name
   fromBuffer = _fromBuffer;
   timeoutRunning = false;
-  bool keepBufferContents = false;  
+  bool keepBufferContents = false;
   if ((buf != NULL) && (cstr != NULL) && (buf == cstr)) {
     keepBufferContents = true;
   }
@@ -829,19 +829,46 @@ SafeString & SafeString::concatln(const char *cstr, size_t length) {
 
 
 //============= public print methods ===========
-size_t SafeString::print(unsigned char c, int d) {
+size_t SafeString::print(unsigned char c, int d) {        
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
   return printInternal((unsigned long)c, d); // calls cleanUp()
 }
-size_t SafeString::print(int i, int d) {
+size_t SafeString::print(int i, int d) {        
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
   return printInternal((long)i, d); // calls cleanUp()
 }
-size_t SafeString::print(unsigned int u, int d) {
+size_t SafeString::print(unsigned int u, int d) { 
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
   return printInternal((unsigned long)u, d); // calls cleanUp()
 }
 size_t SafeString::print(long l, int d) {
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
   return printInternal(l, d); // calls cleanUp()
 }
-size_t SafeString::print(unsigned long l, int d) {
+size_t SafeString::print(unsigned long l, int d) {     
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
+  return printInternal(l, d); // calls cleanUp()
+}
+size_t SafeString::print(int64_t l, int d) {        
+  if ((d < 2) || (d > 16)) {
+      baseError(F("print"),d);
+      return 0;
+  }
   return printInternal(l, d); // calls cleanUp()
 }
 size_t SafeString::print(double d, int decs) {
@@ -850,7 +877,7 @@ size_t SafeString::print(double d, int decs) {
 
 /**
   print to SafeString a double (or long) with decs after the decimal point
-  and padd to specified width
+  and padd to specified width (+ve width padds on left, -ve width padds on right);
   width is signed value, negative for left adjustment, +ve for right padding
   by default the + sign is not added, set forceSign argument to true to force the display of the + sign
 
@@ -1120,6 +1147,49 @@ size_t SafeString::print(const __FlashStringHelper *pstr) {
 
 // ============ protected internal print methods =============
 
+
+size_t SafeString::printInternal(int64_t num, int base, bool assignOp) {
+  cleanUp();
+  const size_t bufLen = 8 * sizeof(int64_t) + 4;
+  char reverseTempBuffer[bufLen];
+  char tempBuffer[bufLen];
+  size_t tempLen = 0;
+  // from sprintf
+   do {
+    const char digit = (char)(num % base);
+    reverseTempBuffer[tempLen++] = (digit < 10) ? ('0' + digit) : ('A' + digit - 10);
+    num /= base;
+  } while(num);
+  reverseTempBuffer[tempLen] = '\0';
+  size_t i = 0;
+  for (int j = tempLen-1; j>=0; j--) {
+      tempBuffer[i] = reverseTempBuffer[j];
+    i++;
+  }
+  tempBuffer[i] = '\0';
+  
+  size_t newlen = len + tempLen;
+  if (assignOp) {
+    newlen = tempLen;
+  }
+  if (!reserve(newlen)) {
+    setError();
+#ifdef SSTRING_DEBUG
+    if (assignOp) {
+      assignError(newlen, tempBuffer, NULL, '\0', true);
+    } else {
+      capError(F("print"), newlen, tempBuffer, NULL);
+    }
+#endif // SSTRING_DEBUG
+    return 0;
+  }
+  if (assignOp) {
+    clear(); // clear first
+  }
+  concat(tempBuffer);
+  return tempLen;
+}
+
 size_t SafeString::printInternal(long num, int base, bool assignOp) {
   cleanUp();
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
@@ -1261,6 +1331,10 @@ size_t SafeString::println(char c) {
 }
 
 size_t SafeString::println(unsigned char b, int base) {
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
   size_t n = temp.Print::print(b, base);
   concatln(temp.buffer, temp.len); // calls cleanUp()
@@ -1268,6 +1342,11 @@ size_t SafeString::println(unsigned char b, int base) {
 }
 
 size_t SafeString::println(int num, int base) {
+    
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
   size_t n = temp.Print::print(num, base);
   concatln(temp.buffer, temp.len); // calls cleanUp()
@@ -1275,6 +1354,11 @@ size_t SafeString::println(int num, int base) {
 }
 
 size_t SafeString::println(unsigned int num, int base) {
+    
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
   size_t n = temp.Print::print(num, base);
   concatln(temp.buffer, temp.len); // calls cleanUp()
@@ -1282,6 +1366,11 @@ size_t SafeString::println(unsigned int num, int base) {
 }
 
 size_t SafeString::println(long num, int base) {
+    
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
   size_t n = temp.Print::print(num, base);
   concatln(temp.buffer, temp.len); // calls cleanUp()
@@ -1289,9 +1378,25 @@ size_t SafeString::println(long num, int base) {
 }
 
 size_t SafeString::println(unsigned long num, int base) {
+    
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
   createSafeString(temp, 8 * sizeof(long) + 4); // null + sign + nl
   size_t n = temp.Print::print(num, base);
   concatln(temp.buffer, temp.len); // calls cleanUp()
+  return n + 2;
+}
+
+size_t SafeString::println(int64_t num, int base) {
+    
+  if ((base < 2) || (base > 16)) {
+      baseError(F("println"),base);
+      return 0;
+  }
+  size_t n = printInternal(num, base);  // calls cleanUp()
+  concat("\r\n"); // calls cleanUp()
   return n + 2;
 }
 
@@ -1389,6 +1494,11 @@ SafeString & SafeString::operator = (unsigned int num) {
 }
 
 SafeString & SafeString::operator = (long num) {
+  printInternal(num, DEC, true);
+  return *this;
+}
+
+SafeString & SafeString::operator = (int64_t num) {
   printInternal(num, DEC, true);
   return *this;
 }
@@ -1601,6 +1711,12 @@ SafeString & SafeString::prefix(unsigned long num) {
   return prefix(temp); // calls cleanUp()
 }
 
+SafeString & SafeString::prefix(int64_t num) {
+  createSafeString(temp, 2 + 3 * sizeof(int64_t));
+  temp.print(num);
+  return concat(temp); // calls cleanUp()
+}
+
 SafeString & SafeString::prefix(float num) {
   createSafeString(temp, 22);
   temp.print(num);
@@ -1664,6 +1780,12 @@ SafeString & SafeString::concat(long num) {
 
 SafeString & SafeString::concat(unsigned long num) {
   createSafeString(temp, 2 + 3 * sizeof(unsigned long));
+  temp.print(num);
+  return concat(temp); // calls cleanUp()
+}
+
+SafeString & SafeString::concat(int64_t num) {
+  createSafeString(temp, 2 + 3 * sizeof(int64_t));
   temp.print(num);
   return concat(temp); // calls cleanUp()
 }
@@ -2147,7 +2269,7 @@ unsigned char SafeString::startsWith(const char c, unsigned int fromIndex) {
   char str[2];
   str[0] = c;
   str[1] = '\0';
-  return startsWith(str,fromIndex);
+  return startsWith(str, fromIndex);
 }
 
 
@@ -2284,7 +2406,7 @@ unsigned char SafeString::startsWithIgnoreCase(const char c, unsigned int fromIn
   char str[2];
   str[0] = c;
   str[1] = '\0';
-  return startsWithIgnoreCase(str,fromIndex);
+  return startsWithIgnoreCase(str, fromIndex);
 }
 
 unsigned char SafeString::startsWithIgnoreCase( SafeString &s2, unsigned int fromIndex ) {
@@ -2676,19 +2798,19 @@ int SafeString::indexOf( char c, unsigned int fromIndex ) {
 }
 
 /**
-int SafeString::indexOf(SafeString &s2) {
+  int SafeString::indexOf(SafeString &s2) {
   s2.cleanUp();
   cleanUp();
   if (s2.len == 0) {
     setError();
-#ifdef SSTRING_DEBUG
+  #ifdef SSTRING_DEBUG
     if (debugPtr) {
       errorMethod(F("indexOf"));
       debugPtr->print(F(" was passed an empty SafeString ")); s2.outputName();
       outputFromIndexIfFullDebug(0);
       debugInternalMsg(fullDebug);
     }
-#endif // SSTRING_DEBUG
+  #endif // SSTRING_DEBUG
     return -1;
   }
 
@@ -2696,7 +2818,7 @@ int SafeString::indexOf(SafeString &s2) {
   //    return 0; // same SafeString
   //  }
   return indexOf(s2, 0);
-}
+  }
 
 **/
 
@@ -2747,9 +2869,9 @@ int SafeString::indexOf(SafeString &s2, unsigned int fromIndex) {
 }
 
 /**
-int SafeString::indexOf( const char* str ) {
+  int SafeString::indexOf( const char* str ) {
   return indexOf(str, 0); // calls cleanUp()
-}
+  }
 **/
 
 int SafeString::indexOf(const char* cstr , unsigned int fromIndex) {
@@ -3025,10 +3147,10 @@ int SafeString::lastIndexOf(const char* cstr, unsigned int fromIndex) {
 /*
   find first index of one of the chars in the arg
 
-int SafeString::indexOfCharFrom(SafeString &str) {
+  int SafeString::indexOfCharFrom(SafeString &str) {
   str.cleanUp();
   return indexOfCharFrom(str.buffer, 0); // calls cleanUp()
-}
+  }
 **/
 
 int SafeString::indexOfCharFrom(SafeString &str, unsigned int fromIndex) {
@@ -3037,9 +3159,9 @@ int SafeString::indexOfCharFrom(SafeString &str, unsigned int fromIndex) {
 }
 
 /**
-int SafeString::indexOfCharFrom(const char* chars) {
+  int SafeString::indexOfCharFrom(const char* chars) {
   return indexOfCharFrom(chars, 0); // calls cleanUp()
-}
+  }
 **/
 
 int SafeString::indexOfCharFrom(const char* chars, unsigned int fromIndex) {
@@ -3111,6 +3233,172 @@ int SafeString::indexOfCharFrom(const char* chars, unsigned int fromIndex) {
 
 /****  end of Search methods  *******************************/
 
+/*************************************************/
+/**  utf8 methods                           */
+/*************************************************/
+// For endIdx <= length(), utf8index returns an index in the range endIdx-3 to endIdx
+// such that using that index for substring will not split a valid utf8 code point
+// if endIdx > length(), endIdx is set to length(); and the error flag is set
+// endIdx == (unsigned int)(-1)  is treated as endIdx == length() returns a result without an error
+    //Code Points 	     1st-Byte 2nd-Byte 3rd-Byte 4th-Byte
+    //U+0000..U+007F 	    00..7F 			
+    //U+0080..U+07FF 	    C2..DF 	80..BF 		
+    //U+0800..U+0FFF 	    E0 	    A0..BF 	80..BF 	
+    //U+1000..U+CFFF 	    E1..EC 	80..BF 	80..BF 	
+    //U+D000..U+D7FF 	    ED 	    80..9F 	80..BF 	
+    //U+E000..U+FFFF 	    EE..EF 	80..BF 	80..BF 	
+    //U+10000..U+3FFFF      F0 	    90..BF 	80..BF 	80..BF
+    //U+40000..U+FFFFF 	    F1..F3 	80..BF 	80..BF 	80..BF
+    //U+100000..U+10FFFF 	F4 	    80..8F 	80..BF 	80..BF  
+
+int SafeString::utf8index(unsigned int endIdx) {
+  cleanUp();
+  if ((len == 0) && (endIdx == 0)) {
+    return 0;
+  }
+
+  if (endIdx == (unsigned int)(-1)) {
+    endIdx = len;
+  }
+
+  if (endIdx > len) {
+    setError();
+#ifdef SSTRING_DEBUG
+    if (debugPtr) {
+      warningMethod(F("utf8index"));
+      debugPtr->print(F(" SafeString")); outputName(); debugPtr->print(F(" endIdx > length() "));
+      debugInternalResultMsg(fullDebug);
+    }
+#endif // SSTRING_DEBUG
+    endIdx = len;
+  }  
+  unsigned int idx = endIdx;
+  int count = 0;
+  uint8_t p = 0xFF;
+  // start at endIdx and work back looking for start of utf8
+  while((idx > 0) && (count <= 4)) { 
+    // check idx-1
+    p = charAt(idx-1);
+    idx--;
+    count++;
+    if (count == 4) {
+      return endIdx; // found 3 trailing bytes before this one
+      // so there is a full utf8 4 byte code point between here and
+      // endIdx, so splitting at endIdx will not split a code point
+    }
+    // common case ASCII
+    if (p <= 0x7F) { // finished check valid utf8
+      return endIdx; // first utf8 start byte found and it is a complete code point 
+      // so there is not another partial utf8 code point between here and
+      // endIdx, so splitting at endIdx will not split a code point
+    } 
+    // expect trailing bytes with values < 0xC0, 192
+    if (p >= 0xC0) { // possible first byte of utf8 code point
+      break;
+    } 
+    // else not a utf8 starting byte for a utf8 code point
+    // tailing bytes are 
+    // in the range >= 0b10000000 (0x80) < 0b11000000 (0xC0)
+    // continue
+  }
+  
+  // idx is the start a possible valid utf8 sequence.
+  if ((p < 0xC2) || (p > 0xF4)) {
+    // not a valid starting byte for utf8 code point
+    // so sequence of bytes between here and endIdx are not a valid utf8 code point
+    return endIdx; 
+  }    
+
+  // else check for valid number of trailing utf8 bytes for this starting byte
+  if ((p >= 0xF0 && p <= 0xF4) && (count >= 4)) {
+    return idx + 4; // skip to end of 4 byte utf8 code point
+    // this case already handled by the if (count == 4) { return endIdx} above
+  } else if ((p >= 0xE0 && p <= 0xEF) && (count >= 3)) {
+    return idx + 3; // skip to end of 3 byte utf8 code point, may split on invalid extra trailing bytes   
+  } else if ((p >= 0xC2 && p <= 0xDF) && (count >= 2)) {  
+    return idx + 2; // skip to end of 2 byte utf8 code point, may split on invalid extra trailing bytes    
+  } 
+  // found start of partial utf8 code point.
+  if ((idx == 0) && (endIdx == len)) {
+    // safeString only contains partial utf8 code point 
+    // so spitting on endIdx will not split aa valid code point
+    return endIdx;
+  }  
+  // else split here befor partial code point
+  return idx; 
+}  
+
+
+// For startIdx < length(), utf8nextIndex returns an index in the range startIdx+1 to startIdx+4
+// such that using that index for substring will not split a valid utf8 code point
+// if startIdx > length(), (unsigned int)(-1) will be returned and the error flag is set
+// if startIdx == (unsigned int)(-1), OR startIdx == length(),  (unsigned int)(-1) will be returned with no error
+int SafeString::utf8nextIndex(unsigned int startIdx) {
+  cleanUp();
+  if (startIdx == (unsigned int)(-1)) {
+    startIdx = len;
+  }
+  if (startIdx == len) {
+    return -1;
+  }
+  if (startIdx > len) {
+    setError();
+#ifdef SSTRING_DEBUG
+    if (debugPtr) {
+      warningMethod(F("utf8nextIndex"));
+      debugPtr->print(F(" SafeString")); outputName(); debugPtr->print(F(" startIdx >= length() "));
+      debugInternalResultMsg(fullDebug);
+    }
+#endif // SSTRING_DEBUG
+    return -1;
+  }
+  if ((startIdx+1) == len) {
+    return len;
+  }
+  // check startIdx for valid start byte
+  uint8_t p = charAt(startIdx);
+  int maxCount = 4;
+  if (p >= 0xF0 && p <= 0xF4) {
+    maxCount = 4; // max possible valid bytes to end of 4 byte utf8 code point
+  } else if (p >= 0xE0 && p <= 0xEF) {
+    maxCount = 3; // max possible valid bytes to end of 3 byte utf8 code point   
+  } else if (p >= 0xC2 && p <= 0xDF) {  
+    maxCount = 2; // max possible valid bytes to end of 2 byte utf8 code point    
+  } 
+  // may stop before maxCount if find start byte.
+  
+  unsigned int idx = startIdx+1;
+  int count = 0;
+  // start at endIdx and work back looking for start of utf8
+  while((idx < len) && (count < maxCount)) { 
+    // check idx
+    p = charAt(idx);
+    // common case ASCII
+    if (p <= 0x7F) { // finished check valid utf8
+      return idx; // first utf8 start byte found and it is a complete code point 
+      // so splitting here will not split a code point
+    } 
+    // expect trailing bytes with values < 0xC0, 192
+    if (p >= 0xC0) { // possible first byte of utf8 code point
+      return idx; // so splitting here will not split a code point
+    } 
+    // else not a utf8 starting byte for a utf8 code point
+    // tailing bytes are 
+    // in the range >= 0b10000000 (0x80) < 0b11000000 (0xC0)
+    // continue
+    count++;
+    if (count == maxCount) {
+      return idx; // have scanned 4 bytes with no start found so split here
+      // will not break a valid utf8 code point
+    }    
+    idx++; // try next one
+  }
+  return idx; // stopped at end of safeString or after testing 4 bytes 
+  // so splitting here will not split a valid utf8 code point
+}  
+
+/****  end of uft8 methods  *******************************/
+    
 /*************************************************/
 /**  substring methods                           */
 /*************************************************/
@@ -3955,23 +4243,23 @@ unsigned char SafeString::hexToUnsignedLong(unsigned long &l) {
 }
 
 /**  possible alternative
-// convert float number, returns 0.0 and sets error flag not a valid number
-float SafeString::toFloat() {
+  // convert float number, returns 0.0 and sets error flag not a valid number
+  float SafeString::toFloat() {
   cleanUp();
   double d;
   if (toDouble(d)) {
     return (float)d; // need to ckeck size here
   } // else
   setError();
-#ifdef SSTRING_DEBUG
+  #ifdef SSTRING_DEBUG
     if (debugPtr) {
       errorMethod(F("toFloat()"));
       debugPtr->print(F(" invalid float "));
       debugInternalMsg(fullDebug);
     }
-#endif // SSTRING_DEBUG  
+  #endif // SSTRING_DEBUG
   return 0.0;
-}
+  }
 ****/
 
 // convert float number , arg f unchanged if no valid number found
@@ -4184,33 +4472,33 @@ int SafeString::stokenInternal(SafeString &token, unsigned int fromIndex, const 
 }
 /** end of stoken methods *******************/
 
-    /* nextToken -- The token is removed from the SafeString ********************
-      nextToken -- Any leading delimiters are first removed, then the delimited token found is removed from the SafeString.
-                   See returnEmptyFields and returnLastNonDelimitedToken arguments below for controls on this.
-                   The following delimiters remain in the SafeString so you can test which delimiter terminated the token, provided this SafeString is not empty!
-      The token argument is always cleared at the start of the firstToken() and nextToken().
-      IMPORTANT!! Changed V4.0.4 By default un-delimited tokens at the end of the SafeString are returned
-      To leave partial un-delimited tokens on the end of the SafeString, set returnLastNonDelimitedToken = false.
-      Setting returnLastNonDelimitedToken = false allows the SafeString to hold partial tokens when reading from an input stream one char at a time.
+/* nextToken -- The token is removed from the SafeString ********************
+  nextToken -- Any leading delimiters are first removed, then the delimited token found is removed from the SafeString.
+               See returnEmptyFields and returnLastNonDelimitedToken arguments below for controls on this.
+               The following delimiters remain in the SafeString so you can test which delimiter terminated the token, provided this SafeString is not empty!
+  The token argument is always cleared at the start of the firstToken() and nextToken().
+  IMPORTANT!! Changed V4.0.4 By default un-delimited tokens at the end of the SafeString are returned
+  To leave partial un-delimited tokens on the end of the SafeString, set returnLastNonDelimitedToken = false.
+  Setting returnLastNonDelimitedToken = false allows the SafeString to hold partial tokens when reading from an input stream one char at a time.
 
-      @param token - the SafeString to return the token in, it is always cleared first and will be empty if no delimited token is found or if there are errors<br>
-              The token's capacity should be >= this SafeString's capacity incase the entire SafeString needs to be returned.<br>
-              If the token's capacity is < the next token, then nextToken() returns true, but the returned token argument is empty and an error messages printed if debug is enabled.
-              In this case to next token is still removed from the SafeString so that the program will not be stuck in an infinite loop calling nextToken()
-      @param delimiters - the delimiting characters, any one of which can delimit a token
-      @param returnEmptyFields -- default false, if true, nextToken() will return true, and an empty token for each consecuative delimiters
-      @param returnLastNonDelimitedToken -- default true, will return last part of SafeString even if not delimited. If set false, will keep it for further input to be added to this SafeString
-      @param firstToken -- default false, a leading delimiter will be stepped over before looking for a delimited token<br>
-      if set to true, a leading delimiter will delimit an empty token which will be returned only if returnEmptyFields is true otherwise it is skipped over.<br>
-      NOTE: if returnEmptyFields == false this firstToken argument has no effect.
-      NOTE: since the last delimiter is left in the SafeString, you must set firstToken to be false (or omit it) after the first call.
+  @param token - the SafeString to return the token in, it is always cleared first and will be empty if no delimited token is found or if there are errors<br>
+          The token's capacity should be >= this SafeString's capacity incase the entire SafeString needs to be returned.<br>
+          If the token's capacity is < the next token, then nextToken() returns true, but the returned token argument is empty and an error messages printed if debug is enabled.
+          In this case to next token is still removed from the SafeString so that the program will not be stuck in an infinite loop calling nextToken()
+  @param delimiters - the delimiting characters, any one of which can delimit a token
+  @param returnEmptyFields -- default false, if true, nextToken() will return true, and an empty token for each consecuative delimiters
+  @param returnLastNonDelimitedToken -- default true, will return last part of SafeString even if not delimited. If set false, will keep it for further input to be added to this SafeString
+  @param firstToken -- default false, a leading delimiter will be stepped over before looking for a delimited token<br>
+  if set to true, a leading delimiter will delimit an empty token which will be returned only if returnEmptyFields is true otherwise it is skipped over.<br>
+  NOTE: if returnEmptyFields == false this firstToken argument has no effect.
+  NOTE: since the last delimiter is left in the SafeString, you must set firstToken to be false (or omit it) after the first call.
 
-      @return -- true if nextToken() finds a token in this SafeString that is terminated by one of the delimiters, else false<br>
-                If the return is true, but hasError() is true then the SafeString token argument did not have the capacity to hold the next token.<br.
-                in this case to next token is still removed from the SafeString so that the program will not be stuck in an infinite loop calling nextToken()<br>
-                while being consistent with the SafeString's all or nothing insertion rule<br>
-               Input argument errors return false and an empty token and hasError() is set on both this SafeString and the token SafeString.
-    **/
+  @return -- true if nextToken() finds a token in this SafeString that is terminated by one of the delimiters, else false<br>
+            If the return is true, but hasError() is true then the SafeString token argument did not have the capacity to hold the next token.<br.
+            in this case to next token is still removed from the SafeString so that the program will not be stuck in an infinite loop calling nextToken()<br>
+            while being consistent with the SafeString's all or nothing insertion rule<br>
+           Input argument errors return false and an empty token and hasError() is set on both this SafeString and the token SafeString.
+**/
 
 unsigned char SafeString::nextToken(SafeString& token, const char delimiter, bool returnEmptyFields, bool returnLastNonDelimitedToken, bool firstToken) {
   cleanUp();
@@ -4228,12 +4516,12 @@ unsigned char SafeString::nextToken(SafeString& token, const char delimiter, boo
     return false;
   }
   if (isEmpty()) {
-  	  // empty token returned
-     return false;
+    // empty token returned
+    return false;
   }
   if (firstToken && (delimiter == charAt(0)) && returnEmptyFields) {
-  	  // empty token returned
-  	  return  true;
+    // empty token returned
+    return  true;
   }
   return nextTokenInternal(token, NULL, delimiter, returnEmptyFields, returnLastNonDelimitedToken);
 }
@@ -4271,12 +4559,12 @@ unsigned char SafeString::nextToken(SafeString& token, const char* delimiters, b
     return false;
   }
   if (isEmpty()) {
-  	  // empty token returned
-     return false;
+    // empty token returned
+    return false;
   }
   if (firstToken && startsWith(delimiters) && returnEmptyFields) {
-  	  // empty token returned
-  	  return  true; // true if return empty fileds
+    // empty token returned
+    return  true; // true if return empty fileds
   }
   return nextTokenInternal(token, delimiters, '\0', returnEmptyFields, returnLastNonDelimitedToken);
 }
@@ -4346,13 +4634,13 @@ bool SafeString::nextTokenInternal(SafeString& token, const char* delimitersIn, 
 /****************************************************************/
 /*
    reads from the SafeString argument, starting at startIdx, into this SafeString.
-   
+
    The read stops when the end of the SafeString argument is reached or the calling SafeString is full
    Note: if the SafeString is already full, then nothing will be read and startIdx will be returned<br>
    <br>
    Note: to limit the number of chars read in from sfInput (starting at 0), use<br>
    <code>sfStr.readFrom(sfInput.c_str(),maxCharsToRead);</code>
-   
+
    @param  sfInput - the SafeString to read from
    @param  startIdx - where to start reading from, defaults to 0,
               if startIdx >= sfInput.length(), nothing read and sfInput.length() returned
@@ -4398,38 +4686,38 @@ unsigned int SafeString::readFrom(SafeString & input, unsigned int startIdx) {
 
 /*
      reads from the const char* argument, starting at 0 and read up to maxCharToRead, into this SafeString.
-     
+
      This lets you read from a char* into a SafeString without errors if the strlen(char*) or maxCharsToRead are larger than the SafeString capacity
      Use sfResult.clear(); to empty the SafeString first and then sfResult.readFrom(strPtr); to read a much as you can
      The read stops at first '\0' or the calling SafeString is full or when maxCharsToRead have been read.
      Note: if the SafeString is already full, then nothing will be read
-     
+
      @param  strPtr - pointer char array to read from
      @param  maxCharsToRead -- the maximum chars to read into the SafeString, defaults to ((unsigned int)-1) i.e. max unsigned int.
-	 
+
      @return - the number of chars read
 */
 unsigned int SafeString::readFrom(const char* strPtr, unsigned int maxCharsToRead) {
-	  cleanUp();
-	  if ((!strPtr) || (!(*strPtr))) {
-	  	len = 0;
-        buffer[len] = '\0'; // terminate
-        return 0;
-	  }	  
-	  // check reading from ourselves
-	  if (strPtr == buffer) {
-	  	return 0; // nothing new read
-	  }
-    // else
-    unsigned int i = 0;
-    while((len < _capacity) && (*strPtr) && (i < maxCharsToRead)){
-    	// have space and not end of input
-    	buffer[len++] = *strPtr++;
-    	i++;
-    }
-    buffer[len] = '\0'; // terminate 
-    return i;
-}	
+  cleanUp();
+  if ((!strPtr) || (!(*strPtr))) {
+    len = 0;
+    buffer[len] = '\0'; // terminate
+    return 0;
+  }
+  // check reading from ourselves
+  if (strPtr == buffer) {
+    return 0; // nothing new read
+  }
+  // else
+  unsigned int i = 0;
+  while ((len < _capacity) && (*strPtr) && (i < maxCharsToRead)) {
+    // have space and not end of input
+    buffer[len++] = *strPtr++;
+    i++;
+  }
+  buffer[len] = '\0'; // terminate
+  return i;
+}
 
 /*
    writeTo(SafeString & output, unsigned int startIdx = 0)  writes from SafeString, starting at startIdx to output
@@ -4440,7 +4728,7 @@ unsigned int SafeString::readFrom(const char* strPtr, unsigned int maxCharsToRea
 
    returns new startIdx for next write
    write stops when the end if the calling SafeString is reached or the output is full
-   Note: if the sfOutput is already full, then nothing will be written and startIdx will be returned    
+   Note: if the sfOutput is already full, then nothing will be written and startIdx will be returned
 **/
 unsigned int SafeString::writeTo(SafeString & output, unsigned int startIdx) {
   output.cleanUp();
@@ -4739,9 +5027,9 @@ bool SafeString::readUntilTokenInternal(Stream & input, SafeString& token, const
   while (input.available() && (len < capacity()) && (noCharsRead < capacity()) ) {
     int c = input.read();
     noCharsRead++;
-    //    if (debugPtr) {
-    //      debugPtr->print(F("read:")); debugPtr->println(c));
-    //    }
+      //  if (debugPtr) {
+      //    debugPtr->print(F("read:")); debugPtr->println((char)c);
+      //  }
     if (c == '\0') {
       setError(); // found '\0' in input
       token.setError();
@@ -4999,6 +5287,25 @@ void SafeString::assignError(size_t neededCap, const char* cstr, const __FlashSt
 #endif
 }
 
+void SafeString::baseError(const __FlashStringHelper * methodName, int base) const {
+  (void)(methodName);
+#ifdef SSTRING_DEBUG
+  if (debugPtr) {
+    debugPtr->print(F("Error:"));
+    outputName();
+    debugPtr->print('.');
+    if (methodName) {
+      debugPtr->print(methodName);
+    }
+    debugPtr->print(F("()"));
+    debugPtr->print(F(" base arg was:"));
+    debugPtr->print(base);
+    debugPtr->println(F("  Must be in range 2 to 16"));
+  }
+#endif
+}
+    
+
 void SafeString::errorMethod(const __FlashStringHelper * methodName) const {
   (void)(methodName);
 #ifdef SSTRING_DEBUG
@@ -5077,13 +5384,194 @@ void SafeString::prefixErr() const {
 /*****************  end of private internal debug support methods *************************/
 
 /**
-// dtostrf for those boards that don't have it
-static char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
+  // dtostrf for those boards that don't have it
+  static char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
   asm(".global _printf_float");
 
   char fmt[20];
   sprintf(fmt, "%%%d.%df", width, prec);
   sprintf(sout, fmt, val);
   return sout;
-}
+  }
 **/
+
+/*-
+   toInt64_t modified from strtoll
+
+   Copyright (c) 2014 The Regents of the University of California.
+   All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+   1. Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+   3. [rescinded 22 July 1999]
+   4. Neither the name of the University nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+   DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+   OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+   HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+   SUCH DAMAGE.
+*/
+
+
+/*
+
+  @deftypefn Supplemental {long long int} strtoll (const char *@var{string}, @
+  char **@var{endptr}, int @var{base})
+  @deftypefnx Supplemental {unsigned long long int} strtoul (@
+  const char *@var{string}, char **@var{endptr}, int @var{base})
+
+  The @code{strtoll} function converts the string in @var{string} to a
+  long long integer value according to the given @var{base}, which must be
+  between 2 and 36 inclusive, or be the special value 0.  If @var{base}
+  is 0, @code{strtoll} will look for the prefixes @code{0} and @code{0x}
+  to indicate bases 8 and 16, respectively, else default to base 10.
+  When the base is 16 (either explicitly or implicitly), a prefix of
+  @code{0x} is allowed.  The handling of @var{endptr} is as that of
+  @code{strtod} above.  The @code{strtoull} function is the same, except
+  that the converted value is unsigned.
+
+  @end deftypefn
+
+*/
+
+
+/* FIXME: It'd be nice to configure around these, but the include files are too
+   painful.  These macros should at least be more portable than hardwired hex
+   constants. */
+
+#define SF_UINT64_MAX (~(uint64_t)0) /* 0xFFFFFFFFFFFFFFFF */
+#define SF_INT64_MAX ((int64_t)(SF_UINT64_MAX >> 1)) /* 0x7FFFFFFFFFFFFFFF */
+#define SF_INT64_MIN (~SF_INT64_MAX) /* 0x8000000000000000 */
+
+/*
+   Convert a string to an int64_t integer.
+
+   Ignores `locale' stuff.  Assumes that the upper and lower case
+   alphabets and digits are each contiguous.
+*/
+int64_t SafeString::strto_int64_t(const char *nptr, char **endptr, int base) {
+  const char *s = nptr;
+  uint64_t acc;
+  int c;
+  uint64_t cutoff;
+  int neg = 0, any, cutlim;
+
+  /*
+     Skip white space and pick up leading +/- sign if any.
+     If base is 0, allow 0x for hex and 0 for octal, else
+     assume decimal; if base is already 16, allow 0x.
+  */
+  do {
+    c = *s++;
+  } while (isspace(c));
+  if (c == '-') {
+    neg = 1;
+    c = *s++;
+  } else if (c == '+')
+    c = *s++;
+  if ((base == 0 || base == 16) &&
+      c == '0' && (*s == 'x' || *s == 'X')) {
+    c = s[1];
+    s += 2;
+    base = 16;
+  }
+  if (base == 0)
+    base = c == '0' ? 8 : 10;
+
+  /*
+     Compute the cutoff value between legal numbers and illegal
+     numbers.  That is the largest legal value, divided by the
+     base.  An input number that is greater than this value, if
+     followed by a legal input character, is too big.  One that
+     is equal to this value may be valid or not; the limit
+     between valid and invalid numbers is then based on the last
+     digit.  For instance, if the range for longs is
+     [-2147483648..2147483647] and the input base is 10,
+     cutoff will be set to 214748364 and cutlim to either
+     7 (neg==0) or 8 (neg==1), meaning that if we have accumulated
+     a value > 214748364, or equal but the next digit is > 7 (or 8),
+     the number is too big, and we will return a range error.
+
+     Set any if any `digits' consumed; make it negative to indicate
+     overflow.
+  */
+  cutoff = neg ? -(uint64_t)SF_INT64_MIN : SF_INT64_MAX;
+  cutlim = cutoff % (uint64_t)base;
+  cutoff /= (uint64_t)base;
+  for (acc = 0, any = 0;; c = *s++) {
+    if (isdigit(c))
+      c -= '0';
+    else if (isalpha(c))
+      c -= isupper(c) ? 'A' - 10 : 'a' - 10;
+    else
+      break;
+    if (c >= base)
+      break;
+    if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
+      any = -1;
+    else {
+      any = 1;
+      acc *= base;
+      acc += c;
+    }
+  }
+  if (any < 0) {
+    acc = neg ? SF_INT64_MIN : SF_INT64_MAX;
+  } else if (neg)
+    acc = -acc;
+  if (endptr != 0)
+    *endptr = (char *) (any ? s - 1 : nptr);
+  return (acc);
+}
+
+
+/**
+      convert the SafeString to a int64_t (for time_t long long).
+      @param l -- int64_t reference, where the result is stored. l is only updated if the conversion is successful
+      @return -- 0 if the SafeString is not a valid int, else return non-zero<br>
+        leading and trailing white space is allowed around a valid int
+*/
+unsigned char SafeString::toInt64_t(int64_t &l) {
+  cleanUp();
+  if (len == 0) {
+    return false; // not found
+  }
+  char* endPtr;
+  int64_t result = strto_int64_t(buffer, &endPtr, 10); // handles 123 (use 0 for 0xAF and 037 (octal))
+  if (result == SF_INT64_MAX) {
+    return false;
+  }
+  if (result == SF_INT64_MIN) {
+    return false;
+  }
+  // check endPtr to see if number valid 5a is invalid,  5. is valid
+  if (endPtr == buffer)  { // no numbers found at all
+    return false;
+  } // else
+  // else check for trailing white space
+  while (*endPtr != '\0') {
+    if (!isspace(*endPtr)) { // number terminated by white space
+      return false;
+    }
+    endPtr++;
+  }
+  // else all OK
+  l = result;
+  return true; // OK
+}
+
