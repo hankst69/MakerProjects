@@ -24,14 +24,17 @@ ESPC3MINIOLED_OLED_U8G2TYPE u8g2(ESPC3MINIOLED_OLED_ROTATION, ESPC3MINIOLED_OLED
 
 void setup() {
   Serial.begin(115200);
-  
-   for (int i=0; i<10; i++) {
+  for (int i=0; i<10; i++) {
     Serial.println("SerialTest");
   }
+
   // init OLED driver
   u8g2.begin();
   u8g2.setFont(OLED_FONT);
   u8g2.setFontPosTop();
+  u8g2.drawRFrame(0, 0, ESPC3MINIOLED_OLED_WIDTH, ESPC3MINIOLED_OLED_HEIGHT, 5);
+  u8g2.drawStr(5, 15, "SerialTest");
+  u8g2.sendBuffer(); 
 
   // init LED I/O PIN
   pinMode(ESPC3MINIOLED_LED_PIN, OUTPUT);
@@ -41,4 +44,5 @@ void setup() {
 void loop() {
   delay(5000);
   Serial.println("Serial output...");
+  digitalWrite(ESPC3MINIOLED_LED_PIN, !digitalRead(ESPC3MINIOLED_LED_PIN));
 }
