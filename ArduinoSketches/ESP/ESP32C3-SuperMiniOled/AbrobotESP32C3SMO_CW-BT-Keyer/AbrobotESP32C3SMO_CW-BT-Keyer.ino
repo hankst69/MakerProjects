@@ -1,7 +1,12 @@
-// Abrobot ESP32-C3-SuperMini-OLED
-// https://github.com/nrfconnect/sdk-zephyr/blob/main//boards/shields/abrobot_esp32c3_oled/doc/index.rst
-// https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/shields/abrobot_esp32c3_oled
-// Abrobot esp32c3 oled only works with sh1106_compatible display driver. It does not support 1306 display driver commands. Its screen resolution is 72x40. Its screen start position is 30, 12.
+/*
+Abrobot ESP32-C3-SuperMini-OLED
+https://github.com/nrfconnect/sdk-zephyr/blob/main//boards/shields/abrobot_esp32c3_oled/doc/index.rst
+https://github.com/nrfconnect/sdk-zephyr/tree/main/boards/shields/abrobot_esp32c3_oled
+Abrobot esp32c3 oled only works with sh1106_compatible display driver. It does not support 1306 display driver commands. Its screen resolution is 72x40. Its screen start position is 30, 12.
+
+Board: "MakerGO ESP32 C3 SuperMini" from board library "esp32 by Espressif Systems"
+Board: "ESP32C3 Dev Module" from board library "esp32 by Espressif Systems"
+*/
 
 #include <BleKeyboard.h>
 #include <U8g2lib.h>
@@ -11,10 +16,10 @@
 #define ESPC3MINIOLED_OLED_PIN_RESET U8X8_PIN_NONE
 #define ESPC3MINIOLED_OLED_PIN_CLOCK 6
 #define ESPC3MINIOLED_OLED_PIN_DATA  5
+#define ESPC3MINIOLED_OLED_WIDTH 72
+#define ESPC3MINIOLED_OLED_HEIGHT 40
 #define ESPC3MINIOLED_LED_PIN 8
 
-#define OLED_WIDTH 72
-#define OLED_HEIGHT 40
 #define OLED_FONT u8g2_font_6x10_tf //u8g2_font_5x7_tf 
 
 #define BT_CONNECT_MODULO 4
@@ -22,7 +27,6 @@
 
 #define CWPADDLE_LEFT_PIN 0
 #define CWPADDLE_RIGHT_PIN 1
-
 
 struct Button {
     const uint8_t PIN;
@@ -36,9 +40,6 @@ struct Button {
 BleKeyboard bleKeyboard("CW-BT-Keyer");
 ESPC3MINIOLED_OLED_U8G2TYPE u8g2(ESPC3MINIOLED_OLED_ROTATION, ESPC3MINIOLED_OLED_PIN_RESET, ESPC3MINIOLED_OLED_PIN_CLOCK, ESPC3MINIOLED_OLED_PIN_DATA);
 
-//unsigned long last_loop_time_ms = 0;
-#define KEY_SPACE ' ' // define missing definition for SPACE key
-
 unsigned long bt_connect_try = 0;
 bool bt_connected = false;
 
@@ -51,6 +52,7 @@ unsigned long cw_released_sum = 0;
 bool cw_left_pressed = false;
 bool cw_right_pressed = false;
 bool cw_left_is_dit_right_is_dah = true;
+#define KEY_SPACE ' ' // define missing definition for SPACE key
 unsigned char cw_dit_key = KEY_SPACE;
 unsigned char cw_dah_key = KEY_RETURN; //'a';//KEY_RETURN;
 
@@ -129,7 +131,7 @@ void loop() {
     u8g2.clearBuffer();
     //u8g2.setFont(OLED_FONT);
     u8g2.drawStr(4, 3, "CW-BT-Keyer");
-    u8g2.drawFrame(0, 0, OLED_WIDTH, 15);
+    u8g2.drawFrame(0, 0, ESPC3MINIOLED_OLED_WIDTH, 15);
     String bt_info = "BT wait.";
     int bt_cnn_progress = bt_connect_try % BT_CONNECT_MODULO;
     for (int i=0; i<bt_cnn_progress; i++) {bt_info += ".";}
@@ -161,7 +163,7 @@ void loop() {
     u8g2.clearBuffer();
     //u8g2.setFont(OLED_FONT);
     u8g2.drawStr(4, 3, "CW-BT-Keyer");
-    u8g2.drawFrame(0, 0, OLED_WIDTH, 15);
+    u8g2.drawFrame(0, 0, ESPC3MINIOLED_OLED_WIDTH, 15);
     u8g2.drawStr(0, 20, "BT connected");
     u8g2.sendBuffer();
   }
@@ -214,7 +216,7 @@ void loop() {
     u8g2.clearBuffer();
     //u8g2.setFont(OLED_FONT);
     u8g2.drawStr(4, 3, "CW-BT-Keyer");
-    u8g2.drawFrame(0, 0, OLED_WIDTH, 15);
+    u8g2.drawFrame(0, 0, ESPC3MINIOLED_OLED_WIDTH, 15);
     String count_info = "L " + String(cw_left_paddle.pressed_count) + "  R " + String(cw_right_paddle.pressed_count); 
     u8g2.drawStr(0, 20, count_info.c_str());
     u8g2.sendBuffer();
