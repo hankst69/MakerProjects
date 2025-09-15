@@ -1,0 +1,138 @@
+diff --git a/scripts/build_qt-wasm.bat b/scripts/build_qt-wasm.bat
+index a838ab8..c47b2be 100644
+--- a/scripts/build_qt-wasm.bat
++++ b/scripts/build_qt-wasm.bat
+@@ -192,6 +192,7 @@ set "_QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
+ set _QTW_RETRIES=0
+ :qtw_configure_do
+   cd /d "%QTW_BUILD_DIR%"
++  rem https://doc.qt.io/qt-6/wasm.html
+   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32 -prefix "%_QTW_PREFIX_DIR%" -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%_QTW_HOST_DIR%" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -prefix "%_QTW_PREFIX_DIR%" -nomake examples -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+@@ -209,7 +210,7 @@ set _QTW_RETRIES=0
+   set QT_
+   set QTW_
+   path
+-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -nomake examples -prefix "%_QTW_PREFIX_DIR%"
++  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -nomake examples  -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+   
+   rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+   rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+diff --git a/scripts/build_qt.bat b/scripts/build_qt.bat
+index eee25ec..eb51028 100644
+--- a/scripts/build_qt.bat
++++ b/scripts/build_qt.bat
+@@ -30,13 +30,16 @@ set _QT_MSVS_VERSION=GEQ2019
+ set _QT_CMAKE_VERSION=GEQ3.22
+ rem set _QT_CLONE_OPTIONS=--silent --init_submodules
+ set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
++set _QT_COMPILER=msvs
++if /I "%_QT_USE_GCC%" equ "true" set _QT_COMPILER=gcc
++
+ 
+ rem if we build QT 5.12 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
+ if "%_QT_VERSION%" equ "5.12" set _QT_CMAKE_VERSION=GEQ3.20
+ if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
+ 
+ rem welcome
+-echo BUILDING QT %_QT_VERSION%
++echo BUILDING QT %_QT_VERSION% %_QT_COMPILER%
+ 
+ rem (1) *** cloning QT sources ***
+ call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
+@@ -51,12 +54,10 @@ if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_
+ rem show what we have so far
+ if "%MAKER_ENV_VERBOSE%" neq "" set QT_
+ 
+-set "_QT_COMPILER=msvs"
+ set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
+ set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%"
+ if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-gcc"
+ if /I "%_QT_USE_GCC%" equ "true" set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-gcc"
+-if /I "%_QT_USE_GCC%" equ "true" set "_QT_COMPILER=gcc"
+ 
+ set "_QT_LOGFILE=%QT_DIR%\qt_build_%_QT_VERSION%_%_QT_COMPILER%_configure.log"
+ 
+@@ -101,11 +102,11 @@ rem if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
+ if not exist "%_QT_TEST_EXE_UIC%" goto :qt_rebuild
+ rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
+ call which Qt6WebSockets.dll 1>nul 2>nul
+-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
++if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% %_QT_COMPILER% already available&goto :qt_install_done
+ set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
+ call which Qt6WebSockets.dll 1>nul 2>nul
+-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
+-echo error: QT %_QT_VERSION% seems to be prebuild but is not working
++if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% %_QT_COMPILER% already available&goto :qt_install_done
++echo error: QT %_QT_VERSION% %_QT_COMPILER% seems to be prebuild but is not working
+ echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
+ goto :qt_exit
+ 
+@@ -140,7 +141,7 @@ rem
+ rem call "%QT_SOURCES_DIR%\configure.bat" --help
+ rem 
+ echo.
+-echo rebuilding Qt %_QT_VERSION% from sources
++echo rebuilding Qt %_QT_VERSION% %_QT_COMPILER% from sources
+ echo see https://doc.qt.io/qt-6/windows-building.html
+ echo.
+ echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw
+@@ -159,7 +160,7 @@ if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_
+ if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" neq "true" (
+   goto :qt_exit
+ )
+-if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE% --
++if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
+ if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" equ "true" (
+   goto :qt_exit
+ )
+@@ -177,6 +178,7 @@ if %ERRORLEVEL% NEQ 0 (
+   rem goto :qt_exit
+ )
+ rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
++echo on
+ call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
+ if %ERRORLEVEL% NEQ 0 (
+   echo warning: LLVM CLANG is not available
+diff --git a/scripts/core/generic_ensure.bat b/scripts/core/generic_ensure.bat
+index 65c7952..70094f5 100644
+--- a/scripts/core/generic_ensure.bat
++++ b/scripts/core/generic_ensure.bat
+@@ -1,17 +1,16 @@
+ @echo off
+-pushd "%cd%"
++rem pushd "%cd%"
+ rem echo *** GENERIC_ENSURE "%*" ***
+ 
+ 
+ :ge_main
+ rem echo call :ge_validate %*
+ call :ge_validate %* --
+-if %ERRORLEVEL% EQU 0 popd & exit /b 0
++if %ERRORLEVEL% EQU 0 goto :EOF
+ rem echo call :ge_build %*
+ call :ge_build %* 
+-if %ERRORLEVEL% EQU 0 popd & exit /b 0
+-popd
+-exit /b %ERRORLEVEL%
++rem if %ERRORLEVEL% EQU 0 goto :EOF
++rem exit /b %ERRORLEVEL%
+ goto :EOF
+ 
+ 
+@@ -30,7 +29,6 @@ call "%MAKER_BUILD%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS% 1>nul 2>nul
+ rem echo %ERRORLEVEL%
+ if %ERRORLEVEL% EQU 0 call "%MAKER_BUILD%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+ rem echo %ERRORLEVEL%
+-rem if %ERRORLEVEL% EQU 0 exit /b 0
+ goto :EOF
+ 
+ 
+@@ -45,5 +43,5 @@ call "%~dp0\maker_env.bat" %_PROJ_ARGS%
+ echo warning: %_PROJ_NAME% %MAKER_ENV_VERSION% is not available - trying to build from sources
+ if "%MAKER_ENV_VERBOSE%" neq "" echo "%MAKER_BUILD%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+ call "%MAKER_BUILD%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+-rem if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
++rem echo %ERRORLEVEL%
+ goto :EOF
