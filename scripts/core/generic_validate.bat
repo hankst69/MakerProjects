@@ -15,6 +15,7 @@ goto :EOF
 
 :_start
 @echo off
+rem echo on
 call :_clean_script_variables
 set "_VALIDATE_SCRIPT_ROOT=%~dp0"
 set "_VALIDATE_SCRIPT_NAME=_%~n0"
@@ -63,7 +64,7 @@ set %_VALIDATE_NAME%_VERSION=
 set %_VALIDATE_NAME%_VERSION_MAJOR=
 set %_VALIDATE_NAME%_VERSION_MINOR=
 set %_VALIDATE_NAME%_VERSION_PATCH=
-rem extract compare mode from target verison
+rem extract compare mode from target version
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_params_done
 if /I "%_VALIDATE_TGT_VERSION:~0,3%" equ "GEQ" set "_VALIDATE_TGT_VERSION_COMPARE=GEQ"
 if /I "%_VALIDATE_TGT_VERSION:~0,3%" equ "GEQ" set "_VALIDATE_TGT_VERSION=%_VALIDATE_TGT_VERSION:~3%"
@@ -162,7 +163,7 @@ call :_clean_script_variables
 exit /b 6
 
 :_tool_version_split_ok
-set "%_VALIDATE_NAME%_VERSION=%_VALIDATE_VERSION%"
+set "%_VALIDATE_NAME%_VERSION=%VERSION%"
 set "%_VALIDATE_NAME%_VERSION_MAJOR=%VERSION_MAJOR%"
 set "%_VALIDATE_NAME%_VERSION_MINOR=%VERSION_MINOR%"
 set "%_VALIDATE_NAME%_VERSION_PATCH=%VERSION_PATCH%"
@@ -175,6 +176,7 @@ if "%_VALIDATE_VERBOSE%" neq "" cmd /V:ON /C echo %_VALIDATE_NAME%_VERSION_PATCH
 
 :_tool_version_requirement_test
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_tool_architecture_requirement_test
+echo on
 call "%_VALIDATE_SCRIPT_ROOT%\compare_versions.bat" --no_info %_VALIDATE_NO_ERRORS% "%_VALIDATE_VERSION%" "%_VALIDATE_TGT_VERSION%" "%_VALIDATE_TGT_VERSION_COMPARE%"
 if %ERRORLEVEL% equ 0 goto :_tool_architecture_requirement_test
 if "%_VALIDATE_NO_ERRORS%" equ "" echo error 7%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'

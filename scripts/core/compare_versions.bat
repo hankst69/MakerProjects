@@ -11,6 +11,8 @@ echo examples:
 echo   compare_versions 3.12.5 3    GEQ
 echo   compare_versions 2.3    2    GTR
 echo   compare_versions 2      2.5  GEQ
+echo   compare_versions 2.3    GEQ2
+echo   compare_versions 2      LSS2.5
 goto :EOF
 
 :_start
@@ -60,6 +62,12 @@ goto :_param_loop)
 set _ARG_TMP_=
 
 :_params_postprocessing
+call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" --no_errors --no_warnings --no_info
+set _COMPARE_SRC_VERSION=%VERSION%
+call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_TGT_VERSION%" --no_errors --no_warnings --no_info
+set _COMPARE_TGT_VERSION=%VERSION%
+if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=%VERSION_COMPARE%
+
 if "%_COMPARE_SRC_VERSION%" equ "" (echo error 1%_COMPARE_SCRIPT_NAME%: missing argument ^<src_version^> &call :_clean_temp_variables &exit /b 1)
 if "%_COMPARE_TGT_VERSION%" equ "" (echo error 2%_COMPARE_SCRIPT_NAME%: missing argument ^<tgt_version^> &call :_clean_temp_variables &exit /b 2)
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=EQU
@@ -138,7 +146,7 @@ if "%_COMPARE_TGT_VERSION_MINOR%" equ "" set _COMPARE_TGT_VERSION_MINOR=0
 if "%_COMPARE_TGT_VERSION_PATCH%" equ "" set _COMPARE_TGT_VERSION_PATCH=0
 
 :compare_major_version
-if "%_COMPARE_SRC_VERSION_MAJOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_major_version_ok
+if %_COMPARE_SRC_VERSION_MAJOR% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR% goto :compare_major_version_ok
 :compare_major_version_failed
 rem support: compare_versions.bat 3.3 3.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MAJOR%" EQU "%_COMPARE_TGT_VERSION_MAJOR%" goto :compare_minor_version
@@ -153,7 +161,7 @@ rem support: compare_versions.bat 3.1 3
 if "%_COMPARE_TGT_MINOR_MISSING%" neq "" goto :version_compare_success
 
 :compare_minor_version
-if "%_COMPARE_SRC_VERSION_MINOR%" %_COMPARE_VERSION_MODE% "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_minor_version_ok
+if %_COMPARE_SRC_VERSION_MINOR% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MINOR% goto :compare_minor_version_ok
 :compare_minor_version_failed
 rem support: compare_versions.bat 3.3.1 3.2.2 GTR
 if /I "%_COMPARE_VERSION_MODE%" equ "GTR" if "%_COMPARE_SRC_VERSION_MINOR%" EQU "%_COMPARE_TGT_VERSION_MINOR%" goto :compare_patch_version
@@ -163,7 +171,7 @@ call :_clean_temp_variables
 exit /b 7
 
 :compare_minor_version_ok
-if "%_COMPARE_SRC_VERSION_MINOR%" NEQ "%_COMPARE_TGT_VERSION_MINOR%" goto :version_compare_success
+if %_COMPARE_SRC_VERSION_MINOR% NEQ %_COMPARE_TGT_VERSION_MINOR% goto :version_compare_success
 rem support: compare_versions.bat 3.3.1 3.3
 if "%_COMPARE_TGT_PATCH_MISSING%" neq "" goto :version_compare_success
 
@@ -175,8 +183,5 @@ exit /b 8
 
 :version_compare_success
 if "%_COMPARE_NO_INFO%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION%' met
-rem if "%_COMPARE_NO_INFO%%_COMPARE_TGT_MINOR_MISSING%%_COMPARE_TGT_PATCH_MISSING%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%.%_COMPARE_TGT_VERSION_PATCH%' met
-rem if "%_COMPARE_NO_INFO%" equ "" if "%_COMPARE_TGT_PATCH_MISSING%" neq "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%.%_COMPARE_TGT_VERSION_MINOR%' met
-rem if "%_COMPARE_NO_INFO%" equ "" if "%_COMPARE_TGT_MINOR_MISSING%" neq "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION_MAJOR%' met
 call :_clean_temp_variables
 exit /b 0
