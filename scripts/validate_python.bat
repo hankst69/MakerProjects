@@ -23,7 +23,7 @@ if "%~1" neq "" if "%_TGT_VERSION%" equ "" (set "_TGT_VERSION=%~1" &shift &goto 
 if "%~1" neq "" (echo warning: unknown argument '%~1' &shift &goto :param_loop)
 
 
-:validate_python_existence_and_verion
+:validate_python_existence_and_version
 rem call "%_SCRIPT_ROOT%\generic_validate.bat" "PYTHON" "python --version" "for /f ""tokens=1,2 delims= "" %%%%i in ('call python --version') do echo %%%%j" %*
 call "%_SCRIPT_ROOT%\generic_validate.bat" "PYTHON" "python --version" "for /f ""tokens=1,2 delims= "" %%%%i in ('call python --version') do echo %%%%j" %_TGT_VERSION% --no_info %_PYTHON_NO_WARNINGS% %_PYTHON_NO_ERRORS%
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
