@@ -8,6 +8,7 @@ aqtinstall.log
 /.tools
 /tools/*
 !/tools/packages
+!/tools/7z.exe
 
 /projects/*
 /3D-Print
