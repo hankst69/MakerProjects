@@ -19,6 +19,23 @@ exit /b 1
 rem validate msvs
 call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
+:msvs_self_healing:
+if "%_EMSVS_TGT_VERSION%" equ "2019" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2019
+if "%_EMSVS_TGT_VERSION%" equ "2022" if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2022
+goto :test_msvs_failed
+
+:init_vs2019
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat"
+goto :test_msvs_again
+:init_vs2022
+call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat"
+goto :test_msvs_again
+
+:test_msvs_again
+rem validate msvs
+call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
+if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
+:test_msvs_failed
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS %_EMSVS_TGT_VERSION% not available
 exit /b 2
 
