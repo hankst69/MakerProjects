@@ -113,6 +113,7 @@ echo ***************************************************************************
 rem )
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 pushd "%_TARGET_DIR%"
+set ERRORLEVEL=
 if "%_CHECKOUT_TAG%" equ "" (
   echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
   git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" .
