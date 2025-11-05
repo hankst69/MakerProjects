@@ -25,6 +25,16 @@ if "%_EMSVS_TGT_VERSION%" equ "2022" if exist "%ProgramFiles%\Microsoft Visual S
 goto :test_msvs_failed
 
 :init_vs2019
+rem set "path=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools;%path%"
+rem set "path=%__VSCMD_PREINIT_PATH=%"
+set VCPKG_ROOT=
+set VCIDEInstallDir=
+set VCINSTALLDIR=
+set VCToolsInstallDir=
+set VCToolsRedistDir=
+set VCToolsVersion=
+rem set VSCMD_DEBUG=3
+rem echo on
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat"
 goto :test_msvs_again
 :init_vs2022

@@ -60,13 +60,13 @@ echo.
 rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 set _WFV_MSVS_VERSION=GEQ2019
+set _WFV_MSVS_VERSION=GEQ2022
 set _WFV_NINJA_VERSION=
 set _WFV_BUILD_SYSTEM=NINJA
 set _WFV_QT_VERSION=6.8.3
 
-call "%MAKER_SCRIPTS%\split_version.bat" "0.0.0" 1>nul
-if "%WFVIEW_VERSION%" neq "" call "%MAKER_SCRIPTS%\split_version.bat" "%WFVIEW_VERSION%"
-if "%VERSION_MAJOR%.%VERSION_MINOR%" equ "1.1" set _WFV_QT_VERSION=6.6.3
+rem call "%MAKER_SCRIPTS%\set_version_env" "WFVIEW" "%WFVIEW_VERSION%"
+rem if "%WFVIEW_VERSION_MAJOR%.%WFVIEW_VERSION_MINOR%" equ "1.1" set _WFV_QT_VERSION=6.8.3
 rem seems newest VS2022 (July 2025) requires Qt6.8.3 for CMake and Ninja to work
 rem set _WFV_QT_VERSION=6.8.3
 
@@ -140,3 +140,4 @@ cd /d "%_WFV_BUILD_DIR%"
 call cmake --build . --parallel 4 --config %_WFV_BUILD_TYPE%
 :_build_done
 
+:_exit
