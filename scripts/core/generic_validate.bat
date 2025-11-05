@@ -176,7 +176,7 @@ if "%_VALIDATE_VERBOSE%" neq "" cmd /V:ON /C echo %_VALIDATE_NAME%_VERSION_PATCH
 
 :_tool_version_requirement_test
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_tool_architecture_requirement_test
-echo on
+rem echo on
 call "%_VALIDATE_SCRIPT_ROOT%\compare_versions.bat" --no_info %_VALIDATE_NO_ERRORS% "%_VALIDATE_VERSION%" "%_VALIDATE_TGT_VERSION%" "%_VALIDATE_TGT_VERSION_COMPARE%"
 if %ERRORLEVEL% equ 0 goto :_tool_architecture_requirement_test
 if "%_VALIDATE_NO_ERRORS%" equ "" echo error 7%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'

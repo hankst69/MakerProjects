@@ -24,7 +24,7 @@ set _QT_USE_LLVM20_PATCH=true
 
 rem apply defaults
 if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
-if "%_QT_VERSION%" equ "" set _QT_VERSION=6.6.3
+if "%_QT_VERSION%" equ "" set _QT_VERSION=6.8.3
 set _QT_BUILD_TYPE=release
 set _QT_MSVS_VERSION=GEQ2019
 set _QT_CMAKE_VERSION=GEQ3.22
@@ -62,17 +62,21 @@ set "_QT_LOGFILE=%QT_DIR%\qt_build_%_QT_VERSION%_%_QT_COMPILER%_configure.log"
 
 
 rem (2) *** specify LLVM version ***
+rem todo: find the correct LLVM version dependency for qt 6.8.2
 set _QT_LLVM_VER=14
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=18
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
 
+
 rem (3) *** patch Qt sources ***
+rem todo: clarify, ig this qt patch for LLVM20 is still valid (or maybe not neccesary anymore
 if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
   pushd "%QT_SOURCES_DIR%\qttools"
   call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
   popd 
+  set _QT_LLVM_VER=20
   set _QT_LLVM_VER=
 )
 
