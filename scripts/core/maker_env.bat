@@ -99,6 +99,7 @@ call "%TEMP%\_split_free_args.bat"
 del "%TEMP%\_split_free_args.bat"
 
 :exit
+call "%MAKER_SCRIPTS%\set_version_env.bat" "MAKER_ENV" "%MAKER_ENV_VERSION%"
 rem list env:
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_
 rem show help:
