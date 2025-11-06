@@ -60,7 +60,6 @@ echo.
 rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 set _WFV_MSVS_VERSION=GEQ2019
-set _WFV_MSVS_VERSION=GEQ2022
 set _WFV_NINJA_VERSION=
 set _WFV_BUILD_SYSTEM=NINJA
 set _WFV_QT_VERSION=6.8.3

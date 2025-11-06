@@ -2,7 +2,7 @@
 call "%~dp0\maker_env.bat" %*
 
 set "_EMSVS_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
-set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION%"
+set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION_COMPARE%%MAKER_ENV_VERSION%"
 set "_EMSVS_NO_WARNINGS=%MAKER_ENV_NOWARNINGS%"
 set "_EMSVS_NO_ERRORS=%MAKER_ENV_NOERROS%"
 set "_EMSVS_NO_INFO=%MAKER_ENV_NOINFOS%"
@@ -12,12 +12,14 @@ if "%MAKER_ENV_UNKNOWN_SWITHCES%" neq "" (echo warning: unknown switch/es '%MAKE
 
 if "%_EMSVS_TGT_ARCHITECTURE%" equ "amd64" (set "_EMSVS_TGT_ARCHITECTURE=x64")
 if "%_EMSVS_TGT_ARCHITECTURE%" neq "" goto :test_msvs
-if "%_EMSVS_NO_ERRORS%" equ "" echo error: no target architecture specified in command line arguments
-exit /b 1
+rem if "%_EMSVS_NO_ERRORS%" equ "" echo error: no target architecture specified in command line arguments & exit /b 1
+if "%_EMSVS_NO_WARNINGS%" equ "" echo warning: no target architecture specified - defaulting to 'x64'
+set "_EMSVS_TGT_ARCHITECTURE=x64"
+
 
 :test_msvs
 rem validate msvs
-call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
+call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_ENV_VERBOSE% --no_info
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :msvs_self_healing:
 if "%_EMSVS_TGT_VERSION%" equ "2019" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2019
@@ -26,13 +28,13 @@ goto :test_msvs_failed
 
 :init_vs2019
 rem set "path=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools;%path%"
-rem set "path=%__VSCMD_PREINIT_PATH=%"
-set VCPKG_ROOT=
-set VCIDEInstallDir=
-set VCINSTALLDIR=
-set VCToolsInstallDir=
-set VCToolsRedistDir=
-set VCToolsVersion=
+rem if "%__VSCMD_PREINIT_PATH%" neq "" set "path=%__VSCMD_PREINIT_PATH%"
+rem set VCPKG_ROOT=
+rem set VCIDEInstallDir=
+rem set VCINSTALLDIR=
+rem set VCToolsInstallDir=
+rem set VCToolsRedistDir=
+rem set VCToolsVersion=
 rem set VSCMD_DEBUG=3
 rem echo on
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat"
@@ -43,7 +45,7 @@ goto :test_msvs_again
 
 :test_msvs_again
 rem validate msvs
-call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% 1>nul
+call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_ENV_VERBOSE% --no_info
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :test_msvs_failed
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS %_EMSVS_TGT_VERSION% not available

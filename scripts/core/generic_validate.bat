@@ -1,6 +1,6 @@
 @goto :_start
 :_usage
-echo validate ^<tool_name^> ^<test_cmd^> ^<version_cmd^> [tgt_version] [--no_errors^|-ne] [--no_warnings^|-nw] [--no_info^|-ni] [--verbose^|-v] [--help^|-h^|-?]
+echo generic_validate ^<tool_name^> ^<test_cmd^> ^<version_cmd^> [tgt_version] [--tool_arch:xxx] [--no_errors^|-ne] [--no_warnings^|-nw] [--no_info^|-ni] [--verbose^|-v] [--help^|-h^|-?]
 echo.
 echo tgt_version:
 echo   major              GTRmajor              GEQmajor              LSSmajor              LEQmajor
@@ -8,9 +8,10 @@ echo   major.minor        GTRmajor.minor        GEQmajor.minor        LSSmajor.m
 echo   major.minor.patch  GTRmajor.minor.patch  GEQmajor.minor.patch  LSSmajor.minor.patch  LEQmajor.minor.patch
 echo.
 echo examples:
-echo   validate "CHOCO" "choco --version" "call choco --version" GTR2.1
-echo   validate "NINJA" "ninja --version" "call ninja --version"
-echo   validate "CMAKE" "cmake --version" "for /f ""tokens=1-3 delims= "" %%%%i in ('call cmake --version') do if /I %%%%j EQU version echo %%%%k" 3
+echo   generic_validate "CHOCO" "choco --version"  "call choco --version" GTR2.1
+echo   generic_validate "NINJA" "ninja --version"  "call ninja --version"
+echo   generic_validate "CMAKE" "cmake --version"  "for /f ""tokens=1-3 delims= "" %%%%i in ('call cmake --version') do if /I %%%%j EQU version echo %%%%k" 3
+echo   generic_validate "MSVS"  "msbuild -version" "echo %VSCMD_VER%"  "--tool_arch:%VSCMD_ARG_TGT_ARCH%" GEQ16.10.1
 goto :EOF
 
 :_start
