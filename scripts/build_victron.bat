@@ -84,9 +84,8 @@ set _VCG_NINJA_VERSION=
 set _VCG_BUILD_SYSTEM=NINJA
 set _VCG_QT_VERSION=6.8.3
 
-call "%MAKER_SCRIPTS%\split_version.bat" "0.0.0" 1>nul
-if "%VICTRON_GUIV2_VERSION%" neq "" call "%MAKER_SCRIPTS%\split_version.bat" "%VICTRON_GUIV2_VERSION%"
-if "%VERSION_MAJOR%.%VERSION_MINOR%" equ "1.1" set _VCG_QT_VERSION=6.6.3
+call "%MAKER_SCRIPTS%\set_version_env.bat" "VICTRON_GUIV2" "%VICTRON_GUIV2_VERSION%"
+if "%VICTRON_GUIV2__VERSION_MAJOR%.%VICTRON_GUIV2_VERSION_MINOR%" equ "1.1" set _VCG_QT_VERSION=6.6.3
 rem seems newest VS2022 (July 2025) requires Qt6.8.3 for CMake and Ninja to work
 rem set _VCG_QT_VERSION=6.8.3
 
