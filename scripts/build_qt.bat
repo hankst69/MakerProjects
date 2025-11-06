@@ -54,7 +54,7 @@ if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_
 rem show what we have so far
 if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
-set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-%_QT_COMPILER%"
+set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%"
 if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-gcc"
 if /I "%_QT_USE_GCC%" equ "true" set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-gcc"
