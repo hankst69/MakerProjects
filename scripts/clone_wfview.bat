@@ -3,8 +3,8 @@
 call "%~dp0\maker_env.bat" %*
 
 call "%MAKER_SCRIPTS%\set_version_env" "WFVIEW" "%MAKER_ENV_VERSION%"
-set "WFVIEW_DIR=%MAKER_PROJECTS%\wfview"
 set "WFVIEW_BASE_DIR=wfview"
+set "WFVIEW_DIR=%MAKER_PROJECTS%\wfview"
 set "WFVIEW_SCR_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%_source%WFVIEW_VERSION%"
 
 set "WFVIEW_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
