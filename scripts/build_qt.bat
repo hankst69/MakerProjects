@@ -30,13 +30,16 @@ set _QT_MSVS_VERSION=GEQ2019
 set _QT_CMAKE_VERSION=GEQ3.22
 rem set _QT_CLONE_OPTIONS=--silent --init_submodules
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+set _QT_COMPILER=msvs
+if /I "%_QT_USE_GCC%" equ "true" set _QT_COMPILER=gcc
+
 
 rem if we build QT 5.12 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
 if "%_QT_VERSION%" equ "5.12" set _QT_CMAKE_VERSION=GEQ3.20
 if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
 
 rem welcome
-echo BUILDING QT %_QT_VERSION%
+echo BUILDING QT %_QT_VERSION% %_QT_COMPILER%
 
 rem (1) *** cloning QT sources ***
 call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
@@ -51,12 +54,10 @@ if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_
 rem show what we have so far
 if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
-set "_QT_COMPILER=msvs"
-set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
+set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-%_QT_COMPILER%"
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%"
 if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-gcc"
 if /I "%_QT_USE_GCC%" equ "true" set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-gcc"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_COMPILER=gcc"
 
 set "_QT_LOGFILE=%QT_DIR%\qt_build_%_QT_VERSION%_%_QT_COMPILER%_configure.log"
 
@@ -105,11 +106,11 @@ rem if not exist "%_QT_BIN_DIR%\bin\lupdate.exe" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_UIC%" goto :qt_rebuild
 rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
+if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% %_QT_COMPILER% already available&goto :qt_install_done
 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% already available&goto :qt_install_done
-echo error: QT %_QT_VERSION% seems to be prebuild but is not working
+if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% %_QT_COMPILER% already available&goto :qt_install_done
+echo error: QT %_QT_VERSION% %_QT_COMPILER% seems to be prebuild but is not working
 echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
 goto :qt_exit
 
@@ -144,7 +145,7 @@ rem
 rem call "%QT_SOURCES_DIR%\configure.bat" --help
 rem 
 echo.
-echo rebuilding Qt %_QT_VERSION% from sources
+echo rebuilding Qt %_QT_VERSION% %_QT_COMPILER% from sources
 echo see https://doc.qt.io/qt-6/windows-building.html
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw
@@ -163,7 +164,7 @@ if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_
 if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" neq "true" (
   goto :qt_exit
 )
-if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE% --
+if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" equ "true" (
   goto :qt_exit
 )
