@@ -14,10 +14,17 @@ set ERRORLEVEL=
 call "%MAKER_BUILD%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
-
 rem validate specifies:
 rem CHOCO_DIR=%MAKER_BIN%\.choco
 rem ChocolateyInstall=%CHOCO_DIR%
+
+
+rem Install Choco via PowerShell script 'https://community.chocolatey.org/install.ps1' obeying the define ChocolateyInstall directorty location
+rem set "ChocolateyInstall=C:\ProgramData\chocolatey"
+rem set "ChocolateyInstall=%LOCALAPPDATA%\chocolatey"
+rem ChocolateyInstall=%CHOCO_DIR%
+rem call powershell -noprofile -command "$InstallDir='%CHOCO_DIR%'; $env:ChocolateyInstall='$InstallDir'; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'));"
+
 
 set "_CHOCO_BIN=%CHOCO_DIR%"
 
