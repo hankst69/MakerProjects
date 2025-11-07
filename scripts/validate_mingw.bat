@@ -1,0 +1,2 @@
+@call "%~dp0core\generic_validate.bat" "MINGW" "call gcc --version" "for /f ""tokens=1,* delims= "" %%%%i in ('call gcc --version') do @if ""%%%%i"" equ ""gcc"" for /f ""tokens=2 delims=)"" %%%%k in ('echo %%%%j') do for /f ""tokens=1 delims= "" %%%%l in ('echo %%%%k') do echo %%%%l" %*
+@rem call "%~dp0\validate_gcc.bat" %*
