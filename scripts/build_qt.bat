@@ -4,6 +4,17 @@
 @rem https://doc.qt.io/qt-6/windows-building.html
 @rem https://code.qt.io/cgit
 @echo off
+if /I "%~1" equ "-?" goto :_QT_USAGE
+if /I "%~1" equ "-h" goto :_QT_USAGE
+if /I "%~1" equ "--help" goto :_QT_USAGE
+goto :_QT_START
+
+:_QT_USAGE
+echo USAGE:
+echo %~n0 [version] [--use_gcc] [--use_llvm20_patch] [-?^|-h^|--help]
+goto :EOF
+
+:_QT_START
 call "%~dp0\maker_env.bat" %*
 
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
