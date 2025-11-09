@@ -22,20 +22,21 @@ if "%QTW_VERSION%" equ "" set QTW_VERSION=6.8.3
 
 
 rem (2) *** match QTW_EMSDK_VERSION to given QTW_VERSION ***
-rem todo:
+rem
+rem  see https://doc.qt.io/qt-6/wasm.html
+rem  see https://github.com/victronenergy/gui-v2/blob/main/scripts/.env
 rem  for Qt6.6 -> EMSDK 3.1.37
 rem  for Qt6.8 -> EMSDK 3.1.56
-rem  see https://doc.qt.io/qt-6/wasm.html
-set QTW_EMSDK_VERSION=3.1.37
 set QTW_EMSDK_VERSION=3.1.56
+if "%MAKER_ENV_VERSION_MAJOR%" equ "6" if "%MAKER_ENV_VERSION_MINOR%" equ "6" set set QTW_EMSDK_VERSION=3.1.37
 set _QTW_GCC_VERSION=
 
 
 rem (3) *** ensure GCC (MinGW64) ***
 :qtw_ensure_mingw_gcc
 rem the qt build and ensure scripts are not working properly, we have to call it twice
-call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE% --
-rem call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE% -- 1>nul 2>nul
+call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE%
+rem call "%MAKER_BUILD%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_ENV_VERBOSE% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GCC is not available
   goto :qtw_exit
