@@ -20,9 +20,9 @@ rem echo %~n0 [version] [--clone_submodules] [--init_submodules] [--force_clone]
 goto :EOF
 
 :_QTC_START
-set "_QTC_START_DIR=%cd%"
 call "%~dp0\maker_env.bat" %*
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QTC_" 1>nul 2>nul
+set "_QTC_START_DIR=%cd%"
 
 rem assign target version and folder from commandline args
 set "_QTC_VERSION=%MAKER_ENV_VERSION%"
