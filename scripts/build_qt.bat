@@ -31,7 +31,7 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_llvm20_patch" set _QT_USE_LLVM20
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_gcc" set _QT_USE_GCC=true
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_gcc" set _QT_USE_GCC=true
 rem apply defaults
-set _QT_USE_LLVM20_PATCH=true
+rem set _QT_USE_LLVM20_PATCH=true
 
 rem apply defaults
 if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
