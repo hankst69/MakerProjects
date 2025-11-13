@@ -20,6 +20,7 @@ rem echo %~n0 [version] [--clone_submodules] [--init_submodules] [--force_clone]
 goto :EOF
 
 :_QTC_START
+set "_QTC_START_DIR=%cd%"
 call "%~dp0\maker_env.bat" %*
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QTC_" 1>nul 2>nul
 
@@ -57,10 +58,12 @@ if "%_QTC_CLEAN_BEFORE_CLONE%" neq "" (
 if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
   del /F /Q "%_QTC_CLONE_TEST_FILE%" 1>nul 2>nul
   rmdir /s /q "%_QTC_CLONE_TEST_DIR%"
+  pushd "%_QTC_CLONE_TEST_DIR%"
   call git restore qtbase
+  popd
 )
 
-if exist "%_QTC_CLONE_TEST_FILE%" echo QT-CLONE %_QTC_VERSION% already done &goto :qt_clone_done
+if exist "%_QTC_CLONE_TEST_FILE%" if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" equ "" echo QT-CLONE %_QTC_VERSION% already done &goto :qt_clone_done
 
 
 :qt_clone
@@ -69,7 +72,7 @@ if not exist "%_QTC_SOURCES_DIR%" mkdir "%_QTC_SOURCES_DIR%"
 
 rem ensure perl (is required for cloning the qt submodules)
 call "%MAKER_BUILD%\validate_perl.bat"
-if %ERRORLEVEL% NEQ 0 goto :EOF
+if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
 echo.
 
 
@@ -79,20 +82,32 @@ call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QTC_SOURCES_DIR%" "https://code.qt
 pushd "%_QTC_SOURCES_DIR%"
 rem 2) configure the repository
 call git pull
-if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat"
-if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository"
+if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat" || goto :qt_clone_failed
+if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository" || goto :qt_clone_failed
 rem 3) init submodules
-if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule init
+if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule init || goto :qt_clone_failed
 rem 4) clone submodules
-if "%_QTC_CLONE_SUBMODULES%" neq "" call git submodule update --init --recursive
+if "%_QTC_CLONE_SUBMODULES%" neq "" call git submodule update --init --recursive || goto :qt_clone_failed
 popd
-echo QT-CLONE %_QTC_VERSION% done
+rem goto :qt_clone_done
 
 
 :qt_clone_done
+if not exist "%QT_SOURCES_DIR%\qtbase\configure.bat" goto :qt_clone_failed
+echo QT-CLONE %_QTC_VERSION% done
 if "%_QTC_SOURCES_DIR%" neq "" cd /d "%_QTC_SOURCES_DIR%"
 set "QT_DIR=%_QTC_DIR%"
 set "QT_SOURCES_DIR=%_QTC_SOURCES_DIR%"
 set "QT_VERSION=%_QTC_VERSION%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QTC_" 1>nul 2>nul
-if not exist "%QT_SOURCES_DIR%\qtbase\configure.bat" echo error: QT-CLONE %QT_VERSION% failed &set QT_SOURCES_DIR= &exit /b 1
+goto :EOF
+
+
+:qt_clone_failed
+echo error: QT-CLONE %QT_VERSION% failed
+set QT_DIR=
+set QT_SOURCES_DIR=
+set QT_VERSION=
+cd /d "%_QTC_START_DIR%"
+call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QTC_" 1>nul 2>nul
+exit /b 1
