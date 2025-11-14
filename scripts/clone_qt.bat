@@ -93,7 +93,7 @@ rem goto :qt_clone_done
 
 
 :qt_clone_done
-if not exist "%QT_SOURCES_DIR%\qtbase\configure.bat" goto :qt_clone_failed
+if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" goto :qt_clone_failed
 echo QT-CLONE %_QTC_VERSION% done
 if "%_QTC_SOURCES_DIR%" neq "" cd /d "%_QTC_SOURCES_DIR%"
 set "QT_DIR=%_QTC_DIR%"
