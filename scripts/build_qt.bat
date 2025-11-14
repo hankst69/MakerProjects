@@ -74,24 +74,30 @@ set "_QT_LOGFILE=%QT_DIR%\qt_build_%_QT_VERSION%_%_QT_COMPILER%_configure.log"
 
 
 rem (2) *** specify LLVM version ***
-rem todo: find the correct LLVM version dependency for qt 6.8.2
+rem (2.1) match LLVM version to target QT version 
+rem       todo: find the correct LLVM version dependency for qt 6.8.2
 set _QT_LLVM_VER=14
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 6.7 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=18
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" 7.0 GEQ --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
-
-
-rem (3) *** patch Qt sources ***
-rem todo: clarify, ig this qt patch for LLVM20 is still valid (or maybe not neccesary anymore
+rem (2.2) switch to (latest) LLVM 20 if desired (but might require a patch for QT to build)
+rem       todo: clarify, is this qt patch for LLVM20 is still valid or maybe not neccesary anymore
 if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
   pushd "%QT_SOURCES_DIR%\qttools"
   call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
   popd 
   set _QT_LLVM_VER=20
-  set _QT_LLVM_VER=
 )
+set _QT_LLVM_VER_VERIFY=%_QT_LLVM_VER%
+rem (2.3) switch to latest LLVM version (no version nr specified where possible when we shall use LLVM 20 or LLVM 18)
+rem       todo: clarify if this is valid for QT6.8.3 without the LLVM20 patch
+rem       todo: somehow handle the case when the latest LLVM is much newer than current 20 and then gets incompatible with QT build
+if "%_QT_LLVM_VER%" equ "20" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
+if "%_QT_LLVM_VER%" equ "18" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
 
+
+rem *** verbose listing of variables ***
 if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
 
 
@@ -193,7 +199,12 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_BUILD%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: LLVM CLANG is not available
+  call "%MAKER_BUILD%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
+)
+call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :qt_exit
