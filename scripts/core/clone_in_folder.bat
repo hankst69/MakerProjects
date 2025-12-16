@@ -11,12 +11,14 @@ set _SILENT_CLONE_MODE=
 set _SWITCH_BRANCH=
 set _CHECKOUT_TAG=
 set _CHANGE_DIR=
+set _NO_PULL=
 set _FREE_ARGS=
 :param_loop
 if /I "%~1" equ "--silent"       (set "_SILENT_CLONE_MODE=true" &shift &goto :param_loop)
 if /I "%~1" equ "--changeDir"    (set "_CHANGE_DIR=true" &shift &goto :param_loop)
 if /I "%~1" equ "--switchBranch" (set "_SWITCH_BRANCH=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--checkoutTag"  (set "_CHECKOUT_TAG=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "--noPull"       (set "_NO_PULL=true" &shift &goto :param_loop)
 if "%~1" neq "" if "%_TARGET_DIR%" equ "" (set "_TARGET_DIR=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_GIT_CLONE_URL%"  equ "" (set "_GIT_CLONE_URL=%~1" &set "_GIT_CLONE_REPO=%~nx1" &shift /1 &goto :param_loop)
 if "%~1" neq "" (set "_FREE_ARGS=%_FREE_ARGS% %1"&shift &goto :param_loop)
@@ -51,6 +53,7 @@ set _SILENT_CLONE_MODE=
 set _SWITCH_BRANCH=
 set _CHECKOUT_TAG=
 set _CHANGE_DIR=
+set _NO_PULL=
 set _FREE_ARGS=
 goto :EOF
 
@@ -69,7 +72,7 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
     echo ******************************************************************************************
     echo * '%_GIT_CLONE_REPO%' is already cloned in '%_TARGET_DIR%'
     rem echo * to clone '%_GIT_CLONE_REPO%' freshly, remove all content via: 'rmdir /s /q "%_TARGET_DIR%"'
-	  echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
+	  rem echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
     echo ******************************************************************************************
   )
   pushd "%_TARGET_DIR%"
@@ -85,6 +88,13 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
     if "%_SWITCH_BRANCH%" neq "" (
       echo.
       git switch %_SWITCH_BRANCH% 1>nul 2>nul
+    )
+  )
+  if "%_NO_PULL%" neq "true" (
+    if "%_SILENT_CLONE_MODE%" neq "true" (
+      git pull
+    ) else (
+      git pull 1>nul 2>nul
     )
   )
   popd

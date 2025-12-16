@@ -9,4 +9,6 @@ set "_USERSCRIPTS_KNOWHOW_DIR=%MAKER_PROJECTS_WEB%\KnowHow"
 
 @call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_KNOWHOW_DIR%" "https://github.com/hankst69/UserScript-KnowHow"
 @call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_DIR%" "https://github.com/hankst69/UserScripts" --changeDir --switchBranch DLWSMEDIA_with_HLSPlayer
+
 @call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_DIR%\SingleFile-MV3" "https://github.com/gildas-lormeau/SingleFile-MV3"
+@call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_USERSCRIPTS_DIR%\SaveChromeTabGroups" "https://github.com/sienori/Save-Tab-Groups-for-Tab-Session-Manager.git"
