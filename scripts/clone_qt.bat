@@ -58,8 +58,9 @@ if "%_QTC_CLEAN_BEFORE_CLONE%" neq "" (
 if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
   del /F /Q "%_QTC_CLONE_TEST_FILE%" 1>nul 2>nul
   rmdir /s /q "%_QTC_CLONE_TEST_DIR%"
+  mkdir "%_QTC_CLONE_TEST_DIR%"
   pushd "%_QTC_CLONE_TEST_DIR%"
-  call git restore qtbase
+  call git restore qtbase 1>nul 2>nul
   popd
 )
 

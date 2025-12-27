@@ -1,6 +1,6 @@
 @echo off
 
-if "%~1" equ "" if "%MAKER_ENV_NOERROS%" equ "" echo error: missing arg1 'env_variable_base_name' &goto :EOF
+if "%~1" equ "" if "%MAKER_ENV_NOERRORS%" equ "" echo error: missing arg1 'env_variable_base_name' &goto :EOF
 set %~1_VERSION=
 set %~1_VERSION_MAJOR=
 set %~1_VERSION_MINOR=

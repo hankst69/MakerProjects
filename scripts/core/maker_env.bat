@@ -21,7 +21,7 @@ if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%MAKER_BIN%"
 
 rem if "%~1" equ "" goto :exit
 if /I "%~1" equ "--keep" shift &goto :param_loop
-set MAKER_ENV_NOERROS=
+set MAKER_ENV_NOERRORS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
 set MAKER_ENV_VERBOSE=
@@ -42,8 +42,8 @@ if "%__ARG__%" equ "" goto :param_loop_exit
 shift
 rem handle known switches:
 if /I "%__ARG__%" equ "--"             (goto :param_loop)
-if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
-if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERROS=--no_errors" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERRORS=--no_errors" &goto :param_loop)
+if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERRORS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "--no_warnings"  (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
 if /I "%__ARG__%" equ "-nw"            (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
 if /I "%__ARG__%" equ "--no_info"      (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
