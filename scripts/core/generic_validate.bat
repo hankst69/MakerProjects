@@ -16,6 +16,7 @@ goto :EOF
 
 :_start
 @echo off
+set ERRORLEVEL=
 rem echo on
 call :_clean_script_variables
 set "_VALIDATE_SCRIPT_ROOT=%~dp0"
