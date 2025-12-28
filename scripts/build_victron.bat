@@ -11,12 +11,12 @@ set "_VCG_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
 if "%_VCG_TGT_ARCH%"   equ "" set _VCG_TGT_ARCH=x64
-if "%_VCG_BUILD_TYPE%" equ "" set _VCG_BUILD_TYPE=MinSizeRel
+if "%_VCG_BUILD_TYPE%" equ "" set _VCG_BUILD_TYPE=Release
 rem apply hardcoded values
 set _VCG_TGT_ARCH=x64
 rem set _VCG_BUILD_TYPE=Debug
 rem set _VCG_BUILD_TYPE=Release
-set _VCG_BUILD_TYPE=MinSizeRel
+rem set _VCG_BUILD_TYPE=MinSizeRel
 
 rem welcome
 echo BUILDING VENUS-GUIV2 %_VCG_VERSION%
@@ -78,11 +78,11 @@ rem Victron gui version: v1.2.7
 rem -> QT 6.8.3
 rem
 rem define target QT framework and build system versions:
-rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
+rem find current required QT version in: https://github.com/victronenergy/gui-v2/blob/main/scripts/.env
 set _VCG_MSVS_VERSION=GEQ2019
 set _VCG_NINJA_VERSION=
 set _VCG_BUILD_SYSTEM=MSVS
-set _VCG_BUILD_SYSTEM=NINJA
+rem set _VCG_BUILD_SYSTEM=NINJA
 set _VCG_QT_VERSION=6.8.3
 
 call "%MAKER_SCRIPTS%\set_version_env.bat" "VICTRON_GUIV2" "%VICTRON_GUIV2_VERSION%"
@@ -107,7 +107,8 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :Exit
 )
 rem ensure qt
-call "%MAKER_BUILD%\ensure_qt.bat" %_VCG_QT_VERSION% --use_gcc --use_llvm20_patch %MAKER_ENV_VERBOSE%
+rem call "%MAKER_BUILD%\ensure_qt.bat" %_VCG_QT_VERSION% --use_gcc %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
@@ -128,11 +129,11 @@ if /I "%_VCG_BUILD_SYSTEM%" equ "NINJA" goto :_configure_4_ninja
 if /I "%_VCG_BUILD_SYSTEM%" equ "MSVS" goto :_configure_4_msvs
 :_configure_4_ninja
  echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
- call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+ call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
  goto :_configure_done
 :_configure_4_msvs
  echo     qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
- call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+ call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
  rem  "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%" --log-level=VERBOSE
  goto :_configure_done
 :_configure_done
@@ -154,7 +155,7 @@ rem todo: skip install when already done...
 echo.
 echo VENUS-GUIV2-INSTALL %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE% -^> %_VCG_BIN_DIR%)
 cd /d "%_VCG_BUILD_DIR%"
-call cmake --install .
+call cmake --install --config %_VCG_BUILD_TYPE% .
 
 :_install_test
 rem todo: validate install success...
