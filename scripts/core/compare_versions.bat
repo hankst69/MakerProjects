@@ -1,14 +1,23 @@
 @goto :_start
 :_usage
-set _COMPARE_VERSION_MODE=
-echo compare_versions ^<src_version^> ^<tgt_version^> [compare_mode] [--no_errors^|-ne] [--no_warnings^|-nw] [--no_info^|-ni] [--verbose^|-v] [--help^|-h^|-?]
+echo.
+echo compare_versions ^<src_version^> ^<EQU^|GTR^|GEQ^|LSS^|LEQ^> ^<tgt_version^>  [options]
+echo compare_versions ^<src_version^> ^<tgt_version^> [EQU^|GTR^|GEQ^|LSS^|LEQ]  [options]
+echo compare_versions ^<src_version^> ^<[EQU^|GTR^|GEQ^|LSS^|LEQ]tgt_version^>   [options]
 echo.
 echo   src_version  : major[.minor[.patch]]
 echo   tgt_version  : major[.minor[.patch]]
 echo   compare_mode : EQU^|GTR^|GEQ^|LSS^|LEQ
+echo      [options] : --no_errors^|-ne
+echo                : --no_warnings^|-nw
+echo                : --no_info^|-ni
+echo                : --verbose^|-v
+echo                : --help^|-h^|-?
 echo.
 echo examples:
-echo   compare_versions 3.12.5 3    GEQ
+echo   compare_versions 3.12.5 GEQ 3
+echo   compare_versions 3.12.5 3 GEQ
+echo   compare_versions 3.12.5 GEQ3
 echo   compare_versions 2.3    2    GTR
 echo   compare_versions 2      2.5  GEQ
 echo   compare_versions 2.3    GEQ2
@@ -17,6 +26,7 @@ goto :EOF
 
 :_start
 @echo off
+set ERRORLEVEL=
 set "_COMPARE_SCRIPT_ROOT=%~dp0"
 set "_COMPARE_SCRIPT_NAME=_%~n0"
 set "_COMPARE_SCRIPT_NAME=_compare"
@@ -57,9 +67,27 @@ if "%_COMPARE_SRC_VERSION%"  equ "" (set "_COMPARE_SRC_VERSION=%_ARG_TMP_%" &got
 if "%_COMPARE_TGT_VERSION%"  equ "" (set "_COMPARE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop)
 if "%_COMPARE_VERSION_MODE%" equ "" (set "_COMPARE_VERSION_MODE=%_ARG_TMP_%" &goto :_param_loop)
 echo warning%_COMPARE_SCRIPT_NAME%: unknown argument '%_ARG_TMP_%'
-goto :_param_loop)
+goto :_param_loop
 :_param_loop_finish
+
+if "%_COMPARE_VERSION_MODE%" equ "" goto :_params_validation
+if /I "%_COMPARE_TGT_VERSION%" equ "EQU" goto :_params_switching
+if /I "%_COMPARE_TGT_VERSION%" equ "GTR" goto :_params_switching
+if /I "%_COMPARE_TGT_VERSION%" equ "GEQ" goto :_params_switching
+if /I "%_COMPARE_TGT_VERSION%" equ "NEQ" goto :_params_switching
+if /I "%_COMPARE_TGT_VERSION%" equ "LSS" goto :_params_switching
+if /I "%_COMPARE_TGT_VERSION%" equ "LEQ" goto :_params_switching
+goto :_params_validation
+
+:_params_switching
+set "_ARG_TMP_=%_COMPARE_TGT_VERSION%"
+set "_COMPARE_TGT_VERSION=%_COMPARE_VERSION_MODE%"
+set "_COMPARE_VERSION_MODE=%_ARG_TMP_%"
+
+:_params_validation
 set _ARG_TMP_=
+if "%_COMPARE_SRC_VERSION%" equ "" (echo error 1%_COMPARE_SCRIPT_NAME%: missing argument ^<src_version^> &call :_usage &call :_clean_temp_variables &exit /b 1)
+if "%_COMPARE_TGT_VERSION%" equ "" (echo error 2%_COMPARE_SCRIPT_NAME%: missing argument ^<tgt_version^> &call :_usage &call :_clean_temp_variables &exit /b 2)
 
 :_params_postprocessing
 call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" --no_errors --no_warnings --no_info
@@ -68,15 +96,13 @@ call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_TGT_VERSION%" --no_er
 set _COMPARE_TGT_VERSION=%VERSION%
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=%VERSION_COMPARE%
 
-if "%_COMPARE_SRC_VERSION%" equ "" (echo error 1%_COMPARE_SCRIPT_NAME%: missing argument ^<src_version^> &call :_clean_temp_variables &exit /b 1)
-if "%_COMPARE_TGT_VERSION%" equ "" (echo error 2%_COMPARE_SCRIPT_NAME%: missing argument ^<tgt_version^> &call :_clean_temp_variables &exit /b 2)
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=EQU
-if /I "%_COMPARE_VERSION_MODE%" equ "EQU" goto :_params_done
-if /I "%_COMPARE_VERSION_MODE%" equ "GTR" goto :_params_done
-if /I "%_COMPARE_VERSION_MODE%" equ "GEQ" goto :_params_done
-if /I "%_COMPARE_VERSION_MODE%" equ "NEQ" goto :_params_done
-if /I "%_COMPARE_VERSION_MODE%" equ "LSS" goto :_params_done
-if /I "%_COMPARE_VERSION_MODE%" equ "LEQ" goto :_params_done
+if /I "%_COMPARE_VERSION_MODE%" equ "EQU" (set "_COMPARE_VERSION_MODE=EQU" &goto :_params_done)
+if /I "%_COMPARE_VERSION_MODE%" equ "GTR" (set "_COMPARE_VERSION_MODE=GTR" &goto :_params_done)
+if /I "%_COMPARE_VERSION_MODE%" equ "GEQ" (set "_COMPARE_VERSION_MODE=GEQ" &goto :_params_done)
+if /I "%_COMPARE_VERSION_MODE%" equ "NEQ" (set "_COMPARE_VERSION_MODE=NEQ" &goto :_params_done)
+if /I "%_COMPARE_VERSION_MODE%" equ "LSS" (set "_COMPARE_VERSION_MODE=LSS" &goto :_params_done)
+if /I "%_COMPARE_VERSION_MODE%" equ "LEQ" (set "_COMPARE_VERSION_MODE=LEQ" &goto :_params_done)
 echo error 3%_COMPARE_SCRIPT_NAME%: invalid value '%_COMPARE_VERSION_MODE%' for optional argument [version_compare]
 call :_clean_temp_variables
 exit /b 3

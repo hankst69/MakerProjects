@@ -72,9 +72,9 @@ if not exist "%_QTC_DIR%" mkdir "%_QTC_DIR%"
 if not exist "%_QTC_SOURCES_DIR%" mkdir "%_QTC_SOURCES_DIR%"
 
 rem ensure perl (is required for cloning the qt submodules)
-call "%MAKER_BUILD%\validate_perl.bat"
+call "%MAKER_BUILD%\validate_perl.bat" --no_info
 if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
-echo.
+rem echo.
 
 
 echo QT-CLONE %_QTC_VERSION%

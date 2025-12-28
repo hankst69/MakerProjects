@@ -53,12 +53,16 @@ if not exist "%_CHOCO_BIN_BIN%\win_flex.exe" (
   goto :exit_script
 )
 :win_FLEX_installed
-echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_BIN%\flex.bat"
-goto :test_FLEX_succes
-
+rem echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_BIN%\flex.bat"
+rem goto :test_FLEX_succes
+copy /Y "%_CHOCO_BIN_BIN%\win_flex.exe" "%_CHOCO_BIN_BIN%\flex.exe" 1>nul 2>nul
+call "%MAKER_BUILD%\validate_flex.bat" %_FLEX_VERSION% --no_info --no_errors
+if %ERRORLEVEL% EQU 0 goto :exit_script
+set "Path=%_CHOCO_BIN_BIN%;%Path%"
+goto :exit_script
 
 :test_FLEX_succes
-call "%MAKER_BUILD%\validate_flex.bat" %_FLEX_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_flex.bat" %_FLEX_VERSION% --no_errors
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 set "Path=%MAKER_BIN%;%Path%"
