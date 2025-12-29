@@ -155,7 +155,11 @@ rem todo: skip install when already done...
 echo.
 echo VENUS-GUIV2-INSTALL %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE% -^> %_VCG_BIN_DIR%)
 cd /d "%_VCG_BUILD_DIR%"
-call cmake --install --config %_VCG_BUILD_TYPE% .
+call cmake --install . --config %_VCG_BUILD_TYPE%
+rem echo on
+rem set "_VCG_BIN_DIR=%_VCG_BUILD_DIR%"
+mkdir "%_VCG_BIN_DIR%\bin" 1>nul 2>nul
+copy /Y "%_VCG_BUILD_DIR%\bin\%_VCG_BUILD_TYPE%\venus*" "%_VCG_BIN_DIR%\bin"
 
 :_install_test
 rem todo: validate install success...
