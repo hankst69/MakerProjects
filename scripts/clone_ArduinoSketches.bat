@@ -18,7 +18,8 @@ set "_AS_fygen_DIR=%_ARDUINO_SKETCHES_DIR%\AWGControl\fygen"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_fygen_DIR%" "https://github.com/hankst69/fygen.git" --changeDir
 
 @rem https://github.com/hankst69/SimpleCWKeyer.git
-set "_AS_SimpleCWKeyer_DIR=%_ARDUINO_SKETCHES_DIR%\unoR3\SimpleCWKeyer"
+rem set "_AS_SimpleCWKeyer_DIR=%_ARDUINO_SKETCHES_DIR%\unoR3\SimpleCWKeyer"
+set "_AS_SimpleCWKeyer_DIR=%_ARDUINO_SKETCHES_DIR%\SimpleCWKeyer"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_SimpleCWKeyer_DIR%" "https://github.com/hankst69/SimpleCWKeyer.git"
 
 
