@@ -55,13 +55,15 @@ if "%_QTC_CLEAN_BEFORE_CLONE%" neq "" (
   echo preparing fresh clone by cleaning target folder
   rmdir /s /q "%_QTC_SOURCES_DIR%" 1>nul 2>nul
 )
-if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
-  del /F /Q "%_QTC_CLONE_TEST_FILE%" 1>nul 2>nul
-  rmdir /s /q "%_QTC_CLONE_TEST_DIR%"
-  mkdir "%_QTC_CLONE_TEST_DIR%"
-  pushd "%_QTC_CLONE_TEST_DIR%"
-  call git restore qtbase 1>nul 2>nul
-  popd
+if exist "%_QTC_CLONE_TEST_DIR%" (
+  if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
+    del /F /Q "%_QTC_CLONE_TEST_FILE%" 1>nul 2>nul
+    rmdir /s /q "%_QTC_CLONE_TEST_DIR%"
+    mkdir "%_QTC_CLONE_TEST_DIR%"
+    pushd "%_QTC_CLONE_TEST_DIR%"
+    call git restore qtbase 1>nul 2>nul
+    popd
+  )
 )
 
 if exist "%_QTC_CLONE_TEST_FILE%" if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" equ "" echo QT-CLONE %_QTC_VERSION% already done &goto :qt_clone_done
