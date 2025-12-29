@@ -31,15 +31,20 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_llvm20_patch" set _QT_USE_LLVM20
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_gcc" set _QT_USE_GCC=true
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_gcc" set _QT_USE_GCC=true
 
-rem apply defaults
+rem apply defaults 1
 if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
 if "%_QT_VERSION%" equ "" set _QT_VERSION=6.8.3
 set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
-set _QT_BUILD_TYPE=release
-set _QT_MSVS_VERSION=GEQ2019
-set _QT_CMAKE_VERSION=GEQ3.22
-rem set _QT_CLONE_OPTIONS=--silent --init_submodules
+set "_QT_BUILD_TYPE=release"
+set "_QT_MSVS_VERSION=GEQ2019"
+set "_QT_CMAKE_VERSION=GEQ3.22"
+rem apply defaults 2
+rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+set "_QT_BUILD_OPTIONS=-force-debug-info -separate-debug-info"
+if /I "%_QT_BUILD_TYPE%" equ "release" set _QT_BUILD_OPTIONS=
+set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine"
+rem apply defaults 3
 set _QT_COMPILER=msvs
 if /I "%_QT_USE_GCC%" equ "true" set _QT_COMPILER=gcc
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" "LSS" "%_QT_VERSION_WITH_LLVM_FIX%" 1>nul 2>nul
@@ -201,11 +206,8 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
-  call "%MAKER_BUILD%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
-)
-call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :qt_exit
@@ -293,7 +295,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   echo. >>"%_QT_LOGFILE%"
   call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%_QT_LOGFILE%"
   echo. >>"%_QT_LOGFILE%"
-  if /I "%_QT_USE_GCC%" neq "true" echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% -force-debug-info -separate-debug-info -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON >>"%_QT_LOGFILE%"
+  if /I "%_QT_USE_GCC%" neq "true" echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON >>"%_QT_LOGFILE%"
   if /I "%_QT_USE_GCC%" equ "true" echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -platform win32-g++ -%_QT_BUILD_TYPE% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg >>"%_QT_LOGFILE%"
   rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
   rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
@@ -305,7 +307,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%_QT_LOGFILE%"
   echo. >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%"
-  if /I "%_QT_USE_GCC%" neq "true" call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% -force-debug-info -separate-debug-info -skip qtwebengine -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --log-level=VERBOSE --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON >>"%_QT_LOGFILE%"
+  if /I "%_QT_USE_GCC%" neq "true" call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --log-level=VERBOSE --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON >>"%_QT_LOGFILE%"
   if /I "%_QT_USE_GCC%" equ "true" call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -platform win32-g++ -%_QT_BUILD_TYPE% -sql-odbc=no -freetype=qt -harfbuzz=qt -libpng=qt -libjpeg=qt -- --log-level=VERBOSE -DQT_DEBUG_FIND_PACKAGE=ON >>"%_QT_LOGFILE%"
   rem validate QtMqtt configuration done
   if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qt_configure_done
