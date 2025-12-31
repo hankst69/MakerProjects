@@ -11,7 +11,7 @@ set "_WFV_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
 if "%_WFV_TGT_ARCH%"   equ "" set _WFV_TGT_ARCH=x64
-if "%_WFV_BUILD_TYPE%" equ "" set _WFV_BUILD_TYPE=MinSizeRel
+if "%_WFV_BUILD_TYPE%" equ "" set _WFV_BUILD_TYPE=release
 rem apply hardcoded values
 rem set _WFV_TGT_ARCH=x64
 rem set _WFV_BUILD_TYPE=Debug
@@ -61,7 +61,7 @@ rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 set _WFV_MSVS_VERSION=GEQ2019
 set _WFV_NINJA_VERSION=
-set _WFV_BUILD_SYSTEM=NINJA
+set _WFV_BUILD_SYSTEM=MSVS
 set _WFV_QT_VERSION=6.8.3
 
 rem call "%MAKER_SCRIPTS%\set_version_env" "WFVIEW" "%WFVIEW_VERSION%"
@@ -73,6 +73,15 @@ rem echo *** THIS REQUIRES QT 6.6.3 REMARK: find current required version in: ht
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION% REMARK: find current required version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 echo *** THIS REQUIRES VisualStudio 2019 or 2022
 echo.
+
+rem generate CmakeLists.txt
+if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
+  call "%MAKER_BUILD%\build_qmake2cmake.bat"
+  if %ERRORLEVEL% NEQ 0 goto :_exit
+  cd "%_WFV_SOURCES_DIR%"
+  call qmake2cmake wfview.pro -o CmakeLists.txt --min-qt-version %_WFV_QT_VERSION%
+)
+
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
