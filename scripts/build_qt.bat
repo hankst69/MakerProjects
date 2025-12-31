@@ -38,18 +38,39 @@ set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
 set "_QT_BUILD_TYPE=release"
 set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
-rem apply defaults 2
+rem
+rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
-set "_QT_BUILD_OPTIONS_MSVS=-force-debug-info -separate-debug-info"
-if /I "%_QT_BUILD_TYPE%" equ "release" set _QT_BUILD_OPTIONS_MSVS=
+rem
+rem MSVS BUILD options
+set _QT_BUILD_OPTIONS_MSVS=
+rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre"
+rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% --trace=ctf"
 set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -skip qtwebengine"
-set "_QT_BUILD_OPTIONS_GCC=-qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
-rem set "_QT_BUILD_OPTIONS_GCC=-freetype=qt -harfbuzz=qt -libpng=qt -libjpeg=qt"
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -sql-odbc=no"
-set _QT_BUILD_OPTIONS=
-if /I "%_QT_USE_GCC%" neq "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS_MSVS%"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS_GCC%"
+  rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
+  rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
+  rem   building against version 1929.  You can turn off this version check by
+  rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
+set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --log-level=VERBOSE"
+rem
+rem MingGW-GCC BUILD options
+set "_QT_BUILD_OPTIONS_GCC=-platform win32-g++"
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-zlib -qt-pcre"
+rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --freetype=qt --harfbuzz=qt --libpng=qt --libjpeg=qt --zlib=qt --pcre=qt --sqlite=qt"
+rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --sqlite=qt"
+rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -sql-psql -sql-mysql"
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -skip qtsql"
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --trace=ctf"
+rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -cmake-generator ""MinGW Makefiles"""
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -- -DMINGW=1 --log-level=VERBOSE"
+rem
+rem BUILD options
+set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
+if /I "%_QT_USE_GCC%" neq "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
+if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
+if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info -separate-debug-info"
 rem apply defaults 3
 set _QT_COMPILER=msvs
 if /I "%_QT_USE_GCC%" equ "true" set _QT_COMPILER=gcc
@@ -301,20 +322,14 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   echo. >>"%_QT_LOGFILE%"
   call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%_QT_LOGFILE%"
   echo. >>"%_QT_LOGFILE%"
-  if /I "%_QT_USE_GCC%" neq "true" echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON >>"%_QT_LOGFILE%"
-  if /I "%_QT_USE_GCC%" equ "true" echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -platform win32-g++ -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%"
-  rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
-  rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
-  rem   building against version 1929.  You can turn off this version check by
-  rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
+  echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%"
   set _QT_CONFIGURE_RETRIES=0
   :qt_configure_do
   echo. >>"%_QT_LOGFILE%"
   echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%_QT_LOGFILE%"
   echo. >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%"
-  if /I "%_QT_USE_GCC%" neq "true" call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --log-level=VERBOSE --debug-find-pkg=Qt6Mqtt -DQT_DEBUG_FIND_PACKAGE=ON >>"%_QT_LOGFILE%"
-  if /I "%_QT_USE_GCC%" equ "true" call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -platform win32-g++ -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% -- --log-level=VERBOSE -DQT_DEBUG_FIND_PACKAGE=ON >>"%_QT_LOGFILE%"
+  call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%"
   rem validate QtMqtt configuration done
   if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qt_configure_done
   if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
