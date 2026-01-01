@@ -72,27 +72,33 @@ if exist "%_QTC_CLONE_TEST_FILE%" if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%"
 :qt_clone
 if not exist "%_QTC_DIR%" mkdir "%_QTC_DIR%"
 if not exist "%_QTC_SOURCES_DIR%" mkdir "%_QTC_SOURCES_DIR%"
-
-rem ensure perl (is required for cloning the qt submodules)
-call "%MAKER_BUILD%\validate_perl.bat" --no_info
-if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
 rem echo.
-
-
 echo QT-CLONE %_QTC_VERSION%
 rem 1) clone repository
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_QTC_SOURCES_DIR%" "https://code.qt.io/qt/qt5.git" --switchBranch %_QTC_VERSION% %_QTC_SILENT_CLONE_MODE%
 pushd "%_QTC_SOURCES_DIR%"
-rem 2) configure the repository
 call git pull
-if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat" || goto :qt_clone_failed
-if "%_QTC_INIT_SUBMODULES%" neq "" if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository" || goto :qt_clone_failed
-rem 3) init submodules
-if "%_QTC_INIT_SUBMODULES%" neq "" call git submodule init || goto :qt_clone_failed
-rem 4) clone submodules
-if "%_QTC_CLONE_SUBMODULES%" neq "" call git submodule update --init --recursive || goto :qt_clone_failed
 popd
-rem goto :qt_clone_done
+
+
+:qt_init_submodules
+if "%_QTC_INIT_SUBMODULES%" equ "" goto :qt_clone_done
+if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" del /F /Q "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" 1>nul 2>nul
+if exist "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" goto :qt_clone_done
+pushd "%_QTC_SOURCES_DIR%"
+rem ensure perl (is required for cloning the qt submodules)
+call "%MAKER_BUILD%\validate_perl.bat" --no_info
+if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
+rem 2) configure the repository
+if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat" || goto :qt_clone_failed
+if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository" || goto :qt_clone_failed
+rem 3) init submodules
+call git submodule init || goto :qt_clone_failed
+rem 4) clone submodules
+call git submodule update --init --recursive || goto :qt_clone_failed
+echo qt_init_submodules_done>.qt_init_submodules_done
+popd
+goto :qt_clone_done
 
 
 :qt_clone_done

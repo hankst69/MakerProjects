@@ -47,7 +47,7 @@ rem MSVS BUILD options
 set _QT_BUILD_OPTIONS_MSVS=
 rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre"
 rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% --trace=ctf"
-set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -skip qtwebengine"
+rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -skip qtwebengine"
   rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
   rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
   rem   building against version 1929.  You can turn off this version check by
@@ -68,6 +68,7 @@ set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -- -DMINGW=1 --log-level=VERB
 rem
 rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
+set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
 if /I "%_QT_USE_GCC%" neq "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
 if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
 if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info -separate-debug-info"
@@ -310,11 +311,10 @@ rem   NOT exist
 rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
 :qt_configure_test
-rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
-if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_VERSION% not yet done or incomplete &goto :qt_configure
-if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% already done &goto :qt_configure_done
+if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_VERSION% %_QT_COMPILER% not yet done or incomplete &goto :qt_configure
+if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% %_QT_COMPILER% already done &goto :qt_configure_done
 :qt_configure
-  echo QT-CONFIGURE %_QT_VERSION%
+  echo QT-CONFIGURE %_QT_VERSION% %_QT_COMPILER%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo. >"%_QT_LOGFILE%"
@@ -335,17 +335,17 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
   if "%_QT_CONFIGURE_RETRIES%" equ "0" set _QT_CONFIGURE_RETRIES=1
   if "%_QT_CONFIGURE_RETRIES%" equ ""  set _QT_CONFIGURE_RETRIES=1
-  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
+  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE %_QT_VERSION% %_QT_COMPILER% incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
   goto :qt_configure_do
 :qt_configure_done
 
 rem (9-1) *** perform QT Basic build ***
 :qt_build_test
 set _QT_BUILD_RETRIES=1
-if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-BUILD %_QT_VERSION% not yet done or incomplete &goto :qt_build
-if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already done &goto :qt_build_done
+if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo QT-BUILD %_QT_VERSION% %_QT_COMPILER% not yet done or incomplete &goto :qt_build
+if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% %_QT_COMPILER% already done &goto :qt_build_done
 :qt_build
-  echo QT-BUILD %_QT_VERSION%
+  echo QT-BUILD %_QT_VERSION% %_QT_COMPILER%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   call cmake --build . --parallel 4
@@ -354,16 +354,16 @@ if exist "%_QT_BIN_DIR%\bin\designer.exe" echo QT-BUILD %_QT_VERSION% already do
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
   if "%_QT_BUILD_RETRIES%" equ "0" set _QT_BUILD_RETRIES=1
   if "%_QT_BUILD_RETRIES%" equ ""  set _QT_BUILD_RETRIES=1
-  if "%_QT_BUILD_RETRIES%" equ "2" echo QT-BUILD incomplete after %_QT_BUILD_RETRIES% tries & goto :qt_build_done
+  if "%_QT_BUILD_RETRIES%" equ "2" echo QT-BUILD %_QT_VERSION% %_QT_COMPILER% incomplete after %_QT_BUILD_RETRIES% tries & goto :qt_build_done
   goto :qt_build
 :qt_build_done
 
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
 goto :qt_modules_build_done
-if exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% already done &goto :qt_modules_build_done
+if exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% %_QT_COMPILER% already done &goto :qt_modules_build_done
 :qt_modules_build
-  echo QT-BUILD %_QT_VERSION%
+  echo QT-BUILD %_QT_VERSION% %_QT_COMPILER%
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   call cmake --build . --target qtmqtt
@@ -377,18 +377,18 @@ if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_install_do
 if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
-  echo QT-INSTALL %_QT_VERSION%
+  echo QT-INSTALL %_QT_VERSION% %_QT_COMPILER%
   cd /d "%_QT_BUILD_DIR%"
   call cmake --install .
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   call cmake --install .
-  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% FAILED&goto :qt_install_done
+  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% %_QT_COMPILER% FAILED&goto :qt_install_done
 :qt_install_test
 call which uic.exe 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%_QT_BIN_DIR%\bin;%PATH%"
 call which uic.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% available &goto :qt_install_done
-echo error: QT-INSTALL %_QT_VERSION% failed
+if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% %_QT_COMPILER% available &goto :qt_install_done
+echo error: QT-INSTALL %_QT_VERSION% %_QT_COMPILER% failed
 goto :qt_exit
 
 
@@ -410,5 +410,5 @@ rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 :qt_exit
 cd /d "%_QT_START_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
-if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% incomplete &exit /b 1
+if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% %_QT_COMPILER% incomplete &exit /b 1
 "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings
