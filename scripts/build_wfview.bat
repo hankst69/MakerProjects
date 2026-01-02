@@ -46,7 +46,7 @@ if "%_WFV_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_WFV_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_WFV_BUILD_DIR%" 1>nul 2>nul
-  del /f /q "%_WFV_SOURCES_DIR%\CmakeLists.txt"  1>nul 2>nul
+  rem del /f /q "%_WFV_SOURCES_DIR%\CmakeLists.txt"  1>nul 2>nul
 )
 if not exist "%_WFV_BIN_DIR%" mkdir "%_WFV_BIN_DIR%"
 if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
@@ -62,11 +62,12 @@ rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
 set _WFV_MSVS_VERSION=GEQ2019
 set _WFV_NINJA_VERSION=
-set _WFV_BUILD_SYSTEM=MSVS
+set _WFV_BUILD_SYSTEM=Ninja
+set _WFV_BUILD_SYSTEM=msvs
 set _WFV_QT_VERSION=6.8.3
 
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
-echo *** THIS REQUIRES VisualStudio 2019 or 2022
+echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo.
 
 rem generate CmakeLists.txt
@@ -82,6 +83,9 @@ call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% amd64 %MAKER_ENV_VERBOS
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
+if /I "%_WFV_BUILD_SYSTEM%" equ "Ninja" call "%MAKER_BUILD%\ensure_mingw.bat"
+if /I "%_WFV_BUILD_SYSTEM%" equ "Ninja" if %ERRORLEVEL% NEQ 0 goto :_exit
+
 rem validate ninja
 call "%MAKER_BUILD%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (

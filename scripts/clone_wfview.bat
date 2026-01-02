@@ -27,3 +27,10 @@ rem
 set "WFVIEW_RTAUDIO_SCR_DIR=%WFVIEW_DIR%\rtaudio"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SCR_DIR%" "https://github.com/thestk/rtaudio.git" %WFVIEW_SILENT_CLONE_MODE%
  
+rem opus        (..\opus\include)
+rem hidapi      (..\hidapi\hidapi)
+rem portaudio   (..\portaudio\include)
+rem qcustomplot (..\qcustomplot)
+rem eigen       (..\eigen)
+rem r8brain     (..\r8brain-free-src)
+rem rtaudio     (..\rtaudio)
