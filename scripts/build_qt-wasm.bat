@@ -14,8 +14,8 @@ set "_QTW_REBUILD=%MAKER_ENV_REBUILD%"
 rem (1) *** define QT-WASM version defaults and clone options ***
 rem set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
 rem if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
-set "_QTW_CLONE_OPTIONS=--silent"
-if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone"
+set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=%_QTW_CLONE_OPTIONS% --clean_before_clone"
 rem version default:
 rem if "%QTW_VERSION%" equ "" set QTW_VERSION=6.6.3
 if "%QTW_VERSION%" equ "" set QTW_VERSION=6.8.3
@@ -28,7 +28,7 @@ rem  see https://github.com/victronenergy/gui-v2/blob/main/scripts/.env
 rem  for Qt6.6 -> EMSDK 3.1.37
 rem  for Qt6.8 -> EMSDK 3.1.56
 set QTW_EMSDK_VERSION=3.1.56
-if "%MAKER_ENV_VERSION_MAJOR%" equ "6" if "%MAKER_ENV_VERSION_MINOR%" equ "6" set set QTW_EMSDK_VERSION=3.1.37
+if "%MAKER_ENV_VERSION_MAJOR%_%MAKER_ENV_VERSION_MINOR%" equ "6_6" set QTW_EMSDK_VERSION=3.1.37
 set _QTW_GCC_VERSION=
 
 
@@ -188,7 +188,8 @@ rem if not exist "%QTW_BUILD_DIR%" mkdir "%QTW_BUILD_DIR%"
 rem if not exist "%QTW_BUILD_DIR%\qtbase" mkdir "%QTW_BUILD_DIR%\qtbase"
 set "_QTW_LLVM_INSTALL_DIR=%LLVM_INSTALL_DIR:\=/%"
 set "_QTW_CLANG_INSTALL_DIR=%_QTW_LLVM_INSTALL_DIR%"
-set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%qtbase"
+rem set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%qbase"
+set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%"
 set "_QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
 set _QTW_RETRIES=0
 :qtw_configure_do
@@ -211,7 +212,14 @@ set _QTW_RETRIES=0
   set QT_
   set QTW_
   path
-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -no-warnings-are-errors -platform wasm-emscripten -prefix "%_QTW_PREFIX_DIR%" -nomake examples  -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+  set "_QTW_BUILD_OPTIONS=-platform wasm-emscripten"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-zlib -qt-pcre"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -sql-mysql -no-sql-odbc"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% --trace=ctf"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
+  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests"
+  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
   
   rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets

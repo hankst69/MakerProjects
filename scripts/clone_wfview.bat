@@ -1,4 +1,9 @@
+@rem https://gitlab.com/hankst69/wfview.git
 @rem https://gitlab.com/eliggett/wfview.git
+@rem https://www.wfview.org/public_builds/00_Dependencies/Developer/2025_libraries.zip (rtaudio, Eigen, portaudio, qcustomplot, hidapi, opus)
+@rem 
+@rem https://github.com/thestk/rtaudio.git
+@rem https://www.qcustomplot.com/release/2.1.1/QCustomPlot.tar.gz
 @echo off
 call "%~dp0\maker_env.bat" %*
 
@@ -15,4 +20,10 @@ if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
 
 if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 cd /d "%WFVIEW_DIR%"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_SCR_DIR%" "https://gitlab.com/eliggett/wfview.git" %WFVIEW_CHECKOUT_BRANCH% %WFVIEW_SILENT_CLONE_MODE%
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_SCR_DIR%" "https://gitlab.com/hankst69/wfview.git" %WFVIEW_CHECKOUT_BRANCH% %WFVIEW_SILENT_CLONE_MODE%
+
+rem wfview dependencies
+rem 
+set "WFVIEW_RTAUDIO_SCR_DIR=%WFVIEW_DIR%\rtaudio"
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SCR_DIR%" "https://github.com/thestk/rtaudio.git" %WFVIEW_SILENT_CLONE_MODE%
+ 
