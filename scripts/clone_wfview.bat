@@ -4,9 +4,10 @@
 call "%~dp0\maker_env.bat" %*
 
 rem wfview dependencies
+rem https://wfview.org/developers/how-to-compile-with-windows/
 rem ALL         (rtaudio, Eigen, portaudio, qcustomplot, hidapi, opus) https://www.wfview.org/public_builds/00_Dependencies/Developer/2025_libraries.zip
 rem opus        (..\opus\include)      https://github.com/xiph/opus.git
-rem hidapi      (..\hidapi\hidapi)
+rem hidapi      (..\hidapi\hidapi)     https://github.com/libusb/hidapi.git
 rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio.git
 rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz
 rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
@@ -39,4 +40,6 @@ set "WFVIEW_PORTAUDIO_SCR_DIR=%WFVIEW_DIR%\portaudio"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_PORTAUDIO_SCR_DIR%" "https://github.com/PortAudio/portaudio.git" %WFVIEW_SILENT_CLONE_MODE%
 set "WFVIEW_QCUSTOMPLOT_SCR_DIR=%WFVIEW_DIR%\qcustomplot"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_QCUSTOMPLOT_SCR_DIR%" "https://github.com/hankst69/qcustomplot.git" %WFVIEW_SILENT_CLONE_MODE%
+set "WFVIEW_HIDAPI_SCR_DIR=%WFVIEW_DIR%\hidapi"
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SCR_DIR%" "https://github.com/libusb/hidapi.git" %WFVIEW_SILENT_CLONE_MODE%
 
