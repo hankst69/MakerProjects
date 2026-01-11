@@ -5,6 +5,7 @@
 call "%~dp0\maker_env.bat" %*
 
 set "_GR_VERSION=%MAKER_ENV_VERSION%"
+set "_GR_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
 set "_GR_SRC_NAME=GammaRay_sources"
 
 rem apply explicite clone-folder-name:
@@ -16,10 +17,6 @@ rem if "%_GR_VERSION%" equ "" set _GR_VERSION=3.1
 rem define folders:
 set "_GR_DIR=%MAKER_TOOLS%\Qt"
 set "_GR_SOURCES_DIR=%_GR_DIR%\%_GR_SRC_NAME%%_GR_VERSION%"
-
-set _GR_SILENT_CLONE_MODE=
-if "%MAKER_ENV_UNKNOWN_SWITCHES%" equ "" goto :gr_clone
-for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do if /I "%%~i" equ "--silent"    set _GR_SILENT_CLONE_MODE=--silent
 
 
 :gr_clone
