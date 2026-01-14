@@ -148,7 +148,7 @@ if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
 
 rem (5) *** testing for existing QT build ***
 set "_QT_TEST_EXE_1=%_QT_BIN_DIR%\bin\uic.exe"
-set "_QT_TEST_EXE_2=%_QT_BIN_DIR%\bin\qdoc.exe"
+set "_QT_TEST_EXE_2=%_QT_BIN_DIR%\bin\qmake.exe"
 set "_QT_TEST_EXE_3=%_QT_BIN_DIR%\bin\designer.exe"
 set "_QT_TEST_EXE_4=%_QT_BIN_DIR%\bin\lupdate.exe"
 set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
@@ -424,7 +424,6 @@ rem (11) post configure QT
 rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 
 :qt_exit
-cd /d "%_QT_START_DIR%"
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% %_QT_COMPILER% incomplete &exit /b 1
 call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings --no_errors --no_info
@@ -433,4 +432,5 @@ if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
 set "path=%QT_BIN_DIR%\bin;%path%"
 set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 :qt_exit_prompt
+cd /d "%_QT_START_DIR%"
 call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings
