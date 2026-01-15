@@ -17,7 +17,7 @@
 #include <ESPAsyncWebServer.h>
 
 // normally DEBUG is commented out
-#define DEBUG
+//#define DEBUG
 static Stream* debugPtr = NULL;  // local to this file
 
 static AsyncWebServer server(80);
@@ -268,7 +268,7 @@ static void handleSetTZstr(AsyncWebServerRequest * request) {
   }
   String newTZ;
   for (int i = 0; i < params; i++) {
-    AsyncWebParameter *p = request->getParam(i);
+    const AsyncWebParameter *p = request->getParam(i);
     if (strcmp(p->name().c_str(), "TZ_INPUT_STR") == 0) {
       userInputTZstr = "";
       correctedTZstr = "";
@@ -320,7 +320,7 @@ static void handleSetTime(AsyncWebServerRequest * request) {
     debugPtr->printf("params count: %d\n", params);
   }
   for (int i = 0; i < params; i++) {
-    AsyncWebParameter *p = request->getParam(i);
+    const AsyncWebParameter *p = request->getParam(i);
     if (strcmp(p->name().c_str(), "TIME") == 0) {
       if (debugPtr) {
         debugPtr->printf("Time Value: %s\n", p->value().c_str());
@@ -397,7 +397,7 @@ static void handleSetTimeOnOff(AsyncWebServerRequest * request) {
   int onMins = getOnTime_mins();
   int offMins = getOffTime_mins();
   for (int i = 0; i < params; i++) {
-    AsyncWebParameter *p = request->getParam(i);
+    const AsyncWebParameter *p = request->getParam(i);
     if (strcmp(p->name().c_str(), "TIME_ON") == 0) {
       if (debugPtr) {
         debugPtr->printf("Time ON Value: %s\n", p->value().c_str());
