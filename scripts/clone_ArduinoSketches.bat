@@ -14,13 +14,17 @@ call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_espBode-awg_DIR%" "https://gith
 
 @rem "https://github.com/hankst69/fygen"
 @rem "https://github.com/mattwach/fygen"
-set "_AS_fygen_DIR=%_ARDUINO_SKETCHES_DIR%\AWGControl\fygen"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_fygen_DIR%" "https://github.com/hankst69/fygen.git" --changeDir
+rem  set "_AS_fygen_DIR=%_ARDUINO_SKETCHES_DIR%\AWGControl\fygen"
+rem call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_fygen_DIR%" "https://github.com/hankst69/fygen.git" --changeDir
 
 @rem https://github.com/hankst69/SimpleCWKeyer.git
 rem set "_AS_SimpleCWKeyer_DIR=%_ARDUINO_SKETCHES_DIR%\unoR3\SimpleCWKeyer"
 set "_AS_SimpleCWKeyer_DIR=%_ARDUINO_SKETCHES_DIR%\SimpleCWKeyer"
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_SimpleCWKeyer_DIR%" "https://github.com/hankst69/SimpleCWKeyer.git"
+
+@rem https://github.com/hankst69/ats-mini.git
+set "_AS_ATS-Mini_DIR=%_ARDUINO_SKETCHES_DIR%\ATS-Mini"
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_AS_ATS-Mini_DIR%" "https://github.com/hankst69/ats-mini.git"
 
 
 cd /d "%_ARDUINO_SKETCHES_DIR%"
