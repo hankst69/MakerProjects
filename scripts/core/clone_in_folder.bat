@@ -126,11 +126,11 @@ pushd "%_TARGET_DIR%"
 set ERRORLEVEL=
 if "%_CHECKOUT_TAG%" equ "" (
   echo git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
-  git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" .
+  git clone --config core.autocrlf=false %_FREE_ARGS% "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
 ) else (
   rem https://stackoverflow.com/questions/20280726/how-to-clone-a-specific-git-tag
   echo git clone --config core.autocrlf=false %_FREE_ARGS%  --depth 1 --branch "%_CHECKOUT_TAG%" "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
-  git clone --config core.autocrlf=false %_FREE_ARGS% --depth 1 --branch "%_CHECKOUT_TAG%" "%_GIT_CLONE_URL%" .
+  git clone --config core.autocrlf=false %_FREE_ARGS% --depth 1 --branch "%_CHECKOUT_TAG%" "%_GIT_CLONE_URL%" "%_TARGET_DIR%"
 )
 if %ERRORLEVEL% neq 0 (echo. & echo error: git clone failed & goto:EOF)
 if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
