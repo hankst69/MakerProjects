@@ -63,27 +63,33 @@ if not exist "%_work_dir%" mkdir "%_work_dir%"
 set "_venv_gfr=%_work_dir%\.gitfilterrepo"
 set "_repo_orig_dir=%_work_dir%\_git_rmfile_tmp"
 set "_repo_new_dir=%_work_dir%\_git_rmfile_new"
-
 call deactivate 1>nul 2>nul
+
+
+:Reset
+if "%_reset_mode%" neq "" if exist "%_venv_gfr%" rmdir /s /q "%_venv_gfr%"
+if "%_reset_mode%" neq "" if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_dir%"
+
+
+:Install
 echo.
 echo -------------------------------------------------------
 echo installing git-filter-repo
 echo -------------------------------------------------------
-if "%_reset_mode%" neq "" if exist "%_venv_gfr%" rmdir /s /q "%_venv_gfr%"
-if exist "%_venv_gfr%\Scripts\git-filter-repo.exe" (
-  call "%_venv_gfr%\Scripts\activate"
-  goto :git_filter_repo_installed
-)
+if exist "%_venv_gfr%\Scripts\git-filter-repo.exe" goto :git_filter_repo_installed
 call python -m venv "%_venv_gfr%"
 call "%_venv_gfr%\Scripts\activate"
 call python -m pip install --upgrade pip
 call python -m pip install git-filter-repo
+call deactivate
 :git_filter_repo_installed
 
 
 cd /d "%_work_dir%"
+if exist "%_repo_orig_dir%" goto :git_clean_from_commit_history
 
 
+:Clone
 if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_dir%"
 mkdir "%_repo_orig_dir%"
 cd /d "%_repo_orig_dir%"
@@ -103,7 +109,7 @@ rem set _File_TO_PERMANENTLY_REMOVE
 cd /d "%_repo_orig_dir%"
 if exist "%_File_TO_PERMANENTLY_REMOVE_win%" goto :git_clean_from_commit_history_do
 echo.warning: the file to remove does not exist '%_File_TO_PERMANENTLY_REMOVE_win%'
-if "%_forced_mode%" eq "" (
+if "%_forced_mode%" equ "" (
   echo.         use --forced option to remove that file from the git history
   goto :Exit
 )
@@ -115,14 +121,13 @@ echo.
 echo -------------------------------------------------------
 echo removing '%_File_TO_PERMANENTLY_REMOVE_unix%' permanently
 echo -------------------------------------------------------
-rem call git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch %_File_TO_PERMANENTLY_REMOVE_unix%' --prune-empty --tag-name-filter cat -- --all
-rem call git-filter-repo --force --index-filter 'git rm --cached --ignore-unmatch %_File_TO_PERMANENTLY_REMOVE_unix%' --prune-empty --tag-name-filter cat -- --all
-if "%_test_mode%" neq "" (
-  call git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" --dry-run
-) else (
-  call git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%"
-)
+call "%_venv_gfr%\Scripts\activate"
+set _dry_run=
+if "%_test_mode%" neq "" set "_dry_run=--dry-run"
+echo git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
+call git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
 call deactivate
+goto :Exit
 
 echo.
 echo -------------------------------------------------------
