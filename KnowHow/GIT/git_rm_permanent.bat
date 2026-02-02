@@ -38,6 +38,7 @@ goto :Exit
 
 :Exit
 rem cd /d "%_work_dir%"
+cd /d "%_start_dir%"
 set _script_dir=
 set _script_name=
 set _start_dir=
@@ -56,13 +57,13 @@ goto :EOF
 
 
 :Start
-set "_work_dir=%_start_dir%\_git_rm_file"
+rem set "_work_dir=%_start_dir%\_git_rm_file"
 set "_work_dir=%_start_dir%"
 if not exist "%_work_dir%" mkdir "%_work_dir%"
 
 set "_venv_gfr=%_work_dir%\.gitfilterrepo"
-set "_repo_orig_dir=%_work_dir%\_git_rmfile_tmp"
-set "_repo_new_dir=%_work_dir%\_git_rmfile_new"
+set "_repo_orig_dir=%_work_dir%\_git_rm_tmp"
+set "_repo_new_dir=%_work_dir%\_git_rm_new"
 call deactivate 1>nul 2>nul
 
 
@@ -72,11 +73,11 @@ if "%_reset_mode%" neq "" if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_d
 
 
 :Install
+if exist "%_venv_gfr%\Scripts\git-filter-repo.exe" goto :git_filter_repo_installed
 echo.
 echo -------------------------------------------------------
 echo installing git-filter-repo
 echo -------------------------------------------------------
-if exist "%_venv_gfr%\Scripts\git-filter-repo.exe" goto :git_filter_repo_installed
 call python -m venv "%_venv_gfr%"
 call "%_venv_gfr%\Scripts\activate"
 call python -m pip install --upgrade pip
@@ -121,16 +122,32 @@ echo.
 echo -------------------------------------------------------
 echo removing '%_File_TO_PERMANENTLY_REMOVE_unix%' permanently
 echo -------------------------------------------------------
+echo.
+echo git gc
+call git gc
+echo git count-objects -v
+call git count-objects -v
+echo -----------------------
+echo.
 call "%_venv_gfr%\Scripts\activate"
 set _dry_run=
 if "%_test_mode%" neq "" set "_dry_run=--dry-run"
 echo git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
 call git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
 call deactivate
+echo -----------------------
+echo.
+echo git gc
+call git gc
+echo git count-objects -v
+call git count-objects -v
+echo -----------------------
+echo.
 goto :Exit
 
 echo.
 echo -------------------------------------------------------
-echo. perform "git push --all --force" to update the remote repository with modified history
+rem echo. perform "git push --all --force" to update the remote repository with modified history
+echo perfom "git push --force --mirror origin" to update the remote repository with modified history
 echo -------------------------------------------------------
 goto :Exit
