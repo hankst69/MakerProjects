@@ -8,6 +8,9 @@ set REPOS_STATUS=
 set REPOS_VERBOSE=
 set REPOS_COMPACT=
 :param_loop
+if /I "%~1" equ "--help"    (goto :Usage)
+if /I "%~1" equ "-h"        (goto :Usage)
+if /I "%~1" equ "-?"        (goto :Usage)
 if /I "%~1" equ "--dir"     (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "-d"        (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
@@ -35,6 +38,13 @@ set REPOS_COMPACT=
 set REPOS_VERBOSE=
 goto :EOF
 
+:Usage
+echo.
+echo USAGE:
+echo %~n0 [--verbose^|-v] [--compact^|-c] [--status^|-s] [--pull^|-p] [[--dir^|-d] ^<path^>] [-h^|-?^|--help]
+echo.
+goto :EOF
+
 :List_Git_Repos_in_Dir
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 rem VERIFY OTHER 2>nul &SETLOCAL ENABLEEXTENSIONS &IF ERRORLEVEL 1 (echo CMD extensions not available & goto :EOF)
@@ -56,7 +66,7 @@ pushd "%_DG_REPO_DIR%"
 if "%REPOS_COMPACT%" equ "" goto :Dump_Git_Repo_start
 rem adapt to compact presentation
 set "_DG_REPO_DIR=%~1" 
-set _DG_COLUMNS=50
+set _DG_COLUMNS=51
 set "_DG_PREFIX="
 set "_DG_SUFFIX= "
 >"%TEMP%\strlen.tmp" echo."%REPOS_DIR%"
@@ -81,6 +91,7 @@ rem repo listing and actions
 for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status') do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch')  do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_PULL%"   neq "" echo.!_DG_FULL_PADDING!PULL:
 if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull')   do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_STATUS%%REPOS_PULL%" neq "" echo.
