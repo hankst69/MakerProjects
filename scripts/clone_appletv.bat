@@ -2,6 +2,7 @@
 @rem https://github.com/NSSpiral/Blackb0x
 @rem https://github.com/synackuk/checkm8-a5
 @rem https://github.com/felis/USB_Host_Shield_2.0
+@rem https://github.com/hankst69/USB_Host_Shield_2.0.git
 @rem https://github.com/axi0mX/ipwndfu
 @echo off
 call "%~dp0\maker_env.bat"
