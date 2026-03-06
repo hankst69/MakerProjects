@@ -11,15 +11,78 @@ if "%~1" neq "" if "%_PROJECT_NAME%" equ "" set "_PROJECT_NAME=%~1" &goto :param
 if "%~1" neq "" set "_PROJECT_ARGS=%_PROJECT_ARGS% %1" &goto :param_loop
 if "%~1" neq "" goto :param_loop
 
-if "%_PROJECT_NAME%" neq "" goto :CallScript
+if "%_PROJECT_NAME%" neq "" goto :FindAndCallScript
 
+:NoMatchingProject
+rem no project identifier specified
 if "%_NO_USAGE%" equ "" call :Usage
-
-if "%_PROJECT_NAME%" neq "" (
-  echo project '%_PROJECT_NAME%' could not be found  &rem ^(script "%_CLASS_NAME%_%_PROJECT_NAME%.bat" does not exist^)
-  echo.
-)
 call :ListMatches
+goto :Exit
+
+
+:FindAndCallScript
+setlocal EnableExtensions
+setlocal EnableDelayedExpansion
+
+rem try to match the given project name with an existing script file based on full project name
+set "_SCRIPT_FILE=%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%.bat"
+if exist "%_SCRIPT_FILE%" call "%_SCRIPT_FILE%" %_PROJECT_ARGS%
+if exist "%_SCRIPT_FILE%" goto :Exit
+
+rem try to match the given project name with an existing script file based on project name as the start of script name
+rem requires to have only 1 match
+set _found_matches=0
+for /f "tokens=*" %%f in ('dir /b "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%*.bat" 2^>nul') do set /a _found_matches=!_found_matches!+1
+rem echo !_found_matches!
+if "!_found_matches!" neq "1" goto :FindShortcutMatch
+set _SCRIPT_FILE=
+for /f "tokens=*" %%f in ('dir /b "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%*.bat" 2^>nul') do set "_SCRIPT_FILE=%_SCRIPTS_DIR%\%%~nxf"
+if exist "%_SCRIPT_FILE%" call "%_SCRIPT_FILE%" %_PROJECT_ARGS%
+if exist "%_SCRIPT_FILE%" goto :Exit
+
+:FindShortcutMatch
+rem show available projects matching given project name
+call :ListMatches "%_PROJECT_NAME%"
+
+rem try to match the given project name with the upper case letters of an existing script file#
+call :ListMatches ""
+set "_shortcut=%_PROJECT_NAME%"
+for %%a in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do call set "_shortcut=!_shortcut:%%a=%%a!"
+echo|set /p="search projects matching shortcut '!_shortcut!' "
+set _PROJECT_SCRIPT=
+set _PNAME=
+set _PROJECT_ID=
+for /f "tokens=*" %%f in ('dir /b "%_SCRIPTS_DIR%\%_CLASS_NAME%_*.bat"') do (
+  set "_PROJECT_SCRIPT=%%~nxf"
+  set "_PROJECT_=%%~nf"
+  set "_PNAME=!_PROJECT_:%_CLASS_NAME%_=!"
+  set "_PROJECT_ID=_"
+  set "_string=!_PNAME!"
+  call :strlen _string _length
+  rem echo _string: !_string! ^(!_length!^)
+  for /l %%i in (1,1,!_length!) do (  
+    set /a _index=%%i-1
+    set "_char=%%_string:~!_index!,1%%"
+    for /l %%a in (1,1,1) do call set "_charOrig=!_char!"
+    for /l %%a in (1,1,1) do call set "_charUpper=!_char!"
+    for %%a in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do call set "_charUpper=!_charUpper:%%a=%%a!"
+    for %%a in (- _) do call set "_charUpper=!_charUpper:%%a=*!"
+    rem echo _index : !_index!
+    rem echo _charOrig: !_charOrig!
+    rem echo _charUpper: !_charUpper!
+    if "!_charOrig!" equ "!_charUpper!" set "_PROJECT_ID=!_PROJECT_ID!!_charOrig!"
+  )
+  echo|set /p="."
+  rem echo matching !_string! with %_PROJECT_NAME%
+  rem echo matching !_string! -^> !_PROJECT_ID:~1!
+  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" echo.&echo match found: %_CLASS_NAME% !_PNAME!
+  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" call "%_SCRIPTS_DIR%\!_PROJECT_SCRIPT!" %_PROJECT_ARGS%
+  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" goto :Exit
+)
+echo.
+echo no matching project found
+echo.
+goto :Exit
 
 :Exit
 set _SCRIPTS_DIR=
@@ -35,65 +98,26 @@ echo.
 goto :EOF
 
 :ListMatches
-if "%_PROJECT_NAME%" equ "" echo available projects:
-if "%_PROJECT_NAME%" neq "" echo available '%_PROJECT_NAME%*' projects:
-SETLOCAL ENABLEEXTENSIONS
-SETLOCAL ENABLEDELAYEDEXPANSION
-for /f "tokens=*" %%b in ('dir /b "%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%*.bat"') do (
-  set "_PROJECT_SCRIPT=%%~nb"
-  set "_PROJECT_NAME=!_PROJECT_SCRIPT:%_CLASS_NAME%_=!"
-  echo  %_CLASS_NAME% !_PROJECT_NAME!
-  set _PROJECT_SCRIPT=
-  set _PROJECT_NAME=
-)
-goto :EOF
-
-
-:CallScript
-if "%_PROJECT_NAME%" equ "" (
-  echo error: project name is undefined
-  call :Usage
-  goto :Exit
-)
-
-rem try to match the given project name with an existing script file
-set "_SCRIPT_FILE=%_SCRIPTS_DIR%\%_CLASS_NAME%_%_PROJECT_NAME%.bat"
-if exist "%_SCRIPT_FILE%" call "%_SCRIPT_FILE%" %_PROJECT_ARGS%
-if exist "%_SCRIPT_FILE%" goto :Exit
-
-rem try to match the given project name with the upper case letters of an existing script file#
-SETLOCAL ENABLEEXTENSIONS
+setlocal EnableExtensions
 setlocal EnableDelayedExpansion
-set _PROJECT_SCRIPT=
-set _PNAME=
-set _PROJECT_ID=
-for /f "tokens=*" %%b in ('dir /b "%_SCRIPTS_DIR%\%_CLASS_NAME%_*.bat"') do (
-  set "_PROJECT_SCRIPT=%%~nxb"
-  set "_PROJECT_=%%~nb"
-  set "_PNAME=!_PROJECT_:%_CLASS_NAME%_=!"
-  set "_PROJECT_ID=_"
-  set "_string=!_PNAME!"
-  call :strlen _string _length
-  rem echo _string: !_string! ^(!_length!^)
-  echo matching '!_string!' with '%_PROJECT_NAME%'
-  for /l %%i in (1,1,!_length!) do (  
-    set /a _index=%%i-1
-    set "_char=%%_string:~!_index!,1%%"
-    for /l %%a in (1,1,1) do call set "_charOrig=!_char!"
-    for /l %%a in (1,1,1) do call set "_charUpper=!_char!"
-    for %%a in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do call set "_charUpper=!_charUpper:%%a=%%a!"
-    rem echo _index : !_index!
-    rem echo _charOrig: !_charOrig!
-    rem echo _charUpper: !_charUpper!
-    rem if "!_charOrig!" equ "!_charUpper!" echo adding !_charOrig!
-    if "!_charOrig!" equ "!_charUpper!" set "_PROJECT_ID=!_PROJECT_ID!!_charOrig!"
-  )
-  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" echo "%_SCRIPTS_DIR%\!_PROJECT_SCRIPT!" %_PROJECT_ARGS%
-  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" call "%_SCRIPTS_DIR%\!_PROJECT_SCRIPT!" %_PROJECT_ARGS%
-  if /i "!_PROJECT_ID:~1!" equ "%_PROJECT_NAME%" goto :Exit
+set "_project=%~1"
+set "_pattern=%_CLASS_NAME%_!_project!*.bat"
+set _found_matches=
+if "!_project!" neq "" for /f "tokens=*" %%b in ('dir /b "%_SCRIPTS_DIR%\!_pattern!" 2^>nul') do set _found_matches=true
+if "!_project!" neq "" if "!_found_matches!" equ "" (endlocal &goto :EOF)
+if "!_found_matches!" neq "" (
+  echo matching projects for '!_project!':
+) else (
+  set "_pattern=%_CLASS_NAME%_*.bat"
+  echo available projects:
 )
-call :Usage
-goto :Exit
+for /f "tokens=*" %%b in ('dir /b "%_SCRIPTS_DIR%\!_pattern!" 2^>nul') do (
+  set "_PSCRIPT=%%~nb"
+  set "_PNAME=!_PSCRIPT:%_CLASS_NAME%_=!"
+  echo  %_CLASS_NAME% !_PNAME!
+)
+endlocal
+goto :EOF
 
 goto :eof
 :strlen  StrVar  [RtnVar]
