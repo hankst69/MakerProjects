@@ -15,6 +15,8 @@ if /I "%~1" equ "--dir"     (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop
 if /I "%~1" equ "-d"        (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "-p"        (set "REPOS_PULL=--pull" &shift &goto :param_loop)
+if /I "%~1" equ "--branch"  (set "REPOS_BRANCH=--branch" &shift &goto :param_loop)
+if /I "%~1" equ "-b"        (set "REPOS_BRANCH=--branch" &shift &goto :param_loop)
 if /I "%~1" equ "--status"  (set "REPOS_STATUS=--status" &shift &goto :param_loop)
 if /I "%~1" equ "-s"        (set "REPOS_STATUS=--status" &shift &goto :param_loop)
 if /I "%~1" equ "--compact" (set "REPOS_COMPACT=--compact" &shift &goto :param_loop)
@@ -34,6 +36,7 @@ call :List_Git_Repos_in_Dir "%REPOS_DIR%"
 set REPOS_DIR=
 set REPOS_PULL=
 set REPOS_STATUS=
+set REPOS_BRANCH=
 set REPOS_COMPACT=
 set REPOS_VERBOSE=
 goto :EOF
@@ -89,6 +92,8 @@ rem debugging
 if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do @echo.%%s="%%t"
 rem repo listing and actions
 for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
+if "%REPOS_BRANCH%" neq "" echo.!_DG_FULL_PADDING!BRANCHES:
+if "%REPOS_BRANCH%" neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status') do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch')  do echo.!_DG_FULL_PADDING!- %%i

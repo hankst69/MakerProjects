@@ -18,8 +18,9 @@ if /i "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "-a" goto :CloneAll
 
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_HACKRF_FIRMWARE_DIR%" "https://github.com/portapack-mayhem/mayhem-firmware.git" %*
 echo.
-cd /d "%_HACKRF_FIRMWARE_DIR%\firmware\tools"
 echo myhem tools for data generation:
+cd /d "%_HACKRF_FIRMWARE_DIR%\firmware\tools"
+echo cd /d "%_HACKRF_FIRMWARE_DIR%\firmware\tools"
 echo ^>python generate_world_map.bin.py
 echo ^>python make_airlines_db\make_airlines_db.py
 goto :EOF
