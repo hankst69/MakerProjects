@@ -5,6 +5,8 @@
 **/out/*
 aqtinstall.log
 
+/scripts/*.dat
+
 /.tools
 /tools/*
 !/tools/packages
