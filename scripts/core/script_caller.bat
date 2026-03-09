@@ -21,6 +21,12 @@ if "%~1" neq "" if "%__PROJECT%" equ "" set "__PROJECT=%~1" &goto :param_loop
 if "%~1" neq "" set "__PROJECT_ARGS=%__PROJECT_ARGS% %1" &goto :param_loop
 if "%~1" neq "" goto :param_loop
 
+
+:RefreshShortcutIndex
+set "_SCRIPTS_SHORTCUTS_FILE=%__SCRIPTS_DIR%\shortcuts_%__CLASS_NAME%_scripts.dat"
+call :InvalidateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
+if not exist "%_SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
+
 if "%__PROJECT%" equ "" (
   rem no project identifier specified
   if "%__NO_USAGE%" equ "" call :Usage
@@ -29,23 +35,13 @@ if "%__PROJECT%" equ "" (
   goto :Exit
 )
 
-:RefreshShortcutIndex
-set "_SCRIPTS_SHORTCUTS_FILE=%__SCRIPTS_DIR%\shortcuts_%__CLASS_NAME%_scripts.dat"
-call :InvalidateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
-if not exist "%_SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
-
 :FindExactMatch
 rem (1) see if there exists a script file that exactly matches the given PROJECT name
 set "__SCRIPT_NAME=%__CLASS_NAME%_%__PROJECT%"
 set "__SCRIPT_FILE=%__SCRIPTS_DIR%\%__SCRIPT_NAME%.bat"
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPT_FILE%" 2^>nul') do set "__SCRIPT_NAME=%%~nf"
-rem if exist "%__SCRIPT_FILE%" goto :StartScript
-if exist "%__SCRIPT_FILE%" (
-  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!
-  endlocal
-  call "%__SCRIPT_FILE%" %__PROJECT_ARGS%
-  goto :Exit
-)
+if exist "%__SCRIPT_FILE%" goto :StartScript
+
 
 :FindSingleMatch
 rem (2) see if there exists exactly one script file with given PROJECT as the start of script name
@@ -61,12 +57,8 @@ if !_found_matches! neq 1 goto :FindShortcutMatch
 rem we found a single script match - so we call this one
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPTS_DIR%\%__CLASS_NAME%_%__PROJECT%*.bat" 2^>nul') do set "__SCRIPT_FILE=%__SCRIPTS_DIR%\%%~nxf" &set "__SCRIPT_NAME=%%~nf"
 rem if exist "%__SCRIPT_FILE%" goto :StartScript
-if exist "%__SCRIPT_FILE%" (
-  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!
-  endlocal
-  call "%__SCRIPT_FILE%" %__PROJECT_ARGS%
-  goto :Exit
-)
+if exist "%__SCRIPT_FILE%" goto :StartScript
+
 
 :FindShortcutMatch
 rem (3) try to match the given PROJECT with the upper case letters of an existing script file aka PROJECT_ID
@@ -74,12 +66,7 @@ set __SCRIPT_NAME=
 set __SCRIPT_FILE=
 call :FindShortcut "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%" "%__PROJECT%"
 rem if exist "%__SCRIPT_FILE%" goto :StartScript
-if exist "%__SCRIPT_FILE%" (
-  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!
-  endlocal
-  call "%__SCRIPT_FILE%" %__PROJECT_ARGS%
-  goto :Exit
-)
+if exist "%__SCRIPT_FILE%" goto :StartScript
 
 rem (4) no matches for given __PROJECT found
 if !_found_matches! equ 0 (
@@ -88,6 +75,20 @@ if !_found_matches! equ 0 (
   rem show all available projects
   call :ListMatches ""
 )
+endlocal
+goto :Exit
+
+
+:StartScript
+if exist "%__SCRIPT_FILE%" (
+  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!
+  endlocal
+  call "%__SCRIPT_FILE%" %__PROJECT_ARGS%
+  goto :Exit
+)
+echo error: project script not found
+rem show all available projects
+call :ListMatches ""
 endlocal
 goto :Exit
 
