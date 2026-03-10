@@ -23,7 +23,7 @@ if "%~1" neq "" goto :param_loop
 
 
 :RefreshShortcutIndex
-set "_SCRIPTS_SHORTCUTS_FILE=%__SCRIPTS_DIR%\shortcuts_%__CLASS_NAME%_scripts.dat"
+set "_SCRIPTS_SHORTCUTS_FILE=%__SCRIPTS_DIR%\.shortcuts_%__CLASS_NAME%_scripts.dat"
 call :InvalidateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
 if not exist "%_SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
 
