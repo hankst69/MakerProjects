@@ -14,19 +14,19 @@ echo. clone [--clean_tools^|-ct]
 echo. clone [--projects^|-p]
 echo. clone ^<project_name^> [version]
 echo.
-call "%~dp0\scripts\core\script_caller.bat" "clone" --no_usage
+call "%~dp0\..\core\script_caller.bat" "clone" --no_usage
 goto :EOF
 
 :clone
-call "%~dp0\scripts\core\script_caller.bat" "clone" %*
+call "%~dp0\..\core\script_caller.bat" "clone" %*
 goto :EOF
 
 :clone_tools
-call "%~dp0\scripts\core\multi_clone.bat" llvm emsdk choco qt vesc gperf gperftools &rem bison
+call "%~dp0\..\core\multi_clone.bat" llvm emsdk choco qt vesc gperf gperftools &rem bison
 goto :EOF
 
 :clone_projects
-call "%~dp0\scripts\core\multi_clone.bat" espBode fygen victron-guiv2 Python html5_rtsp_player UserScripts SOLID IPTools
+call "%~dp0\..\core\multi_clone.bat" espBode fygen victron-guiv2 Python html5_rtsp_player UserScripts SOLID IPTools
 goto :EOF
 
 :clean_tools

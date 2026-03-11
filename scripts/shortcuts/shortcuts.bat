@@ -4,23 +4,46 @@ if /i "%~1" equ "--test" goto :EOF
 if /i "%~1" neq "--setup" (
   setlocal EnableDelayedExpansion
   set _max_length=0
-  echo shortcuts:
+  set _l1_list=
+  set _l2_list=
+  set _l3_list=
   for %%f in (%~dp0\*.bat) do (
     if /i "%%~nf" neq "%~n0" (
       set "_string=%%~nf"
       call :strlen _string _length
       if !_max_length! lss !_length! set _max_length=!_length!
-      if !_length! leq 3 (
-        set _padding=
-        for /l %%i in (!_length!,1,3) do set "_padding=!_padding! "
-        echo|set /p="%%~nf!_padding! : "
-        call "%%~f" --shortcut-info
-      )
+      if !_length! equ 1 set "_l1_list=!_l1_list!%%~f;"
+      if !_length! equ 2 set "_l2_list=!_l2_list!%%~f;"
+      if !_length! equ 3 set "_l3_list=!_l3_list!%%~f;"
     )
   )
+  if "!_l1_list!!_l2_list!!_l3_list!" neq "" (
+    rem (set LF=^
+    rem %=EMPTY=%
+    rem )
+    rem echo.
+    echo shortcut : command
+    set "_nl_list=!_l1_list:;=&echo:!"
+    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+      echo.   %%~nf     : !_info!
+    )
+    set "_nl_list=!_l2_list:;=&echo:!"
+    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+      echo.   %%~nf    : !_info!
+    )
+    set "_nl_list=!_l3_list:;=&echo:!"
+    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+      echo.   %%~nf   : !_info!
+    )
+  )
+  rem deactivate this listing by setting _max_length=0
+  set _max_length=0
   if !_max_length! gtr 3 (
     echo.
-    echo applications:
+    echo scripts:
     for %%f in (%~dp0\*.bat) do (
       if /i "%%~nf" neq "%~n0" (
         set "_string=%%~nf"
