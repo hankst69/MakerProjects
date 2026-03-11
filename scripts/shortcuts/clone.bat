@@ -1,17 +1,17 @@
 @echo off
-if /I "%~1" equ "--tools" goto :clone_tools
-if /I "%~1" equ "-t" goto :clone_tools
 if /I "%~1" equ "--projects" goto :clone_projects
 if /I "%~1" equ "-p" goto :clone_projects
+if /I "%~1" equ "--tools" goto :clone_tools
+if /I "%~1" equ "-t" goto :clone_tools
 if /I "%~1" equ "--clean_tools" goto :clean_tools
 if /I "%~1" equ "-ct" goto :clean_tools
 if /I "%~1" neq "" goto :clone
 
 :usage
 echo USAGE:  
-echo. clone [--tools^|-t]
-echo. clone [--clean_tools^|-ct]
-echo. clone [--projects^|-p]
+echo. clone [-p  ^| --projects]
+echo. clone [-t  ^| --tools]
+echo. clone [-ct ^| --clean_tools]
 echo. clone ^<project_name^> [version]
 echo.
 call "%~dp0\..\core\script_caller.bat" "clone" --no_usage
@@ -22,11 +22,19 @@ call "%~dp0\..\core\script_caller.bat" "clone" %*
 goto :EOF
 
 :clone_tools
-call "%~dp0\..\core\multi_clone.bat" llvm emsdk choco qt vesc gperf gperftools &rem bison
+echo multi_clone llvm emsdk choco qt vesc gperf gperftools zstd
+rem call "%~dp0\..\core\multi_clone.bat" llvm emsdk choco qt vesc gperf gperftools zstd &rem bison
 goto :EOF
 
 :clone_projects
-call "%~dp0\..\core\multi_clone.bat" espBode fygen victron-guiv2 Python html5_rtsp_player UserScripts SOLID IPTools
+echo multi_clone Python UserScripts ArduinoSketches han_Dev
+rem call "%~dp0\..\core\multi_clone.bat" Python UserScripts ArduinoSketches han_Dev
+echo multi_clone han_Solar Victron
+rem call "%~dp0\..\core\multi_clone.bat" han_Solar Victron
+echo multi_clone han_HAM wfview OpenWebRx HackRF
+rem call "%~dp0\..\core\multi_clone.bat" han_HAM wfview OpenWebRx HackRF
+echo multi_clone SOLID IPTools ROMO AppleTV
+rem call "%~dp0\..\core\multi_clone.bat" SOLID IPTools ROMO AppleTV
 goto :EOF
 
 :clean_tools

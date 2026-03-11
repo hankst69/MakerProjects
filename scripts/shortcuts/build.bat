@@ -1,1 +1,1 @@
-@call "%~dp0\scripts\core\script_caller.bat" "%~n0" %*
+@call "%~dp0\..\core\script_caller.bat" "%~n0" %*
