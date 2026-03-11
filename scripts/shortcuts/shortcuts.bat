@@ -18,25 +18,36 @@ if /i "%~1" neq "--setup" (
     )
   )
   if "!_l1_list!!_l2_list!!_l3_list!" neq "" (
-    rem (set LF=^
-    rem %=EMPTY=%
-    rem )
-    rem echo.
-    echo shortcut : command
+    rem echo.Maker commands and shortcuts:
+    echo.Maker commands:
+    echo. ------------------
+    echo. short : command
     set "_nl_list=!_l1_list:;=&echo:!"
-    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
-      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
-      echo.   %%~nf     : !_info!
+    if "!_nl_list!" neq "" (
+      rem echo. short : command
+      echo. ------------------
+      for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+        for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+        echo.   %%~nf   : !_info!
+      )
     )
     set "_nl_list=!_l2_list:;=&echo:!"
-    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
-      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
-      echo.   %%~nf    : !_info!
+    if "!_nl_list!" neq "" (
+      rem echo. short : command
+      echo. ------------------
+      for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+        for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+        echo.   %%~nf  : !_info!
+      )
     )
     set "_nl_list=!_l3_list:;=&echo:!"
-    if "!_nl_list!" neq "" echo.&for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
-      for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
-      echo.   %%~nf   : !_info!
+    if "!_nl_list!" neq "" (
+      rem echo. short : command
+      echo. ------------------
+      for /f "tokens=*" %%f in ('echo.!_nl_list!') do (
+        for /f "tokens=*" %%s in ('call "%%~f" --shortcut-info') do (set _info=%%s)
+        echo.   %%~nf : !_info!
+      )
     )
   )
   rem deactivate this listing by setting _max_length=0
