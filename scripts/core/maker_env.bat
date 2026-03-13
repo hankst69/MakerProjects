@@ -20,7 +20,9 @@ call maker_env_test.bat 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%MAKER_BIN%"
 
 rem if "%~1" equ "" goto :exit
-if /I "%~1" equ "--keep" shift &goto :param_loop
+rem if desired: keep existing maker_env values and only overwrite with new commandline args definitions
+if /I "%~1" equ "--keep" shift &goto :parse_cmdline_args
+:init_with_defaults_and_parse_cmdline_args
 set MAKER_ENV_NOERRORS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
@@ -35,6 +37,7 @@ set MAKER_ENV_UNKNOWN_SWITCHES=
 set MAKER_ENV_UNKNOWN_ARGS=
 set MAKER_ENV_ALL_ARGS=
 for /L %%i in (1,1,10) do set MAKER_ENV_UNKNOWN_ARG_%%i=&set MAKER_ENV_UNKNOWN_SWITCH_%%i=
+:parse_cmdline_args
 :param_loop
 set "__ARG_RAW__=%1"
 set "__ARG__=%~1"
@@ -59,7 +62,7 @@ if /I "%__ARG__%" equ "-h"             (set "MAKER_ENV_HELP=--help" &goto :param
 if /I "%__ARG__%" equ "-?"             (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 rem handle unknown switches:
 if /I "%__ARG__:~0,1%" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
-if /I "%__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
+if /I "!__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% !__ARG_RAW__!" &goto :param_loop)
 rem handle known named args:
 if /I "%__ARG__%" equ equ "Debug"      (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
 if /I "%__ARG__%" equ equ "Release"    (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
