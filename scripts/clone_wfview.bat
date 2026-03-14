@@ -1,60 +1,23 @@
-@rem https://gitlab.com/eliggett/wfview.git
-@rem https://gitlab.com/hankst69/wfview.git
 @echo off
 call "%~dp0\maker_env.bat" %*
-
 call "%MAKER_SCRIPTS%\set_version_env" "WFVIEW" "%MAKER_ENV_VERSION%"
 
 set "WFVIEW_BASE_DIR=wfview"
 set "WFVIEW_DIR=%MAKER_PROJECTS%\%WFVIEW_BASE_DIR%"
 set "WFVIEW_SRC_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%_source%WFVIEW_VERSION%"
 
-set "WFVIEW_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
-set "WFVIEW_CHECKOUT_BRANCH="
-if "%WFVIEW_VERSION_MAJOR%.%VERSION_MINOR%" equ "2.20" set "WFVIEW_CHECKOUT_BRANCH=--switchBranch v2.20-dev"
+if /i "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--do_not_clone" goto :EOF
 
-if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
-
+rem wfview repository
+rem https://gitlab.com/eliggett/wfview.git
+rem https://gitlab.com/hankst69/wfview.git
 if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_SRC_DIR%" "https://gitlab.com/hankst69/wfview.git" %WFVIEW_CHECKOUT_BRANCH% %WFVIEW_SILENT_CLONE_MODE%
-cd /d "%WFVIEW_DIR%"
+set WFVIEW_CHECKOUT_BRANCH=
+if "%WFVIEW_VERSION_MAJOR%.%VERSION_MINOR%" equ "2.20" set "WFVIEW_CHECKOUT_BRANCH=--switchBranch v2.20-dev"
+if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
 
+call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_SRC_DIR%" "https://gitlab.com/hankst69/wfview.git" %WFVIEW_CHECKOUT_BRANCH% %MAKER_ENV_SILENT%
 
-rem wfview dependencies
-rem https://wfview.org/developers/how-to-compile-with-windows/
-rem ALL         (rtaudio, Eigen, portaudio, qcustomplot, hidapi, opus) https://www.wfview.org/public_builds/00_Dependencies/Developer/2025_libraries.zip
-rem opus        (..\opus\include)      https://github.com/xiph/opus.git
-rem hidapi      (..\hidapi\hidapi)     https://github.com/libusb/hidapi.git
-rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio.git
-rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz
-rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
-rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio.git
-rem r8brain     (..\r8brain-free-src)
-rem 
-set "WFVIEW_LIBS_DIR=%WFVIEW_DIR%\libs"
-set "WFVIEW_LIBS_SRC_DIR=%WFVIEW_DIR%\libs_src"
-
-set "WFVIEW_OPUS_DIR=%WFVIEW_LIBS_DIR%\opus"
-set "WFVIEW_OPUS_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\opus"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_OPUS_SRC_DIR%" "https://github.com/xiph/opus.git" %WFVIEW_SILENT_CLONE_MODE%
-
-set "WFVIEW_RTAUDIO_DIR=%WFVIEW_LIBS_DIR%\rtaudio"
-set "WFVIEW_RTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\rtaudio"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SRC_DIR%" "https://github.com/thestk/rtaudio.git" %WFVIEW_SILENT_CLONE_MODE%
-
-set "WFVIEW_EIGEN_DIR=%WFVIEW_LIBS_DIR%\eigen"
-set "WFVIEW_EIGEN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\eigen"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_EIGEN_SRC_DIR%" "https://gitlab.com/libeigen/eigen.git" %WFVIEW_SILENT_CLONE_MODE%
-
-set "WFVIEW_PORTAUDIO_DIR=%WFVIEW_LIBS_DIR%\portaudio"
-set "WFVIEW_PORTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\portaudio"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_PORTAUDIO_SRC_DIR%" "https://github.com/PortAudio/portaudio.git" %WFVIEW_SILENT_CLONE_MODE%
-
-set "WFVIEW_QCUSTOMPLOT_DIR=%WFVIEW_LIBS_DIR%\qcustomplot"
-set "WFVIEW_QCUSTOMPLOT_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\qcustomplot"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_QCUSTOMPLOT_SRC_DIR%" "https://github.com/hankst69/qcustomplot.git" %WFVIEW_SILENT_CLONE_MODE%
-
-set "WFVIEW_HIDAPI_DIR=%WFVIEW_LIBS_DIR%\hidapi"
-set "WFVIEW_HIDAPI_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\hidapi"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %WFVIEW_SILENT_CLONE_MODE%
+call "%~dp0\clone_WFViewLibs.bat" %*
+cd /d "%WFVIEW_SRC_DIR%"
