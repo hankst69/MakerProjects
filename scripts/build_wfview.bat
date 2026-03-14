@@ -19,7 +19,7 @@ rem set _WFV_BUILD_TYPE=Release
 rem set _WFV_BUILD_TYPE=MinSizeRel
 
 rem welcome
-echo BUILDING WFVIEW %_WFV_VERSION%
+echo BUILDING WFVIEW %_WFV_VERSION% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -30,12 +30,16 @@ rem defines: WFVIEW_DIR
 rem defines: WFVIEW_BASE_DIR
 rem defines: WFVIEW_SRC_DIR
 if "%WFVIEW_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
-if "%WFVIEW_SCR_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
-if not exist "%WFVIEW_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
-if not exist "%WFVIEW_SCR_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+if "%WFVIEW_SRC_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+if not exist "%WFVIEW_DIR%" (echo cloning WFVIEW failed &goto :EOF)
+if not exist "%WFVIEW_SRC_DIR%" (echo cloning WFVIEW failed &goto :EOF)
+
+if "%WFVIEW_LIBS_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+if "%WFVIEW_LIBS_SRC_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo cloning WFVIEW failed &goto :EOF)
 
 set "_WFV_DIR=%WFVIEW_DIR%"
-set "_WFV_SOURCES_DIR=%WFVIEW_SCR_DIR%"
+set "_WFV_SOURCES_DIR=%WFVIEW_SRC_DIR%"
 rem set "_WFV_BUILD_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%_build%WFVIEW_VERSION%"
 set "_WFV_BUILD_DIR=%_WFV_SOURCES_DIR%\.build%_WFV_TGT_ARCH%%_WFV_BUILD_TYPE%"
 set "_WFV_BIN_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%%WFVIEW_VERSION%"
@@ -99,6 +103,27 @@ call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
+
+
+echo.
+echo BUILD WFVIEW-LIBRARIES (%_WFV_BUILD_TYPE%)
+rem
+set "_WFV_CONFIG_GENERATOR=Ninja"
+set "_WFV_CONFIG_OPTIONS="
+if /I "%_WFV_BUILD_SYSTEM%" equ "MSVS" set "_WFV_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
+if /I "%_WFV_BUILD_SYSTEM%" equ "MSVS" set "_WFV_CONFIG_OPTIONS=-A %_WFV_TGT_ARCH%"
+set "_src_opus=%WFVIEW_OPUS_SRC_DIR%"
+set "_bld_opus=%WFVIEW_OPUS_SRC_DIR%\.build%_WFV_TGT_ARCH%%_WFV_BUILD_TYPE%"
+set "_bin_opus=%WFVIEW_OPUS_DIR%"
+cd /d "%_bld_opus%"
+echo cmake -S "%_src_opus%" -B "%_bld_opus%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
+call cmake -S "%_src_opus%" -B "%_bld_opus%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
+cd /d "%_bld_opus%"
+echo cmake --build "." --config %_WFV_BUILD_TYPE% 
+call cmake --build "." --config %_WFV_BUILD_TYPE% 
+cd /d "%_bld_opus%"
+echo cmake --install "%_bin_opus%" --config %_WFV_BUILD_TYPE% 
+call cmake --install "%_bin_opus%" --config %_WFV_BUILD_TYPE% 
 
 
 rem *** cmake configure ***
