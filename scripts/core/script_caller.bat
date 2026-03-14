@@ -154,6 +154,7 @@ pushd "%scripts_dir%"
 for /f "tokens=*" %%f in ('dir /b /on "%scripts_dir%\%class_name%_*.bat"') do (
   set "project=%%~nf"
   set "scripts_hash=!scripts_hash!!project!"
+  rem https://stackoverflow.com/questions/1687014/how-do-i-compare-timestamps-of-files-in-a-batch-script
   FOR /F %%i IN ('DIR /B /O:D "%%~nxf" "%shortcuts_name%"') DO SET "_newer_file=%%~nxi"
   if /I "!_newer_file!" neq "%shortcuts_name%" (
     echo index "%shortcuts_name%" is outdated ^("!_newer_file!" is newer^)
