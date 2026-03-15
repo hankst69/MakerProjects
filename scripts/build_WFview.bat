@@ -65,6 +65,7 @@ rem echo see https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui
 echo.
 rem define target QT framework and build system versions:
 rem find current required QT version in: https://github.com/victronenergy/venus/blob/master/configs/dunfell/repos.conf#L5
+set _WFV_CMAKE_VERSION=GEQ3.22
 set _WFV_MSVS_VERSION=GEQ2019
 set _WFV_NINJA_VERSION=
 set _WFV_BUILD_SYSTEM=Ninja
@@ -73,6 +74,7 @@ set _WFV_QT_VERSION=6.8.3
 
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
+echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
 
 rem generate CmakeLists.txt
@@ -83,6 +85,11 @@ if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
   call qmake2cmake wfview.pro -o CmakeLists.txt --min-qt-version %_WFV_QT_VERSION%
 )
 
+rem validate cmake
+call "%MAKER_BUILD%\validate_cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :qt_exit
+)
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (

@@ -57,13 +57,20 @@ rem *** ensuring prerequisites ***
 echo.
 echo BUILDING WFVIEW-Libs %WFVIEW_VERSION% from sources
 echo.
+set _WFVL_CMAKE_VERSION=GEQ3.22
 set _WFVL_MSVS_VERSION=GEQ2019
 set _WFVL_NINJA_VERSION=
 set _WFVL_BUILD_SYSTEM=Ninja
 set _WFVL_BUILD_SYSTEM=msvs
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
+echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
 
+rem validate cmake
+call "%MAKER_BUILD%\validate_cmake.bat" %_WFVL_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :qt_exit
+)
 rem ensure msvs version and amd64 target architecture
 call "%MAKER_BUILD%\ensure_msvs.bat" %_WFVL_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
@@ -158,4 +165,4 @@ call cmake --install "." --config %_WFVL_BUILD_TYPE%
 
 :_exit
 cd /d "%_WFVL_BIN_DIR%"
-cd /d "%_WFVL_START_DIR%"
+rem cd /d "%_WFVL_START_DIR%"
