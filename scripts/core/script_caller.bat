@@ -166,11 +166,11 @@ for /f "tokens=*" %%f in ('dir /b /on "%scripts_dir%\%class_name%_*.bat"') do (
 )
 popd
 set shortcuts_hash=
-for /f "tokens=1 delims=#" %%i in (%shortcuts_file%) do (
+for /f "tokens=3 delims=#" %%i in (%shortcuts_file%) do (
   set "shortcuts_hash=%%~ni"
 )
 if "!scripts_hash!" neq "!shortcuts_hash!" (
-  echo index "%shortcuts_name%" is outdated ^(scripts hash differs^)
+  echo index "%shortcuts_name%" is outdated ^(hashes differ^)
   del /f /q "%shortcuts_file%"
 )
 goto :EOF
@@ -205,7 +205,7 @@ for /f "tokens=*" %%f in ('dir /b /on "%scripts_dir%\%class_name%_*.bat"') do (
   set "shortcuts_hash=!shortcuts_hash!!project!"
   echo.!project!!project_ext! #!project_id! #>>"%_SCRIPTS_SHORTCUTS_FILE%"
 )
-echo.!shortcuts_hash! # #>>"%_SCRIPTS_SHORTCUTS_FILE%"
+echo. # #!shortcuts_hash!>>"%_SCRIPTS_SHORTCUTS_FILE%"
 echo.
 goto :EOF
 
@@ -215,21 +215,59 @@ set "project=%~1"
 set "class_name=%~2"
 set "scripts_dir=%~3"
 set "shortcuts_file=%~4"
+if not exist "%shortcuts_file%" call :UpdateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
+rem search for pattern matches
 set "pattern=%class_name%_!project!*.bat"
 set found_matches=
-if "!project!" neq "" for /f "tokens=*" %%b in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do set found_matches=true
+if "!project!" neq "" for /f "tokens=*" %%p in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do set "found_matches=!found_matches!%%~np "
 if "!project!" neq "" if "!found_matches!" equ "" (goto :EOF)
+rem list available projects
 if "!found_matches!" neq "" (
   echo matching projects for '!project!':
+  rem echo "!found_matches!"
+  rem for /f %%p in ("!found_matches!") do (
+  for /f "tokens=*" %%p in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do (
+    set "project_script_name=%%~np"
+    set "project_name=!project_script_name:%class_name%_=!"
+    echo. %class_name% !project_name!
+  )
 ) else (
-  set "pattern=%class_name%_*.bat"
   echo available projects:
-)
-rem todo: read shortcuts file instead of listing matching script files -> list also the shortcut itself
-for /f "tokens=*" %%b in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do (
-  set "project_script_name=%%~nb"
-  set "project_name=!project_script_name:%class_name%_=!"
-  echo  %class_name% !project_name!
+  set _maxlen=0
+  for /f "tokens=1 delims=#" %%i in (%shortcuts_file%) do (
+    set "script_name=%%~ni"
+    set "script_name=!script_name: =!"
+    if "!script_name!" neq "" (
+      set "project_name=!script_name:%class_name%_=!"
+      set "_string= %class_name% !project_name!"
+      call :strlen _string _length
+      if !_length! gtr !_maxlen! set _maxlen=!_length!
+    )
+  )
+  rem set _maxlen
+  for /f "tokens=1,2,* delims=#" %%i in (%shortcuts_file%) do (
+    set "script_name=%%~ni"
+    set "script_ext=%%~xi"
+    set "script_id=%%~nj"
+    set "script_name=!script_name: =!"
+    set "script_id=!script_id: =!"
+    rem echo script_name="!script_name!"
+    rem echo script_ext="!script_ext!"
+    rem echo script_id="!script_id!"
+    if "!script_name!" neq "" (
+      set "project_name=!script_name:%class_name%_=!"
+      set "_string= %class_name% !project_name!"
+      if "!script_id!" neq "" (
+        call :strlen _string _length
+        rem echo _length=!_length!
+        set "_padding="
+        for /l %%i in (!_length!,1,!_maxlen!) do set "_padding=!_padding! "
+        rem for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z) do call set "_script_id=!_script_id:%%a=%%a!"
+        set "_string=!_string!!_padding!^| %class_name:~0,1% !script_id!"
+      )
+      echo.!_string!
+    )
+  )
 )
 goto :EOF
 

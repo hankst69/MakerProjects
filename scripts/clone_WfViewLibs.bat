@@ -50,11 +50,11 @@ set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_URI=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
 set "WFVIEW_LIBFT4222_VERSION=LibFT4222-v1.4.8"
+echo.
+echo.******************************************************************************************
+echo.* downloading '%WFVIEW_LIBFT4222_VERSION%.zip' into '%WFVIEW_LIBFT4222_SRC_DIR%'
+echo.******************************************************************************************
 if not exist "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" (
-  echo.
-  echo.******************************************************************************************
-  echo.* downloading '%WFVIEW_LIBFT4222_VERSION%.zip' into '%WFVIEW_LIBFT4222_SRC_DIR%'
-  echo.******************************************************************************************
   if not exist "%WFVIEW_LIBFT4222_SRC_DIR%" mkdir "%WFVIEW_LIBFT4222_SRC_DIR%"
   call powershell -command "$webclient=new-object System.Net.WebClient; $webclient.DownloadFile('%WFVIEW_LIBFT4222_URI%','%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip'); $webclient.DownloadFile('%WFVIEW_LIBFT4222_URI%','%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip');" 2>nul
   rem $webclient.BaseAddress='https://ftdichip.com'; $webclient.Headers.Add('method','POST'); 
@@ -62,26 +62,30 @@ if not exist "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" (
 if not exist "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" (
   echo.error: download of '%WFVIEW_LIBFT4222_VERSION%.zip' failed 
 ) else (
-  echo.'%WFVIEW_LIBFT4222_VERSION%.zip' ok
+  echo. '%WFVIEW_LIBFT4222_VERSION%.zip' ok
 )
-if exist "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" if not exist "%WFVIEW_LIBFT4222_DIR%\*" (
+if exist "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" (
   echo.
   echo.******************************************************************************************
   echo.* extracting '%WFVIEW_LIBFT4222_VERSION%.zip' into '%WFVIEW_LIBFT4222_DIR%'
   echo.******************************************************************************************
   if not exist "%WFVIEW_LIBFT4222_DIR%" mkdir "%WFVIEW_LIBFT4222_DIR%"
-  set _is_empty=true
-  for /f %%i in ('dir /a /b "%WFVIEW_LIBFT4222_DIR%"') do set _is_empty=false
-  if "%_is_empty%" equ "true" (
+  setlocal EnableDelayedExpansion
+  set _has_data=false
+  for /f %%i in ('dir /a /b "%WFVIEW_LIBFT4222_DIR%"') do set _has_data=true
+  if "!_has_data!" neq "true" (
     call powershell -command "Expand-Archive -Force '%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip' '%WFVIEW_LIBFT4222_DIR%'"
+    rem for /l %%i in (1,1,5) do call choice /C y /D y /N /T 1 1>nul &echo|set /p="."
+    rem echo.
   )
-  set _is_empty=true
-  for /f %%i in ('dir /a /b "%WFVIEW_LIBFT4222_DIR%"') do set _is_empty=false
-  if "%_is_empty%" equ "true" (
+  set _has_data=false
+  for /f %%i in ('dir /a /b "%WFVIEW_LIBFT4222_DIR%"') do set _has_data=true
+  if "!_has_data!" neq "true" (
     echo.error: extraction of '%WFVIEW_LIBFT4222_VERSION%.zip' failed
   ) else (
-    echo.'%WFVIEW_LIBFT4222_DIR%' ok
+    echo. '%WFVIEW_LIBFT4222_DIR%' ok
   )
+  endlocal
 )
 echo.
 
