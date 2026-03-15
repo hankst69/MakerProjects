@@ -6,7 +6,7 @@ set "REPOS_SCRIPT=%~dpnx0"
 set "REPOS_NAME=%~n0"
 set REPOS_DIR=
 set REPOS_PULL=
-set REPOS_BRANCH=
+set REPOS_LIST_BRANCHES=
 set REPOS_STATUS=
 set REPOS_COMPACT=
 set REPOS_VERBOSE=
@@ -19,8 +19,6 @@ if /I "%~1" equ "-?"        (goto :Usage)
 if /I "%~1" equ "--dir"     (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "-p"        (set "REPOS_PULL=--pull" &shift &goto :param_loop)
-if /I "%~1" equ "--branch"  (set "REPOS_BRANCH=--branch" &shift &goto :param_loop)
-if /I "%~1" equ "-b"        (set "REPOS_BRANCH=--branch" &shift &goto :param_loop)
 if /I "%~1" equ "--status"  (set "REPOS_STATUS=--status" &shift &goto :param_loop)
 if /I "%~1" equ "-s"        (set "REPOS_STATUS=--status" &shift &goto :param_loop)
 if /I "%~1" equ "--compact" (set "REPOS_COMPACT=--compact" &shift &goto :param_loop)
@@ -28,7 +26,10 @@ if /I "%~1" equ "-c"        (set "REPOS_COMPACT=--compact" &shift &goto :param_l
 if /I "%~1" equ "--verbose" (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
 if /I "%~1" equ "-v"        (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
 if /I "%~1" equ "--diff"    (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
-if /I "%~1" equ "-d"        (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "--list_branches"     (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
+if /I "%~1" equ "-lb"                 (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
+if /I "%~1" equ "--checkout_branches" (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
+if /I "%~1" equ "-cb"                 (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
 if "%~1" neq "" if "%REPOS_DIR%" equ "" (set "REPOS_DIR=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo warning: unexpected argument '%~1'&shift &goto :param_loop)
 if "%REPOS_DIR%" equ "" set "REPOS_DIR=%cd%"
@@ -38,7 +39,6 @@ popd
 
 if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set REPOS_') do @echo.%%s="%%t"
 if "%REPOS_DIFF%" neq "" goto :Diff
-goto :Exit
 
 echo.*** Git repositories list ***
 echo."%REPOS_DIR%":
@@ -49,12 +49,12 @@ set REPOS_SCRIPT=
 set REPOS_NAME=
 set REPOS_DIR=
 set REPOS_PULL=
-set REPOS_BRANCH=
+set REPOS_LIST_BRANCHES=
+set REPOS_CHECKOUT_BRANCHES=
 set REPOS_STATUS=
 set REPOS_COMPACT=
 set REPOS_VERBOSE=
 set REPOS_DIFF=
-set REPOS_CHECKOUT_BRANCHES=
 goto :EOF
 
 :Diff
@@ -116,8 +116,17 @@ rem debugging
 if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do @echo.%%s="%%t"
 rem repo listing and actions
 for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
-if "%REPOS_BRANCH%" neq "" echo.!_DG_FULL_PADDING!BRANCHES:
-if "%REPOS_BRANCH%" neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_LIST_BRANCHES%"     neq "" echo.!_DG_FULL_PADDING!BRANCHES:
+if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_CHECKOUT_BRANCHES%" neq "" echo.!_DG_FULL_PADDING!CHECKOUT-BRANCHES:
+if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
+  for /f "tokens=*" %%b in ('call git branch -a') do (
+    echo.!_DG_FULL_PADDING!- %%b
+    for /f "tokens=*" %%i in ('call git switch "%%b"') do echo.!_DG_FULL_PADDING!- %%i
+    for /f "tokens=*" %%i in ('call git pull') do echo.!_DG_FULL_PADDING!- %%i
+  )
+  echo.!_DG_FULL_PADDING!-- under construction --
+)
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status') do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch')  do echo.!_DG_FULL_PADDING!- %%i
