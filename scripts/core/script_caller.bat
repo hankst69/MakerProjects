@@ -30,10 +30,11 @@ if not exist "%_SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NA
 if "%__PROJECT%" equ "" (
   rem no project identifier specified
   if "%__NO_USAGE%" equ "" call :Usage
-  call :ListMatches
+  call :ListMatches "" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
   endlocal
   goto :Exit
 )
+
 
 :FindExactMatch
 rem (1) see if there exists a script file that exactly matches the given PROJECT name
@@ -51,7 +52,7 @@ set _found_matches=0
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPTS_DIR%\%__CLASS_NAME%_%__PROJECT%*.bat" 2^>nul') do set /a _found_matches=!_found_matches!+1
 if !_found_matches! gtr 1 (
   rem there are matches - show them to the user
-  call :ListMatches "%__PROJECT%"
+  call :ListMatches "%__PROJECT%" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
 )
 if !_found_matches! neq 1 goto :FindShortcutMatch
 rem we found a single script match - so we call this one
@@ -73,7 +74,7 @@ if !_found_matches! equ 0 (
   echo no matching project found
   rem if "%__NO_USAGE%" equ "" call :Usage
   rem show all available projects
-  call :ListMatches ""
+  call :ListMatches "" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
 )
 endlocal
 goto :Exit
@@ -88,7 +89,7 @@ if exist "%__SCRIPT_FILE%" (
 )
 echo error: project script not found
 rem show all available projects
-call :ListMatches ""
+call :ListMatches "" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUTS_FILE%"
 endlocal
 goto :Exit
 
@@ -181,7 +182,6 @@ rem :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%_SCRIPTS_SHORTCUT
 set "class_name=%~1"
 set "scripts_dir=%~2"
 set "shortcuts_file=%~3"
-rem echo|set /p="updating project %class_name% shortcuts"
 echo|set /p="updating project shortcuts"
 set shortcuts_hash=
 for /f "tokens=*" %%f in ('dir /b /on "%scripts_dir%\%class_name%_*.bat"') do (
@@ -211,26 +211,29 @@ goto :EOF
 
 
 :ListMatches
-set "_project=%~1"
-set "_pattern=%__CLASS_NAME%_!_project!*.bat"
-set _found_matches=
-if "!_project!" neq "" for /f "tokens=*" %%b in ('dir /b "%__SCRIPTS_DIR%\!_pattern!" 2^>nul') do set _found_matches=true
-if "!_project!" neq "" if "!_found_matches!" equ "" (goto :EOF)
-if "!_found_matches!" neq "" (
-  echo matching projects for '!_project!':
+set "project=%~1"
+set "class_name=%~2"
+set "scripts_dir=%~3"
+set "shortcuts_file=%~4"
+set "pattern=%class_name%_!project!*.bat"
+set found_matches=
+if "!project!" neq "" for /f "tokens=*" %%b in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do set found_matches=true
+if "!project!" neq "" if "!found_matches!" equ "" (goto :EOF)
+if "!found_matches!" neq "" (
+  echo matching projects for '!project!':
 ) else (
-  set "_pattern=%__CLASS_NAME%_*.bat"
+  set "pattern=%class_name%_*.bat"
   echo available projects:
 )
-for /f "tokens=*" %%b in ('dir /b "%__SCRIPTS_DIR%\!_pattern!" 2^>nul') do (
-  set "_project_script_name=%%~nb"
-  set "_project_name=!_project_script_name:%__CLASS_NAME%_=!"
-  echo  %__CLASS_NAME% !_project_name!
+rem todo: read shortcuts file instead of listing matching script files -> list also the shortcut itself
+for /f "tokens=*" %%b in ('dir /b "%scripts_dir%\!pattern!" 2^>nul') do (
+  set "project_script_name=%%~nb"
+  set "project_name=!project_script_name:%class_name%_=!"
+  echo  %class_name% !project_name!
 )
 goto :EOF
 
 
-goto :eof
 :strlen  StrVar  [RtnVar]
   setlocal EnableDelayedExpansion
   set "s=#!%~1!"
