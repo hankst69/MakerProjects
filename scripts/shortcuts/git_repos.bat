@@ -75,9 +75,6 @@ echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
 echo.
 echo %REPOS_NAME% [--diff]
 echo %REPOS_NAME% [--help^|-h^|-?]
-if /I "%~1" equ "" (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
-if /I "%~1" equ "-cb"                 (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
-
 echo.
 goto :Exit
 
@@ -134,7 +131,7 @@ if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
     for /f "tokens=*" %%i in ('call git switch "%%b"') do echo.!_DG_FULL_PADDING!- %%i
     for /f "tokens=*" %%i in ('call git pull') do echo.!_DG_FULL_PADDING!- %%i
   )
-  echo.!_DG_FULL_PADDING!-- under construction --
+  for /f "tokens=*" %%b in ('call git branch') do echo.!_DG_FULL_PADDING!- %%b
 )
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
 if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status') do echo.!_DG_FULL_PADDING!- %%i

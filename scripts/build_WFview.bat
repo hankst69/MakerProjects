@@ -103,7 +103,7 @@ call "%MAKER_BUILD%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available - switchng to MSVS build system
   set _WFV_BUILD_SYSTEM=MSVS
-  rem goto :Exit
+  rem goto :_exit
 )
 rem ensure qt
 call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE%
@@ -111,26 +111,13 @@ if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
 
-
 echo.
 echo BUILD WFVIEW-LIBRARIES (%_WFV_BUILD_TYPE%)
-rem
-set "_WFV_CONFIG_GENERATOR=Ninja"
-set "_WFV_CONFIG_OPTIONS="
-if /I "%_WFV_BUILD_SYSTEM%" equ "MSVS" set "_WFV_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-if /I "%_WFV_BUILD_SYSTEM%" equ "MSVS" set "_WFV_CONFIG_OPTIONS=-A %_WFV_TGT_ARCH%"
-set "_src_opus=%WFVIEW_OPUS_SRC_DIR%"
-set "_bld_opus=%WFVIEW_OPUS_SRC_DIR%\.build%_WFV_TGT_ARCH%%_WFV_BUILD_TYPE%"
-set "_bin_opus=%WFVIEW_OPUS_DIR%"
-cd /d "%_bld_opus%"
-echo cmake -S "%_src_opus%" -B "%_bld_opus%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
-call cmake -S "%_src_opus%" -B "%_bld_opus%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
-cd /d "%_bld_opus%"
-echo cmake --build "." --config %_WFV_BUILD_TYPE% 
-call cmake --build "." --config %_WFV_BUILD_TYPE% 
-cd /d "%_bld_opus%"
-echo cmake --install "%_bin_opus%" --config %_WFV_BUILD_TYPE% 
-call cmake --install "%_bin_opus%" --config %_WFV_BUILD_TYPE% 
+call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: BUILDING of WFVIEW-LIBRARIES failed
+  goto :_exit
+)
 
 
 rem *** cmake configure ***
