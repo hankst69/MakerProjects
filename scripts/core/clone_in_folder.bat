@@ -44,6 +44,7 @@ echo.
 goto :Exit
 
 :Exit
+if "%_CHANGE_DIR%" neq "" (if exist "%_TARGET_DIR%" cd "%_TARGET_DIR%")
 if "%_CHANGE_DIR%" equ "" (cd "%_CURRENT_DIR%")
 set _SCRIPT_ROOT=
 set _SCRIPT_NAME=
@@ -60,6 +61,11 @@ set _FREE_ARGS=
 goto :EOF
 
 :Start
+rem if "%_SILENT_CLONE_MODE%" neq "true" (
+echo ******************************************************************************************
+echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
+echo ******************************************************************************************
+rem )
 doskey home="%_SCRIPT_ROOT%home.cmd"
 if not exist "%_TARGET_DIR%\.git\config" goto :Clone
 set _GIT_CURRENT_URL=
@@ -71,7 +77,7 @@ rem echo "%_GIT_CURRENT_REPO%" "%_GIT_CURRENT_URL%"
 popd
 if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   if "%_SILENT_CLONE_MODE%" neq "true" (
-    echo ******************************************************************************************
+    rem echo ******************************************************************************************
     echo * '%_GIT_CLONE_REPO%' is already cloned in '%_TARGET_DIR%'
     rem echo * to clone '%_GIT_CLONE_REPO%' freshly, remove all content via: 'rmdir /s /q "%_TARGET_DIR%"'
 	  rem echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
@@ -102,7 +108,7 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   popd
   if "%_CHANGE_DIR%" neq "" (cd "%_TARGET_DIR%")
 ) else (
-  echo ******************************************************************************************
+  rem echo ******************************************************************************************
   echo * WARNING:
   echo *  you try to clone '%_GIT_CLONE_REPO%' into folder '%_TARGET_DIR%'
   echo *  but '%_GIT_CURRENT_REPO%' is currently cloned in there!
@@ -118,11 +124,6 @@ goto :Exit
 
 
 :Clone
-rem if "%_SILENT_CLONE_MODE%" neq "true" (
-echo ******************************************************************************************
-echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
-echo ******************************************************************************************
-rem )
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 pushd "%_TARGET_DIR%"
 set ERRORLEVEL=
@@ -145,5 +146,4 @@ if "%_SILENT_CLONE_MODE%" neq "true" (
   git status
 )
 popd
-if "%_CHANGE_DIR%" neq "" (cd "%_TARGET_DIR%")
 goto :Exit
