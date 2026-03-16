@@ -62,9 +62,10 @@ goto :EOF
 
 :Start
 rem if "%_SILENT_CLONE_MODE%" neq "true" (
-echo ******************************************************************************************
-echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
-echo ******************************************************************************************
+  echo ************************************************************************************************************************
+  echo * cloning "%_GIT_CLONE_URL%" into "%_TARGET_DIR%"
+  if "%_SILENT_CLONE_MODE%" equ "true" (
+  echo ************************************************************************************************************************ )
 rem )
 doskey home="%_SCRIPT_ROOT%home.cmd"
 if not exist "%_TARGET_DIR%\.git\config" goto :Clone
@@ -77,11 +78,10 @@ rem echo "%_GIT_CURRENT_REPO%" "%_GIT_CURRENT_URL%"
 popd
 if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   if "%_SILENT_CLONE_MODE%" neq "true" (
-    rem echo ******************************************************************************************
-    echo * '%_GIT_CLONE_REPO%' is already cloned in '%_TARGET_DIR%'
-    rem echo * to clone '%_GIT_CLONE_REPO%' freshly, remove all content via: 'rmdir /s /q "%_TARGET_DIR%"'
-	  rem echo * ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
-    echo ******************************************************************************************
+    echo * -^> "%_GIT_CLONE_REPO%" is already cloned in "%_TARGET_DIR%"
+    rem echo *    to clone "%_GIT_CLONE_REPO%" freshly, remove all content via: 'rmdir /s /q "%_TARGET_DIR%"'
+	  rem echo *    ^(you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
+    echo ************************************************************************************************************************
   )
   pushd "%_TARGET_DIR%"
   if "%_SILENT_CLONE_MODE%" neq "true" (
@@ -108,15 +108,14 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   popd
   if "%_CHANGE_DIR%" neq "" (cd "%_TARGET_DIR%")
 ) else (
-  rem echo ******************************************************************************************
-  echo * WARNING:
-  echo *  you try to clone '%_GIT_CLONE_REPO%' into folder '%_TARGET_DIR%'
-  echo *  but '%_GIT_CURRENT_REPO%' is currently cloned in there!
+  echo * -^> WARNING:
+  echo *    you try to clone "%_GIT_CLONE_REPO%" into folder "%_TARGET_DIR%"
+  echo *    but "%_GIT_CURRENT_REPO%" is currently cloned in there!
   echo * 
-  echo *  to clone '%_GIT_CLONE_REPO%' into the folder '%_TARGET_DIR%'
-  echo *  you first have to delete all current content!
-  echo *  ^(you can do so with 'rmdir /s /q "%_TARGET_DIR%"'^)
-  echo ******************************************************************************************
+  echo *    to clone "%_GIT_CLONE_REPO%" into the folder "%_TARGET_DIR%"
+  echo *    you first have to delete all current content!
+  echo *    ^(you can do so with 'rmdir /s /q "%_TARGET_DIR%"'^)
+  echo ************************************************************************************************************************
 )
 if "%_SILENT_CLONE_MODE%" neq "true" echo.
 set _GIT_REPO=
@@ -139,9 +138,9 @@ if %ERRORLEVEL% neq 0 (echo. & echo error: git clone failed & goto:EOF)
 if "%_SWITCH_BRANCH%" neq "" (echo. & git switch %_SWITCH_BRANCH%)
 if "%_SILENT_CLONE_MODE%" neq "true" (
   echo.
-  echo ******************************************************************************************
-  echo * the status in '%_TARGET_DIR%' is:
-  echo ******************************************************************************************
+  echo ************************************************************************************************************************
+  echo * the status in "%_TARGET_DIR%" is:
+  echo ************************************************************************************************************************
   git remote -v
   git status
 )

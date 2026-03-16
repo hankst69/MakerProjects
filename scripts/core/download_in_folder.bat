@@ -55,17 +55,17 @@ goto :EOF
 
 :Start
 rem if "%_DOWNLOAD_SILENT%" neq "true" (
-  echo.******************************************************************************************
-  echo.* downloading '%_DOWNLOAD_FILE_NAME%' into '%_TARGET_DIR%'
-  echo.******************************************************************************************
+  echo ************************************************************************************************************************
+  echo * downloading "%_DOWNLOAD_FILE_NAME%" into "%_TARGET_DIR%"
+  if "%_DOWNLOAD_SILENT%" equ "true" (
+  echo ************************************************************************************************************************ )
 rem )
 if not exist "%_DOWNLOAD_FILE_PATH%" goto :Download
 if "%_DOWNLOAD_SILENT%" neq "true" (
-  rem echo ******************************************************************************************
-  echo * '%_DOWNLOAD_FILE_NAME%' already exists in '%_TARGET_DIR%'
-  rem echo * to download '%_DOWNLOAD_FILE_NAME%' freshly, remove the file via: 'del /f /q "%_DOWNLOAD_FILE_PATH%"'
-  rem echo * ^(or you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
-  echo ******************************************************************************************
+  echo * -^> "%_DOWNLOAD_FILE_NAME%" already exists in "%_TARGET_DIR%"
+  rem echo *    to download "%_DOWNLOAD_FILE_NAME%" freshly, remove the file via: 'del /f /q "%_DOWNLOAD_FILE_PATH%"'
+  rem echo *    ^(or you can delete all current content with 'rmdir /s /q "%_TARGET_DIR%"'^)
+  echo ************************************************************************************************************************
   echo.
 )
 goto :Exit
@@ -73,17 +73,15 @@ goto :Exit
 :Download
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 call powershell -command "$webclient=new-object System.Net.WebClient; $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%'); $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%');" 2>nul
-rem $webclient.Headers.Add('method','POST');
 if not exist "%_DOWNLOAD_FILE_PATH%" (
-  rem echo ******************************************************************************************
-  echo * ERROR: download of '%_DOWNLOAD_FILE_NAME%' failed
-  echo ******************************************************************************************
+  echo * -^> ERROR: download of "%_DOWNLOAD_FILE_NAME%" failed
+  echo ************************************************************************************************************************
   echo.
   exit /b 77
 ) else (
   if "%_DOWNLOAD_SILENT%" neq "true" (
-    echo * DOWNLOAD DONE
-    echo ******************************************************************************************
+    echo * -^> DOWNLOAD DONE
+    echo ************************************************************************************************************************
   )
 )
 goto :Exit

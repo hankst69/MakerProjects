@@ -50,9 +50,10 @@ goto :EOF
 
 :Start
 rem if "%_EXTRACT_SILENT%" neq "true" (
-  echo.******************************************************************************************
-  echo.* extracting '%_ARCHIVE_NAME%' into '%_TARGET_DIR%'
-  echo.******************************************************************************************
+  echo ************************************************************************************************************************
+  echo * extracting "%_ARCHIVE_NAME%" into "%_TARGET_DIR%"
+  if "%_EXTRACT_SILENT%" equ "true" (
+  echo ************************************************************************************************************************ )
 rem )
 if not exist "%_TARGET_DIR%" goto :Extract
 setlocal EnableDelayedExpansion
@@ -61,11 +62,10 @@ for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" neq "true" (
   endlocal
   if "%_EXTRACT_SILENT%" neq "true" (
-    rem echo ******************************************************************************************
-    echo * '%_TARGET_DIR%' already contains data
-    echo * remove the target folder via: 'rmdir /s /q "%_TARGET_DIR%"'
-    echo * to force fresh extraction of '%_ARCHIVE_NAME%' into '%_TARGET_DIR%'
-    echo ******************************************************************************************
+    echo * -^> "%_TARGET_DIR%" already contains data
+    echo *    remove the target folder via: 'rmdir /s /q "%_TARGET_DIR%"'
+    echo *    to force fresh extraction of "%_ARCHIVE_NAME%" into "%_TARGET_DIR%"
+    echo ************************************************************************************************************************
     echo.
   )
   goto :Exit
@@ -76,25 +76,23 @@ goto :Extract
 :Extract
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 if not exist "%_ARCHIVE_PATH%" (
-  rem echo ******************************************************************************************
-  echo * ERROR: extraction of "%_ARCHIVE_NAME%" failed
-  echo *        the archive "%_ARCHIVE_PATH%" does not exist 
-  echo ******************************************************************************************
+  echo * -^> ERROR: extraction of "%_ARCHIVE_NAME%" failed
+  echo *           the archive "%_ARCHIVE_PATH%" does not exist 
+  echo ************************************************************************************************************************
   exit /b 78
 )
-call powershell -command "Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%'"
+call powershell -command "Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%';"
 setlocal EnableDelayedExpansion
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" equ "true" (
-  rem echo ******************************************************************************************
-  echo * ERROR: extraction of "%_ARCHIVE_NAME%" failed
-  echo ******************************************************************************************
+  echo * -^> ERROR: extraction of "%_ARCHIVE_NAME%" failed
+  echo ************************************************************************************************************************
   exit /b 79
 )
 if "%_EXTRACT_SILENT%" neq "true" (
-  echo * EXTRACTION DONE
-  echo ******************************************************************************************
+  echo * -^> EXTRACTION DONE
+  echo ************************************************************************************************************************
 )
 
 endlocal

@@ -16,8 +16,8 @@ set REPOS_CHECKOUT_BRANCHES=
 if /I "%~1" equ "--help"    (goto :Usage)
 if /I "%~1" equ "-h"        (goto :Usage)
 if /I "%~1" equ "-?"        (goto :Usage)
-if /I "%~1" equ "--dir"     (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
-if /I "%~1" equ "-d"        (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "--dir"     (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "-d"        (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "-p"        (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "--status"  (set "REPOS_STATUS=--status" &shift &goto :param_loop)
@@ -27,6 +27,8 @@ if /I "%~1" equ "-c"        (set "REPOS_COMPACT=--compact" &shift &goto :param_l
 if /I "%~1" equ "--verbose" (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
 if /I "%~1" equ "-v"        (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
 if /I "%~1" equ "--diff"    (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-diff"     (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-di"       (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
 if /I "%~1" equ "--list_branches"     (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
 if /I "%~1" equ "-lb"                 (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
 if /I "%~1" equ "--checkout_branches" (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
@@ -61,8 +63,8 @@ goto :EOF
 :Diff
 echo *** %REPOS_NAME% compare vs. han_scripts version ***
 echo diff "%REPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
-if "%HANSCRIPT_ROOT%" equ "" echo error: compare of '%REPOS_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
-if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo error: compare of '%REPOS_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
+if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%REPOS_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
+if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo ERROR: compare of '%REPOS_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
 call diff "%REPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
 goto :Exit
 
@@ -72,8 +74,7 @@ echo USAGE:
 echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--status^|-s] [--pull^|-p]
 echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
 echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
-echo.
-echo %REPOS_NAME% [--diff]
+echo %REPOS_NAME% [--diff^|-diff^|-di]
 echo %REPOS_NAME% [--help^|-h^|-?]
 echo.
 goto :Exit
