@@ -17,6 +17,7 @@ if /I "%~1" equ "--help"    (goto :Usage)
 if /I "%~1" equ "-h"        (goto :Usage)
 if /I "%~1" equ "-?"        (goto :Usage)
 if /I "%~1" equ "--dir"     (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "-d"        (set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
 if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "-p"        (set "REPOS_PULL=--pull" &shift &goto :param_loop)
 if /I "%~1" equ "--status"  (set "REPOS_STATUS=--status" &shift &goto :param_loop)
@@ -68,7 +69,15 @@ goto :Exit
 :Usage
 echo.
 echo USAGE:
-echo %REPOS_NAME% [--verbose^|-v] [--compact^|-c] [--status^|-s] [--pull^|-p] [[--dir^|-d] ^<path^>] [-h^|-?^|--help]
+echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--status^|-s] [--pull^|-p]
+echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
+echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
+echo.
+echo %REPOS_NAME% [--diff]
+echo %REPOS_NAME% [--help^|-h^|-?]
+if /I "%~1" equ "" (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
+if /I "%~1" equ "-cb"                 (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
+
 echo.
 goto :Exit
 
