@@ -34,10 +34,6 @@ if "%WFVIEW_SRC_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
 if not exist "%WFVIEW_DIR%" (echo cloning WFVIEW failed &goto :EOF)
 if not exist "%WFVIEW_SRC_DIR%" (echo cloning WFVIEW failed &goto :EOF)
 
-if "%WFVIEW_LIBS_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
-if "%WFVIEW_LIBS_SRC_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
-if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo cloning WFVIEW failed &goto :EOF)
-
 set "_WFV_DIR=%WFVIEW_DIR%"
 set "_WFV_SOURCES_DIR=%WFVIEW_SRC_DIR%"
 rem set "_WFV_BUILD_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%_build%WFVIEW_VERSION%"
@@ -118,6 +114,14 @@ if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
 )
+rem if "%WFVIEW_LIBS_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+rem if "%WFVIEW_LIBS_SRC_DIR%" EQU "" (echo cloning WFVIEW failed &goto :EOF)
+rem if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo cloning WFVIEW failed &goto :EOF)
+if "%WFVIEW_LIBS_DIR%" equ ""        (echo error: BUILDING of WFVIEW-LIBRARIES failed &goto :_exit)
+if not exist "%WFVIEW_LIBS_DIR%"     (echo error: BUILDING of WFVIEW-LIBRARIES failed &goto :_exit)
+if "%WFVIEW_LIBS_SRC_DIR%" equ ""    (echo error: BUILDING of WFVIEW-LIBRARIES failed &goto :_exit)
+if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo error: BUILDING of WFVIEW-LIBRARIES failed &goto :_exit)
+
 
 
 rem *** cmake configure ***

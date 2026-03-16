@@ -19,5 +19,5 @@ if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
 
 call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_SRC_DIR%" "https://gitlab.com/hankst69/wfview.git" %WFVIEW_CHECKOUT_BRANCH% %MAKER_ENV_SILENT%
 
-call "%~dp0\clone_WFViewLibs.bat" %*
+rem call "%~dp0\clone_WFViewLibs.bat" %*
 cd /d "%WFVIEW_SRC_DIR%"
