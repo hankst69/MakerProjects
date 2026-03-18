@@ -30,18 +30,14 @@ rem set _WFVL_BUILD_TYPE=Release
 rem set _WFVL_BUILD_TYPE=MinSizeRel
 
 rem decide Build-Suite (Microsoft vs. GNU)
-set _WFVL_USE_GCC=
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_gcc" set _WFVL_USE_GCC=--use_gcc
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_gcc" set _WFVL_USE_GCC=--use_gcc
 set _WFVL_BUILD_SYSTEM=msvs
-set "_WFVL_BUILD_APPENDIX=_msvs"
-if /I "%_WFVL_USE_GCC%" neq "" set _WFVL_BUILD_SYSTEM=gnu
-if /I "%_WFVL_USE_GCC%" neq "" set _WFVL_BUILD_APPENDIX=
-
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  _WFVL_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  _WFVL_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" _WFVL_BUILD_SYSTEM=msvs
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" _WFVL_BUILD_SYSTEM=msvs
 
 rem welcome
-echo BUILDING WFVIEW-Libs%_WFVL_VERSION% : %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE% %_WFVL_BUILD_SYSTEM%
-
+echo BUILDING WFVIEW-Libs%_WFVL_VERSION% : %_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_BUILD%\clone_wfviewLibs.bat" %_WFVL_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -59,7 +55,8 @@ if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo cloning WFVIEW-Libs failed &goto :EOF
 set "_WFVL_DIR=%WFVIEW_DIR%"
 set "_WFVL_SOURCES_DIR=%WFVIEW_LIBS_SRC_DIR%"
 set "_WFVL_BIN_DIR=%WFVIEW_LIBS_DIR%"
-set "_WFVL_BUILD_DIR=%WFVIEW_LIBS_SRC_DIR%\.build%_WFVL_BUILD_APPENDIX%"
+set "_WFVL_BUILD_DIR=%WFVIEW_LIBS_SRC_DIR%\.build_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_WFVL_BUILD_DIR=%WFVIEW_LIBS_SRC_DIR%\.build"
 
 cd /d "%_WFVL_START_DIR%"
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFVL_
@@ -91,20 +88,19 @@ call "%MAKER_BUILD%\validate_cmake.bat" %_WFVL_CMAKE_VERSION% %MAKER_ENV_VERBOSE
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
-rem ensure msvs version and amd64 target architecture or MinGW gcc
-if /I "%_WFVL_BUILD_SYSTEM%" neq "gnu" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFVL_MSVS_VERSION% %_WFVL_TGT_ARCH% %MAKER_ENV_VERBOSE%
-if /I "%_WFVL_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
+rem ensure BuildSystem availability
+if /I "%_WFVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
+if /I "%_WFVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFVL_MSVS_VERSION% %_WFVL_TGT_ARCH% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
+if /I "%_WFVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WFVL_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_WFVL_BUILD_SYSTEM% is not available &goto :_exit)
 rem ensure ninja
-if /I "%_WFVL_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_mingw.bat"
 if /I "%_WFVL_BUILD_SYSTEM%" equ "gnu" if %ERRORLEVEL% NEQ 0 goto :_exit
 call "%MAKER_BUILD%\validate_ninja.bat" %_WFVL_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available - switchng to MSVS build system
-  set _WFVL_BUILD_SYSTEM=msvs
-  rem goto :_exit
+  goto :_exit
 )
 
 echo.
@@ -129,7 +125,7 @@ rem WFVIEW_HIDAPI_DIR
 rem WFVIEW_HIDAPI_SRC_DIR
 
 set "_cmake_src=%WFVIEW_OPUS_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\opus_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\opus_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_OPUS_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
@@ -138,7 +134,7 @@ call cmake --build "." --config %_WFVL_BUILD_TYPE%
 call cmake --install "." --config %_WFVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_RTAUDIO_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\rtaudio_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\rtaudio_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_RTAUDIO_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
@@ -147,7 +143,7 @@ call cmake --build "." --config %_WFVL_BUILD_TYPE%
 call cmake --install "." --config %_WFVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_EIGEN_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\eigen_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\eigen_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_EIGEN_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
@@ -156,7 +152,7 @@ call cmake --build "." --config %_WFVL_BUILD_TYPE%
 call cmake --install "." --config %_WFVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_PORTAUDIO_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\portaudio_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\portaudio_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_PORTAUDIO_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
@@ -165,7 +161,7 @@ call cmake --build "." --config %_WFVL_BUILD_TYPE%
 call cmake --install "." --config %_WFVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_QCUSTOMPLOT_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\qcustomplot_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\qcustomplot_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_QCUSTOMPLOT_DIR%"
 rem if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 rem cd /d "%_cmake_bld%"
@@ -174,7 +170,7 @@ rem call cmake --build "." --config %_WFVL_BUILD_TYPE%
 rem call cmake --install "." --config %_WFVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_HIDAPI_SRC_DIR%"
-set "_cmake_bld=%_WFVL_BUILD_DIR%\hidapi_%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
+set "_cmake_bld=%_WFVL_BUILD_DIR%\hidapi_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
 set "_cmake_bin=%WFVIEW_HIDAPI_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"

@@ -11,7 +11,7 @@ goto :_QT_START
 
 :_QT_USAGE
 echo USAGE:
-echo %~n0 [version] [--use_gcc] [--use_llvm20_patch] [-?^|-h^|--help]
+echo %~n0 [version] [--gnu^|--msvs] [--use_llvm20_patch] [-?^|-h^|--help]
 goto :EOF
 
 :_QT_START
@@ -24,12 +24,16 @@ set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_QT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_QT_REBUILD=%MAKER_ENV_REBUILD%"
 
+rem decide Build-Suite (Microsoft vs. GNU)
+set _QT_BUILD_SYSTEM=msvs
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  _QT_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  _QT_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" _QT_BUILD_SYSTEM=msvs
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" _QT_BUILD_SYSTEM=msvs
+
 set _QT_USE_LLVM20_PATCH=
-set _QT_USE_GCC=
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_gcc" set _QT_USE_GCC=true
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_gcc" set _QT_USE_GCC=true
 
 rem apply defaults 1
 if "%_QT_TGT_ARCH%" equ "" set "_QT_TGT_ARCH=x64"
@@ -70,12 +74,12 @@ rem
 rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
 set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
-if /I "%_QT_USE_GCC%" neq "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
+if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu"  set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
 if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info -separate-debug-info"
 rem apply defaults 3
 set _QT_COMPILER=msvs
-if /I "%_QT_USE_GCC%" equ "true" set _QT_COMPILER=gcc
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set _QT_COMPILER=gcc
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" "LSS" "%_QT_VERSION_WITH_LLVM_FIX%" 1>nul 2>nul
 if %ERRORLEVEL% equ 0 set _QT_USE_LLVM20_PATCH=true
 
@@ -102,8 +106,8 @@ if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
 set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-gcc"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-gcc"
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%-gcc"
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-gcc"
 
 set "_QT_LOGFILE=%QT_DIR%\qt_build_%_QT_VERSION%_%_QT_COMPILER%_configure.log"
 
@@ -153,7 +157,7 @@ set "_QT_TEST_EXE_3=%_QT_BIN_DIR%\bin\designer.exe"
 set "_QT_TEST_EXE_4=%_QT_BIN_DIR%\bin\lupdate.exe"
 set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
 set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\Qt6Mqtt.lib"
-if /I "%_QT_USE_GCC%" equ "true" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt.a"
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt.a"
 
 if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_rebuild
 if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_rebuild
@@ -217,26 +221,22 @@ echo *** OTPIONAL: Protobuf
 echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
 echo.
 rem ensure msvs version and amd64 target architecture or MinGW gcc
-if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" neq "true" (
-  goto :qt_exit
+if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :_exit
 )
-if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 if /I "%_QT_USE_GCC%" equ "true" (
-  goto :qt_exit
-)
-rem if /I "%_QT_USE_GCC%" neq "true" call "%MAKER_BUILD%\validate_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
-rem if /I "%_QT_USE_GCC%" equ "true" call "%MAKER_BUILD%\validate_gcc.bat" %MAKER_ENV_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" neq "gnu" if /I "%_QT_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available &goto :_exit)
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
 rem validate ninja
-call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
-  rem goto :qt_exit
+  goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
 call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
