@@ -31,10 +31,10 @@ rem set _WFVL_BUILD_TYPE=MinSizeRel
 
 rem decide Build-Suite (Microsoft vs. GNU)
 set _WFVL_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  _WFVL_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  _WFVL_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" _WFVL_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" _WFVL_BUILD_SYSTEM=msvs
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  set _WFVL_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  set _WFVL_BUILD_SYSTEM=gnu
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
 
 rem welcome
 echo BUILDING WFVIEW-Libs%_WFVL_VERSION% : %_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%
