@@ -35,9 +35,11 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  set _WFV_BUILD_SYSTEM=gnu
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  set _WFV_BUILD_SYSTEM=gnu
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
+set "_WFV_BUILD_SYSTEM_SWITCH=--%_WFV_BUILD_SYSTEM%"
 
 rem welcome
 echo BUILDING WFVIEW%_WFV_VERSION% : %_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%
+if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -114,7 +116,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem ensure qt
-call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE% %_WFV_BUILD_SYSTEM%
+call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE% %_WFV_BUILD_SYSTEM_SWITCH%
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
@@ -122,8 +124,8 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem *** build required libraries ***
 echo.
-echo BUILD WFVIEW-LIBRARIES (%_WFV_BUILD_TYPE%)
-call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
+rem echo BUILD WFVIEW-LIBRARIES (%_WFV_BUILD_TYPE%)
+call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM_SWITCH%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit

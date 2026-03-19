@@ -30,6 +30,7 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  set _QT_BUILD_SYSTEM=gnu
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  set _QT_BUILD_SYSTEM=gnu
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _QT_BUILD_SYSTEM=msvs
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _QT_BUILD_SYSTEM=msvs
+set "_QT_BUILD_SYSTEM_SWITCH=--%_QT_BUILD_SYSTEM%"
 
 set _QT_USE_LLVM20_PATCH=
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
