@@ -16,6 +16,7 @@ call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_WFV_" 1>nul 2>nul
 set "_WFV_THIS_DIR=%~dp0"
 set "_WFV_START_DIR=%cd%"
 set "_WFV_VERSION=%MAKER_ENV_VERSION%"
+set "_WFV_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 set "_WFV_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_WFV_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_WFV_REBUILD=%MAKER_ENV_REBUILD%"
@@ -37,9 +38,12 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
 set "_WFV_BUILD_SYSTEM_SWITCH=--%_WFV_BUILD_SYSTEM%"
 
-rem welcome
-echo BUILDING WFVIEW%_WFV_VERSION% : %_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%
+rem debug
+if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
+
+rem welcome
+echo BUILDING WFVIEW %_WFV_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -140,7 +144,7 @@ if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo error: BUILDING of WFVIEW-LIBRARIES f
 rem *** cmake configure ***
 :_configure
 echo.
-echo WFVIEW-CONFIGURE %WFVIEW_VERSION% (%_WFV_BUILD_TYPE%)
+echo WFVIEW-CONFIGURE %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 cd /d "%_WFV_BUILD_DIR%"
 set "_WFV_CONFIG_GENERATOR=Ninja"
 set "_WFV_CONFIG_OPTIONS="
@@ -154,7 +158,7 @@ call cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_cma
 rem *** cmake build ***
 :_build
 echo.
-echo WFVIEW-BUILD %WFVIEW_VERSION% (%_WFV_BUILD_TYPE%)
+echo WFVIEW-BUILD %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 cd /d "%_WFV_BUILD_DIR%"
 rem call cmake --build . --config %_WFV_BUILD_TYPE% --parallel 4
 echo cmake --build . --config %_WFV_BUILD_TYPE% 

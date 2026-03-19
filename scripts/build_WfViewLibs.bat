@@ -11,17 +11,14 @@ goto :EOF
 
 :_start
 call "%~dp0\maker_env.bat" %*
-
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_WFVL_" 1>nul 2>nul
 set "_WFVL_THIS_DIR=%~dp0"
 set "_WFVL_START_DIR=%cd%"
 set "_WFVL_VERSION=%MAKER_ENV_VERSION%"
+set "_WFVL_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 set "_WFVL_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_WFVL_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_WFVL_REBUILD=%MAKER_ENV_REBUILD%"
-
-set _WFVL_VERSION
-set "_WFVL_VERSION=
 
 rem apply defaults
 if "%_WFVL_TGT_ARCH%"   equ "" set _WFVL_TGT_ARCH=x64
@@ -40,9 +37,13 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
 set "_WFVL_BUILD_SYSTEM_SWITCH=--%_WFVL_BUILD_SYSTEM%"
 
-rem welcome
-echo BUILDING WFVIEW-LIBRARIES%_WFVL_VERSION% : %_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%
+rem debug
+if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFVL_
+if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
+
+rem welcome
+echo BUILDING WFVIEW-LIBRARIES %_WFVL_VERSION%(%_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%)
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_BUILD%\clone_wfviewLibs.bat" %_WFVL_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -79,7 +80,7 @@ if not exist "%_WFVL_BUILD_DIR%" mkdir "%_WFVL_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING WFVIEW-Libs %WFVIEW_VERSION% from sources
+echo BUILDING WFVIEW-LIBRARIES %WFVIEW_VERSION% from sources
 echo.
 set _WFVL_CMAKE_VERSION=GEQ3.22
 set _WFVL_MSVS_VERSION=GEQ2019
@@ -109,7 +110,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo BUILD WFVIEW-LIBRARIES (%_WFVL_BUILD_TYPE%)
+echo BUILD WFVIEW-LIBRARIES (%_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%)
 rem
 set "_WFVL_CONFIG_GENERATOR=Ninja"
 set "_WFVL_CONFIG_OPTIONS="

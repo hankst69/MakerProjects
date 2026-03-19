@@ -34,6 +34,18 @@ shift
 if /I "%_ARG_TMP_%" equ "x86"           (set "_VALIDATE_TGT_ARCHITECTURE=x86" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "x64"           (set "_VALIDATE_TGT_ARCHITECTURE=x64" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "amd64"         (set "_VALIDATE_TGT_ARCHITECTURE=x64" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "Release"       (set "_VALIDATE_TGT_BUILDTYPE=Release" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "Debug"         (set "_VALIDATE_TGT_BUILDTYPE=Debug" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "MinSizeRel"    (set "_VALIDATE_TGT_BUILDTYPE=MinSizeRel" &goto :_param_loop)
+rem
+if /I "%_ARG_TMP_%" equ "msvs"          (set "_VALIDATE_TGT_BUILDSYSTEM=msvs" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "gnu"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "gcc"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--msvs         (set "_VALIDATE_TGT_BUILDSYSTEM=msvs" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--gnu"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--gcc"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--use_gcc"     (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
+rem
 if /I "%_ARG_TMP_:~0,12%" equ "--tool_arch:" (set "_VALIDATE_TOOL_ARCHITECTURE=%_ARG_TMP_:~12%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "--no_errors"   (set "_VALIDATE_NO_ERRORS=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-ne"           (set "_VALIDATE_NO_ERRORS=--no_errors" &goto :_param_loop)

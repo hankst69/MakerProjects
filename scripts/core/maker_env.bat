@@ -33,6 +33,7 @@ set MAKER_ENV_HELP=
 set MAKER_ENV_VERSION=
 set MAKER_ENV_ARCHITECTURE=
 set MAKER_ENV_BUILDTYPE=
+set MAKER_ENV_BUILDSYSTEM=
 set MAKER_ENV_UNKNOWN_SWITCHES=
 set MAKER_ENV_UNKNOWN_ARGS=
 set MAKER_ENV_ALL_ARGS=
@@ -64,12 +65,15 @@ rem handle unknown switches:
 if /I "%__ARG__:~0,1%" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
 if /I "!__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% !__ARG_RAW__!" &goto :param_loop)
 rem handle known named args:
-if /I "%__ARG__%" equ equ "Debug"      (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
-if /I "%__ARG__%" equ equ "Release"    (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
-if /I "%__ARG__%" equ equ "MinSizeRel" (set "MAKER_ENV_BUILDTYPE=MinSizeRel" &goto :param_loop)
+if /I "%__ARG__%" equ "Debug"          (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
+if /I "%__ARG__%" equ "Release"        (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
+if /I "%__ARG__%" equ "MinSizeRel"     (set "MAKER_ENV_BUILDTYPE=MinSizeRel" &goto :param_loop)
 if /I "%__ARG__%" equ "x86"            (set "MAKER_ENV_ARCHITECTURE=x86"     &goto :param_loop)
 if /I "%__ARG__%" equ "x64"            (set "MAKER_ENV_ARCHITECTURE=x64"     &goto :param_loop)
 if /I "%__ARG__%" equ "amd64"          (set "MAKER_ENV_ARCHITECTURE=amd64"   &goto :param_loop)
+if /I "%__ARG__%" equ "msvs"           (set "MAKER_ENV_BUILDSYSTEM=msvs"     &goto :param_loop)
+if /I "%__ARG__%" equ "gnu"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
+if /I "%__ARG__%" equ "gcc"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
 rem handle known free args:
 if /I "%__ARG__%" neq "" if "%MAKER_ENV_VERSION%" equ "" (set "MAKER_ENV_VERSION=%__ARG__%" &goto :param_loop)
 rem handle unknown args:
