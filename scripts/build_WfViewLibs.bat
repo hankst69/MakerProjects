@@ -20,6 +20,9 @@ set "_WFVL_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_WFVL_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_WFVL_REBUILD=%MAKER_ENV_REBUILD%"
 
+set _WFVL_VERSION
+set "_WFVL_VERSION=
+
 rem apply defaults
 if "%_WFVL_TGT_ARCH%"   equ "" set _WFVL_TGT_ARCH=x64
 if "%_WFVL_BUILD_TYPE%" equ "" set _WFVL_BUILD_TYPE=release
