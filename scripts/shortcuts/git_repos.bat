@@ -6,6 +6,7 @@ set "REPOS_SCRIPT=%~dpnx0"
 set "REPOS_NAME=%~n0"
 set REPOS_DIR=
 set REPOS_PULL=
+set REPOS_LIST_REMOTES=--remotes
 set REPOS_LIST_BRANCHES=
 set REPOS_STATUS=
 set REPOS_COMPACT=
@@ -52,6 +53,7 @@ set REPOS_SCRIPT=
 set REPOS_NAME=
 set REPOS_DIR=
 set REPOS_PULL=
+set REPOS_LIST_REMOTES=
 set REPOS_LIST_BRANCHES=
 set REPOS_CHECKOUT_BRANCHES=
 set REPOS_STATUS=
@@ -122,23 +124,44 @@ for /L %%i in (1,1,!_DG_COLUMNS!) do set "_DG_FULL_PADDING=!_DG_FULL_PADDING! "
 rem debugging
 if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do @echo.%%s="%%t"
 rem repo listing and actions
-for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
+if "%REPOS_LIST_REMOTES%"      neq "" for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
 if "%REPOS_LIST_BRANCHES%"     neq "" echo.!_DG_FULL_PADDING!BRANCHES:
-if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING! %%i
 if "%REPOS_CHECKOUT_BRANCHES%" neq "" echo.!_DG_FULL_PADDING!CHECKOUT-BRANCHES:
 if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
-  for /f "tokens=*" %%b in ('call git branch -a') do (
-    echo.!_DG_FULL_PADDING!- %%b
-    for /f "tokens=*" %%i in ('call git switch "%%b"') do echo.!_DG_FULL_PADDING!- %%i
-    for /f "tokens=*" %%i in ('call git pull') do echo.!_DG_FULL_PADDING!- %%i
+  rem 1) iterate over local branches and remember checked out branch
+  set "_DG_CHECKED_OUT_BRANCH=main"
+  for /f "tokens=1,*" %%b in ('call git branch') do (
+    if "%%~b" equ "*" set "_DG_CHECKED_OUT_BRANCH=%%~c"
   )
-  for /f "tokens=*" %%b in ('call git branch') do echo.!_DG_FULL_PADDING!- %%b
+  rem 2) iterate over remote branches and check them out
+  set _DG_COUNT=0
+  for /f "tokens=1,*" %%b in ('call git branch -r') do (
+    if "%%~b" neq "*" if "%%~c" equ "" (
+      set /A _DG_COUNT=!_DG_COUNT!+1
+      rem the remote origins do not need to be named always 'origin' and there can be multiple ones!
+      rem so this here is right now just a simplification for the default case:
+      set "_DG_BRANCH_NAME=%%~b"
+      if "%REPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!" ^('%%~b' '%%~c'^)
+      set "_DG_BRANCH_NAME=!_DG_BRANCH_NAME:origin/=!"
+      if "%REPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!"
+      echo.!_DG_FULL_PADDING!^(!_DG_COUNT!^) '!_DG_BRANCH_NAME!'
+      for /f "tokens=*" %%i in ('call git switch "!_DG_BRANCH_NAME!"  2^>^&1') do echo.!_DG_FULL_PADDING! - %%i
+      for /f "tokens=*" %%i in ('call git pull  2^>^&1') do echo.!_DG_FULL_PADDING! - %%i
+    )
+  )
+  rem 3) restore the old local checkout
+  if "%REPOS_VERBOSE%" neq "" echo debug: git switch "!_DG_CHECKED_OUT_BRANCH!"
+  for /f "tokens=*" %%i in ('call git switch "!_DG_CHECKED_OUT_BRANCH!" 1^>nul 2^>^&1') do echo.!_DG_FULL_PADDING!- %%i
+  rem 4) now list the local checked out branches
+  echo.!_DG_FULL_PADDING!BRANCHES:
+  for /f "tokens=*" %%b in ('call git branch') do echo.!_DG_FULL_PADDING! %%b
 )
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status') do echo.!_DG_FULL_PADDING!- %%i
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch')  do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status  2^>^&1') do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch  2^>^&1')  do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_PULL%"   neq "" echo.!_DG_FULL_PADDING!PULL:
-if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull')   do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull  2^>^&1')   do echo.!_DG_FULL_PADDING!- %%i
 if "%REPOS_STATUS%%REPOS_PULL%" neq "" echo.
 popd
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
