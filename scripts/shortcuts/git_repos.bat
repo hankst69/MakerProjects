@@ -44,9 +44,60 @@ popd
 if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set REPOS_') do @echo.%%s="%%t"
 if "%REPOS_DIFF%" neq "" goto :Diff
 
-echo.*** Git repositories list ***
-echo."%REPOS_DIR%":
-call :List_Git_Repos_in_Dir "%REPOS_DIR%"
+:MainBegin
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+pushd "%REPOS_DIR%"
+rem stopwatch-start
+for /f "tokens=2 delims=:" %%i in ('echo.^|date') do if "!_DATE_!" equ "" set "_DATE_=%%~i"
+if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
+if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
+set "REPOS_DATE_START=%_DATE_%"
+for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" set "_TIME_=%%i:%%j:%%k"
+set "REPOS_TIME_START=%_TIME_: =%"
+
+rem count git repos and analyse maximum path length for most compact dump
+set REPOS_COUNT=0
+set REPOS_MAXLENGTH_ABS=0
+set REPOS_MAXLENGTH_REL=0
+for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" (
+  set /a REPOS_COUNT=!REPOS_COUNT!+1
+  set "_string=%%~dpnd"
+  rem echo "!_string!"
+  call :strlen _string _strlen
+  if !_strlen! gtr !REPOS_MAXLENGTH_ABS! set REPOS_MAXLENGTH_ABS=!_strlen!
+  set "_string=!_string:%REPOS_DIR%=.!"
+  if "%REPOS_VERBOSE%" neq "" echo "!_string!"
+  call :strlen _string _strlen
+  if !_strlen! gtr !REPOS_MAXLENGTH_REL! set REPOS_MAXLENGTH_REL=!_strlen!
+)
+if "%REPOS_VERBOSE%" neq "" set REPOS_COUNT
+if "%REPOS_VERBOSE%" neq "" set REPOS_MAXLENGTH
+if %REPOS_COUNT% gtr 1 (
+  echo.*** Git repositories ***
+)
+if %REPOS_COUNT% equ 0 echo no git repositories found &goto MainBEnd
+if "%REPOS_COMPACT%" neq "" echo."%REPOS_DIR%":
+if %REPOS_COUNT% equ 1 (
+  set REPOS_MAXLENGTH_ABS=-2
+  set REPOS_MAXLENGTH_REL=-2
+)
+for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" call :Dump_Git_Repo "%%~dpnd" "%REPOS_COUNT%" "%REPOS_MAXLENGTH_ABS%" "%REPOS_MAXLENGTH_REL%"
+
+:MainBEnd
+rem stopwatch-stop
+for /f "tokens=2 delims=:" %%i in ('echo.^|date') do if "!_DATE_!" equ "" set "_DATE_=%%~i"
+if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
+if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
+set "REPOS_DATE_STOP=%_DATE_%"
+for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" set "_TIME_=%%i:%%j:%%k"
+set "REPOS_TIME_STOP=%_TIME_: =%"
+if %REPOS_COUNT% gtr 1 (
+  echo %REPOS_DATE_START%: %REPOS_TIME_START%...%REPOS_TIME_STOP%
+) else (
+  if "%REPOS_VERBOSE%" neq "" echo %REPOS_TIME_START%...%REPOS_TIME_STOP%
+)
+popd
+endlocal
 
 :Exit
 set REPOS_SCRIPT=
@@ -61,6 +112,8 @@ set REPOS_COMPACT=
 set REPOS_VERBOSE=
 set REPOS_DIFF=
 goto :EOF
+
+
 
 :Diff
 echo *** %REPOS_NAME% compare vs. han_scripts version ***
@@ -86,8 +139,8 @@ goto :Exit
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 rem VERIFY OTHER 2>nul &SETLOCAL ENABLEEXTENSIONS &IF ERRORLEVEL 1 (echo CMD extensions not available & goto :EOF)
 SETLOCAL ENABLEEXTENSIONS
-if exist "%~1\.git" (call :Dump_Git_Repo "%~1")
-for /D %%d in (%~1\*) do if exist "%%~d\.git" (call :Dump_Git_Repo "%%~d") else (call :List_Git_Repos_in_Dir "%%~d")
+if exist "%~1\.git" (call :Dump_Git_Repo "%~1" "%REPOS_COUNT%" "%REPOS_MAXLENGTH_ABS%" "%REPOS_MAXLENGTH_REL%")
+for /D %%d in (%~1\*) do call :List_Git_Repos_in_Dir "%%~d"
 ENDLOCAL
 goto :EOF
 
@@ -97,14 +150,19 @@ rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 rem VERIFY OTHER 2>nul &SETLOCAL ENABLEDELAYEDEXPANSION &IF ERRORLEVEL 1 (echo CMD extensions not available & goto :EOF)
 SETLOCAL ENABLEDELAYEDEXPANSION
 set "_DG_REPO_DIR=%~dpnx1"
-set _DG_COLUMNS=70
-set "_DG_PREFIX= "
+if "%_DG_REPO_DIR:~-1%" equ "\" set "_DG_REPO_DIR=%_DG_REPO_DIR:~0,-1%"
+set "_DG_REPO_CNT=%~2"
+set "_DG_REPO_MAX_ABS=%~3"
+set "_DG_REPO_MAX_REL=%~4"
+set /A _DG_COLUMNS=%_DG_REPO_MAX_ABS%+2
+set "_DG_PREFIX="
 set "_DG_SUFFIX=  "
 pushd "%_DG_REPO_DIR%"
 if "%REPOS_COMPACT%" equ "" goto :Dump_Git_Repo_start
 rem adapt to compact presentation
-set "_DG_REPO_DIR=%~1" 
-set _DG_COLUMNS=51
+set "_DG_REPO_DIR=%~1"
+if "%_DG_REPO_DIR:~-1%" equ "\" set "_DG_REPO_DIR=%_DG_REPO_DIR:~0,-1%"
+set /A _DG_COLUMNS=%_DG_REPO_MAX_REL%+2
 set "_DG_PREFIX="
 set "_DG_SUFFIX= "
 set "_string=%REPOS_DIR%"
@@ -126,7 +184,7 @@ if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do 
 rem repo listing and actions
 if "%REPOS_LIST_REMOTES%"      neq "" for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
 if "%REPOS_LIST_BRANCHES%"     neq "" echo.!_DG_FULL_PADDING!BRANCHES:
-if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING! %%i
+if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!  %%i
 if "%REPOS_CHECKOUT_BRANCHES%" neq "" echo.!_DG_FULL_PADDING!CHECKOUT-BRANCHES:
 if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
   rem 1) iterate over local branches and remember checked out branch
@@ -146,23 +204,23 @@ if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
       set "_DG_BRANCH_NAME=!_DG_BRANCH_NAME:origin/=!"
       if "%REPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!"
       echo.!_DG_FULL_PADDING!^(!_DG_COUNT!^) '!_DG_BRANCH_NAME!'
-      for /f "tokens=*" %%i in ('call git switch "!_DG_BRANCH_NAME!"  2^>^&1') do echo.!_DG_FULL_PADDING! - %%i
+      for /f "tokens=*" %%i in ('call git switch "!_DG_BRANCH_NAME!" 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
       for /f "tokens=*" %%i in ('call git pull  2^>^&1') do echo.!_DG_FULL_PADDING! - %%i
     )
   )
   rem 3) restore the old local checkout
   if "%REPOS_VERBOSE%" neq "" echo debug: git switch "!_DG_CHECKED_OUT_BRANCH!"
-  for /f "tokens=*" %%i in ('call git switch "!_DG_CHECKED_OUT_BRANCH!" 1^>nul 2^>^&1') do echo.!_DG_FULL_PADDING!- %%i
+  for /f "tokens=*" %%i in ('call git switch "!_DG_CHECKED_OUT_BRANCH!" 1^>nul 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
   rem 4) now list the local checked out branches
   echo.!_DG_FULL_PADDING!BRANCHES:
-  for /f "tokens=*" %%b in ('call git branch') do echo.!_DG_FULL_PADDING! %%b
+  for /f "tokens=*" %%i in ('call git branch') do echo.!_DG_FULL_PADDING!  %%i
 )
 if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status  2^>^&1') do echo.!_DG_FULL_PADDING!- %%i
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch  2^>^&1')  do echo.!_DG_FULL_PADDING!- %%i
+if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
+if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch 2^>^&1')  do echo.!_DG_FULL_PADDING!  %%i
 if "%REPOS_PULL%"   neq "" echo.!_DG_FULL_PADDING!PULL:
-if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull  2^>^&1')   do echo.!_DG_FULL_PADDING!- %%i
-if "%REPOS_STATUS%%REPOS_PULL%" neq "" echo.
+if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull 2^>^&1')   do echo.!_DG_FULL_PADDING!  %%i
+if "%REPOS_STATUS%%REPOS_PULL%%REPOS_LIST_BRANCHES%%REPOS_CHECKOUT_BRANCHES%" neq "" echo.
 popd
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 ENDLOCAL
