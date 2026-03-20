@@ -2,162 +2,227 @@
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 rem https://stackoverflow.com/questions/11916823/batch-limitation-maximum-recursion-while-browsing-menus
 rem SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
-set "REPOS_SCRIPT=%~dpnx0"
-set "REPOS_NAME=%~n0"
-set "REPOS_START_DIR=%cd%"
+set "GITREPOS_SCRIPT=%~dpnx0"
+set "GITREPOS_NAME=%~n0"
+set "GITREPOS_START_DIR=%cd%"
 
-set REPOS_COMPACT=
-set REPOS_VERBOSE=
-set REPOS_DIFF=
-set REPOS_FAST=
+set GITREPOS_COMPACT=
+set GITREPOS_VERBOSE=
+set GITREPOS_DIFF=
+set GITREPOS_FAST=
 
-set REPOS_DIR=
-set REPOS_STATUS=
-set REPOS_PULL=
-set REPOS_LIST_REMOTES=--remotes
-set REPOS_LIST_BRANCHES=
-set REPOS_CHECKOUT_BRANCHES=
+set GITREPOS_DIR=
+set GITREPOS_STATUS=
+set GITREPOS_PULL=
+set GITREPOS_LIST_REMOTES=--remotes
+set GITREPOS_LIST_BRANCHES=
+set GITREPOS_CHECKOUT_BRANCHES=
 :param_loop
 if /I "%~1" equ "--help"    (goto :Usage)
 if /I "%~1" equ "-h"        (goto :Usage)
 if /I "%~1" equ "-?"        (goto :Usage)
-if /I "%~1" equ "--dir"     (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
-if /I "%~1" equ "-d"        (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "REPOS_DIR=%~2" &shift &shift &goto :param_loop)
-if /I "%~1" equ "--pull"    (set "REPOS_PULL=--pull" &shift &goto :param_loop)
-if /I "%~1" equ "-p"        (set "REPOS_PULL=--pull" &shift &goto :param_loop)
-if /I "%~1" equ "--status"  (set "REPOS_STATUS=--status" &shift &goto :param_loop)
-if /I "%~1" equ "-s"        (set "REPOS_STATUS=--status" &shift &goto :param_loop)
-if /I "%~1" equ "--compact" (set "REPOS_COMPACT=--compact" &shift &goto :param_loop)
-if /I "%~1" equ "-c"        (set "REPOS_COMPACT=--compact" &shift &goto :param_loop)
-if /I "%~1" equ "--verbose" (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
-if /I "%~1" equ "-v"        (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
-if /I "%~1" equ "--fast"    (set "REPOS_FAST=--fast" &shift &goto :param_loop)
-if /I "%~1" equ "-f"        (set "REPOS_FAST=--fast" &shift &goto :param_loop)
-if /I "%~1" equ "--diff"    (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
-if /I "%~1" equ "-diff"     (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
-if /I "%~1" equ "-di"       (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
-if /I "%~1" equ "--list_branches"     (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
-if /I "%~1" equ "-lb"                 (set "REPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
-if /I "%~1" equ "--checkout_branches" (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
-if /I "%~1" equ "-cb"                 (set "REPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
-if "%~1" neq "" if "%REPOS_DIR%" equ "" (set "REPOS_DIR=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--dir"     (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "GITREPOS_DIR=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "-d"        (if "%~2" equ "" (echo ERROR: missing ^<path^> parameter&goto :Usage) &set "GITREPOS_DIR=%~2" &shift &shift &goto :param_loop)
+if /I "%~1" equ "--pull"    (set "GITREPOS_PULL=--pull" &shift &goto :param_loop)
+if /I "%~1" equ "-p"        (set "GITREPOS_PULL=--pull" &shift &goto :param_loop)
+if /I "%~1" equ "--status"  (set "GITREPOS_STATUS=--status" &shift &goto :param_loop)
+if /I "%~1" equ "-s"        (set "GITREPOS_STATUS=--status" &shift &goto :param_loop)
+if /I "%~1" equ "--compact" (set "GITREPOS_COMPACT=--compact" &shift &goto :param_loop)
+if /I "%~1" equ "-c"        (set "GITREPOS_COMPACT=--compact" &shift &goto :param_loop)
+if /I "%~1" equ "--verbose" (set "GITREPOS_VERBOSE=--verbose" &shift &goto :param_loop)
+if /I "%~1" equ "-v"        (set "GITREPOS_VERBOSE=--verbose" &shift &goto :param_loop)
+if /I "%~1" equ "--fast"    (set "GITREPOS_FAST=--fast" &shift &goto :param_loop)
+if /I "%~1" equ "-f"        (set "GITREPOS_FAST=--fast" &shift &goto :param_loop)
+if /I "%~1" equ "--diff"    (set "GITREPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-diff"     (set "GITREPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-di"       (set "GITREPOS_DIFF=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "--list_branches"     (set "GITREPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
+if /I "%~1" equ "-lb"                 (set "GITREPOS_LIST_BRANCHES=--list_branches" &shift &goto :param_loop)
+if /I "%~1" equ "--checkout_branches" (set "GITREPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
+if /I "%~1" equ "-cb"                 (set "GITREPOS_CHECKOUT_BRANCHES=--checkout_branches" &shift &goto :param_loop)
+if "%~1" neq "" if "%GITREPOS_DIR%" equ "" (set "GITREPOS_DIR=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo warning: unexpected argument '%~1'&shift &goto :param_loop)
-if "%REPOS_DIR%" equ "" set "REPOS_DIR=%cd%"
-pushd "%REPOS_DIR%"
-set "REPOS_DIR=%cd%"
+if "%GITREPOS_DIR%" equ "" set "GITREPOS_DIR=%cd%"
+pushd "%GITREPOS_DIR%"
+set "GITREPOS_DIR=%cd%"
 popd
 
-if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set REPOS_') do @echo.%%s="%%t"
-if "%REPOS_DIFF%" neq "" goto :Diff
+if "%GITREPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set GITREPOS_') do @echo.%%s="%%t"
+if "%GITREPOS_DIFF%" neq "" goto :Diff
+goto :MainBegin
 
-:MainBegin
-setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
-if "%REPOS_VERBOSE%" neq "" echo on
-pushd "%REPOS_DIR%"
-rem stopwatch-start
+
+:stop_watch
+set "_START_TIME=%~1"
+set _DATE_=
+set _TIME_=
+set _DATE_YY=
+set _DATE_MM=
+set _DATE_DD=
+set _TIME_HH=
+set _TIME_MM=
+set _TIME_SS=
+set _TIME_MS=
 for /f "tokens=2 delims=:" %%i in ('echo.^|date') do if "!_DATE_!" equ "" set "_DATE_=%%~i"
 if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
 if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
-set "REPOS_DATE_START=%_DATE_%"
-for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" set "_TIME_=%%i:%%j:%%k"
-set "REPOS_TIME_START=%_TIME_: =%"
-
-rem count git repos and analyse maximum path length for most compact dump
-echo|set /p="*** Git repositories *** "
-set REPOS_COUNT=0
-set REPOS_MAXLENGTH_ABS=0
-set REPOS_MAXLENGTH_REL=0
-if "%REPOS_FAST%" equ "" (
-  for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" (
-    if "%REPOS_VERBOSE%" neq "" echo "%%~dpnd" 
-    echo|set /p="."
-    set /a REPOS_COUNT=!REPOS_COUNT!+1
-    set "_string=%%~dpnd"
-    call :strlen _string _strlen
-    if !_strlen! gtr !REPOS_MAXLENGTH_ABS! set REPOS_MAXLENGTH_ABS=!_strlen!
-    set "_string=!_string:%REPOS_DIR%=.!"
-    if "%REPOS_VERBOSE%" neq "" echo "!_string!"
-    call :strlen _string _strlen
-    if !_strlen! gtr !REPOS_MAXLENGTH_REL! set REPOS_MAXLENGTH_REL=!_strlen!
-  )
-) else (
-  set REPOS_COUNT=99
-  set REPOS_MAXLENGTH_ABS=70
-  set REPOS_MAXLENGTH_REL=51
-) 
-echo.
-if "%REPOS_VERBOSE%" neq "" set REPOS_COUNT
-if "%REPOS_VERBOSE%" neq "" set REPOS_MAXLENGTH
-if %REPOS_COUNT% equ 0 echo no git repositories found &goto MainBEnd
-if "%REPOS_COMPACT%" neq "" echo."%REPOS_DIR%":
-if %REPOS_COUNT% equ 1 (s
-  set REPOS_MAXLENGTH_ABS=-2
-  set REPOS_MAXLENGTH_REL=-2
+for /f "tokens=1,2,3 delims=/" %%i in ("%_DATE_%") do (set "_DATE_DD=%%i" &set "_DATE_MM=%%j" &set "_DATE_YY=%%k")
+for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" (set "_TIME_HH=%%i" &set "_TIME_MM=%%j" &set "_TIME_SS=%%k")
+set "_TIME_HH=%_TIME_HH: =%"
+set "_TIME_MM=%_TIME_MM: =%"
+for /f "tokens=1,2 delims=." %%i in ("%_TIME_SS%") do (set "_TIME_SS=%%i" &set "_TIME_MS=%%j")
+set "_TIME_SS=%_TIME_SS: =%"
+set "_TIME_MS=%_TIME_MS: =%"
+set "_TIME_=%_TIME_HH%:%_TIME_MM%:%_TIME_SS%"
+set "_DATE_UI=%_DATE_%"
+set "_DATE_=%_DATE_YY%-%_DATE_MM%-%_DATE_DD%"
+set _STARTT_HH=
+set _STARTT_MM=
+set _STARTT_SS=
+set _STARTT_MS=
+set _DIFFT_HH=
+set _DIFFT_MM=
+set _DIFFT_SS=
+set _DIFFT_MS=
+set _DIFFT_=
+if "%_START_TIME%" neq "" (
+  for /f "tokens=1,2,3 delims=:" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
+  for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
+  if "!_STARTT_HH:~0,1!" equ "0" set "_STARTT_HH=!_STARTT_HH:~1!"
+  if "!_STARTT_MM:~0,1!" equ "0" set "_STARTT_MM=!_STARTT_MM:~1!"
+  if "!_STARTT_SS:~0,1!" equ "0" set "_STARTT_SS=!_STARTT_SS:~1!"
+  set "_STOPT_HH=!_TIME_HH!"
+  set "_STOPT_MM=!_TIME_MM!"
+  set "_STOPT_SS=!_TIME_SS!"
+  if "!_STOPT_HH:~0,1!" equ "0" set "_STOPT_HH=!_STOPT_HH:~1!"
+  if "!_STOPT_MM:~0,1!" equ "0" set "_STOPT_MM=!_STOPT_MM:~1!"
+  if "!_STOPT_SS:~0,1!" equ "0" set "_STOPT_SS=!_STOPT_SS:~1!"
+  set /a _DIFFT_HH=!_STOPT_HH!-!_STARTT_HH!
+  set /a _DIFFT_MM=!_STOPT_MM!-!_STARTT_MM!
+  set /a _DIFFT_SS=!_STOPT_SS!-!_STARTT_SS!
+  if "!_STARTT_MS!" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
+  set "_DIFFT_=!_DIFFT_HH!:!_DIFFT_MM!:!_DIFFT_SS!"
+  set /a _DIFFTD_HSS=!_DIFFT_HH!*3600
+  set /a _DIFFTD_MSS=!_DIFFT_MM!*60
+  set /a _DIFFT_DUR_SS=!_DIFFTD_HSS!+!_DIFFTD_MSS!
+  set /a _DIFFT_DUR_SS=!_DIFFT_DUR_SS!+!_DIFFT_SS!
 )
-for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" call :Dump_Git_Repo "%%~dpnd" "%REPOS_COUNT%" "%REPOS_MAXLENGTH_ABS%" "%REPOS_MAXLENGTH_REL%"
-
-:MainBEnd
-rem stopwatch-stop
-for /f "tokens=2 delims=:" %%i in ('echo.^|date') do if "!_DATE_!" equ "" set "_DATE_=%%~i"
-if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
-if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
-set "REPOS_DATE_STOP=%_DATE_%"
-for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" set "_TIME_=%%i:%%j:%%k"
-set "REPOS_TIME_STOP=%_TIME_: =%"
-if %REPOS_COUNT% gtr 1 (
-  echo %REPOS_DATE_START%: %REPOS_TIME_START%...%REPOS_TIME_STOP%
-) else (
-  if "%REPOS_VERBOSE%" neq "" echo %REPOS_TIME_START%...%REPOS_TIME_STOP%
-)
-popd
-endlocal
-
-:Exit
-set REPOS_START_DIR=
-set REPOS_SCRIPT=
-set REPOS_NAME=
-set REPOS_DIR=
-set REPOS_PULL=
-set REPOS_LIST_REMOTES=
-set REPOS_LIST_BRANCHES=
-set REPOS_CHECKOUT_BRANCHES=
-set REPOS_STATUS=
-set REPOS_COMPACT=
-set REPOS_VERBOSE=
-set REPOS_DIFF=
-set REPOS_FAST=
 goto :EOF
 
 
+:MainBegin
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+call :stop_watch
+set "GITREPOS_DATE_START=%_DATE_%"
+set "GITREPOS_TIME_START=%_TIME_%"
+
+rem count git repos and analyse maximum path length for most compact dump
+set GITREPOS_COUNT=0
+set GITREPOS_MAXLENGTH_ABS=0
+set GITREPOS_MAXLENGTH_REL=0
+if exist "%GITREPOS_DIR%\.git\*" (
+  set GITREPOS_COUNT=1
+  goto :MainDump
+)
+if "%GITREPOS_FAST%" neq "" (
+  set GITREPOS_COUNT=99
+  set GITREPOS_MAXLENGTH_ABS=70
+  set GITREPOS_MAXLENGTH_REL=51
+  goto :MainDump
+) 
+echo|set /p="searching git repositories in "%GITREPOS_DIR%" ."
+pushd "%GITREPOS_DIR%"
+for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" (
+  if "%GITREPOS_VERBOSE%" neq "" echo "%%~dpnd" 
+  echo|set /p="."
+  set /a GITREPOS_COUNT=!GITREPOS_COUNT!+1
+  set "_string=%%~dpnd"
+  call :strlen _string _strlen
+  if !_strlen! gtr !GITREPOS_MAXLENGTH_ABS! set GITREPOS_MAXLENGTH_ABS=!_strlen!
+  set "_string=!_string:%GITREPOS_DIR%=.!"
+  if "%GITREPOS_VERBOSE%" neq "" echo "!_string!"
+  call :strlen _string _strlen
+  if !_strlen! gtr !GITREPOS_MAXLENGTH_REL! set GITREPOS_MAXLENGTH_REL=!_strlen!
+)
+popd
+echo.
+
+:MainDump
+if "%GITREPOS_VERBOSE%" neq "" set GITREPOS_COUNT
+if "%GITREPOS_VERBOSE%" neq "" set GITREPOS_MAXLENGTH
+if %GITREPOS_COUNT% equ 0 echo no git repositories found &goto MainBEnd
+if %GITREPOS_COUNT% equ 1 (
+  set GITREPOS_COMPACT=
+  set GITREPOS_MAXLENGTH_ABS=-2
+  set GITREPOS_MAXLENGTH_REL=-2
+)
+if "%GITREPOS_COMPACT%" neq "" echo."%GITREPOS_DIR%":
+pushd "%GITREPOS_DIR%"
+for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" call :Dump_Git_Repo "%%~dpnd" "%GITREPOS_COUNT%" "%GITREPOS_MAXLENGTH_ABS%" "%GITREPOS_MAXLENGTH_REL%"
+popd
+
+:MainBEnd
+call :stop_watch "%GITREPOS_TIME_START%"
+set "GITREPOS_DATE_STOP=%_DATE_%"
+set "GITREPOS_TIME_STOP=%_TIME_%"
+if %GITREPOS_COUNT% gtr 1 (
+  echo %GITREPOS_DATE_START% %GITREPOS_TIME_START%...%GITREPOS_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)
+) else (
+  if "%GITREPOS_STATUS%%GITREPOS_PULL%%GITREPOS_LIST_BRANCHES%%GITREPOS_CHECKOUT_BRANCHES%" neq "" echo %GITREPOS_DATE_START% %GITREPOS_TIME_START%...%GITREPOS_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)
+)
+endlocal
+
+:Exit
+set GITREPOS_START_DIR=
+set GITREPOS_SCRIPT=
+set GITREPOS_NAME=
+set GITREPOS_DIR=
+set GITREPOS_PULL=
+set GITREPOS_LIST_REMOTES=
+set GITREPOS_LIST_BRANCHES=
+set GITREPOS_CHECKOUT_BRANCHES=
+set GITREPOS_STATUS=
+set GITREPOS_COMPACT=
+set GITREPOS_VERBOSE=
+set GITREPOS_DIFF=
+set GITREPOS_FAST=
+set GITREPOS_COUNT=
+set GITREPOS_MAXLENGTH_ABS=
+set GITREPOS_MAXLENGTH_REL=
+set GITREPOS_DATE_START=
+set GITREPOS_TIME_START=
+set GITREPOS_DATE_STOP=
+set GITREPOS_TIME_STOP=
+goto :EOF
+
 
 :Diff
-echo *** %REPOS_NAME% compare vs. han_scripts version ***
-echo diff "%REPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
-if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%REPOS_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
-if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo ERROR: compare of '%REPOS_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
-call diff "%REPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
+echo *** %GITREPOS_NAME% compare vs. han_scripts version ***
+echo diff "%GITREPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
+if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%GITREPOS_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
+if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo ERROR: compare of '%GITREPOS_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
+call diff "%GITREPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
 goto :Exit
+
 
 :Usage
 echo.
 echo USAGE:
-echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--fast^|-f] [--status^|-s] [--pull^|-p]
-echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
-echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
-echo %REPOS_NAME% [--diff^|-diff^|-di]
-echo %REPOS_NAME% [--help^|-h^|-?]
+echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--fast^|-f] [--status^|-s] [--pull^|-p]
+echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
+echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
+echo %GITREPOS_NAME% [--diff^|-diff^|-di]
+echo %GITREPOS_NAME% [--help^|-h^|-?]
 echo.
 goto :Exit
 
 
-:List_Git_Repos_in_Dir
-rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
-rem VERIFY OTHER 2>nul &SETLOCAL ENABLEEXTENSIONS &IF ERRORLEVEL 1 (echo CMD extensions not available & goto :EOF)
-SETLOCAL ENABLEEXTENSIONS
-if exist "%~1\.git" (call :Dump_Git_Repo "%~1" "%REPOS_COUNT%" "%REPOS_MAXLENGTH_ABS%" "%REPOS_MAXLENGTH_REL%")
-for /D %%d in (%~1\*) do call :List_Git_Repos_in_Dir "%%~d"
-ENDLOCAL
-goto :EOF
+:::List_Git_GITREPOS_in_Dir
+::SETLOCAL ENABLEEXTENSIONS
+::if exist "%~1\.git" (call :Dump_Git_Repo "%~1" "%GITREPOS_COUNT%" "%GITREPOS_MAXLENGTH_ABS%" "%GITREPOS_MAXLENGTH_REL%")
+::for /D %%d in (%~1\*) do call :List_Git_GITREPOS_in_Dir "%%~d"
+::ENDLOCAL
+::goto :EOF
 
 
 :Dump_Git_Repo
@@ -170,38 +235,34 @@ set "_DG_REPO_CNT=%~2"
 set "_DG_REPO_MAX_ABS=%~3"
 set "_DG_REPO_MAX_REL=%~4"
 set /A _DG_COLUMNS=%_DG_REPO_MAX_ABS%+2
-set "_DG_PREFIX="
-set "_DG_SUFFIX=  "
 pushd "%_DG_REPO_DIR%"
-if "%REPOS_COMPACT%" equ "" goto :Dump_Git_Repo_start
+if "%GITREPOS_COMPACT%" equ "" goto :Dump_Git_Repo_start
 rem adapt to compact presentation
 set "_DG_REPO_DIR=%~1"
 if "%_DG_REPO_DIR:~-1%" equ "\" set "_DG_REPO_DIR=%_DG_REPO_DIR:~0,-1%"
 set /A _DG_COLUMNS=%_DG_REPO_MAX_REL%+2
-set "_DG_PREFIX="
-set "_DG_SUFFIX= "
-set "_string=%REPOS_DIR%"
+set "_string=%GITREPOS_DIR%"
 call :strlen _string _DG_BASE_DIR_STRING_LENGTH
 set "_DG_REPO_DIR=.!_DG_REPO_DIR:~%_DG_BASE_DIR_STRING_LENGTH%!"
 
 :Dump_Git_Repo_start
 rem since we echo the string with quotes and with prefic spaces, we simulate the effective string in following echo
-set "_string=%_DG_PREFIX%-%_DG_REPO_DIR%-"
+set "_string=-%_DG_REPO_DIR%-"
 call :strlen _string _DG_STRING_LENGTH
 rem since we use _STRING_LENGTH as the start value for the range, we have add 1 for correct counting
-set /A _DG_STRING_LENGTH=!_DG_STRING_LENGTH!+1
-set "_DG_RIGHT_PADDING=%_DG_SUFFIX%"
-for /L %%i in (!_DG_STRING_LENGTH!,1,!_DG_COLUMNS!) do set "_DG_RIGHT_PADDING=!_DG_RIGHT_PADDING! "
-set "_DG_FULL_PADDING=%_DG_SUFFIX%"
-for /L %%i in (1,1,!_DG_COLUMNS!) do set "_DG_FULL_PADDING=!_DG_FULL_PADDING! "
+set /A _DG_STRING_LENGTH=!_DG_STRING_LENGTH!+2
+set "_DG_RIGHT_PADDING= "
+if %_DG_REPO_CNT% gtr 1 for /L %%i in (!_DG_STRING_LENGTH!,1,!_DG_COLUMNS!) do set "_DG_RIGHT_PADDING=!_DG_RIGHT_PADDING! "
+set _DG_FULL_PADDING=
+if %_DG_REPO_CNT% gtr 1 for /L %%i in (1,1,!_DG_COLUMNS!) do set "_DG_FULL_PADDING=!_DG_FULL_PADDING! "
 rem debugging
-if "%REPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do @echo.%%s="%%t"
+if "%GITREPOS_VERBOSE%" neq "" for /f "tokens=1,* delims==" %%s in ('set _DG_') do @echo.%%s="%%t"
 rem repo listing and actions
-if "%REPOS_LIST_REMOTES%"      neq "" for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo.!_DG_PREFIX!"%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
-if "%REPOS_LIST_BRANCHES%"     neq "" echo.!_DG_FULL_PADDING!BRANCHES:
-if "%REPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!  %%i
-if "%REPOS_CHECKOUT_BRANCHES%" neq "" echo.!_DG_FULL_PADDING!CHECKOUT-BRANCHES:
-if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
+if "%GITREPOS_LIST_REMOTES%"      neq "" for /f "tokens=2,3" %%i in ('call git remote -v') do @if /I "%%j" equ "(push)" echo."%_DG_REPO_DIR%"!_DG_RIGHT_PADDING!^(%%i^)
+if "%GITREPOS_LIST_BRANCHES%"     neq "" echo.!_DG_FULL_PADDING!BRANCHES:
+if "%GITREPOS_LIST_BRANCHES%"     neq "" for /f "tokens=*" %%i in ('call git branch -a') do echo.!_DG_FULL_PADDING!  %%i
+if "%GITREPOS_CHECKOUT_BRANCHES%" neq "" echo.!_DG_FULL_PADDING!CHECKOUT-BRANCHES:
+if "%GITREPOS_CHECKOUT_BRANCHES%" neq "" (
   rem 1) iterate over local branches and remember checked out branch
   set "_DG_CHECKED_OUT_BRANCH=main"
   for /f "tokens=1,*" %%b in ('call git branch') do (
@@ -215,27 +276,27 @@ if "%REPOS_CHECKOUT_BRANCHES%" neq "" (
       rem the remote origins do not need to be named always 'origin' and there can be multiple ones!
       rem so this here is right now just a simplification for the default case:
       set "_DG_BRANCH_NAME=%%~b"
-      if "%REPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!" ^('%%~b' '%%~c'^)
+      if "%GITREPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!" ^('%%~b' '%%~c'^)
       set "_DG_BRANCH_NAME=!_DG_BRANCH_NAME:origin/=!"
-      if "%REPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!"
+      if "%GITREPOS_VERBOSE%" neq "" echo. debug: "!_DG_BRANCH_NAME!"
       echo.!_DG_FULL_PADDING!^(!_DG_COUNT!^) '!_DG_BRANCH_NAME!'
       for /f "tokens=*" %%i in ('call git switch "!_DG_BRANCH_NAME!" 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
       for /f "tokens=*" %%i in ('call git pull  2^>^&1') do echo.!_DG_FULL_PADDING! - %%i
     )
   )
   rem 3) restore the old local checkout
-  if "%REPOS_VERBOSE%" neq "" echo debug: git switch "!_DG_CHECKED_OUT_BRANCH!"
+  if "%GITREPOS_VERBOSE%" neq "" echo debug: git switch "!_DG_CHECKED_OUT_BRANCH!"
   for /f "tokens=*" %%i in ('call git switch "!_DG_CHECKED_OUT_BRANCH!" 1^>nul 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
   rem 4) now list the local checked out branches
   echo.!_DG_FULL_PADDING!BRANCHES:
   for /f "tokens=*" %%i in ('call git branch') do echo.!_DG_FULL_PADDING!  %%i
 )
-if "%REPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
-if "%REPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch 2^>^&1')  do echo.!_DG_FULL_PADDING!  %%i
-if "%REPOS_PULL%"   neq "" echo.!_DG_FULL_PADDING!PULL:
-if "%REPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull 2^>^&1')   do echo.!_DG_FULL_PADDING!  %%i
-if "%REPOS_STATUS%%REPOS_PULL%%REPOS_LIST_BRANCHES%%REPOS_CHECKOUT_BRANCHES%" neq "" echo.
+if "%GITREPOS_STATUS%" neq "" echo.!_DG_FULL_PADDING!STATUS:
+if "%GITREPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git status 2^>^&1') do echo.!_DG_FULL_PADDING!  %%i
+if "%GITREPOS_STATUS%" neq "" for /f "tokens=*" %%i in ('call git fetch 2^>^&1')  do echo.!_DG_FULL_PADDING!  %%i
+if "%GITREPOS_PULL%"   neq "" echo.!_DG_FULL_PADDING!PULL:
+if "%GITREPOS_PULL%"   neq "" for /f "tokens=*" %%i in ('call git pull 2^>^&1')   do echo.!_DG_FULL_PADDING!  %%i
+if %_DG_REPO_CNT% gtr 1 if "%GITREPOS_STATUS%%GITREPOS_PULL%%GITREPOS_LIST_BRANCHES%%GITREPOS_CHECKOUT_BRANCHES%" neq "" echo.
 popd
 rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 ENDLOCAL
