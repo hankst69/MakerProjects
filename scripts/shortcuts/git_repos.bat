@@ -4,14 +4,18 @@ rem https://stackoverflow.com/questions/11916823/batch-limitation-maximum-recurs
 rem SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set "REPOS_SCRIPT=%~dpnx0"
 set "REPOS_NAME=%~n0"
-set REPOS_DIR=
-set REPOS_PULL=
-set REPOS_LIST_REMOTES=--remotes
-set REPOS_LIST_BRANCHES=
-set REPOS_STATUS=
+set "REPOS_START_DIR=%cd%"
+
 set REPOS_COMPACT=
 set REPOS_VERBOSE=
 set REPOS_DIFF=
+set REPOS_FAST=
+
+set REPOS_DIR=
+set REPOS_STATUS=
+set REPOS_PULL=
+set REPOS_LIST_REMOTES=--remotes
+set REPOS_LIST_BRANCHES=
 set REPOS_CHECKOUT_BRANCHES=
 :param_loop
 if /I "%~1" equ "--help"    (goto :Usage)
@@ -27,6 +31,8 @@ if /I "%~1" equ "--compact" (set "REPOS_COMPACT=--compact" &shift &goto :param_l
 if /I "%~1" equ "-c"        (set "REPOS_COMPACT=--compact" &shift &goto :param_loop)
 if /I "%~1" equ "--verbose" (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
 if /I "%~1" equ "-v"        (set "REPOS_VERBOSE=--verbose" &shift &goto :param_loop)
+if /I "%~1" equ "--fast"    (set "REPOS_FAST=--fast" &shift &goto :param_loop)
+if /I "%~1" equ "-f"        (set "REPOS_FAST=--fast" &shift &goto :param_loop)
 if /I "%~1" equ "--diff"    (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
 if /I "%~1" equ "-diff"     (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
 if /I "%~1" equ "-di"       (set "REPOS_DIFF=--diff" &shift &goto :param_loop)
@@ -46,6 +52,7 @@ if "%REPOS_DIFF%" neq "" goto :Diff
 
 :MainBegin
 setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+if "%REPOS_VERBOSE%" neq "" echo on
 pushd "%REPOS_DIR%"
 rem stopwatch-start
 for /f "tokens=2 delims=:" %%i in ('echo.^|date') do if "!_DATE_!" equ "" set "_DATE_=%%~i"
@@ -56,28 +63,34 @@ for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" set "_T
 set "REPOS_TIME_START=%_TIME_: =%"
 
 rem count git repos and analyse maximum path length for most compact dump
+echo|set /p="*** Git repositories *** "
 set REPOS_COUNT=0
 set REPOS_MAXLENGTH_ABS=0
 set REPOS_MAXLENGTH_REL=0
-for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" (
-  set /a REPOS_COUNT=!REPOS_COUNT!+1
-  set "_string=%%~dpnd"
-  rem echo "!_string!"
-  call :strlen _string _strlen
-  if !_strlen! gtr !REPOS_MAXLENGTH_ABS! set REPOS_MAXLENGTH_ABS=!_strlen!
-  set "_string=!_string:%REPOS_DIR%=.!"
-  if "%REPOS_VERBOSE%" neq "" echo "!_string!"
-  call :strlen _string _strlen
-  if !_strlen! gtr !REPOS_MAXLENGTH_REL! set REPOS_MAXLENGTH_REL=!_strlen!
-)
+if "%REPOS_FAST%" equ "" (
+  for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" (
+    if "%REPOS_VERBOSE%" neq "" echo "%%~dpnd" 
+    echo|set /p="."
+    set /a REPOS_COUNT=!REPOS_COUNT!+1
+    set "_string=%%~dpnd"
+    call :strlen _string _strlen
+    if !_strlen! gtr !REPOS_MAXLENGTH_ABS! set REPOS_MAXLENGTH_ABS=!_strlen!
+    set "_string=!_string:%REPOS_DIR%=.!"
+    if "%REPOS_VERBOSE%" neq "" echo "!_string!"
+    call :strlen _string _strlen
+    if !_strlen! gtr !REPOS_MAXLENGTH_REL! set REPOS_MAXLENGTH_REL=!_strlen!
+  )
+) else (
+  set REPOS_COUNT=99
+  set REPOS_MAXLENGTH_ABS=70
+  set REPOS_MAXLENGTH_REL=51
+) 
+echo.
 if "%REPOS_VERBOSE%" neq "" set REPOS_COUNT
 if "%REPOS_VERBOSE%" neq "" set REPOS_MAXLENGTH
-if %REPOS_COUNT% gtr 1 (
-  echo.*** Git repositories ***
-)
 if %REPOS_COUNT% equ 0 echo no git repositories found &goto MainBEnd
 if "%REPOS_COMPACT%" neq "" echo."%REPOS_DIR%":
-if %REPOS_COUNT% equ 1 (
+if %REPOS_COUNT% equ 1 (s
   set REPOS_MAXLENGTH_ABS=-2
   set REPOS_MAXLENGTH_REL=-2
 )
@@ -100,6 +113,7 @@ popd
 endlocal
 
 :Exit
+set REPOS_START_DIR=
 set REPOS_SCRIPT=
 set REPOS_NAME=
 set REPOS_DIR=
@@ -111,6 +125,7 @@ set REPOS_STATUS=
 set REPOS_COMPACT=
 set REPOS_VERBOSE=
 set REPOS_DIFF=
+set REPOS_FAST=
 goto :EOF
 
 
@@ -126,7 +141,7 @@ goto :Exit
 :Usage
 echo.
 echo USAGE:
-echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--status^|-s] [--pull^|-p]
+echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--fast^|-f] [--status^|-s] [--pull^|-p]
 echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
 echo %REPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
 echo %REPOS_NAME% [--diff^|-diff^|-di]
