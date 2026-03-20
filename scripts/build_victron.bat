@@ -22,8 +22,9 @@ set "_VCG_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_VCG_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
-if "%_VCG_TGT_ARCH%"   equ "" set _VCG_TGT_ARCH=x64
-if "%_VCG_BUILD_TYPE%" equ "" set _VCG_BUILD_TYPE=Release
+if "%_VCG_TGT_ARCH%"     equ "" set _VCG_TGT_ARCH=x64
+if "%_VCG_BUILD_TYPE%"   equ "" set _VCG_BUILD_TYPE=Release
+if "%_VCG_BUILD_SYSTEM%" equ "" set _VCG_BUILD_SYSTEM=msvs
 rem apply hardcoded values
 rem set _VCG_TGT_ARCH=x64
 rem set _VCG_BUILD_TYPE=Debug
@@ -31,7 +32,7 @@ rem set _VCG_BUILD_TYPE=Release
 rem set _VCG_BUILD_TYPE=MinSizeRel
 
 rem welcome
-echo BUILDING VENUS-GUIV2 %_VCG_VERSION%(%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE%)
+echo BUILDING VENUS-GUIV2 %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE%)
 
 rem *** clone Victron GUI-V2 ***
 call "%MAKER_BUILD%\clone_victron.bat" %_VCG_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -102,11 +103,6 @@ echo *** THIS REQUIRES QT %_VCG_QT_VERSION% REMARK: find current required versio
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
-rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
-)
 rem ensure BuildSystem availability
 if /I "%_VCG_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
 if /I "%_VCG_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_VCG_MSVS_VERSION% %_VCG_TGT_ARCH% %MAKER_ENV_VERBOSE%
@@ -126,12 +122,17 @@ call "%MAKER_BUILD%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_ENV_VERBOSE% %_VCG_B
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
+rem validate qt-cmake
+call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :_exit
+)
 
 
 rem *** cmake configure ***
 :_configure
 echo.
-echo VENUS-GUIV2-CONFIGURE %_VCG_VERSION%(%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE%)
+echo VENUS-GUIV2-CONFIGURE %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE%)
 rem next 3 lines only work if the build folder is a sub folder within the source folder:
 rem pushd "%_VCG_BUILD_DIR%"
 rem call "%QT_CMAKE%" -DCMAKE_BUILD_TYPE=MinSizeRel ..\
@@ -142,12 +143,12 @@ rem
 if /I "%_VCG_BUILD_SYSTEM%" equ "GNU" goto :_configure_4_gnu
 if /I "%_VCG_BUILD_SYSTEM%" equ "MSVS" goto :_configure_4_msvs
 :_configure_4_gnu
- echo cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
- call cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
+ echo qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+ call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Ninja" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
  goto :_configure_done
 :_configure_4_msvs
- echo cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
- call cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
+ echo qt-cmake -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+ call "%QT_CMAKE%" -S "%_VCG_SOURCES_DIR%" -B "%_VCG_BUILD_DIR%" -G "Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%" -A %_VCG_TGT_ARCH% --install-prefix "%_VCG_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_VCG_BUILD_TYPE%" -DCMAKE_INSTALL_PREFIX="%_VCG_BIN_DIR%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"  --log-level=VERBOSE
  goto :_configure_done
 :_configure_done
 
@@ -166,7 +167,7 @@ rem *** cmake install ***
 rem todo: skip install when already done...
 :_install_do
 echo.
-echo VENUS-GUIV2-INSTALL %_VCG_VERSION%(%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE% -^> %_VCG_BIN_DIR%)
+echo VENUS-GUIV2-INSTALL %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_TGT_ARCH% %_VCG_BUILD_TYPE% -^> %_VCG_BIN_DIR%)
 cd /d "%_VCG_BUILD_DIR%"
 call cmake --install . --config %_VCG_BUILD_TYPE%
 rem echo on

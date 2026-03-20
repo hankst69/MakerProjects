@@ -21,21 +21,14 @@ set "_WFVL_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_WFVL_REBUILD=%MAKER_ENV_REBUILD%"
 
 rem apply defaults
-if "%_WFVL_TGT_ARCH%"   equ "" set _WFVL_TGT_ARCH=x64
-if "%_WFVL_BUILD_TYPE%" equ "" set _WFVL_BUILD_TYPE=release
+if "%_WFVL_TGT_ARCH%"   equ ""  set _WFVL_TGT_ARCH=x64
+if "%_WFVL_BUILD_TYPE%" equ ""  set _WFVL_BUILD_TYPE=release
+if "%_WFVL_BUILD_SYSTEM%" equ "" set _WFVL_BUILD_SYSTEM=gnu
 rem apply hardcoded values
 rem set _WFVL_TGT_ARCH=x64
 rem set _WFVL_BUILD_TYPE=Debug
 rem set _WFVL_BUILD_TYPE=Release
 rem set _WFVL_BUILD_TYPE=MinSizeRel
-
-rem decide Build-Suite (Microsoft vs. GNU)
-set _WFVL_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  set _WFVL_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  set _WFVL_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFVL_BUILD_SYSTEM=msvs
-set "_WFVL_BUILD_SYSTEM_SWITCH=--%_WFVL_BUILD_SYSTEM%"
 
 rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
@@ -43,7 +36,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" set _WFVL_
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING WFVIEW-LIBRARIES %_WFVL_VERSION%(%_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%)
+echo BUILDING WFVIEW-LIBRARIES %_WFVL_VERSION% (%_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%)
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_BUILD%\clone_wfviewLibs.bat" %_WFVL_VERSION% %MAKER_ENV_VERBOSE% --silent
