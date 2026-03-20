@@ -45,7 +45,6 @@ set "__ARG__=%~1"
 if "%__ARG__%" equ "" goto :param_loop_exit
 shift
 rem handle known switches:
-if /I "%__ARG__%" equ "--"             (goto :param_loop)
 if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERRORS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERRORS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "--no_warnings"  (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
@@ -61,19 +60,25 @@ if /I "%__ARG__%" equ "-r"             (set "MAKER_ENV_REBUILD=--rebuild" &goto 
 if /I "%__ARG__%" equ "--help"         (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 if /I "%__ARG__%" equ "-h"             (set "MAKER_ENV_HELP=--help" &goto :param_loop)
 if /I "%__ARG__%" equ "-?"             (set "MAKER_ENV_HELP=--help" &goto :param_loop)
-rem handle unknown switches:
-if /I "%__ARG__:~0,1%" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
-if /I "!__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% !__ARG_RAW__!" &goto :param_loop)
 rem handle known named args:
-if /I "%__ARG__%" equ "Debug"          (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
-if /I "%__ARG__%" equ "Release"        (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
-if /I "%__ARG__%" equ "MinSizeRel"     (set "MAKER_ENV_BUILDTYPE=MinSizeRel" &goto :param_loop)
 if /I "%__ARG__%" equ "x86"            (set "MAKER_ENV_ARCHITECTURE=x86"     &goto :param_loop)
 if /I "%__ARG__%" equ "x64"            (set "MAKER_ENV_ARCHITECTURE=x64"     &goto :param_loop)
 if /I "%__ARG__%" equ "amd64"          (set "MAKER_ENV_ARCHITECTURE=amd64"   &goto :param_loop)
+if /I "%__ARG__%" equ "Debug"          (set "MAKER_ENV_BUILDTYPE=Debug"      &goto :param_loop)
+if /I "%__ARG__%" equ "Release"        (set "MAKER_ENV_BUILDTYPE=Release"    &goto :param_loop)
+if /I "%__ARG__%" equ "MinSizeRel"     (set "MAKER_ENV_BUILDTYPE=MinSizeRel" &goto :param_loop)
 if /I "%__ARG__%" equ "msvs"           (set "MAKER_ENV_BUILDSYSTEM=msvs"     &goto :param_loop)
 if /I "%__ARG__%" equ "gnu"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
 if /I "%__ARG__%" equ "gcc"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
+if /I "%__ARG__%" equ "--msvs"         (set "MAKER_ENV_BUILDSYSTEM=msvs"     &goto :param_loop)
+if /I "%__ARG__%" equ "--gnu"          (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
+if /I "%__ARG__%" equ "--gcc"          (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
+if /I "%__ARG__%" equ "--use_gcc"      (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
+rem handle unknown switches:
+if /I "%__ARG__%" equ "--"             (echo empty switch '--' &goto :param_loop)
+if /I "%__ARG__%" equ "-"              (echo empty switch '-' &goto :param_loop)
+if /I "%__ARG__:~0,1%" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% %__ARG_RAW__%" &goto :param_loop)
+if /I "!__ARG__:~0,1!" equ "-" (set "MAKER_ENV_UNKNOWN_SWITCHES=%MAKER_ENV_UNKNOWN_SWITCHES% !__ARG_RAW__!" &goto :param_loop)
 rem handle known free args:
 if /I "%__ARG__%" neq "" if "%MAKER_ENV_VERSION%" equ "" (set "MAKER_ENV_VERSION=%__ARG__%" &goto :param_loop)
 rem handle unknown args:
@@ -82,7 +87,8 @@ if /I "%__ARG__%" neq "" (set "MAKER_ENV_UNKNOWN_ARGS=%MAKER_ENV_UNKNOWN_ARGS% %
 set __ARG__=
 set __ARG_RAW__=
 
-set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE%"
+if "%MAKER_ENV_BUILDSYSTEM%" neq "" set "MAKER_ENV_BUILDSYSTEM_SWITCH=--%MAKER_ENV_BUILDSYSTEM%"
+set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE% %MAKER_ENV_BUILDSYSTEM_SWITCH%"
 
 rem split unknonw args and switches
 :split_unknown_args

@@ -31,36 +31,40 @@ shift
 set "_ARG_TMP_=%~1"
 if "%_ARG_TMP_%" equ "" goto :_param_loop_finish
 shift
+rem handle known switches:
+if /I "%_ARG_TMP_:~0,12%" equ "--tool_arch:" (set "_VALIDATE_TOOL_ARCHITECTURE=%_ARG_TMP_:~12%" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--no_errors"   (set "_VALIDATE_NO_ERRORS=--no_errors" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-ne"           (set "_VALIDATE_NO_ERRORS=--no_errors" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--no_warnings" (set "_VALIDATE_NO_WARNINGS=--no_warnings" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-nw"           (set "_VALIDATE_NO_WARNINGS=--no_warnings" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--no_info"     (set "_VALIDATE_NO_INFO=--no_info" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-ni"           (set "_VALIDATE_NO_INFO=--no_info" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--verbose"     (set "_VALIDATE_VERBOSE=--verbose" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-v"            (set "_VALIDATE_VERBOSE=--verbose" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--help"        (set "_VALIDATE_HELP=--help" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-h"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-?"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
+rem handle known named args:
 if /I "%_ARG_TMP_%" equ "x86"           (set "_VALIDATE_TGT_ARCHITECTURE=x86" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "x64"           (set "_VALIDATE_TGT_ARCHITECTURE=x64" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "amd64"         (set "_VALIDATE_TGT_ARCHITECTURE=x64" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "Release"       (set "_VALIDATE_TGT_BUILDTYPE=Release" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "Debug"         (set "_VALIDATE_TGT_BUILDTYPE=Debug" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "Debug"         (set "_VALIDATE_TGT_BUILDTYPE=Debug"      &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "Release"       (set "_VALIDATE_TGT_BUILDTYPE=Release"    &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "MinSizeRel"    (set "_VALIDATE_TGT_BUILDTYPE=MinSizeRel" &goto :_param_loop)
-rem
 if /I "%_ARG_TMP_%" equ "msvs"          (set "_VALIDATE_TGT_BUILDSYSTEM=msvs" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "gnu"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "gcc"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "--msvs         (set "_VALIDATE_TGT_BUILDSYSTEM=msvs" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "--gnu"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "--gcc"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
-if /I "%_ARG_TMP_%" equ "--use_gcc"     (set "_VALIDATE_TGT_BUILDSYSTEM=gnu" &goto :param_loop)
-rem
-if /I "%_ARG_TMP_:~0,12%" equ "--tool_arch:" (set "_VALIDATE_TOOL_ARCHITECTURE=%_ARG_TMP_:~12%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--no_errors"   (set "_VALIDATE_NO_ERRORS=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-ne"           (set "_VALIDATE_NO_ERRORS=--no_errors" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--no_warnings" (set "_VALIDATE_NO_WARNINGS=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-nw"           (set "_VALIDATE_NO_WARNINGS=--no_warnings" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--no_info"     (set "_VALIDATE_NO_INFO=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-ni"           (set "_VALIDATE_NO_INFO=--no_info" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--verbose"     (set "_VALIDATE_VERBOSE=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-v"            (set "_VALIDATE_VERBOSE=--verbose" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--help"        (set "_VALIDATE_HELP=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-h"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-?"            (set "_VALIDATE_HELP=--help" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--"            (goto :param_loop)
+if /I "%_ARG_TMP_%" equ "gnu"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu"  &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "gcc"           (set "_VALIDATE_TGT_BUILDSYSTEM=gnu"  &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--msvs"        (set "_VALIDATE_TGT_BUILDSYSTEM=msvs" &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--gnu"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu"  &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--gcc"         (set "_VALIDATE_TGT_BUILDSYSTEM=gnu"  &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "--use_gcc"     (set "_VALIDATE_TGT_BUILDSYSTEM=gnu"  &goto :param_loop)
+rem handle unknown switches:
+if /I "%_ARG_TMP_%" equ "--"            (echo empty switch '--' &goto :param_loop)
+if /I "%_ARG_TMP_%" equ "-"             (echo empty switch '-' &goto :param_loop)
 if '%_ARG_TMP_:~0,1%' equ '-' (echo warning%_VALIDATE_SCRIPT_NAME%: unknown switch '%_ARG_TMP_%' &goto :_param_loop)
+rem handle known free args:
 if "%_VALIDATE_TGT_VERSION%" equ "" set "_VALIDATE_TGT_VERSION=%_ARG_TMP_%" &goto :_param_loop
+rem handle unknown args:
 echo warning%_VALIDATE_SCRIPT_NAME%: unknown argument '%_ARG_TMP_%'
 goto :_param_loop
 :_param_loop_finish

@@ -30,14 +30,6 @@ rem set _WFV_BUILD_TYPE=Debug
 rem set _WFV_BUILD_TYPE=Release
 rem set _WFV_BUILD_TYPE=MinSizeRel
 
-rem decide Build-Suite (Microsoft vs. GNU)
-set _WFV_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--gnu"  set _WFV_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--gnu"  set _WFV_BUILD_SYSTEM=gnu
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--msvs" set _WFV_BUILD_SYSTEM=msvs
-set "_WFV_BUILD_SYSTEM_SWITCH=--%_WFV_BUILD_SYSTEM%"
-
 rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
@@ -111,8 +103,6 @@ if %ERRORLEVEL% NEQ 0 (
 if /I "%_WFV_BUILD_SYSTEM%" neq "gnu" if /I "%_WFV_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_WFV_BUILD_SYSTEM% is not available &goto :_exit)
 
 rem ensure ninja
-rem if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_mingw.bat"
-rem if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" if %ERRORLEVEL% NEQ 0 goto :_exit
 if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA is not available - switchng to MSVS build system
@@ -120,7 +110,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem ensure qt
-call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE% %_WFV_BUILD_SYSTEM_SWITCH%
+call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE% %_WFV_BUILD_SYSTEM%
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
@@ -130,7 +120,7 @@ rem *** build required libraries ***
 echo.
 rem we fixate the buildsystem for the wfview-libraries to GNU since the eigen lib requires a fortran compiler which would require setup of Intel Fortran compiler for the windows build
 rem call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% --gnu
-call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM_SWITCH%
+call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
