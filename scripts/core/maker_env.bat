@@ -16,7 +16,7 @@ set "MAKER_PROJECTS_DOTNET=%MAKER_PROJECTS%\.Net"
 set "MAKER_PROJECTS_WEB=%MAKER_PROJECTS%\Web"
 
 pushd "%MAKER_ROOT%\.."
-set "MAKER_QT_DIR=%cd%"
+set "MAKER_QT_DIR=%cd%\Qt"
 popd
 
 if not exist "%MAKER_BIN%" mkdir "%MAKER_BIN%"
