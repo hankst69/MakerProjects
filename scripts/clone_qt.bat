@@ -43,7 +43,8 @@ if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.8.3
 if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
 
 rem define folders
-set "_QTC_DIR=%MAKER_TOOLS%\Qt"
+set "_QTC_DIR=%MAKER_QT_DIR%"
+
 set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%%_QTC_VERSION%\"
 set "_QTC_CLONE_TEST_DIR=%_QTC_SOURCES_DIR%\qtbase"
 set "_QTC_CLONE_TEST_FILE=%_QTC_CLONE_TEST_DIR%\configure.bat"

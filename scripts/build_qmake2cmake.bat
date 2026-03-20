@@ -12,9 +12,9 @@ if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_QMC_VERSION%" equ "" set "_QMC_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
-set "_QT_DIR=%MAKER_TOOLS%\Qt"
-set "_QMC_ENV_DIR=%_QT_DIR%\.qm2cm_env"
-set "_QMC_SRC_DIR=%_QT_DIR%\qmake2cmake"
+set "QT_DIR=%MAKER_QT_DIR%"
+set "_QMC_ENV_DIR=%QT_DIR%\.qm2cm_env"
+set "_QMC_SRC_DIR=%QT_DIR%\qmake2cmake"
 
 if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QMC_ENV_DIR%" 1>nul 2>nul
@@ -56,7 +56,7 @@ if %ERRORLEVEL% NEQ 0 (
 mkdir "%_QMC_SRC_DIR%" 1>nul 2>nul
 cd /d "%_QMC_SRC_DIR%"
 call git clone "https://github.com/hankst69/qmake2cmake.git" .
-cd /d "%_QT_DIR%"
+cd /d "%QT_DIR%"
 del /F /Q "%MAKER_BIN%\qmake2cmake.bat" 2>NUL
 echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qmake2cmake.bat"
 echo @call "%_QMC_ENV_DIR%\Scripts\activate" >>"%MAKER_BIN%\qmake2cmake.bat"

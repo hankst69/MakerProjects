@@ -29,14 +29,15 @@ if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" set _QT_USE_LLVM20
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
 
 rem apply defaults 1
-if "%_QT_TGT_ARCH%"     equ "" set _QT_TGT_ARCH=x64
 if "%_QT_VERSION%"      equ "" set _QT_VERSION=6.8.3
+if "%_QT_TGT_ARCH%"     equ "" set _QT_TGT_ARCH=x64
 if "%_QT_BUILD_TYPE%"   equ "" set _QT_BUILD_TYPE=Release
 if "%_QT_BUILD_SYSTEM%" equ "" set _QT_BUILD_SYSTEM=msvs
 set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
 set "_QT_BUILD_TYPE=release"
 set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
+set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM%%_QT_TGT_ARCH%%_QT_BUILD_TYPE%"
 rem
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
@@ -99,9 +100,9 @@ if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_SYSTEM%"
 rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
-set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.build_%_QT_BUILD_SYSTEM%%_QT_TGT_ARCH%%_QT_BUILD_TYPE%"
+set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.build_%_QT_BUILD_CFG%"
 
-set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_SYSTEM%%_QT_TGT_ARCH%%_QT_BUILD_TYPE%_configure.log"
+set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_configure.log"
 
 
 rem (2) *** specify LLVM version ***

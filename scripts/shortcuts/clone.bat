@@ -39,7 +39,7 @@ goto :EOF
 
 :clean_tools
 call "%~dp0\maker_env.bat"
-if not exist "%MAKER_TOOLS%\Emsdk" if not exist "%MAKER_TOOLS%\Choco" if not exist "%MAKER_TOOLS%\Qt" if not exist "%MAKER_TOOLS%\VESC" (
+if not exist "%MAKER_TOOLS%\Emsdk" if not exist "%MAKER_TOOLS%\Choco" if not exist "%MAKER_QT_DIR%" if not exist "%MAKER_TOOLS%\VESC" (
   echo nothing to clean
   goto :EOF
 )
@@ -55,10 +55,10 @@ if exist "%MAKER_TOOLS%\Choco" (
   echo %MAKER_TOOLS%\Choco
   dir /b "%MAKER_TOOLS%\Choco"
 )
-if exist "%MAKER_TOOLS%\Qt" (
+if exist "%MAKER_QT_DIR%" (
   echo.
-  echo %MAKER_TOOLS%\Qt
-  dir /b "%MAKER_TOOLS%\Qt"
+  echo %MAKER_QT_DIR%
+  dir /b "%MAKER_QT_DIR%"
 )
 if exist "%MAKER_TOOLS%\VESC" (
   echo.
@@ -82,13 +82,13 @@ if exist "%MAKER_TOOLS%\Choco" (
   echo.
   rmdir /s /q "%MAKER_TOOLS%\Choco"
 )
-if exist "%MAKER_TOOLS%\Qt" (
+if exist "%MAKER_QT_DIR%" (
   echo.
-  echo ...about to delete '%MAKER_TOOLS%\Qt'
+  echo ...about to delete '%MAKER_QT_DIR%'
   echo abort with Ctrl-C ^(any other key to continue^)
   pause
   echo.
-  rmdir /s /q "%MAKER_TOOLS%\Qt"
+  rmdir /s /q "%MAKER_QT_DIR%"
 )
 if exist "%MAKER_TOOLS%\VESC" (
   echo.

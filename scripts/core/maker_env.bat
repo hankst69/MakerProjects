@@ -11,8 +11,13 @@ set "MAKER_BUILD=%MAKER_ROOT%\scripts"
 set "MAKER_SCRIPTS=%MAKER_ROOT%\scripts\core"
 set "MAKER_TOOLS=%MAKER_ROOT%\tools"
 set "MAKER_PROJECTS=%MAKER_ROOT%\projects"
+
 set "MAKER_PROJECTS_DOTNET=%MAKER_PROJECTS%\.Net"
 set "MAKER_PROJECTS_WEB=%MAKER_PROJECTS%\Web"
+
+pushd "%MAKER_ROOT%\.."
+set "MAKER_QT_DIR=%cd%"
+popd
 
 if not exist "%MAKER_BIN%" mkdir "%MAKER_BIN%"
 echo @echo MAKER_ENV_ACTIVE>"%MAKER_BIN%\maker_env_test.bat"

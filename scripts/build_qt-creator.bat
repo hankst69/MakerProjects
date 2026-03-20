@@ -14,9 +14,9 @@ if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &sh
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
 set "_QTCREATOR_BIN=%MAKER_BIN%\.qtcreator"
-set "_QT_DIR=%MAKER_TOOLS%\Qt"
-set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
-set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
+set "QT_DIR=%MAKER_QT_DIR%"
+set "_QT_ENV_DIR=%QT_DIR%\.qt_env"
+set "_QT_INSTALL_MAKE=%QT_DIR%\.qt_make"
 
 if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QT_INSTALL_MAKE%" 1>nul 2>nul
@@ -64,9 +64,8 @@ echo *** THIS REQUIRES Python 3
 echo.
 
 call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION%
-rem set "_QT_DIR=%MAKER_TOOLS%\Qt"
-set "_QT_ENV_DIR=%_QT_DIR%\.qt_env"
-set "_QT_INSTALL_MAKE=%_QT_DIR%\.qt_make"
+set "_QT_ENV_DIR=%QT_DIR%\.qt_env"
+set "_QT_INSTALL_MAKE=%QT_DIR%\.qt_make"
 
 rem --- validate python
 call "%MAKER_BUILD%\validate_python.bat" 3
@@ -187,9 +186,4 @@ call "%_QT_ENV_DIR%\Scripts\deactivate.bat" 1>nul 2>nul
 cd /d "%_BQTC_START_DIR%"
 set _BQTC_START_DIR=
 set _REBUILD=
-rem set _QT_VERSION=6.6.3
-rem set _QT_DIR=
-rem set _QT_ENV_DIR=
-rem set _QT_INSTALL_MAKE=
-rem set _QTCREATOR_BIN=
 goto :EOF
