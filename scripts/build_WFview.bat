@@ -24,7 +24,7 @@ set "_WFV_REBUILD=%MAKER_ENV_REBUILD%"
 rem apply defaults
 if "%_WFV_TGT_ARCH%"   equ ""   set _WFV_TGT_ARCH=x64
 if "%_WFV_BUILD_TYPE%" equ ""   set _WFV_BUILD_TYPE=release
-if "%_WFV_BUILD_SYSTEM%" equ "" set _WFV_BUILD_SYSTEM=gnu
+if "%_WFV_BUILD_SYSTEM%" equ "" set _WFV_BUILD_SYSTEM=msvs
 rem apply hardcoded values
 rem set _WFV_TGT_ARCH=x64
 rem set _WFV_BUILD_TYPE=Debug
@@ -104,7 +104,11 @@ call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBO
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
-
+rem validate cmake
+call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  goto :_exit
+)
 
 rem *** build required libraries ***
 echo.
@@ -150,9 +154,9 @@ echo.
 echo WFVIEW-BUILD %WFVIEW_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 cd /d "%_WFV_BUILD_DIR%"
 rem call cmake --build . --config %_WFV_BUILD_TYPE% --parallel 4
-echo qt-cmake --build . --config %_WFV_BUILD_TYPE% 
+echo cmake --build . --config %_WFV_BUILD_TYPE% 
 rem call "%QT_CMAKE%" --build .
-call "%QT_CMAKE%" --build . --config %_WFV_BUILD_TYPE% 
+call cmake --build . --config %_WFV_BUILD_TYPE% 
 :_build_done
 
 :_exit

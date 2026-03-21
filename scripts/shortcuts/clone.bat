@@ -5,6 +5,9 @@ if /I "%~1" equ "--tools" goto :clone_tools
 if /I "%~1" equ "-t" goto :clone_tools
 if /I "%~1" equ "--clean_tools" goto :clean_tools
 if /I "%~1" equ "-ct" goto :clean_tools
+if /I "%~1" equ "-?" goto :usage
+if /I "%~1" equ "-h" goto :usage
+if /I "%~1" equ "--help" goto :usage
 if /I "%~1" neq "" goto :clone
 
 :usage

@@ -52,17 +52,18 @@ set __SCRIPTS_SHORTCUTS_FILE=
 goto :EOF
 
 
+:RefreshShortcutIndex
+call :InvalidateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
+if not exist "%__SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
+goto :EOF
+
+
 :FindExactMatch
 rem (1) see if there exists a script file that exactly matches the given PROJECT name
 set "__SCRIPT_NAME=%__CLASS_NAME%_%__PROJECT%"
 set "__SCRIPT_FILE=%__SCRIPTS_DIR%\%__SCRIPT_NAME%.bat"
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPT_FILE%" 2^>nul') do set "__SCRIPT_NAME=%%~nf"
 if exist "%__SCRIPT_FILE%" goto :StartScript
-
-
-:RefreshShortcutIndex
-call :InvalidateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
-if not exist "%__SCRIPTS_SHORTCUTS_FILE%" call :UpdateShortcutsIndex "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
 
 
 :FindSingleMatch
@@ -78,7 +79,6 @@ if !_found_matches! gtr 1 (
 if !_found_matches! neq 1 goto :FindShortcutMatch
 rem we found a single script match - so we call this one
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPTS_DIR%\%__CLASS_NAME%_%__PROJECT%*.bat" 2^>nul') do set "__SCRIPT_FILE=%__SCRIPTS_DIR%\%%~nxf" &set "__SCRIPT_NAME=%%~nf"
-rem if exist "%__SCRIPT_FILE%" goto :StartScript
 if exist "%__SCRIPT_FILE%" goto :StartScript
 
 
@@ -124,6 +124,7 @@ set __SCRIPT_NAME=
 set __SCRIPT_FILE=
 call :InvalidateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
 if not exist "%shortcuts_file%" call :UpdateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
+rem call :RefreshShortcutIndex
 rem search for match
 for /f "tokens=1,2,* delims=#" %%i in (%shortcuts_file%) do (
   set "script_name=%%~ni"
