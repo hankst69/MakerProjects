@@ -15,7 +15,7 @@ rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.g
 rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
 rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio.git
 rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src.git
-rem LibFT4222   (..\libft4222)         https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip https://ftdichip.com/software-examples/ft4222h-software-examples/
+rem LibFT4222   (..\libft4222)         https://ftdichip.com/software-examples/ft4222h-software-examples/
 if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 
 set "WFVIEW_OPUS_DIR=%WFVIEW_LIBS_DIR%\opus"
@@ -48,10 +48,13 @@ call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://g
 
 set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
-set "WFVIEW_LIBFT4222_URI=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
-set "WFVIEW_LIBFT4222_VERSION=LibFT4222-v1.4.8"
-call "%MAKER_SCRIPTS%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR%" "%WFVIEW_LIBFT4222_URI%" %MAKER_ENV_SILENT%
-call "%MAKER_SCRIPTS%\extract_in_folder.bat"  "%WFVIEW_LIBFT4222_DIR%"     "%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip" %MAKER_ENV_SILENT%
+set "WFVIEW_LIBFT4222_SRC_DIR_WINDOWS=%WFVIEW_LIBFT4222_SRC_DIR%\WINDOWS"
+set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
+set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
+set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip
+rem set "WFVIEW_LIBFT4222_VERSION=LibFT4222-v1.4.8"
+call "%MAKER_SCRIPTS%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_ENV_SILENT%
+call "%MAKER_SCRIPTS%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_ENV_SILENT%
 
 if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
 cd /d "%WFVIEW_LIBS_SRC_DIR%"

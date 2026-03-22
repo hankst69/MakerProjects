@@ -66,6 +66,12 @@ if "%_WFVL_REBUILD%" neq "" (
   rmdir /s /q "%_WFVL_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_WFVL_BUILD_DIR%" 1>nul 2>nul
 )
+rem due potential switch from msvs libs to gnu .a files or vice versa, we have to always delete the bin folder to force reinstallation
+rem remark: we use the same lib folder strucutre for both build systems (reference to inlude and lib folders in wfview CmakeLists.txt))
+echo preparing build...
+rmdir /s /q "%_WFVL_BIN_DIR%" 1>nul 2>nul
+
+rem ensure base folders exist
 if not exist "%_WFVL_BIN_DIR%" mkdir "%_WFVL_BIN_DIR%"
 if not exist "%_WFVL_BUILD_DIR%" mkdir "%_WFVL_BUILD_DIR%"
 
@@ -73,14 +79,12 @@ if not exist "%_WFVL_BUILD_DIR%" mkdir "%_WFVL_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING WFVIEW-LIBRARIES %WFVIEW_VERSION% from sources
-echo.
+echo BUILDING WFVIEW-LIBRARIES %_WFVL_VERSION% (%_WFVL_BUILD_SYSTEM% %_WFVL_TGT_ARCH% %_WFVL_BUILD_TYPE%) from sources
 set _WFVL_CMAKE_VERSION=GEQ3.22
 set _WFVL_MSVS_VERSION=GEQ2019
 set _WFVL_NINJA_VERSION=
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
-echo.
 
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_WFVL_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
@@ -122,6 +126,16 @@ rem WFVIEW_QCUSTOMPLOT_DIR
 rem WFVIEW_QCUSTOMPLOT_SRC_DIR
 rem WFVIEW_HIDAPI_DIR
 rem WFVIEW_HIDAPI_SRC_DIR
+rem WFVIEW_LIBFT4222_DIR
+rem WFVIEW_LIBFT4222_SRC_DIR
+rem WFVIEW_LIBFT4222_SRC_DIR_WINDOWS
+rem WFVIEW_LIBFT4222_SRC_DIR_LINUX
+
+set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
+if /i "%_WFVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" 
+if /i "%_WFVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" 
+set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
+call "%MAKER_SCRIPTS%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_ENV_SILENT%
 
 set "_cmake_src=%WFVIEW_OPUS_SRC_DIR%"
 set "_cmake_bld=%_WFVL_BUILD_DIR%\opus_%_WFVL_BUILD_SYSTEM%%_WFVL_TGT_ARCH%%_WFVL_BUILD_TYPE%"
