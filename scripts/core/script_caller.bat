@@ -155,20 +155,20 @@ set "shortcuts_name=%~nx3"
 set _newer_file=
 set scripts_hash=
 if not exist "%shortcuts_file%" goto :EOF
-pushd "%scripts_dir%"
+rem pushd "%scripts_dir%"
 for /f "tokens=*" %%f in ('dir /b /on "%scripts_dir%\%class_name%_*.bat"') do (
   set "project=%%~nf"
   set "scripts_hash=!scripts_hash!!project!"
   rem https://stackoverflow.com/questions/1687014/how-do-i-compare-timestamps-of-files-in-a-batch-script
-  FOR /F %%i IN ('DIR /B /O:D "%%~nxf" "%shortcuts_name%"') DO SET "_newer_file=%%~nxi"
-  if /I "!_newer_file!" neq "%shortcuts_name%" (
-    echo index "%shortcuts_name%" is outdated ^("!_newer_file!" is newer^)
-    del /f /q "%shortcuts_file%"
-    popd
-    goto :EOF
-  )
+  rem FOR /F %%i IN ('DIR /B /O:D "%%~nxf" "%shortcuts_name%"') DO SET "_newer_file=%%~nxi"
+  rem if /I "!_newer_file!" neq "%shortcuts_name%" (
+  rem   echo index "%shortcuts_name%" is outdated ^("!_newer_file!" is newer^)
+  rem   del /f /q "%shortcuts_file%"
+  rem   popd
+  rem   goto :EOF
+  rem )
 )
-popd
+rem popd
 set shortcuts_hash=
 for /f "tokens=3 delims=#" %%i in (%shortcuts_file%) do (
   set "shortcuts_hash=%%~ni"
@@ -225,8 +225,6 @@ set "project=%~1"
 set "class_name=%~2"
 set "scripts_dir=%~3"
 set "shortcuts_file=%~4"
-rem call :InvalidateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
-if not exist "%shortcuts_file%" call :UpdateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
 rem search for pattern matches
 set "pattern=%class_name%_!project!*.bat"
 set found_matches=
@@ -248,6 +246,8 @@ if "!found_matches!" neq "" (
     echo. %class_name% !project_name!
   )
 ) else (
+  call :InvalidateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
+  if not exist "%shortcuts_file%" call :UpdateShortcutsIndex "%class_name%" "%scripts_dir%" "%shortcuts_file%"
   echo available projects:
   set _maxlen=0
   for /f "tokens=1 delims=#" %%i in (%shortcuts_file%) do (
