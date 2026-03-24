@@ -104,6 +104,7 @@ rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
 set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.build_%_QT_BUILD_CFG%"
 
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_configure.log"
+if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
 
 
 rem (2) *** specify LLVM version ***
