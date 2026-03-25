@@ -370,7 +370,7 @@ goto :qt_build_done
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
 goto :qt_modules_build_done
-if exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_modules_build_done
+if exist "%_QT_TEST_LIB_MQTT%" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_modules_build_done
 :qt_modules_build
   echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
@@ -381,11 +381,11 @@ if exist "%_QT_BIN_DIR%\lib\Qt6Mqtt.lib" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD
 
 rem (10) *** perform QT install ***
 :qt_install
-if not exist "%_QT_TEST_EXE_1%" goto :qt_install_do
-if not exist "%_QT_TEST_EXE_2%" goto :qt_install_do
-if not exist "%_QT_TEST_EXE_3%" goto :qt_install_do
-if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_install_do
-if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_install_do
+if not exist "%_QT_TEST_EXE_1%"         echo running Install due missing "%_QT_TEST_EXE_1%" &goto :qt_install_do
+if not exist "%_QT_TEST_EXE_2%"         echo running Install due missing "%_QT_TEST_EXE_2%" &goto :qt_install_do
+if not exist "%_QT_TEST_EXE_3%"         echo running Install due missing "%_QT_TEST_EXE_3%" &goto :qt_install_do
+if not exist "%_QT_TEST_DLL_WEBSOKETS%" echo running Install due missing "%_QT_TEST_DLL_WEBSOKETS%" &goto :qt_install_do
+if not exist "%_QT_TEST_LIB_MQTT%"      echo running Install due missing "%_QT_TEST_LIB_MQTT%" &goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
   echo QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
@@ -407,6 +407,9 @@ goto :qt_exit
 rem -- create shortcuts
 set "QT_BIN_DIR=%_QT_BIN_DIR%"
 set "QT_VERSION=%_QT_VERSION%"
+set "QT_TGT_ARCH=%_QT_TGT_ARCH%"
+set "QT_BUILD_TYPE=%_QT_BUILD_TYPE%"
+set "QT_BUILD_SYSTEM=%_QT_BUILD_SYSTEM%"
 set "QT_CMAKE=%_QT_BIN_DIR%\bin\qt-cmake.bat"
 if not exist "%QT_CMAKE%" set "QT_CMAKE=%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat"
 set "QT_LLVM_VER=%_QT_LLVM_VER%"
@@ -423,11 +426,13 @@ rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 :qt_exit
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete &exit /b 1
-call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings --no_errors --no_info
+call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings --no_errors --no_info
 if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
 :qt_exit_set_path
 set "path=%QT_BIN_DIR%\bin;%path%"
 set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 :qt_exit_prompt
 cd /d "%_QT_START_DIR%"
-call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" --no_warnings
+echo. >>"%_QT_LOGFILE%"
+call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%"
+call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%"  "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings
