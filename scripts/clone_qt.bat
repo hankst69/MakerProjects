@@ -26,7 +26,7 @@ set "_QTC_START_DIR=%cd%"
 
 rem assign target version and folder from commandline args
 set "_QTC_VERSION=%MAKER_ENV_VERSION%"
-set "_QTC_SRC_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
+set "_QTC_SRC_DIR_NAME=%MAKER_ENV_UNKNOWN_ARG_1%"
 set "_QTC_SILENT_CLONE_MODE=%MAKER_ENV_SILENT%"
 set _QTC_FORCE_CLONE=
 set _QTC_CLEAN_BEFORE_CLONE=
@@ -40,12 +40,13 @@ for %%i in (%MAKER_ENV_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--dont_init_subm
 
 rem apply defaults
 if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.8.3
-if "%_QTC_SRC_NAME%" equ "" set _QTC_SRC_NAME=qt_sources
+set "_QTC_VERSION_COMPACT=%_QTC_VERSION:.=%"
+if "%_QTC_SRC_DIR_NAME%" equ "" set "_QTC_SRC_DIR_NAME=qt%_QTC_VERSION_COMPACT%src"
 
 rem define folders
 set "_QTC_DIR=%MAKER_QT_DIR%"
 
-set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_NAME%%_QTC_VERSION%\"
+set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_DIR_NAME%\"
 set "_QTC_CLONE_TEST_DIR=%_QTC_SOURCES_DIR%\qtbase"
 set "_QTC_CLONE_TEST_FILE=%_QTC_CLONE_TEST_DIR%\configure.bat"
 

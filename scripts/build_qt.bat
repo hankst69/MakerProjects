@@ -35,10 +35,11 @@ if "%_QT_TGT_ARCH%"     equ "" set _QT_TGT_ARCH=x64
 if "%_QT_BUILD_TYPE%"   equ "" set _QT_BUILD_TYPE=Release
 if "%_QT_BUILD_SYSTEM%" equ "" set _QT_BUILD_SYSTEM=msvs
 set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
-set "_QT_BUILD_TYPE=release"
 set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
-set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM%%_QT_TGT_ARCH%%_QT_BUILD_TYPE%"
+set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM:~0,2%%_QT_TGT_ARCH:~1%%_QT_BUILD_TYPE:~0,3%"
+rem maybe necessary to make _QT_BUILD_TYPE lower case for gnu build
+if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
 rem
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
@@ -101,7 +102,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_SYSTEM%"
 rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
-set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.build_%_QT_BUILD_CFG%"
+set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.b_%_QT_BUILD_CFG%"
 
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_configure.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
