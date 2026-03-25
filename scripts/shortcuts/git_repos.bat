@@ -76,6 +76,7 @@ set "_TIME_MS=%_TIME_MS: =%"
 set "_TIME_=%_TIME_HH%:%_TIME_MM%:%_TIME_SS%"
 set "_DATE_UI=%_DATE_%"
 set "_DATE_=%_DATE_YY%-%_DATE_MM%-%_DATE_DD%"
+if "%_START_TIME%" equ "" goto :EOF
 set _STARTT_HH=
 set _STARTT_MM=
 set _STARTT_SS=
@@ -85,28 +86,26 @@ set _DIFFT_MM=
 set _DIFFT_SS=
 set _DIFFT_MS=
 set _DIFFT_=
-if "%_START_TIME%" neq "" (
-  for /f "tokens=1,2,3 delims=:" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
-  for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
-  if "!_STARTT_HH:~0,1!" equ "0" set "_STARTT_HH=!_STARTT_HH:~1!"
-  if "!_STARTT_MM:~0,1!" equ "0" set "_STARTT_MM=!_STARTT_MM:~1!"
-  if "!_STARTT_SS:~0,1!" equ "0" set "_STARTT_SS=!_STARTT_SS:~1!"
-  set "_STOPT_HH=!_TIME_HH!"
-  set "_STOPT_MM=!_TIME_MM!"
-  set "_STOPT_SS=!_TIME_SS!"
-  if "!_STOPT_HH:~0,1!" equ "0" set "_STOPT_HH=!_STOPT_HH:~1!"
-  if "!_STOPT_MM:~0,1!" equ "0" set "_STOPT_MM=!_STOPT_MM:~1!"
-  if "!_STOPT_SS:~0,1!" equ "0" set "_STOPT_SS=!_STOPT_SS:~1!"
-  set /a _DIFFT_HH=!_STOPT_HH!-!_STARTT_HH!
-  set /a _DIFFT_MM=!_STOPT_MM!-!_STARTT_MM!
-  set /a _DIFFT_SS=!_STOPT_SS!-!_STARTT_SS!
-  if "!_STARTT_MS!" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
-  set "_DIFFT_=!_DIFFT_HH!:!_DIFFT_MM!:!_DIFFT_SS!"
-  set /a _DIFFTD_HSS=!_DIFFT_HH!*3600
-  set /a _DIFFTD_MSS=!_DIFFT_MM!*60
-  set /a _DIFFT_DUR_SS=!_DIFFTD_HSS!+!_DIFFTD_MSS!
-  set /a _DIFFT_DUR_SS=!_DIFFT_DUR_SS!+!_DIFFT_SS!
-)
+for /f "tokens=1,2,3 delims=:" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
+for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
+if "!_STARTT_HH:~0,1!" equ "0" set "_STARTT_HH=!_STARTT_HH:~1!"
+if "!_STARTT_MM:~0,1!" equ "0" set "_STARTT_MM=!_STARTT_MM:~1!"
+if "!_STARTT_SS:~0,1!" equ "0" set "_STARTT_SS=!_STARTT_SS:~1!"
+set "_STOPT_HH=!_TIME_HH!"
+set "_STOPT_MM=!_TIME_MM!"
+set "_STOPT_SS=!_TIME_SS!"
+if "!_STOPT_HH:~0,1!" equ "0" set "_STOPT_HH=!_STOPT_HH:~1!"
+if "!_STOPT_MM:~0,1!" equ "0" set "_STOPT_MM=!_STOPT_MM:~1!"
+if "!_STOPT_SS:~0,1!" equ "0" set "_STOPT_SS=!_STOPT_SS:~1!"
+set /a _DIFFT_HH=!_STOPT_HH!-!_STARTT_HH!
+set /a _DIFFT_MM=!_STOPT_MM!-!_STARTT_MM!
+set /a _DIFFT_SS=!_STOPT_SS!-!_STARTT_SS!
+if "!_STARTT_MS!" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
+set "_DIFFT_=!_DIFFT_HH!:!_DIFFT_MM!:!_DIFFT_SS!"
+set /a _DIFFTD_HSS=!_DIFFT_HH!*3600
+set /a _DIFFTD_MSS=!_DIFFT_MM!*60
+set /a _DIFFT_DUR_SS=!_DIFFTD_HSS!+!_DIFFTD_MSS!
+set /a _DIFFT_DUR_SS=!_DIFFT_DUR_SS!+!_DIFFT_SS!
 goto :EOF
 
 

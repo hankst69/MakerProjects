@@ -14,9 +14,71 @@ echo USAGE:
 echo %~n0 [version] [--gnu^|--msvs] [--use_llvm20_patch] [-?^|-h^|--help]
 goto :EOF
 
+
+:stop_watch
+set "_START_TIME=%~1"
+set _DATE_=
+set _TIME_=
+set _DATE_YY=
+set _DATE_MM=
+set _DATE_DD=
+set _TIME_HH=
+set _TIME_MM=
+set _TIME_SS=
+set _TIME_MS=
+for /f "tokens=2 delims=:" %%i in ('echo.^|date') do set "_DATE_=%%~i" &goto :stop_watch_next
+:stop_watch_next
+if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
+if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
+set _DATE_PT1=
+set _DATE_PT2=
+for /f "tokens=1,* delims= " %%i in ("%_DATE_%") do (set "_DATE_PT1=%%i" &set "_DATE_PT2=%%j")
+if "%_DATE_PT2%" neq "" set "_DATE_=%_DATE_PT2%"
+for /f "tokens=1,2,3 delims=/" %%i in ("%_DATE_%") do (set "_DATE_DD=%%i" &set "_DATE_MM=%%j" &set "_DATE_YY=%%k")
+for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" (set "_TIME_HH=%%i" &set "_TIME_MM=%%j" &set "_TIME_SS=%%k")
+set "_TIME_HH=%_TIME_HH: =%"
+set "_TIME_MM=%_TIME_MM: =%"
+for /f "tokens=1,2 delims=." %%i in ("%_TIME_SS%") do (set "_TIME_SS=%%i" &set "_TIME_MS=%%j")
+set "_TIME_SS=%_TIME_SS: =%"
+set "_TIME_MS=%_TIME_MS: =%"
+set "_TIME_=%_TIME_HH%:%_TIME_MM%:%_TIME_SS%"
+set "_DATE_UI=%_DATE_%"
+set "_DATE_=%_DATE_YY%-%_DATE_MM%-%_DATE_DD%"
+if "%_START_TIME%" equ "" goto :EOF
+set _STARTT_HH=
+set _STARTT_MM=
+set _STARTT_SS=
+set _STARTT_MS=
+set _DIFFT_HH=
+set _DIFFT_MM=
+set _DIFFT_SS=
+set _DIFFT_MS=
+set _DIFFT_=
+for /f "tokens=1,2,3 delims=:" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
+for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
+if "%_STARTT_HH:~0,1%" equ "0" set "_STARTT_HH=%_STARTT_HH:~1%"
+if "%_STARTT_MM:~0,1%" equ "0" set "_STARTT_MM=%_STARTT_MM:~1%"
+if "%_STARTT_SS:~0,1%" equ "0" set "_STARTT_SS=%_STARTT_SS:~1%"
+set "_STOPT_HH=%_TIME_HH%"
+set "_STOPT_MM=%_TIME_MM%"
+set "_STOPT_SS=%_TIME_SS%"
+if "%_STOPT_HH:~0,1%" equ "0" set "_STOPT_HH=%_STOPT_HH:~1%"
+if "%_STOPT_MM:~0,1%" equ "0" set "_STOPT_MM=%_STOPT_MM:~1%"
+if "%_STOPT_SS:~0,1%" equ "0" set "_STOPT_SS=%_STOPT_SS:~1%"
+set /a _DIFFT_HH=%_STOPT_HH%-%_STARTT_HH%
+set /a _DIFFT_MM=%_STOPT_MM%-%_STARTT_MM%
+set /a _DIFFT_SS=%_STOPT_SS%-%_STARTT_SS%
+if "%_STARTT_MS%" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
+set "_DIFFT_=%_DIFFT_HH%:%_DIFFT_MM%:%_DIFFT_SS%"
+set /a _DIFFTD_HSS=%_DIFFT_HH%*3600
+set /a _DIFFTD_MSS=%_DIFFT_MM%*60
+set /a _DIFFT_DUR_SS=%_DIFFTD_HSS%+%_DIFFTD_MSS%
+set /a _DIFFT_DUR_SS=%_DIFFT_DUR_SS%+%_DIFFT_SS%
+goto :EOF
+
+
 :_QT_START
 call "%~dp0\maker_env.bat" %*
-
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 set "_QT_START_DIR=%cd%"
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
@@ -24,6 +86,10 @@ set "_QT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_QT_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 set "_QT_REBUILD=%MAKER_ENV_REBUILD%"
+
+call :stop_watch
+set "_QT_BUILD_DATE_START=%_DATE_%"
+set "_QT_BUILD_TIME_START=%_TIME_%"
 
 set _QT_USE_LLVM20_PATCH=
 if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
@@ -39,7 +105,7 @@ set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
 set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM:~0,2%%_QT_TGT_ARCH:~1%%_QT_BUILD_TYPE:~0,3%"
 rem maybe necessary to make _QT_BUILD_TYPE lower case for gnu build
-if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
+rem if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
 rem
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
@@ -79,13 +145,14 @@ rem apply defaults 3
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" "LSS" "%_QT_VERSION_WITH_LLVM_FIX%" 1>nul 2>nul
 if %ERRORLEVEL% equ 0 set _QT_USE_LLVM20_PATCH=true
 
-
 rem if we build QT 5.12 this means that we like to meet the ChimaeraCUT3.6SDK Qt version from C:\Chimaera\CUT.SDK-3.6.0\bin\Release
 if "%_QT_VERSION%" equ "5.12" set _QT_CMAKE_VERSION=GEQ3.20
 if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
 
+
 rem welcome
 echo BUILDING QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+
 
 rem (1) *** cloning QT sources ***
 call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
@@ -97,15 +164,14 @@ if "%QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exi
 if not exist "%QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 
-rem show what we have so far
-if "%MAKER_ENV_VERBOSE%" neq "" set QT_
-
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_SYSTEM%"
-rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%"
-set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\.b_%_QT_BUILD_CFG%"
+rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%%_QT_BUILD_CFG%"
+set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CFG%"
 
-set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_configure.log"
+set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_%_QT_BUILD_DATE_START%.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
+rem show what we have so far
+rem if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
 
 rem (2) *** specify LLVM version ***
@@ -151,6 +217,7 @@ set "_QT_TEST_EXE_1=%_QT_BIN_DIR%\bin\uic.exe"
 set "_QT_TEST_EXE_2=%_QT_BIN_DIR%\bin\qmake.exe"
 set "_QT_TEST_EXE_3=%_QT_BIN_DIR%\bin\designer.exe"
 set "_QT_TEST_EXE_4=%_QT_BIN_DIR%\bin\lupdate.exe"
+set "_QT_TEST_EXE_5=%_QT_BIN_DIR%\bin\qtdiag.exe"
 set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
 set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\Qt6Mqtt.lib"
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt.a"
@@ -161,6 +228,7 @@ if not exist "%_QT_TEST_EXE_1%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_2%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_3%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_4%" goto :qt_rebuild
+if not exist "%_QT_TEST_EXE_5%" goto :qt_rebuild
 rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
 call which Qt6WebSockets.dll 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already available&goto :qt_install_done
@@ -319,7 +387,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
-  echo. >"%_QT_LOGFILE%"
+  echo. >>"%_QT_LOGFILE%"
   call "%QT_SOURCES_DIR%\configure.bat" --help >>"%_QT_LOGFILE%"
   echo. >>"%_QT_LOGFILE%"
   call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%_QT_LOGFILE%"
@@ -351,13 +419,17 @@ if not exist "%_QT_TEST_EXE_1%" goto :qt_build
 if not exist "%_QT_TEST_EXE_2%" goto :qt_build
 if not exist "%_QT_TEST_EXE_3%" goto :qt_build
 if not exist "%_QT_TEST_EXE_4%" goto :qt_build
+if not exist "%_QT_TEST_EXE_5%" goto :qt_build
 echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done
 goto :qt_build_done
 :qt_build
   echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
-  call cmake --build . --parallel 4
+  echo.>>"%_QT_LOGFILE%"
+  echo.%cd%>>"%_QT_LOGFILE%"
+  echo.cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
+  call cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
   rem validate build done
   if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
@@ -375,7 +447,10 @@ if exist "%_QT_TEST_LIB_MQTT%" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %
   echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
-  call cmake --build . --target qtmqtt
+  echo.>>"%_QT_LOGFILE%"
+  echo.%cd%>>"%_QT_LOGFILE%"
+  echo.cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
+  call cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
 :qt_modules_build_done
 
 
@@ -384,19 +459,28 @@ rem (10) *** perform QT install ***
 if not exist "%_QT_TEST_EXE_1%"         echo running Install due missing "%_QT_TEST_EXE_1%" &goto :qt_install_do
 if not exist "%_QT_TEST_EXE_2%"         echo running Install due missing "%_QT_TEST_EXE_2%" &goto :qt_install_do
 if not exist "%_QT_TEST_EXE_3%"         echo running Install due missing "%_QT_TEST_EXE_3%" &goto :qt_install_do
+if not exist "%_QT_TEST_EXE_4%"         echo running Install due missing "%_QT_TEST_EXE_4%" &goto :qt_install_do
+if not exist "%_QT_TEST_EXE_5%"         echo running Install due missing "%_QT_TEST_EXE_5%" &goto :qt_install_do
 if not exist "%_QT_TEST_DLL_WEBSOKETS%" echo running Install due missing "%_QT_TEST_DLL_WEBSOKETS%" &goto :qt_install_do
 if not exist "%_QT_TEST_LIB_MQTT%"      echo running Install due missing "%_QT_TEST_LIB_MQTT%" &goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
   echo QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   cd /d "%_QT_BUILD_DIR%"
-  call cmake --install .
+  echo.>>"%_QT_LOGFILE%"
+  echo.%cd%>>"%_QT_LOGFILE%"
+  echo.cmake --install . >>"%_QT_LOGFILE%"
+  call cmake --install . >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
-  call cmake --install .
+  echo.>>"%_QT_LOGFILE%"
+  echo.%cd%>>"%_QT_LOGFILE%"
+  echo.cmake --install . >>"%_QT_LOGFILE%"
+  call cmake --install . >>"%_QT_LOGFILE%"
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) FAILED&goto :qt_install_done
 :qt_install_test
-call which uic.exe 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "PATH=%_QT_BIN_DIR%\bin;%PATH%"
+rem set_path (forced) to find the freshly build/installed targets
+set "PATH=%QT_BIN_DIR%\bin;%PATH%"
+set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 call which uic.exe 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) available &goto :qt_install_done
 echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) failed
@@ -418,21 +502,28 @@ if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 rem echo @"%QT_SOURCES_DIR%\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 rem echo @"%QT_SOURCES_DIR%\qtbase\configure.bat" %%*>"%MAKER_BIN%\qtconfigure.bat"
 echo @start /D "%QT_BIN_DIR%\bin" /MAX /B designer.exe %%*>"%MAKER_BIN%\qtdesigner.bat"
-goto :qt_exit_set_path
 
 rem (11) post configure QT
 rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 
+
 :qt_exit
+cd /d "%_QT_START_DIR%"
+echo.>>"%_QT_LOGFILE%"
+call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%"
+call :stop_watch "%_QT_BUILD_TIME_START%"
+set "_QT_BUILD_DATE_STOP=%_DATE_%"
+set "_QT_BUILD_TIME_STOP=%_TIME_%"
+echo %_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%...%_QT_BUILD_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)
+echo.>>"%_QT_LOGFILE%"
+echo.%_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%...%_QT_BUILD_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)>>"%_QT_LOGFILE%"
+
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete &exit /b 1
 call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings --no_errors --no_info
 if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
-:qt_exit_set_path
-set "path=%QT_BIN_DIR%\bin;%path%"
-set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
+rem :qt_exit_set_path
+rem set "PATH=%QT_BIN_DIR%\bin;%PATH%"
+rem set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 :qt_exit_prompt
-cd /d "%_QT_START_DIR%"
-echo. >>"%_QT_LOGFILE%"
-call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%"
 call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%"  "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings
