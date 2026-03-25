@@ -442,9 +442,9 @@ goto :qt_build_done
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
 goto :qt_modules_build_done
-if exist "%_QT_TEST_LIB_MQTT%" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_modules_build_done
+if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_modules_build_done
 :qt_modules_build
-  echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+  echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
@@ -510,14 +510,19 @@ rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 :qt_exit
 cd /d "%_QT_START_DIR%"
 echo.>>"%_QT_LOGFILE%"
-call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%"
+call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
+rem call "%_QT_BUILD_DIR%\qtbase\bin\qtdiag" --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
 call :stop_watch "%_QT_BUILD_TIME_START%"
 set "_QT_BUILD_DATE_STOP=%_DATE_%"
 set "_QT_BUILD_TIME_STOP=%_TIME_%"
-echo %_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%...%_QT_BUILD_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)
 echo.>>"%_QT_LOGFILE%"
 echo.%_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%...%_QT_BUILD_TIME_STOP% ^(duration %_DIFFT_DUR_SS% sec^)>>"%_QT_LOGFILE%"
-
+echo.
+echo.BUILD-LOGFILE : "%_QT_LOGFILE%"
+echo.BUILD-START   : %_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%
+echo.BUILD-STOP    : %_QT_BUILD_DATE_STOP% %_QT_BUILD_TIME_STOP%
+echo.BUILD-DURATION: %_DIFFT_DUR_SS% sec
+echo.
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete &exit /b 1
 call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings --no_errors --no_info
