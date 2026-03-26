@@ -36,7 +36,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING WFVIEW %_WFV_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
+echo BUILDING WFVIEW %_WFV_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -70,20 +70,21 @@ if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo REBUILDING WFVIEW %WFVIEW_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%) from sources
+echo REBUILDING WFVIEW %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%) from sources
 echo.
-set _WFV_CMAKE_VERSION=GEQ3.22
-set _WFV_MSVS_VERSION=GEQ2019
-set _WFV_NINJA_VERSION=
-set _WFV_QT_VERSION=6.8.3
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
+set _WFV_CMAKE_VERSION=GEQ3.22
+set _WFV_MSVS_VERSION=GEQ2019
+set _WFV_MSVS_ARCH=amd64
+set _WFV_NINJA_VERSION=
+set _WFV_QT_VERSION=6.8.3
 
 rem ensure BuildSystem availability
 if /I "%_WFV_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
-if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE%
+if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
@@ -137,26 +138,24 @@ if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
 rem *** cmake configure ***
 :_configure
 echo.
-echo WFVIEW-CONFIGURE %WFVIEW_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
+echo WFVIEW-CONFIGURE %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 cd /d "%_WFV_BUILD_DIR%"
 set "_WFV_CONFIG_GENERATOR=Ninja"
 set "_WFV_CONFIG_OPTIONS="
 if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" set "_WFV_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
 if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" set "_WFV_CONFIG_OPTIONS=-A %_WFV_TGT_ARCH%"
-echo qt-cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_cmake_bin%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
-call "%QT_CMAKE%" -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_cmake_bin%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
+echo qt-cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
+call "%QT_CMAKE%" -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
 :_configure_done
 
 
 rem *** cmake build ***
 :_build
 echo.
-echo WFVIEW-BUILD %WFVIEW_VERSION%(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
+echo WFVIEW-BUILD %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
 cd /d "%_WFV_BUILD_DIR%"
-rem call cmake --build . --config %_WFV_BUILD_TYPE% --parallel 4
-echo cmake --build . --config %_WFV_BUILD_TYPE% 
-rem call "%QT_CMAKE%" --build .
-call cmake --build . --config %_WFV_BUILD_TYPE% 
+echo cmake --build . --config %_WFV_BUILD_TYPE% &rem --parallel 4
+call cmake --build . --config %_WFV_BUILD_TYPE% &rem --parallel 4
 :_build_done
 
 :_exit

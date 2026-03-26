@@ -7,26 +7,28 @@ if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem init with command line arguments
 set "_GP_VERSION=%MAKER_ENV_VERSION%"
-set "_GP_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_GP_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
+set "_GP_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
+set "_GP_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 
 rem apply defaults
-if "%_GP_VERSION%" equ ""    set _GP_VERSION=
-if "%_GP_BUILD_TYPE%" equ "" set _GP_BUILD_TYPE=Release
-set "_GP_TGT_ARCH=x64"
+if "%_GP_VERSION%" equ ""      set _GP_VERSION=
+if "%_GP_TGT_ARCH%" equ ""     set _GP_TGT_ARCH=x64
+if "%_GP_BUILD_TYPE%" equ ""   set _GP_BUILD_TYPE=Release
+if "%_GP_BUILD_SYSTEM%" equ "" set _GP_BUILD_SYSTEM=msvs
+set "_GP_BUILD_CFG=%_GP_BUILD_SYSTEM:~0,2%%_GP_TGT_ARCH:~1%%_GP_BUILD_TYPE:~0,3%"
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_BUILD%\validate_gperf.bat" %_BISON_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
 if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem install/build...
+echo BUILDING CLONE %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE%)
 
 rem (1) *** cloning GPerf sources ***
-echo GPERF-CLONE %_GP_VERSION%
 call "%MAKER_BUILD%\clone_gperf.bat" %_GP_VERSION%
-echo GPERF-CLONE %_GP_VERSION% done
 
 rem defines: _GP_DIR
 rem defines: _GP_SOURCES_DIR
@@ -35,8 +37,8 @@ if "%_GP_SOURCES_DIR%" EQU "" (echo cloning gperf %_GP_VERSION% failed &goto :Ex
 if not exist "%_GP_DIR%" (echo cloning gperf %_GP_VERSION% failed &goto :Exit)
 if not exist "%_GP_SOURCES_DIR%" (echo cloning gperf %_GP_VERSION% failed &goto :Exit)
 
-set "_GP_BUILD_DIR=%_GP_DIR%\gperf_build%_GP_VERSION%"
-set "_GP_BIN_DIR=%_GP_DIR%\gperf%_GP_VERSION%"
+set "_GP_BUILD_DIR=%_GP_DIR%\_build%_GP_VERSION%%_GP_BUILD_CFG%"
+set "_GP_BIN_DIR=%_GP_DIR%\gperf%_GP_VERSION%-%_GP_BUILD_SYSTEM%"
 
 rem (2) *** cleaning QT build if demanded ***
 if "%_REBUILD%" equ "true" (
@@ -58,44 +60,65 @@ rem * mandatory: CMake 3.16 or newer
 rem * mandatory: 
 rem * mandatory: MSVC2019 or MSVC2022 or Mingw-w64 13.1
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" GEQ2019 amd64
+rem ensure msvs version and amd64 target architecture or MinGW gcc
+rem
+set _GP_NINJA_VERSION=
+set _GP_CMAKE_VERSION=GEQ3.16
+set _GP_MSVS_VERSION=GEQ2019
+set _GP_MSVS_ARCH=amd64
+
+if /I "%_GP_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_GP_MSVS_VERSION% %_GP_MSVS_ARCH% %MAKER_ENV_VERBOSE%
+if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
+if /I "%_GP_BUILD_SYSTEM%" neq "gnu" if /I "%_GP_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_GP_BUILD_SYSTEM% is not available &goto :_exit)
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" GEQ3.16
+call "%MAKER_BUILD%\validate_cmake.bat" %_GP_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  goto :Exit
+)
+rem validate ninja
+if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\validate_ninja.bat" --no_errors %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo warning: NINJA is not available
   goto :Exit
 )
 
+
 :configure_gp
 echo.
-echo GPERF-CONFIG %_GP_VERSION% %_GP_BUILD_TYPE% (Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR% %_GP_TGT_ARCH%)
-cd "%_GP_SOURCES_DIR%"
-echo cmake -S "%_GP_SOURCES_DIR%" -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
-call cmake -S . -G "Visual Studio 17 2022" -B "%_GP_BUILD_DIR%" -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
+echo GPERF-CONFIGURE %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE%)
+cd /d "%_GP_SOURCES_DIR%"
+rem echo cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" -G "Visual Studio 17 2022"  -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
+set "_GP_CONFIG_GENERATOR=Ninja"
+set "_GP_CONFIG_OPTIONS="
+if /I "%_GP_BUILD_SYSTEM%" equ "msvs" set "_GP_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
+if /I "%_GP_BUILD_SYSTEM%" equ "msvs" set "_GP_CONFIG_OPTIONS=-A %_GP_TGT_ARCH%"
+echo cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
+call cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
 echo GPERF-CONFIG done
 
 :build_gp
 echo.
 echo GPERF-BUILD (%_GP_BUILD_DIR%)
-cd "%_GP_BUILD_DIR%"
-call cmake --build . --parallel 4 --config %_GP_BUILD_TYPE%
+cd /d "%_GP_BUILD_DIR%"
+call cmake --build . --config %_GP_BUILD_TYPE% &rem --parallel 4
 echo GPERF-BUILD done
 
 :install_gp
 echo.
 echo GPERF-INSTALL (%_GP_BIN_DIR%)
-cd "%_GP_BUILD_DIR%"
+cd /d "%_GP_BUILD_DIR%"
 call cmake --install .
 
 :install_gp_done
 echo GPERF-INSTALL done
 
 :ensure_gp
-call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% --no_warnings --no_errors --no_info
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
 :Exit
 cd "%_GP_DIR%"
-call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION%
+call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% --no_warnings

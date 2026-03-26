@@ -288,7 +288,7 @@ rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_ENV_VERBOSE%
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
+  goto :qt_exit
 )
 if /I "%_QT_BUILD_SYSTEM%" neq "gnu" if /I "%_QT_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available &goto :_exit)
 rem validate cmake
@@ -524,11 +524,13 @@ echo.BUILD-STOP    : %_QT_BUILD_DATE_STOP% %_QT_BUILD_TIME_STOP%
 echo.BUILD-DURATION: %_DIFFT_DUR_SS% sec
 echo.
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
-if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete &exit /b 1
-call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings --no_errors --no_info
-if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
-rem :qt_exit_set_path
-rem set "PATH=%QT_BIN_DIR%\bin;%PATH%"
-rem set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
-:qt_exit_prompt
-call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%"  "%QT_BUILD_SYSTEM%" "%QT_TGT_ARCH%" "%QT_BUILD_TYPE%" --no_warnings
+rem from here on no reference to any _QT_ environment must be made!
+if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE%) incomplete &exit /b 1
+rem the path should already have been added above - this further logic is not necessary:
+ rem call "%MAKER_BUILD%\validate_qt.bat" %QT_VERSION% %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings --no_errors --no_info
+ rem if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
+ rem :qt_exit_set_path
+ rem set "PATH=%QT_BIN_DIR%\bin;%PATH%"
+ rem set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
+ rem :qt_exit_prompt
+call "%MAKER_BUILD%\validate_qt.bat" %QT_VERSION% %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings
