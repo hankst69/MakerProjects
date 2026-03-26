@@ -428,8 +428,8 @@ goto :qt_build_done
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
-  call cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
+  echo.cmake --build . --parallel 4 --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  call cmake --build . --parallel 4 --log-level=VERBOSE >>"%_QT_LOGFILE%"
   rem validate build done
   if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
@@ -449,8 +449,8 @@ if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYST
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
-  call cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
+  echo.cmake --build . --target qtmqtt --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  call cmake --build . --target qtmqtt --log-level=VERBOSE >>"%_QT_LOGFILE%"
 :qt_modules_build_done
 
 
@@ -469,13 +469,13 @@ goto :qt_install_test
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . >>"%_QT_LOGFILE%"
-  call cmake --install . >>"%_QT_LOGFILE%"
+  echo.cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  call cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . >>"%_QT_LOGFILE%"
-  call cmake --install . >>"%_QT_LOGFILE%"
+  echo.cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  call cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) FAILED&goto :qt_install_done
 :qt_install_test
 rem set_path (forced) to find the freshly build/installed targets
