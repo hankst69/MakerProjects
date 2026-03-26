@@ -155,7 +155,7 @@ echo BUILDING QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYP
 
 
 rem (1) *** cloning QT sources ***
-call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION% %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
+call "%MAKER_BUILD%\clone_qt.bat" "%_QT_VERSION%" %MAKER_ENV_VERBOSE% %_QT_CLONE_OPTIONS%
 cd /d "%_QT_START_DIR%"
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR
@@ -428,8 +428,8 @@ goto :qt_build_done
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --parallel 4 --log-level=VERBOSE >>"%_QT_LOGFILE%"
-  call cmake --build . --parallel 4 --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  echo.cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
+  call cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
   rem validate build done
   if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
@@ -449,8 +449,8 @@ if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYST
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --target qtmqtt --log-level=VERBOSE >>"%_QT_LOGFILE%"
-  call cmake --build . --target qtmqtt --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  echo.cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
+  call cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
 :qt_modules_build_done
 
 
@@ -469,13 +469,13 @@ goto :qt_install_test
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
-  call cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  echo.cmake --install . >>"%_QT_LOGFILE%"
+  call cmake --install . >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
-  call cmake --install . --log-level=VERBOSE >>"%_QT_LOGFILE%"
+  echo.cmake --install . >>"%_QT_LOGFILE%"
+  call cmake --install . >>"%_QT_LOGFILE%"
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) FAILED&goto :qt_install_done
 :qt_install_test
 rem set_path (forced) to find the freshly build/installed targets
@@ -527,10 +527,10 @@ call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 rem from here on no reference to any _QT_ environment must be made!
 if not exist "%QT_TEST_LIB_MQTT%" echo QT-BUILD %QT_VERSION% (%QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE%) incomplete &exit /b 1
 rem the path should already have been added above - this further logic is not necessary:
- rem call "%MAKER_BUILD%\validate_qt.bat" %QT_VERSION% %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings --no_errors --no_info
+ rem call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings --no_errors --no_info
  rem if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
  rem :qt_exit_set_path
  rem set "PATH=%QT_BIN_DIR%\bin;%PATH%"
  rem set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
  rem :qt_exit_prompt
-call "%MAKER_BUILD%\validate_qt.bat" %QT_VERSION% %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings
+call "%MAKER_BUILD%\validate_qt.bat" "%QT_VERSION%" %QT_BUILD_SYSTEM% %QT_TGT_ARCH% %QT_BUILD_TYPE% --no_warnings

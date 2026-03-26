@@ -3,7 +3,7 @@
 set "_BGP_START_DIR=%cd%"
 
 call "%~dp0\maker_env.bat" %*
-if "%MAKER_ENV_VERBOSE%" neq "" echo on
+rem if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem init with command line arguments
 set "_GP_VERSION=%MAKER_ENV_VERSION%"
@@ -20,15 +20,14 @@ set "_GP_BUILD_CFG=%_GP_BUILD_SYSTEM:~0,2%%_GP_TGT_ARCH:~1%%_GP_BUILD_TYPE:~0,3%
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% 1>nul 2>nul
+call "%MAKER_BUILD%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% %MAKER_ENV_VERBOSE% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
-if "%MAKER_ENV_VERBOSE%" neq "" echo on
 
 rem install/build...
-echo BUILDING CLONE %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE%)
+echo BUILDING GPERF %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE%)
 
 rem (1) *** cloning GPerf sources ***
-call "%MAKER_BUILD%\clone_gperf.bat" %_GP_VERSION%
+call "%MAKER_BUILD%\clone_gperf.bat" "%_GP_VERSION%" %MAKER_ENV_VERBOSE%
 
 rem defines: _GP_DIR
 rem defines: _GP_SOURCES_DIR
@@ -37,7 +36,7 @@ if "%_GP_SOURCES_DIR%" EQU "" (echo cloning gperf %_GP_VERSION% failed &goto :Ex
 if not exist "%_GP_DIR%" (echo cloning gperf %_GP_VERSION% failed &goto :Exit)
 if not exist "%_GP_SOURCES_DIR%" (echo cloning gperf %_GP_VERSION% failed &goto :Exit)
 
-set "_GP_BUILD_DIR=%_GP_DIR%\_build%_GP_VERSION%%_GP_BUILD_CFG%"
+set "_GP_BUILD_DIR=%_GP_DIR%\._%_GP_VERSION%%_GP_BUILD_CFG%"
 set "_GP_BIN_DIR=%_GP_DIR%\gperf%_GP_VERSION%-%_GP_BUILD_SYSTEM%"
 
 rem (2) *** cleaning QT build if demanded ***
@@ -48,6 +47,7 @@ if "%_REBUILD%" equ "true" (
 )
 
 rem (3) *** testing for existing gperf build ***
+if "%MAKER_ENV_VERBOSE%" neq "" echo on
 if exist "%_GP_BIN_DIR%\bin\gperf.exe" goto :install_gp_done
 
 
@@ -66,13 +66,14 @@ set _GP_NINJA_VERSION=
 set _GP_CMAKE_VERSION=GEQ3.16
 set _GP_MSVS_VERSION=GEQ2019
 set _GP_MSVS_ARCH=amd64
+if "%MAKER_ENV_VERBOSE%" neq "" set _GP_
 
 if /I "%_GP_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_GP_MSVS_VERSION% %_GP_MSVS_ARCH% %MAKER_ENV_VERBOSE%
 if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\ensure_gcc.bat" %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
-if /I "%_GP_BUILD_SYSTEM%" neq "gnu" if /I "%_GP_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_GP_BUILD_SYSTEM% is not available &goto :_exit)
+if /I "%_GP_BUILD_SYSTEM%" neq "gnu" if /I "%_GP_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_GP_BUILD_SYSTEM% is not available &goto :Exit)
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_GP_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
@@ -89,14 +90,15 @@ if %ERRORLEVEL% NEQ 0 (
 :configure_gp
 echo.
 echo GPERF-CONFIGURE %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE%)
+if not exist "%_GP_BUILD_DIR%" mkdir "%_GP_BUILD_DIR%"
 cd /d "%_GP_SOURCES_DIR%"
 rem echo cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" -G "Visual Studio 17 2022"  -A %_GP_TGT_ARCH% -DCMAKE_INSTALL_PREFIX="%_GP_BIN_DIR%" -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%"
 set "_GP_CONFIG_GENERATOR=Ninja"
 set "_GP_CONFIG_OPTIONS="
 if /I "%_GP_BUILD_SYSTEM%" equ "msvs" set "_GP_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
 if /I "%_GP_BUILD_SYSTEM%" equ "msvs" set "_GP_CONFIG_OPTIONS=-A %_GP_TGT_ARCH%"
-echo cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
-call cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
+echo cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%" --log-level=VERBOSE
+call cmake -S "%_GP_SOURCES_DIR%" -B "%_GP_BUILD_DIR%" --install-prefix "%_GP_BIN_DIR%" -G "%_GP_CONFIG_GENERATOR%" %_GP_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_GP_BUILD_TYPE%" --log-level=VERBOSE
 echo GPERF-CONFIG done
 
 :build_gp
@@ -116,9 +118,9 @@ call cmake --install .
 echo GPERF-INSTALL done
 
 :ensure_gp
-call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% --no_warnings --no_errors --no_info
+call "%MAKER_BUILD%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% %MAKER_ENV_VERBOSE% --no_warnings --no_errors --no_info
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
 :Exit
-cd "%_GP_DIR%"
-call "%MAKER_BUILD%\validate_gperf.bat" %_GP_VERSION% %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% --no_warnings
+cd /d "%_GP_DIR%"
+call "%MAKER_BUILD%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_TGT_ARCH% %_GP_BUILD_TYPE% %MAKER_ENV_VERBOSE% --no_warnings
