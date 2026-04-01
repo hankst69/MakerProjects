@@ -75,6 +75,7 @@ echo.
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
+echo *** THIS REQUIRES Fortran
 echo.
 set _WFV_CMAKE_VERSION=GEQ3.22
 set _WFV_MSVS_VERSION=GEQ2019
@@ -110,6 +111,10 @@ call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
+
+rem builf fortran (ensure and validate not implemented yet) 
+call "%MAKER_BUILD%\build_fortran.bat" %MAKER_ENV_VERBOSE%
+
 
 rem *** build required libraries ***
 echo.

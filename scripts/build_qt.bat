@@ -161,7 +161,8 @@ if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
 
 
 rem welcome
-echo BUILDING QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+set "_QT_BUILD_MESSAGE_SUFFIX=%_QT_VERSION% ^(%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%^)"
+echo BUILDING QT %_QT_BUILD_MESSAGE_SUFFIX%
 
 
 rem (1) *** cloning QT sources ***
@@ -241,11 +242,11 @@ if not exist "%_QT_TEST_EXE_4%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_5%" goto :qt_rebuild
 rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already available&goto :qt_install_done
+if %ERRORLEVEL% EQU 0 echo QT %_QT_BUILD_MESSAGE_SUFFIX% already available&goto :qt_install_done
 set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
 call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already available&goto :qt_install_done
-echo error: QT %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) seems to be prebuild but is not working
+if %ERRORLEVEL% EQU 0 echo QT %_QT_BUILD_MESSAGE_SUFFIX% already available&goto :qt_install_done
+echo error: QT %_QT_BUILD_MESSAGE_SUFFIX% seems to be prebuild but is not working
 echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
 goto :qt_exit
 
@@ -280,7 +281,7 @@ rem
 rem call "%QT_SOURCES_DIR%\configure.bat" --help
 rem 
 echo.
-echo rebuilding Qt %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) from sources
+echo rebuilding Qt %_QT_BUILD_MESSAGE_SUFFIX% from sources
 echo see https://doc.qt.io/qt-6/windows-building.html
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw
@@ -392,9 +393,9 @@ rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
 :qt_configure_test
 if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) not yet done or incomplete &goto :qt_configure
-if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_configure_done
+if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_BUILD_MESSAGE_SUFFIX% already done &goto :qt_configure_done
 :qt_configure
-  echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+  echo QT-CONFIGURE %_QT_BUILD_MESSAGE_SUFFIX%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo. >>"%_QT_LOGFILE%"
@@ -415,7 +416,7 @@ if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_VERSIO
   if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
   if "%_QT_CONFIGURE_RETRIES%" equ "0" set _QT_CONFIGURE_RETRIES=1
   if "%_QT_CONFIGURE_RETRIES%" equ ""  set _QT_CONFIGURE_RETRIES=1
-  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
+  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE %_QT_BUILD_MESSAGE_SUFFIX% incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
   goto :qt_configure_do
 :qt_configure_done
 
@@ -430,10 +431,10 @@ if not exist "%_QT_TEST_EXE_2%" goto :qt_build
 if not exist "%_QT_TEST_EXE_3%" goto :qt_build
 if not exist "%_QT_TEST_EXE_4%" goto :qt_build
 if not exist "%_QT_TEST_EXE_5%" goto :qt_build
-echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done
+echo QT-BUILD %_QT_BUILD_MESSAGE_SUFFIX% already done
 goto :qt_build_done
 :qt_build
-  echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+  echo QT-BUILD %_QT_BUILD_MESSAGE_SUFFIX%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
@@ -445,14 +446,14 @@ goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
   if "%_QT_BUILD_RETRIES%" equ "0" set _QT_BUILD_RETRIES=1
   if "%_QT_BUILD_RETRIES%" equ ""  set _QT_BUILD_RETRIES=1
-  if "%_QT_BUILD_RETRIES%" equ "2" echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete after %_QT_BUILD_RETRIES% tries & goto :qt_build_done
+  if "%_QT_BUILD_RETRIES%" equ "2" echo QT-BUILD %_QT_BUILD_MESSAGE_SUFFIX% incomplete after %_QT_BUILD_RETRIES% tries & goto :qt_build_done
   goto :qt_build
 :qt_build_done
 
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
 goto :qt_modules_build_done
-if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) already done &goto :qt_modules_build_done
+if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_BUILD_MESSAGE_SUFFIX% already done &goto :qt_modules_build_done
 :qt_modules_build
   echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
@@ -475,7 +476,7 @@ if not exist "%_QT_TEST_DLL_WEBSOKETS%" echo running Install due missing "%_QT_T
 if not exist "%_QT_TEST_LIB_MQTT%"      echo running Install due missing "%_QT_TEST_LIB_MQTT%" &goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
-  echo QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+  echo QT-INSTALL %_QT_BUILD_MESSAGE_SUFFIX%
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
@@ -486,14 +487,14 @@ goto :qt_install_test
   echo.%cd%>>"%_QT_LOGFILE%"
   echo.cmake --install . >>"%_QT_LOGFILE%"
   call cmake --install . >>"%_QT_LOGFILE%" 2>&1
-  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) FAILED&goto :qt_install_done
+  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_BUILD_MESSAGE_SUFFIX% FAILED&goto :qt_install_done
 :qt_install_test
 rem set_path (forced) to find the freshly build/installed targets
 set "PATH=%QT_BIN_DIR%\bin;%PATH%"
 set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 call which uic.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) available &goto :qt_install_done
-echo error: QT-INSTALL %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) failed
+if %ERRORLEVEL% EQU 0 echo QT-INSTALL %_QT_BUILD_MESSAGE_SUFFIX% available &goto :qt_install_done
+echo error: QT-INSTALL %_QT_BUILD_MESSAGE_SUFFIX% failed
 goto :qt_exit
 
 
@@ -509,7 +510,7 @@ echo.>>"%_QT_LOGFILE%"
 call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
 rem call "%_QT_BUILD_DIR%\qtbase\bin\qtdiag" --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
 call :stop_watch "%_QT_BUILD_DATETIME_START%"
-set "_QT_BUILD_DATE_STOP=%_DATE%"
+set "_QT_BUILD_DATE_STOP=%_DATE_%"
 set "_QT_BUILD_TIME_STOP=%_TIME_UI%"
 set "_QT_BUILD_DURATION=%_DIFFT_DUR_SS%"
 echo.>>"%_QT_LOGFILE%"
@@ -521,7 +522,7 @@ echo.BUILD-STOP    : %_QT_BUILD_DATE_STOP% %_QT_BUILD_TIME_STOP%
 echo.BUILD-DURATION: %_QT_BUILD_DURATION% sec
 echo.
 if not exist "%_QT_TEST_LIB_MQTT%" (
-  echo QT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) incomplete
+  echo QT-BUILD %_QT_BUILD_MESSAGE_SUFFIX% incomplete
   call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
   exit /b 1
 )
