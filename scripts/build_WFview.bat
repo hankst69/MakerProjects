@@ -30,13 +30,14 @@ rem set _WFV_TGT_ARCH=x64
 rem set _WFV_BUILD_TYPE=Debug
 rem set _WFV_BUILD_TYPE=Release
 rem set _WFV_BUILD_TYPE=MinSizeRel
+set "_WFV_BUILD_INFO=%_WFV_VERSION% ^(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%^)"
 
 rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING WFVIEW %_WFV_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
+echo BUILDING WFVIEW %_WFV_BUILD_INFO%
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -75,7 +76,6 @@ echo.
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
-echo *** THIS REQUIRES Fortran
 echo.
 set _WFV_CMAKE_VERSION=GEQ3.22
 set _WFV_MSVS_VERSION=GEQ2019
@@ -102,18 +102,15 @@ if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
 rem validate qt-cmake
-call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
-)
+rem call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+rem if %ERRORLEVEL% NEQ 0 (
+rem   goto :_exit
+rem )
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
-
-rem builf fortran (ensure and validate not implemented yet) 
-call "%MAKER_BUILD%\build_fortran.bat" %MAKER_ENV_VERBOSE%
 
 
 rem *** build required libraries ***
@@ -149,8 +146,10 @@ set "_WFV_CONFIG_GENERATOR=Ninja"
 set "_WFV_CONFIG_OPTIONS="
 if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" set "_WFV_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
 if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" set "_WFV_CONFIG_OPTIONS=-A %_WFV_TGT_ARCH%"
-echo qt-cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
-call "%QT_CMAKE%" -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
+rem echo qt-cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%"
+rem call "%QT_CMAKE%" -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
+echo cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
+call cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
 :_configure_done
 
 

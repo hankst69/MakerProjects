@@ -30,6 +30,7 @@ rem set _WVL_BUILD_TYPE=Debug
 rem set _WVL_BUILD_TYPE=Release
 rem set _WVL_BUILD_TYPE=MinSizeRel
 set "_WVL_BUILD_CFG=%_WVL_BUILD_SYSTEM:~0,2%%_WVL_TGT_ARCH:~1%%_WVL_BUILD_TYPE:~0,3%"
+set "_WVL_BUILD_INFO=%_WVL_VERSION% ^(%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%^)"
 
 rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
@@ -37,7 +38,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" set _WVL_
 if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING WFVIEW-LIBRARIES %_WVL_VERSION% (%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%)
+echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_BUILD%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -80,6 +81,11 @@ if not exist "%_WVL_BUILD_DIR%" mkdir "%_WVL_BUILD_DIR%"
 rem *** ensuring prerequisites ***
 echo.
 echo BUILDING WFVIEW-LIBRARIES %_WVL_VERSION% (%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%) from sources
+echo.
+echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
+echo *** THIS REQUIRES Cmake 3.22 or newer
+echo *** THIS REQUIRES Fortran (for Eigen)
+echo.
 set _WVL_CMAKE_VERSION=GEQ3.22
 set _WVL_MSVS_VERSION=GEQ2019
 set _WVL_NINJA_VERSION=
@@ -105,6 +111,9 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available - switchng to MSVS build system
   goto :_exit
 )
+rem ensure fortran (ensure and validate not implemented yet) 
+call "%MAKER_BUILD%\build_fortran.bat" %MAKER_ENV_VERBOSE%
+
 
 echo.
 echo BUILD WFVIEW-LIBRARIES (%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%)
@@ -176,11 +185,11 @@ call cmake --install "." --config %_WVL_BUILD_TYPE%
 set "_cmake_src=%WFVIEW_QCUSTOMPLOT_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\qcustomplot"
 set "_cmake_bin=%WFVIEW_QCUSTOMPLOT_DIR%"
-rem if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
-rem cd /d "%_cmake_bld%"
-rem call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
-rem call cmake --build "." --config %_WVL_BUILD_TYPE% 
-rem call cmake --install "." --config %_WVL_BUILD_TYPE% 
+if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
+cd /d "%_cmake_bld%"
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE% 
+call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
 set "_cmake_src=%WFVIEW_HIDAPI_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\hidapi"
