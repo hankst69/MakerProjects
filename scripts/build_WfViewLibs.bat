@@ -70,7 +70,7 @@ if "%_WVL_REBUILD%" neq "" (
 rem due potential switch from msvs libs to gnu .a files or vice versa, we have to always delete the bin folder to force reinstallation
 rem remark: we use the same lib folder strucutre for both build systems (reference to inlude and lib folders in wfview CmakeLists.txt))
 echo preparing build...
-rmdir /s /q "%_WVL_BIN_DIR%" 1>nul 2>nul
+rem rmdir /s /q "%_WVL_BIN_DIR%" 1>nul 2>nul
 
 rem ensure base folders exist
 if not exist "%_WVL_BIN_DIR%" mkdir "%_WVL_BIN_DIR%"

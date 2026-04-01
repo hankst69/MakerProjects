@@ -96,14 +96,8 @@ set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
 set "_QT_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 set "_QT_REBUILD=%MAKER_ENV_REBUILD%"
 
-call :stop_watch
-set "_QT_BUILD_DATE_START=%_DATE_%"
-set "_QT_BUILD_TIME_START=%_TIME_UI%"
-set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
-
 set _QT_USE_LLVM20_PATCH=
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
-if /I "%MAKER_ENV_UNKNOWN_SWITCH_2%" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
+for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--use_llvm20_patch" set _QT_USE_LLVM20_PATCH=true
 
 rem apply defaults 1
 if "%_QT_VERSION%"      equ "" set _QT_VERSION=6.8.3
@@ -114,9 +108,14 @@ set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
 set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
 set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM:~0,2%%_QT_TGT_ARCH:~1%%_QT_BUILD_TYPE:~0,3%"
+set "_QT_BUILD_INFO=%_QT_VERSION% ^(%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%^)"
 rem maybe necessary to make _QT_BUILD_TYPE lower case for gnu build
-rem if "%MAKER_ENV_VERBOSE%" neq "" set _QT_
-rem
+
+call :stop_watch
+set "_QT_BUILD_DATE_START=%_DATE_%"
+set "_QT_BUILD_TIME_START=%_TIME_UI%"
+set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
+
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
@@ -161,7 +160,6 @@ if "%_QT_VERSION%" equ "5.12" set _QT_MSVS_VERSION=2019
 
 
 rem welcome
-set "_QT_BUILD_INFO=%_QT_VERSION% ^(%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%^)"
 echo BUILDING QT %_QT_BUILD_INFO%
 
 
@@ -181,8 +179,6 @@ set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CFG%"
 
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_%_QT_BUILD_DATETIME_START%.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
-rem show what we have so far
-rem if "%MAKER_ENV_VERBOSE%" neq "" set QT_
 
 
 rem (2) *** specify LLVM version ***
