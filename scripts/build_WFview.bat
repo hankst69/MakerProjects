@@ -23,6 +23,11 @@ set "_WFV_REBUILD=%MAKER_ENV_REBUILD%"
 set _WFV_OPEN_PROJECT=
 for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--open" set _WFV_OPEN_PROJECT=--open
 for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-o" set _WFV_OPEN_PROJECT=--open
+set _WVL_REBUILD=
+for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-rebuild+" set _WVL_REBUILD=--rebuild
+for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-r+" set _WVL_REBUILD=--rebuild
+if "%_WVL_REBUILD%" neq "" set "_WFV_REBUILD=%_WVL_REBUILD%"
+
 
 rem apply defaults
 if "%_WFV_TGT_ARCH%"   equ ""   set _WFV_TGT_ARCH=x64
@@ -120,9 +125,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem *** build required libraries ***
 echo.
-rem we fixate the buildsystem for the wfview-libraries to GNU since the eigen lib requires a fortran compiler which would require setup of Intel Fortran compiler for the windows build
-rem call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% --gnu
-call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WFV_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
+call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
