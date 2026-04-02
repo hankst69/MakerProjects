@@ -45,9 +45,10 @@ rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 rem if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
-echo.************************************************************************************************************************
-echo * BUILD WFVIEW %_WFV_BUILD_INFO%
-echo.************************************************************************************************************************
+
+rem welcome
+echo BUILD WFVIEW %_WFV_BUILD_INFO%
+
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -78,7 +79,9 @@ if "%_WFV_REBUILD%" neq "" (
 if not exist "%_WFV_BIN_DIR%" mkdir "%_WFV_BIN_DIR%"
 if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
 
-if exist "%_WFV_BIN_DIR%\bin\wfview.exe" goto :_exit
+
+set "_WFV_TEST_BINARY=%_WFV_BIN_DIR%\bin\wfview.exe"
+if exist "%_WFV_TEST_BINARY%" goto :_exit
 
 
 :_rebuild
@@ -192,9 +195,13 @@ echo * INSTALL WFVIEW %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 echo cmake --install .
-echo cmake --install .
+cmake --install .
 
 
 :_exit
 cd /d "%_WFV_START_DIR%"
-if exist "%_WFV_TEST_BINARY%" cd /d "%_WFV_BUILD_DIR%" &dir "%_WFV_TEST_BINARY%"
+if not exist "%_WFV_TEST_BINARY%" goto :EOF
+echo.
+echo WFVIEW BUILD COMPLETED
+cd /d "%_WFV_BUILD_DIR%"
+dir "%_WFV_TEST_BINARY%"
