@@ -45,8 +45,9 @@ rem debug
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
 rem if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
-rem welcome
-echo BUILDING WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
+echo * BUILD WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -77,12 +78,15 @@ if "%_WFV_REBUILD%" neq "" (
 if not exist "%_WFV_BIN_DIR%" mkdir "%_WFV_BIN_DIR%"
 if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
 
+if exist "%_WFV_BIN_DIR%\bin\wfview.exe" goto :_exit
+
 
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo REBUILDING WFVIEW %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%) from sources
-echo.
+echo.************************************************************************************************************************
+echo * REBUILDING WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
@@ -122,7 +126,6 @@ if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 
-
 rem *** build required libraries ***
 echo.
 call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
@@ -136,6 +139,7 @@ if "%WFVIEW_LIBS_SRC_DIR%" equ ""    (echo error: BUILDING of WFVIEW-LIBRARIES f
 if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo error: BUILDING of WFVIEW-LIBRARIES failed &goto :_exit)
 
 
+:_qmake2cmake
 rem *** generate CmakeLists.txt ***
 if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
   call "%MAKER_BUILD%\build_qmake2cmake.bat"
@@ -145,10 +149,12 @@ if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
 )
 
 
-rem *** cmake configure ***
 :_configure
+rem *** cmake configure ***
 echo.
-echo WFVIEW-CONFIGURE %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
+echo.************************************************************************************************************************
+echo * CONFIGURE WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 set "_WFV_CONFIG_GENERATOR=Ninja"
 set "_WFV_CONFIG_OPTIONS="
@@ -158,24 +164,37 @@ echo qt-cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_
 call "%QT_CMAKE%" -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" --log-level=VERBOSE
 rem echo cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
 rem call cmake -S "%_WFV_SOURCES_DIR%" -B "%_WFV_BUILD_DIR%" --install-prefix "%_WFV_BIN_DIR%" -G "%_WFV_CONFIG_GENERATOR%" %_WFV_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WFV_BUILD_TYPE%" -DCMAKE_PREFIX_PATH="%QT_BIN_DIR%"
-:_configure_done
 
 
-rem *** cmake build ***
-:_build
-echo.
-echo WFVIEW-BUILD %WFVIEW_VERSION% (%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%)
-cd /d "%_WFV_BUILD_DIR%"
-echo cmake --build . --config %_WFV_BUILD_TYPE% &rem --parallel 4
-call cmake --build . --config %_WFV_BUILD_TYPE% --parallel 4
-:_build_done
-
-
+:_open
 rem *** open generated project ***
 cd /d "%_WFV_BUILD_DIR%"
 if "%_WFV_OPEN_PROJECT%" neq "" echo cmake --open .
 if "%_WFV_OPEN_PROJECT%" neq "" call cmake --open .
 
 
+:_build
+rem *** cmake build ***
+echo.
+echo.************************************************************************************************************************
+echo * BUILD WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
+cd /d "%_WFV_BUILD_DIR%"
+echo cmake --build . --config %_WFV_BUILD_TYPE% &rem --parallel 4
+call cmake --build . --config %_WFV_BUILD_TYPE% --parallel 4
+
+
+:_install
+rem *** cmake install ***
+echo.
+echo.************************************************************************************************************************
+echo * INSTALL WFVIEW %_WFV_BUILD_INFO%
+echo.************************************************************************************************************************
+cd /d "%_WFV_BUILD_DIR%"
+echo cmake --install .
+echo cmake --install .
+
+
 :_exit
 cd /d "%_WFV_START_DIR%"
+if exist "%_WFV_TEST_BINARY%" cd /d "%_WFV_BUILD_DIR%" &dir "%_WFV_TEST_BINARY%"
