@@ -140,12 +140,20 @@ rem WFVIEW_LIBFT4222_SRC_DIR
 rem WFVIEW_LIBFT4222_SRC_DIR_WINDOWS
 rem WFVIEW_LIBFT4222_SRC_DIR_LINUX
 
+echo.
+echo.************************************************************************************************************************
+echo.* building libft4222
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
 if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" 
 if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" 
 set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
 call "%MAKER_SCRIPTS%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_ENV_SILENT%
 
+echo.
+echo.************************************************************************************************************************
+echo.* building opus
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_OPUS_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\opus"
 set "_cmake_bin=%WFVIEW_OPUS_DIR%"
@@ -155,6 +163,10 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building rtaudio
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_RTAUDIO_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\rtaudio"
 set "_cmake_bin=%WFVIEW_RTAUDIO_DIR%"
@@ -164,6 +176,10 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building eigen
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_EIGEN_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\eigen"
 set "_cmake_bin=%WFVIEW_EIGEN_DIR%"
@@ -173,6 +189,10 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building portaudio
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_PORTAUDIO_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\portaudio"
 set "_cmake_bin=%WFVIEW_PORTAUDIO_DIR%"
@@ -182,6 +202,10 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building qcustomplot
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_QCUSTOMPLOT_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\qcustomplot"
 set "_cmake_bin=%WFVIEW_QCUSTOMPLOT_DIR%"
@@ -191,6 +215,10 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building hidapi
+echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_HIDAPI_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\hidapi"
 set "_cmake_bin=%WFVIEW_HIDAPI_DIR%"
@@ -199,6 +227,11 @@ cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
+
+rem echo.
+rem echo.************************************************************************************************************************
+rem echo.* building r8brain-free-src
+rem echo.************************************************************************************************************************
 
 :_exit
 cd /d "%_WVL_BIN_DIR%"

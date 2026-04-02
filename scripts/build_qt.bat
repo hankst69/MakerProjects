@@ -173,8 +173,7 @@ if "%QT_SOURCES_DIR%" EQU "" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exi
 if not exist "%QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 
-set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_SYSTEM%"
-rem set "_QT_BUILD_DIR=%QT_DIR%\qt_build%_QT_VERSION%%_QT_BUILD_CFG%"
+set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_CFG%"
 set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CFG%"
 
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CFG%_%_QT_BUILD_DATETIME_START%.log"

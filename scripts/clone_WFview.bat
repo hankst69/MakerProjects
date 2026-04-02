@@ -4,9 +4,9 @@ call "%MAKER_SCRIPTS%\set_version_env" "WFVIEW" "%MAKER_ENV_VERSION%"
 
 set "WFVIEW_BASE_DIR=wfview"
 set "WFVIEW_DIR=%MAKER_PROJECTS%\%WFVIEW_BASE_DIR%"
-pushd "%MAKER_ROOT%\.."
-set "WFVIEW_DIR=%cd%\%WFVIEW_BASE_DIR%"
-popd
+rem pushd "%MAKER_ROOT%\.."
+rem set "WFVIEW_DIR=%cd%\%WFVIEW_BASE_DIR%"
+rem popd
 set "WFVIEW_SRC_DIR=%WFVIEW_DIR%\%WFVIEW_BASE_DIR%_source%WFVIEW_VERSION%"
 
 if /i "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "--do_not_clone" goto :EOF
