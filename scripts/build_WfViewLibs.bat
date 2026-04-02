@@ -145,10 +145,11 @@ echo.***************************************************************************
 echo.* building libft4222
 echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
-if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" 
-if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" 
+if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%"
+if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%"
 set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
 call "%MAKER_SCRIPTS%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_ENV_SILENT%
+if /I "%_WVL_TGT_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
 
 echo.
 echo.************************************************************************************************************************

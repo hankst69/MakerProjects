@@ -196,6 +196,9 @@ echo.***************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 echo cmake --install .
 cmake --install .
+rem workaround: copy also library dependencies into bin (todo: fix CmakeLists.txt)
+cd /d "%WFVIEW_LIBS_DIR%"
+for /f %%i in ('dir /s /b *.dll') do copy "%%~i" "%_WFV_BIN_DIR%\bin"
 
 
 :_exit
@@ -203,5 +206,5 @@ cd /d "%_WFV_START_DIR%"
 if not exist "%_WFV_TEST_BINARY%" goto :EOF
 echo.
 echo WFVIEW BUILD COMPLETED
-cd /d "%_WFV_BUILD_DIR%"
+cd /d "%_WFV_BIN_DIR%\bin"
 dir "%_WFV_TEST_BINARY%"
