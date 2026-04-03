@@ -23,12 +23,7 @@ set "_WVL_REBUILD=%MAKER_ENV_REBUILD%"
 rem apply defaults
 if "%_WVL_TGT_ARCH%"     equ "" set _WVL_TGT_ARCH=x64
 if "%_WVL_BUILD_TYPE%"   equ "" set _WVL_BUILD_TYPE=release
-if "%_WVL_BUILD_SYSTEM%" equ "" set _WVL_BUILD_SYSTEM=gnu
-rem apply hardcoded values
-rem set _WVL_TGT_ARCH=x64
-rem set _WVL_BUILD_TYPE=Debug
-rem set _WVL_BUILD_TYPE=Release
-rem set _WVL_BUILD_TYPE=MinSizeRel
+if "%_WVL_BUILD_SYSTEM%" equ "" set _WVL_BUILD_SYSTEM=msvs
 set "_WVL_BUILD_CFG=%_WVL_BUILD_SYSTEM:~0,2%%_WVL_TGT_ARCH:~1%%_WVL_BUILD_TYPE:~0,3%"
 set "_WVL_BUILD_INFO=%_WVL_VERSION% ^(%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%^)"
 
@@ -184,11 +179,14 @@ echo.***************************************************************************
 set "_cmake_src=%WFVIEW_EIGEN_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\eigen"
 set "_cmake_bin=%WFVIEW_EIGEN_DIR%"
+rem there are issues building eigen as Debug
+set "_WVL_BUILD_TYPE_EIGEN=%_WVL_BUILD_TYPE%"
+set "_WVL_BUILD_TYPE_EIGEN=release"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
-call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
-call cmake --build "." --config %_WVL_BUILD_TYPE% 
-call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE_EIGEN%" --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE_EIGEN% 
+call cmake --install "." --config %_WVL_BUILD_TYPE_EIGEN% 
 
 echo.
 echo.************************************************************************************************************************

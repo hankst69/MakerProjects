@@ -80,8 +80,8 @@ if not exist "%_WFV_BIN_DIR%" mkdir "%_WFV_BIN_DIR%"
 if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
 
 
-set "_WFV_TEST_BINARY=%_WFV_BIN_DIR%\bin\wfview.exe"
-if exist "%_WFV_TEST_BINARY%" goto :_exit
+set "_WFV_EXECUTABLE=%_WFV_BIN_DIR%\bin\wfview.exe"
+if exist "%_WFV_EXECUTABLE%" goto :_exit
 
 
 :_rebuild
@@ -194,8 +194,8 @@ echo.***************************************************************************
 echo * INSTALL WFVIEW %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
-echo cmake --install .
-cmake --install .
+echo cmake --install . --config %_WFV_BUILD_TYPE%
+cmake --install . --config %_WFV_BUILD_TYPE%
 rem workaround: copy also library dependencies into bin (todo: fix CmakeLists.txt)
 cd /d "%WFVIEW_LIBS_DIR%"
 for /f %%i in ('dir /s /b *.dll') do copy "%%~i" "%_WFV_BIN_DIR%\bin"
@@ -203,8 +203,11 @@ for /f %%i in ('dir /s /b *.dll') do copy "%%~i" "%_WFV_BIN_DIR%\bin"
 
 :_exit
 cd /d "%_WFV_START_DIR%"
-if not exist "%_WFV_TEST_BINARY%" goto :EOF
+if not exist "%_WFV_EXECUTABLE%" goto :EOF
 echo.
-echo WFVIEW BUILD COMPLETED
-cd /d "%_WFV_BIN_DIR%\bin"
-dir "%_WFV_TEST_BINARY%"
+echo WFVIEW BUILD COMPLETE
+echo to start wfview type:
+echo "%_WFV_EXECUTABLE%"
+rem cd /d "%_WFV_BIN_DIR%\bin"
+rem dir "%_WFV_EXECUTABLE%"
+"%_WFV_EXECUTABLE%"
