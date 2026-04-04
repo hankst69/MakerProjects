@@ -147,9 +147,13 @@ rem
 rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
 set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
+if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release -force-debug-info"
+if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -debug"
+rem set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info"
+rem
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu"  set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
-if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info -separate-debug-info"
+
 rem apply defaults 3
 call "%MAKER_SCRIPTS%\compare_versions.bat" "%_QT_VERSION%" "LSS" "%_QT_VERSION_WITH_LLVM_FIX%" 1>nul 2>nul
 if %ERRORLEVEL% equ 0 set _QT_USE_LLVM20_PATCH=true
@@ -221,12 +225,14 @@ if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
 rem (5) *** testing for existing QT build ***
 set "_QT_TEST_EXE_1=%_QT_BIN_DIR%\bin\uic.exe"
 set "_QT_TEST_EXE_2=%_QT_BIN_DIR%\bin\qmake.exe"
-set "_QT_TEST_EXE_3=%_QT_BIN_DIR%\bin\designer.exe"
-set "_QT_TEST_EXE_4=%_QT_BIN_DIR%\bin\lupdate.exe"
-set "_QT_TEST_EXE_5=%_QT_BIN_DIR%\bin\qtdiag.exe"
-set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets.dll"
-set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\Qt6Mqtt.lib"
-if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt.a"
+set "_QT_TEST_EXE_3=%_QT_BIN_DIR%\bin\balsamui.exe" &rem designer.exe"
+set "_QT_TEST_EXE_4=%_QT_BIN_DIR%\bin\lconvert.exe" &rem lupdate.exe"
+set "_QT_TEST_EXE_5=%_QT_BIN_DIR%\bin\moc.exe" &rem qtdiag.exe"
+set _QT_DEBUG_DLL_SUFFIX=
+if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_DEBUG_DLL_SUFFIX=d"
+set "_QT_TEST_DLL_WEBSOKETS=%_QT_BIN_DIR%\bin\Qt6WebSockets%_QT_DEBUG_DLL_SUFFIX%.dll"
+set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\Qt6Mqtt%_QT_DEBUG_DLL_SUFFIX%.lib"
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" set "_QT_TEST_LIB_MQTT=%_QT_BIN_DIR%\lib\libQt6Mqtt%_QT_DEBUG_DLL_SUFFIX%.a"
 
 if not exist "%_QT_TEST_LIB_MQTT%" goto :qt_rebuild
 if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_rebuild
@@ -387,25 +393,25 @@ rem   NOT exist
 rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
 :qt_configure_test
-if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%) not yet done or incomplete &goto :qt_configure
+if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo QT-CONFIGURE %_QT_BUILD_INFO% not yet done or incomplete &goto :qt_configure
 if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo QT-CONFIGURE %_QT_BUILD_INFO% already done &goto :qt_configure_done
 :qt_configure
   echo QT-CONFIGURE %_QT_BUILD_INFO%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo. >>"%_QT_LOGFILE%"
-  call "%QT_SOURCES_DIR%\configure.bat" --help >>"%_QT_LOGFILE%"
+  call "%QT_SOURCES_DIR%\configure.bat" --help >>"%_QT_LOGFILE%" 2>&1
   echo. >>"%_QT_LOGFILE%"
-  call "%QT_SOURCES_DIR%\configure.bat" -list-features 2>>"%_QT_LOGFILE%"
+  call "%QT_SOURCES_DIR%\configure.bat" -list-features >>"%_QT_LOGFILE%" 2>&1
   echo. >>"%_QT_LOGFILE%"
-  echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%"
+  echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%" 2>&1
   set _QT_CONFIGURE_RETRIES=0
   :qt_configure_do
   echo. >>"%_QT_LOGFILE%"
-  echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%_QT_LOGFILE%"
+  echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%_QT_LOGFILE%" 2>&1
   echo. >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%"
-  call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" -%_QT_BUILD_TYPE% %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%"
+  call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%" 2>&1
   rem validate QtMqtt configuration done
   if exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" goto :qt_configure_done
   if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
@@ -434,8 +440,8 @@ goto :qt_build_done
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --parallel 4 >>"%_QT_LOGFILE%"
-  call cmake --build . --parallel 4 >>"%_QT_LOGFILE%" 2>&1
+  echo.cmake --build . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
+  call cmake --build . --config %_QT_BUILD_TYPE% --parallel 4 >>"%_QT_LOGFILE%" 2>&1
   rem validate build done
   if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
@@ -455,8 +461,8 @@ if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_BUILD_INFO% already done 
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --build . --target qtmqtt >>"%_QT_LOGFILE%"
-  call cmake --build . --target qtmqtt >>"%_QT_LOGFILE%" 2>&1
+  echo.cmake --build . --target qtmqtt --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
+  call cmake --build . --target qtmqtt --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
 :qt_modules_build_done
 
 
@@ -475,13 +481,13 @@ goto :qt_install_test
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . >>"%_QT_LOGFILE%"
-  call cmake --install . >>"%_QT_LOGFILE%" 2>&1
+  echo.cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
+  call cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . >>"%_QT_LOGFILE%"
-  call cmake --install . >>"%_QT_LOGFILE%" 2>&1
+  echo.cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
+  call cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
   if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: QT-INSTALL %_QT_BUILD_INFO% FAILED&goto :qt_install_done
 :qt_install_test
 rem set_path (forced) to find the freshly build/installed targets
