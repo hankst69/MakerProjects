@@ -87,7 +87,6 @@ rem (3) try to match the given PROJECT with the upper case letters of an existin
 set __SCRIPT_NAME=
 set __SCRIPT_FILE=
 call :FindShortcut "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%" "%__PROJECT%"
-rem if exist "%__SCRIPT_FILE%" goto :StartScript
 if exist "%__SCRIPT_FILE%" goto :StartScript
 
 rem (4) no matches for given __PROJECT found
@@ -102,7 +101,7 @@ goto :Exit
 
 :StartScript
 if exist "%__SCRIPT_FILE%" (
-  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!
+  echo %__CLASS_NAME% !__SCRIPT_NAME:%__CLASS_NAME%_=!%__PROJECT_ARGS%
   endlocal
   call "%__SCRIPT_FILE%" %__PROJECT_ARGS%
   goto :Exit_NEL

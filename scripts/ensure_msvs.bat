@@ -5,7 +5,7 @@ set "_EMSVS_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
 set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION_COMPARE%%MAKER_ENV_VERSION%"
 set "_EMSVS_NO_WARNINGS=%MAKER_ENV_NOWARNINGS%"
 set "_EMSVS_NO_ERRORS=%MAKER_ENV_NOERRORS%"
-set "_EMSVS_NO_INFO=%MAKER_ENV_NOINFOS%"
+set "_EMSVS_NO_INFOS=%MAKER_ENV_NOINFOS%"
 
 if "%MAKER_ENV_UNKNOWN_ARGS%" neq "" (echo warning: unknown argument/s '%MAKER_ENV_UNKNOWN_ARGS%')
 if "%MAKER_ENV_UNKNOWN_SWITHCES%" neq "" (echo warning: unknown switch/es '%MAKER_ENV_UNKNOWN_SWITHCES%')
@@ -24,23 +24,17 @@ if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :msvs_self_healing:
 if "%_EMSVS_TGT_VERSION%" equ "2019" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2019
 if "%_EMSVS_TGT_VERSION%" equ "2022" if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2022
+if "%_EMSVS_TGT_VERSION%" equ "2026" if exist "%ProgramFiles%\Microsoft Visual Studio\18\Enterprise\Common7\Tools\VsDevCmd.bat" goto :init_vs2026
 goto :test_msvs_failed
 
 :init_vs2019
-rem set "path=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools;%path%"
-rem if "%__VSCMD_PREINIT_PATH%" neq "" set "path=%__VSCMD_PREINIT_PATH%"
-rem set VCPKG_ROOT=
-rem set VCIDEInstallDir=
-rem set VCINSTALLDIR=
-rem set VCToolsInstallDir=
-rem set VCToolsRedistDir=
-rem set VCToolsVersion=
-rem set VSCMD_DEBUG=3
-rem echo on
 call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat"
 goto :test_msvs_again
 :init_vs2022
 call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat"
+goto :test_msvs_again
+:init_vs2026
+call "%ProgramFiles%\Microsoft Visual Studio\18\Enterprise\Common7\Tools\VsDevCmd.bat"
 goto :test_msvs_again
 
 :test_msvs_again
@@ -58,19 +52,21 @@ if /I "%MSVS_TARGET_ARCHITECTURE%" equ "%_EMSVS_TGT_ARCHITECTURE%" goto :test_EM
 if "%_EMSVS_NO_WARNINGS%" equ "" echo warning: MSVS uses target architecture %MSVS_TARGET_ARCHITECTURE% but requirement is %_EMSVS_TGT_ARCHITECTURE% - switching MSVS
 set _EMSVS_TGT_ARCH=x86
 if /I "%_EMSVS_TGT_ARCHITECTURE%" equ "x64" set "_EMSVS_TGT_ARCH=amd64"
+set VSCMD_DEBUG=0
+if "%MAKER_ENV_VERBOSE%" neq "" set VSCMD_DEBUG=2
 call vsdevcmd -arch=%_EMSVS_TGT_ARCH%
 set _EMSVS_TGT_ARCH=
 set "MSVS_TARGET_ARCHITECTURE=%VSCMD_ARG_TGT_ARCH%"
 
 if /I "%MSVS_TARGET_ARCHITECTURE%" equ "%_EMSVS_TGT_ARCHITECTURE%" goto :test_EMSVS_success
-if "%_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_TARGET_ARCHITECTURE% but requirement is %_EMSVS_TGT_ARCHITECTURE%
+if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_TARGET_ARCHITECTURE% but requirement is %_EMSVS_TGT_ARCHITECTURE%
 exit /b 3
 
 :test_EMSVS_success
-if "%_EMSVS_NO_INFO%" equ "" echo using: MSVS %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
+if "%_EMSVS_NO_INFOS%" equ "" echo using: MSVS %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=
 set _EMSVS_NO_WARNINGS=
 set _EMSVS_NO_ERRORS=
-set _EMSVS_NO_INFO=
+set _EMSVS_NO_INFOS=
 exit /b 0

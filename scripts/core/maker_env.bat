@@ -31,6 +31,7 @@ if /I "%~1" equ "--keep" shift &goto :parse_cmdline_args
 set MAKER_ENV_NOERRORS=
 set MAKER_ENV_NOWARNINGS=
 set MAKER_ENV_NOINFOS=
+set MAKER_ENV_NOINFO=
 set MAKER_ENV_VERBOSE=
 set MAKER_ENV_SILENT=
 set MAKER_ENV_REBUILD=
@@ -54,8 +55,9 @@ if /I "%__ARG__%" equ "--no_errors"    (set "MAKER_ENV_NOERRORS=--no_errors" &go
 if /I "%__ARG__%" equ "-ne"            (set "MAKER_ENV_NOERRORS=--no_errors" &goto :param_loop)
 if /I "%__ARG__%" equ "--no_warnings"  (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
 if /I "%__ARG__%" equ "-nw"            (set "MAKER_ENV_NOWARNINGS=--no_warnings" &goto :param_loop)
-if /I "%__ARG__%" equ "--no_info"      (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
-if /I "%__ARG__%" equ "-ni"            (set "MAKER_ENV_NOINFOS=--no_info" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_infos"     (set "MAKER_ENV_NOINFOS=--no_infos" &goto :param_loop)
+if /I "%__ARG__%" equ "--no_info"      (set "MAKER_ENV_NOINFOS=--no_infos" &goto :param_loop)
+if /I "%__ARG__%" equ "-ni"            (set "MAKER_ENV_NOINFOS=--no_infos" &goto :param_loop)
 if /I "%__ARG__%" equ "--verbose"      (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
 if /I "%__ARG__%" equ "-v"             (set "MAKER_ENV_VERBOSE=--verbose" &goto :param_loop)
 if /I "%__ARG__%" equ "--silent"       (set "MAKER_ENV_SILENT=--silent"  &goto :param_loop)
@@ -91,6 +93,8 @@ if /I "%__ARG__%" neq "" (set "MAKER_ENV_UNKNOWN_ARGS=%MAKER_ENV_UNKNOWN_ARGS% %
 :param_loop_exit
 set __ARG__=
 set __ARG_RAW__=
+rem ensure backward compatibility with older scrits (todo: cleanup)
+set "MAKER_ENV_NOINFO=%MAKER_ENV_NOINFOS%"
 
 if "%MAKER_ENV_BUILDSYSTEM%" neq "" set "MAKER_ENV_BUILDSYSTEM_SWITCH=--%MAKER_ENV_BUILDSYSTEM%"
 set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE% %MAKER_ENV_BUILDSYSTEM_SWITCH%"
@@ -118,6 +122,7 @@ del "%TEMP%\_split_free_args.bat"
 
 :exit
 call "%MAKER_SCRIPTS%\set_version_env.bat" "MAKER_ENV" "%MAKER_ENV_VERSION%"
+if "%MAKER_ENV_SILENT%" neq "" goto :EOF
 rem list env:
 if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_
 rem show help:
