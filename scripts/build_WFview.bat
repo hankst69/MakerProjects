@@ -10,7 +10,7 @@ echo %~n0 [version] [--gnu^|--msvs] [--open^|-o] [-?^|-h^|--help]
 goto :EOF
 
 :_start
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env.bat" %* --silent
 
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_WFV_" 1>nul 2>nul
 set "_WFV_THIS_DIR=%~dp0"
@@ -42,13 +42,12 @@ set "_WFV_BUILD_CFG=%_WFV_BUILD_SYSTEM:~0,2%%_WFV_TGT_ARCH:~1%%_WFV_BUILD_TYPE:~
 set "_WFV_BUILD_INFO=%_WFV_VERSION% ^(%_WFV_BUILD_SYSTEM% %_WFV_TGT_ARCH% %_WFV_BUILD_TYPE%^)"
 
 rem debug
-if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
+rem if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_ENV
 rem if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
 
 
 rem welcome
 echo BUILD WFVIEW %_WFV_BUILD_INFO%
-
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_BUILD%\clone_wfview.bat" %_WFV_VERSION% %MAKER_ENV_VERBOSE% --silent
@@ -81,7 +80,8 @@ if not exist "%_WFV_BUILD_DIR%" mkdir "%_WFV_BUILD_DIR%"
 
 
 set "_WFV_EXECUTABLE=%_WFV_BIN_DIR%\bin\wfview.exe"
-if exist "%_WFV_EXECUTABLE%" goto :_exit
+if not exist "%_WFV_EXECUTABLE%" goto :_rebuild
+goto :_build
 
 
 :_rebuild
@@ -110,22 +110,25 @@ if /I "%_WFV_BUILD_SYSTEM%" neq "gnu" if /I "%_WFV_BUILD_SYSTEM%" neq "msvs" (ec
 rem ensure ninja
 if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: NINJA is not available - switchng to MSVS build system
+  echo error: NINJA is not available
   goto :_exit
 )
 rem ensure qt
-call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %MAKER_ENV_VERBOSE% %_WFV_BUILD_SYSTEM%
+call "%MAKER_BUILD%\ensure_qt.bat" %_WFV_QT_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-   goto :_exit
+  echo error: QT %_WFV_QT_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% is not available
+  goto :_exit
 )
 rem validate qt-cmake
 call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-   goto :_exit
+  echo error: QT-CMAKE %_VCG_CMAKE_VERSION% is not available
+  goto :_exit
 )
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: CMAKE %_VCG_CMAKE_VERSION% is not available
   goto :_exit
 )
 
@@ -199,15 +202,18 @@ cmake --install . --config %_WFV_BUILD_TYPE%
 rem workaround: copy also library dependencies into bin (todo: fix CmakeLists.txt)
 cd /d "%WFVIEW_LIBS_DIR%"
 for /f %%i in ('dir /s /b *.dll') do copy "%%~i" "%_WFV_BIN_DIR%\bin"
+rem workaround: copy also wfview config files (todo: fix CmakeLists.txt)
+cd /d "%_WFV_SOURCES_DIR%"
+if not exist "%_WFV_BIN_DIR%\bin\rigs\*" mkdir /s /q "%_WFV_BIN_DIR%\bin\rigs"
+call xcopy /S /Y /Q "%_WFV_SOURCES_DIR%\rigs" "%_WFV_BIN_DIR%\bin\rigs\"
 
 
 :_exit
 cd /d "%_WFV_START_DIR%"
 if not exist "%_WFV_EXECUTABLE%" goto :EOF
 echo.
-echo WFVIEW BUILD COMPLETE
-echo to start wfview type:
+echo BUILD WFVIEW %_WFV_BUILD_INFO% COMPLETE
+echo.
+echo to start wfview:
 echo "%_WFV_EXECUTABLE%"
-rem cd /d "%_WFV_BIN_DIR%\bin"
-rem dir "%_WFV_EXECUTABLE%"
-"%_WFV_EXECUTABLE%"
+start /D "%_WFV_BIN_DIR%\bin" wfview.exe
