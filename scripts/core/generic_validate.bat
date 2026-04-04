@@ -21,7 +21,7 @@ goto :EOF
 :_start
 call :_clean_script_variables
 set "_VALIDATE_SCRIPT_ROOT=%~dp0"
-set "_VALIDATE_SCRIPT_NAME=_%~n0"
+set "_VALIDATE_SCRIPT_NAME=%~n0"
 set "_VALIDATE_NAME=%~1"
 set "_VALIDATE_TEST_CMD=%~2"
 set "_VALIDATE_VERSION_CMD=%3"
@@ -37,12 +37,14 @@ call "%_VALIDATE_SCRIPT_ROOT%\maker_env.bat" %_VALIDATE_ARGS% --silent
 set "_VALIDATE_TGT_VERSION=%MAKER_ENV_VERSION%"
 set "_VALIDATE_TGT_VERSION_COMPARE=%MAKER_ENV_VERSION_COMPARE%"
 set "_VALIDATE_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
-if "%MAKER_ENV_UNKNOWN_SWITCH_1%" neq "" if /I "%MAKER_ENV_UNKNOWN_SWITCH_1:~0,12%" equ "--tool_arch:" set "_VALIDATE_TOOL_ARCHITECTURE=%MAKER_ENV_UNKNOWN_SWITCH_1:~12%"
+if "%MAKER_ENV_UNKNOWN_SWITCH_1%" equ "" goto :_params_postprocessing
+if /I "%MAKER_ENV_UNKNOWN_SWITCH_1:~0,12%" equ "--tool_arch:" set "_VALIDATE_TOOL_ARCHITECTURE=%MAKER_ENV_UNKNOWN_SWITCH_1:~12%"
+
 
 :_params_postprocessing
-if "%_VALIDATE_NAME%"             equ "" (echo error 1%_VALIDATE_SCRIPT_NAME%: missing arg1: ^<tool_name^> &call :_clean_script_variables &exit /b 1)
-if "%_VALIDATE_TEST_CMD%"         equ "" (echo error 2%_VALIDATE_SCRIPT_NAME%: missing arg2: ^<test_cmd^>  &call :_clean_script_variables &exit /b 2)
-if "%_VALIDATE_VERSION_CMD:~1,1%" equ "" (echo error 3%_VALIDATE_SCRIPT_NAME%: missing arg3: ^<version_cmd^> &call :_clean_script_variables &exit /b 3)
+if "%_VALIDATE_NAME%"             equ "" (echo error 1_%_VALIDATE_SCRIPT_NAME%: missing arg1: ^<tool_name^> &call :_clean_script_variables &exit /b 1)
+if "%_VALIDATE_TEST_CMD%"         equ "" (echo error 2_%_VALIDATE_SCRIPT_NAME%: missing arg2: ^<test_cmd^>  &call :_clean_script_variables &exit /b 2)
+if "%_VALIDATE_VERSION_CMD:~1,1%" equ "" (echo error 3_%_VALIDATE_SCRIPT_NAME%: missing arg3: ^<version_cmd^> &call :_clean_script_variables &exit /b 3)
 rem unquote the cmd string:
 set _VALIDATE_VERSION_CMD=%_VALIDATE_VERSION_CMD:~1,-1%
 call set _VALIDATE_VERSION_CMD=%%_VALIDATE_VERSION_CMD:""="%%
@@ -52,10 +54,16 @@ set %_VALIDATE_NAME%_VERSION_MAJOR=
 set %_VALIDATE_NAME%_VERSION_MINOR=
 set %_VALIDATE_NAME%_VERSION_PATCH=
 
+rem normalize target architecture:
+if /I "%_VALIDATE_TGT_ARCHITECTURE%" equ "x86"   set "_VALIDATE_TGT_ARCHITECTURE=x86"
+if /I "%_VALIDATE_TGT_ARCHITECTURE%" equ "x64"   set "_VALIDATE_TGT_ARCHITECTURE=x64"
+if /I "%_VALIDATE_TGT_ARCHITECTURE%" equ "amd64" set "_VALIDATE_TGT_ARCHITECTURE=x64"
+
 rem normalize tool architecture:
 if /I "%_VALIDATE_TOOL_ARCHITECTURE%" equ "x86"   set "_VALIDATE_TOOL_ARCHITECTURE=x86"
 if /I "%_VALIDATE_TOOL_ARCHITECTURE%" equ "x64"   set "_VALIDATE_TOOL_ARCHITECTURE=x64"
 if /I "%_VALIDATE_TOOL_ARCHITECTURE%" equ "amd64" set "_VALIDATE_TOOL_ARCHITECTURE=x64"
+
 
 rem specific MSVS version handling:
 if /I "%_VALIDATE_NAME%" neq "MSVS" goto :tgt_version_normalized
@@ -114,7 +122,7 @@ goto :EOF
 if "%MAKER_ENV_VERBOSE%" neq "" echo VALIDATE: '%_VALIDATE_NAME% %_VALIDATE_TGT_ARCHITECTURE% %_VALIDATE_TGT_VERSION_COMPARE% %_VALIDATE_TGT_VERSION%'
 call %_VALIDATE_TEST_CMD% 1>nul 2>nul
 if %ERRORLEVEL% equ 0 goto :_tool_available
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 4%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% not available
+if "%MAKER_ENV_NOERRORS%" equ "" echo error 4_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% not available
 call :_clean_script_variables
 exit /b 4
 
@@ -125,14 +133,14 @@ rem call cmd /Q /E:ON /V:ON /C "%_VALIDATE_VERSION_CMD%">"%TEMP%\_VALIDATE_VERSI
 set /P _VALIDATE_VERSION=<"%TEMP%\_VALIDATE_VERSION_CMD.tmp"
 del /Q /F "%TEMP%\_VALIDATE_VERSION_CMD.tmp" 1>nul 2>nul
 if "%_VALIDATE_VERSION%" neq "" goto :_tool_version_available
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 5%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version unknown
+if "%MAKER_ENV_NOERRORS%" equ "" echo error 5_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version unknown
 call :_clean_script_variables
 exit /b 5
 
 :_tool_version_available
 call "%_VALIDATE_SCRIPT_ROOT%\split_version.bat" "%_VALIDATE_VERSION%" --no_info %MAKER_ENV_NOWARNINGS% %MAKER_ENV_NOERRORS%
 if %ERRORLEVEL% equ 0 goto :_tool_version_split_ok
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 6%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' not available or invalid
+if "%MAKER_ENV_NOERRORS%" equ "" echo error 6_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' not available or invalid
 call :_clean_script_variables
 exit /b 6
 
@@ -150,10 +158,9 @@ if "%MAKER_ENV_VERBOSE%" neq "" cmd /V:ON /C echo %_VALIDATE_NAME%_VERSION_PATCH
 
 :_tool_version_requirement_test
 if "%_VALIDATE_TGT_VERSION%" equ "" goto :_tool_architecture_requirement_test
-rem echo on
 call "%_VALIDATE_SCRIPT_ROOT%\compare_versions.bat" --no_info %MAKER_ENV_NOERRORS% "%_VALIDATE_VERSION%" "%_VALIDATE_TGT_VERSION%" "%_VALIDATE_TGT_VERSION_COMPARE%"
 if %ERRORLEVEL% equ 0 goto :_tool_architecture_requirement_test
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 7%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'
+if "%MAKER_ENV_NOERRORS%" equ "" echo error 7_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% version '%_VALIDATE_VERSION%' does not match required version '%_VALIDATE_TGT_VERSION%'
 call :_clean_script_variables
 exit /b 7
 
@@ -161,7 +168,7 @@ exit /b 7
 if "%_VALIDATE_TGT_ARCHITECTURE%" equ "" goto :_tool_validation_success
 if "%_VALIDATE_TOOL_ARCHITECTURE%" equ "" goto :_tool_validation_success
 if /I "%_VALIDATE_TOOL_ARCHITECTURE%" equ "%_VALIDATE_TGT_ARCHITECTURE%" goto :_tool_validation_success
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 8%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% architecture '%_VALIDATE_TOOL_ARCHITECTURE%' does not match required type '%_VALIDATE_TGT_ARCHITECTURE%'
+if "%MAKER_ENV_NOERRORS%" equ "" echo error 8_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% architecture '%_VALIDATE_TOOL_ARCHITECTURE%' does not match required type '%_VALIDATE_TGT_ARCHITECTURE%'
 call :_clean_script_variables
 exit /b 8
 

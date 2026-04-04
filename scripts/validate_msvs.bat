@@ -1,6 +1,6 @@
 @rem validate msvs:
 @echo off
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env.bat" %* --silent
 set "_VMSVS_NO_INFOS=%MAKER_ENV_NOINFOS%"
 
 set MSVS_YEAR=

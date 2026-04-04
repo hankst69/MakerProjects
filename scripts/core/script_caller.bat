@@ -75,6 +75,7 @@ for /f "tokens=*" %%f in ('dir /b "%__SCRIPTS_DIR%\%__CLASS_NAME%_%__PROJECT%*.b
 if !_found_matches! gtr 1 (
   rem there are matches - show them to the user
   call :ListMatches "%__PROJECT%" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
+  echo.
 )
 if !_found_matches! neq 1 goto :FindShortcutMatch
 rem we found a single script match - so we call this one

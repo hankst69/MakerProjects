@@ -1,5 +1,5 @@
 @echo off
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env.bat" %* --silent
 
 set "_EMSVS_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
 set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION_COMPARE%%MAKER_ENV_VERSION%"
@@ -63,7 +63,8 @@ if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_T
 exit /b 3
 
 :test_EMSVS_success
-if "%_EMSVS_NO_INFOS%" equ "" echo using: MSVS %MSVS_VERSION% (VS%VSCMD_VER:~0,2%) for %MSVS_TARGET_ARCHITECTURE%
+rem if "%_EMSVS_NO_INFOS%" equ "" call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %_EMSVS_TGT_ARCHITECTURE% --no_warnings --no_errors
+if "%_EMSVS_NO_INFOS%" equ "" echo using: MSVS %MSVS_YEAR% (%MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=
 set _EMSVS_NO_WARNINGS=

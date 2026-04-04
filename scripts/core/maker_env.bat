@@ -40,6 +40,7 @@ set MAKER_ENV_VERSION=
 set MAKER_ENV_ARCHITECTURE=
 set MAKER_ENV_BUILDTYPE=
 set MAKER_ENV_BUILDSYSTEM=
+set MAKER_ENV_BUILDSYSTEM_SWITCH=
 set MAKER_ENV_UNKNOWN_SWITCHES=
 set MAKER_ENV_UNKNOWN_ARGS=
 set MAKER_ENV_ALL_ARGS=
@@ -124,7 +125,7 @@ del "%TEMP%\_split_free_args.bat"
 call "%MAKER_SCRIPTS%\set_version_env.bat" "MAKER_ENV" "%MAKER_ENV_VERSION%"
 if "%MAKER_ENV_SILENT%" neq "" goto :EOF
 rem list env:
-if "%MAKER_ENV_VERBOSE%" neq "" set MAKER_
+if "%MAKER_ENV_VERBOSE%" neq "" (set MAKER_ENV&set MAKER_B&set MAKER_P&set MAKER_Q&set MAKER_S&set MAKER_T)
 rem show help:
 if "%MAKER_ENV_HELP%" neq "" (
   echo.
