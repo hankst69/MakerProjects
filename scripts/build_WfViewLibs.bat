@@ -75,7 +75,7 @@ if not exist "%_WVL_BUILD_DIR%" mkdir "%_WVL_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING WFVIEW-LIBRARIES %_WVL_VERSION% (%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%) from sources
+echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO% from sources
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
@@ -83,35 +83,45 @@ echo *** THIS REQUIRES Fortran (for Eigen)
 echo.
 set _WVL_CMAKE_VERSION=GEQ3.22
 set _WVL_MSVS_VERSION=GEQ2019
-set _WVL_NINJA_VERSION=
-echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
-echo *** THIS REQUIRES Cmake 3.22 or newer
+set _WVL_MSVS_ARCH=amd64
+set _WVL_NINJA_VERSION=GEQ1.10
+
+rem ensure BuildSystem availability
+if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WVL_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_WVL_BUILD_SYSTEM% is not available
+  goto :_exit
+)
+if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MinGW is not available
+  goto :_exit
+)
+if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MSVS %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% is not available
+  goto :_exit
+)
 
 rem validate cmake
 call "%MAKER_BUILD%\validate_cmake.bat" %_WVL_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: CMAKE %_WVL_CMAKE_VERSION% is not available
   goto :_exit
 )
-rem ensure BuildSystem availability
-if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
-if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_TGT_ARCH% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
-  goto :_exit
-)
-if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WVL_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_WVL_BUILD_SYSTEM% is not available &goto :_exit)
 rem ensure ninja
 if /I "%_WVL_BUILD_SYSTEM%" equ "gnu" if %ERRORLEVEL% NEQ 0 goto :_exit
 call "%MAKER_BUILD%\validate_ninja.bat" %_WVL_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NINJA is not available - switchng to MSVS build system
+  echo error: NINJA %_WVL_NINJA_VERSION% is not available
   goto :_exit
 )
+
 rem ensure fortran (ensure and validate not implemented yet) 
 call "%MAKER_BUILD%\build_fortran.bat" %MAKER_ENV_VERBOSE%
 
 
 echo.
-echo BUILD WFVIEW-LIBRARIES (%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%)
+echo BUILD WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
 rem
 set "_WVL_CONFIG_GENERATOR=Ninja"
 set "_WVL_CONFIG_OPTIONS="

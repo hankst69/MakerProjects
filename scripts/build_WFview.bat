@@ -97,20 +97,28 @@ echo.
 set _WFV_CMAKE_VERSION=GEQ3.22
 set _WFV_MSVS_VERSION=GEQ2019
 set _WFV_MSVS_ARCH=amd64
-set _WFV_NINJA_VERSION=
+set _WFV_NINJA_VERSION=GEQ1.10
 set _WFV_QT_VERSION=6.8.3
 
 rem ensure BuildSystem availability
-if /I "%_WFV_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
-if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
+if /I "%_WFV_BUILD_SYSTEM%" neq "gnu" if /I "%_WFV_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_WFV_BUILD_SYSTEM% is not available
   goto :_exit
 )
-if /I "%_WFV_BUILD_SYSTEM%" neq "gnu" if /I "%_WFV_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_WFV_BUILD_SYSTEM% is not available &goto :_exit)
+if /I "%_WFV_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MinGW is not available
+  goto :_exit
+)
+if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% %MAKER_ENV_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MSVS %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% is not available
+  goto :_exit
+)
 rem ensure ninja
 if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_BUILD%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: NINJA is not available
+  echo error: NINJA %_WFV_NINJA_VERSION% is not available
   goto :_exit
 )
 rem ensure qt
@@ -120,21 +128,21 @@ if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 rem validate qt-cmake
-call "%MAKER_BUILD%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_qt-cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: QT-CMAKE %_VCG_CMAKE_VERSION% is not available
+  echo error: QT-CMAKE %_WFV_CMAKE_VERSION% is not available
   goto :_exit
 )
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: CMAKE %_VCG_CMAKE_VERSION% is not available
+  echo error: CMAKE %_WFV_CMAKE_VERSION% is not available
   goto :_exit
 )
 
 rem *** build required libraries ***
 echo.
-call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT% %_WFV_BUILD_SYSTEM%
+call "%MAKER_BUILD%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %_WFV_TGT_ARCH% %MAKER_ENV_VERBOSE% %MAKER_ENV_SILENT%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
