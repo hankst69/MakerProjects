@@ -11,7 +11,7 @@ rem ALL         (rtaudio, Eigen, portaudio, qcustomplot, hidapi, opus) https://w
 rem opus        (..\opus\include)      https://github.com/xiph/opus.git
 rem hidapi      (..\hidapi\hidapi)     https://github.com/libusb/hidapi.git
 rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio.git
-rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz
+rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git  (https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz)
 rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
 rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio.git
 rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src.git
