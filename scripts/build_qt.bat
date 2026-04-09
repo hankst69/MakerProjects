@@ -148,6 +148,7 @@ rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
 set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
 if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release -force-debug-info"
+rem if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info"
 if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -debug"
 rem set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info"
 rem
