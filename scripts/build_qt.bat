@@ -147,10 +147,14 @@ rem
 rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
 set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
-if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release -force-debug-info"
-rem if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info"
+if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release"
 if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -debug"
-rem set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info"
+rem if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info"
+rem if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info"
+rem
+if /I "%_QT_BUILD_MODE%" equ "static" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static"
+if /I "%_QT_BUILD_MODE%" neq "static" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -shared"
+if /I "%_QT_BUILD_MODE%" equ "static" if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static-runtime"
 rem
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu"  set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
