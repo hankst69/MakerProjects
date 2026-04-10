@@ -30,7 +30,7 @@ if "%_GR_VERSION%" equ "3.0" set _GR_CMAKE_VERSION=GEQ3.20
 
 
 rem *** cloning sources ***
-call "%MAKER_SCRIPTS%\clone_gammaray.bat" %_GR_VERSION% %MAKER_MSG_VERBOSE% --silent
+call "%MAKER_DIR_SCRIPTS%\clone_gammaray.bat" %_GR_VERSION% %MAKER_MSG_VERBOSE% --silent
 cd /d "%_BGR_START_DIR%"
 rem defines: _GR_DIR
 rem defines: _GR_SOURCES_DIR
@@ -55,19 +55,19 @@ if "%_GR_REBUILD%" neq "" (
 
 rem *** testing for existing GR build ***
 if not exist "%_GR_BIN_DIR%\bin\gammaray.exe" goto :_rebuild
-call "%MAKER_SCRIPTS%\validate_gammaray.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_gammaray.bat" 1>nul
 if %ERRORLEVEL% EQU 0 (
   echo GAMMARAY %_GR_VERSION% already available
   goto :_install_done
 )
 if %ERRORLEVEL% EQU 4 set "PATH=%_GR_BIN_DIR%\bin;%PATH%"
-call "%MAKER_SCRIPTS%\validate_gammaray.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_gammaray.bat" 1>nul
 if %ERRORLEVEL% EQU 0 (
   echo GAMMARAY %_GR_VERSION% already available
   goto :_install_done
 )
-call "%MAKER_SCRIPTS%\build_qt.bat"
-call "%MAKER_SCRIPTS%\validate_gammaray.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\build_qt.bat"
+call "%MAKER_DIR_SCRIPTS%\validate_gammaray.bat" 1>nul
 if %ERRORLEVEL% EQU 0 (
   echo GAMMARAY %_GR_VERSION% already available
   goto :_install_done
@@ -98,27 +98,27 @@ echo *** THIS REQUIRES VisualStudio 2019 or 2022
 echo *** OTPIONAL: Ninja
 echo.
 rem ensure msvs version and amd64 target architecture
-call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_GR_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_GR_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" %_GR_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_GR_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 rem validate ninja
-call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   rem goto :_exit
 )
 rem ensure qt
-call "%MAKER_SCRIPTS%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% EQU 0 goto :_configure
-if "%_GR_VERSION%" neq "3.0" call "%MAKER_SCRIPTS%\build_qt.bat"
-if "%_GR_VERSION%" equ "3.0" call "%MAKER_SCRIPTS%\build_qt.bat" %_GR_QT_VERSION%
-call "%MAKER_SCRIPTS%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_MSG_VERBOSE%
+if "%_GR_VERSION%" neq "3.0" call "%MAKER_DIR_SCRIPTS%\build_qt.bat"
+if "%_GR_VERSION%" equ "3.0" call "%MAKER_DIR_SCRIPTS%\build_qt.bat" %_GR_QT_VERSION%
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %_GR_QT_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
@@ -145,7 +145,7 @@ rem *** perform GR build ***
 echo.
 echo GAMMARAY-BUILD %_GR_VERSION% (%_GR_BUILD_TYPE%)
 pushd "%_GR_BUILD_DIR%"
-call cmake --build . --parallel --config %_GR_BUILD_TYPE%
+call cmake --build . --config %_GR_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 popd
 :_build_done
 
@@ -172,7 +172,7 @@ goto :_exit
 :_install_done
 rem -- create shortcuts
 echo @start /D "%_GR_BIN_DIR%\bin" /MAX /B %_GR_BIN_DIR%\bin\gammaray.exe %%*>"%MAKER_ENV_BIN%\gammaray.bat"
-call "%MAKER_SCRIPTS%\validate_gammaray.bat"
+call "%MAKER_DIR_SCRIPTS%\validate_gammaray.bat"
 
 
 :_exit

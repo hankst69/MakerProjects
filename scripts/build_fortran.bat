@@ -59,7 +59,7 @@ goto :test_fortran
 echo *** THIS REQUIRES Python 3
 echo.
 rem --- validate python
-call "%MAKER_SCRIPTS%\ensure_python.bat" 3 --no_infos
+call "%MAKER_DIR_SCRIPTS%\ensure_python.bat" 3 --no_infos
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
@@ -115,7 +115,7 @@ goto :test_fortran
 :test_fortran
 rem test if PATH is already adapted to find fortran compiler
 rem first change the current dir to not unwillingly call a local fortran from Maker project root and cause an iteration
-cd /d "%MAKER_TOOLS%"
+cd /d "%MAKER_DIR_TOOLS%"
 call %_FRT_TOOL% --validate 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_ENV_BIN%"
 call %_FRT_TOOL% --validate 1>nul 2>nul

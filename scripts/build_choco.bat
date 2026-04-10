@@ -11,7 +11,7 @@ rem if "%_CHOCO_VERSION%"    equ "" set _CHOCO_VERSION=2.2.2
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 rem validate specifies:
@@ -30,7 +30,7 @@ set "_CHOCO_BIN=%CHOCO_DIR%"
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
@@ -43,7 +43,7 @@ rem echo install CHOCO
 if not exist "%_CHOCO_BIN%\choco.exe" (
   echo.
   echo building CHOCO
-  call "%MAKER_SCRIPTS%\clone_choco.bat" --silent
+  call "%MAKER_DIR_SCRIPTS%\clone_choco.bat" --silent
   rem defines: _CHOCO_DIR
   if "%_CHOCO_DIR%" EQU "" (echo error: cloning CHOCO &goto :EOF)
   if not exist "%_CHOCO_DIR%" (echo error: cloning CHOCO &goto :EOF)
@@ -54,7 +54,7 @@ if not exist "%_CHOCO_BIN%\choco.exe" (
     echo.
 	echo *** THIS REQUIRES VisualStudio 2019 ^(currently^) ***
 	echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
-	call "%MAKER_SCRIPTS%\validate_msvs.bat" 2019
+	call "%MAKER_DIR_SCRIPTS%\validate_msvs.bat" 2019
 	if %ERRORLEVEL% NEQ 0 (
 		echo error: wrong VisualStudio version 
 		goto :EOF
@@ -79,10 +79,10 @@ rem echo @call choco.exe %%* --allow-unofficial --debug>>"%MAKER_ENV_BIN%\choco.
 echo @call choco.exe %%* --allow-unofficial >>"%MAKER_ENV_BIN%\choco.bat"
 echo @popd>>"%MAKER_ENV_BIN%\choco.bat"
 
-call "%MAKER_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%MAKER_ENV_BIN%;%Path%"
 
 
 :exit_script
 cd /d "%_BCO_START_DIR%"
-"%MAKER_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION%
+"%MAKER_DIR_SCRIPTS%\validate_choco.bat" %_CHOCO_VERSION%

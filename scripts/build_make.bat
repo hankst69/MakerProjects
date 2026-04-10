@@ -9,7 +9,7 @@ call "%~dp0\maker_env.bat"
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_make.bat" 1>nul
 if %ERRORLEVEL% EQU 0 goto :test_make_success
 
 if exist "%MAKER_ENV_BIN%\make.bat" (
@@ -21,7 +21,7 @@ if exist "%MAKER_ENV_BIN%\make.bat" (
   if "%_VERSION_NR%" neq "" goto :test_make_success
 )
 
-call "%MAKER_SCRIPTS%\ensure_choco.bat"
+call "%MAKER_DIR_SCRIPTS%\ensure_choco.bat"
 if %ERRORLEVEL% NEQ 0 (
   echo error: CHOCO is not available
   goto :exit_script
@@ -38,16 +38,16 @@ if not exist "%_CHOCO_BIN%\bin\make.exe" (
 
 echo @call "%%_CHOCO_BIN%%\bin\make.exe" %%* >"%MAKER_ENV_BIN%\make.bat"
 
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 set "Path=%MAKER_ENV_BIN%;%Path%"
-call "%MAKER_SCRIPTS%\validate_make.bat" 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_make.bat" 1>nul
 if %ERRORLEVEL% NEQ 0 (
   echo error: installing MAKE failed
   goto :exit_script
 )
 
 :test_make_success
-call "%MAKER_SCRIPTS%\validate_make.bat"
+call "%MAKER_DIR_SCRIPTS%\validate_make.bat"
 
 :exit_script
 cd /d "%_BMK_START_DIR%"

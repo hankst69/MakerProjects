@@ -50,7 +50,7 @@ rem welcome
 echo BUILD WFVIEW %_WFV_BUILD_INFO%
 
 rem *** clone WFVIEW sources ***
-call "%MAKER_SCRIPTS%\clone_wfview.bat" %_WFV_VERSION% %MAKER_MSG_VERBOSE% --silent
+call "%MAKER_DIR_SCRIPTS%\clone_wfview.bat" %_WFV_VERSION% %MAKER_MSG_VERBOSE% --silent
 rem defines: WFVIEW_VERSION
 rem defines: WFVIEW_DIR
 rem defines: WFVIEW_BASE_DIR
@@ -105,36 +105,36 @@ if /I "%_WFV_BUILD_SYSTEM%" neq "gnu" if /I "%_WFV_BUILD_SYSTEM%" neq "msvs" (
   echo error: BuildSystem %_WFV_BUILD_SYSTEM% is not available
   goto :_exit
 )
-if /I "%_WFV_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
+if /I "%_WFV_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_DIR_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MinGW is not available
   goto :_exit
 )
-if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% %MAKER_MSG_VERBOSE%
+if /I "%_WFV_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MSVS %_WFV_MSVS_VERSION% %_WFV_MSVS_ARCH% is not available
   goto :_exit
 )
 rem ensure ninja
-if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
+if /I "%_WFV_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" %_WFV_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA %_WFV_NINJA_VERSION% is not available
   goto :_exit
 )
 rem ensure qt
-call "%MAKER_SCRIPTS%\ensure_qt.bat" %_WFV_QT_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %_WFV_QT_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: QT %_WFV_QT_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% is not available
   goto :_exit
 )
 rem validate qt-cmake
-call "%MAKER_SCRIPTS%\validate_qt-cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_qt-cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: QT-CMAKE %_WFV_CMAKE_VERSION% is not available
   goto :_exit
 )
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_WFV_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: CMAKE %_WFV_CMAKE_VERSION% is not available
   goto :_exit
@@ -142,7 +142,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem *** build required libraries ***
 echo.
-call "%MAKER_SCRIPTS%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %_WFV_BUILD_ARCH% %MAKER_MSG_VERBOSE% %MAKER_MSG_SILENT%
+call "%MAKER_DIR_SCRIPTS%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %_WFV_BUILD_ARCH% %MAKER_MSG_VERBOSE% %MAKER_MSG_SILENT%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
@@ -156,7 +156,7 @@ if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo error: BUILDING of WFVIEW-LIBRARIES f
 :_qmake2cmake
 rem *** generate CmakeLists.txt ***
 if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
-  call "%MAKER_SCRIPTS%\build_qmake2cmake.bat"
+  call "%MAKER_DIR_SCRIPTS%\build_qmake2cmake.bat"
   if %ERRORLEVEL% NEQ 0 goto :_exit
   cd "%_WFV_SOURCES_DIR%"
   call qmake2cmake wfview.pro -o CmakeLists.txt --min-qt-version %_WFV_QT_VERSION%
@@ -194,8 +194,8 @@ echo.***************************************************************************
 echo * BUILD WFVIEW %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
-echo cmake --build . --config %_WFV_BUILD_TYPE% &rem --parallel 4
-call cmake --build . --config %_WFV_BUILD_TYPE% --parallel
+echo cmake --build . --config %_WFV_BUILD_TYPE%
+call cmake --build . --config %_WFV_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 
 
 :_install

@@ -9,15 +9,23 @@ if "%MAKER_ENV_ROOT:~-1%" equ "\" set "MAKER_ENV_ROOT=%MAKER_ENV_ROOT:~0,-1%"
 set "MAKER_ENV_BIN=%MAKER_ENV_ROOT%\.tools"
 set "MAKER_ENV_CORE=%MAKER_ENV_ROOT%\scripts\core"
 
-set "MAKER_SCRIPTS=%MAKER_ENV_ROOT%\scripts"
-set "MAKER_TOOLS=%MAKER_ENV_ROOT%\tools"
-set "MAKER_PROJECTS=%MAKER_ENV_ROOT%\projects"
+rem call powershell -command "(Get-CimInstance -ClassName Win32_Processor).NumberOfCores;"
+rem call powershell -command "(Get-CimInstance -ClassName Win32_Processor).NumberOfLogicalProcessors;"
+set MAKER_NUM_PROCESSORS=%NUMBER_OF_PROCESSORS%
+set /A MAKER_NUM_CORES=%NUMBER_OF_PROCESSORS%/2
+set /A MAKER_NUM_PARALLEL=%NUMBER_OF_PROCESSORS%/4
+if %MAKER_NUM_PARALLEL% lss 2 set MAKER_NUM_PARALLEL=1
 
-set "MAKER_PROJECTS_DOTNET=%MAKER_PROJECTS%\.Net"
-set "MAKER_PROJECTS_WEB=%MAKER_PROJECTS%\Web"
+set "MAKER_DIR_SCRIPTS=%MAKER_ENV_ROOT%\scripts"
+set "MAKER_DIR_TOOLS=%MAKER_ENV_ROOT%\tools"
+set "MAKER_DIR_PROJECTS=%MAKER_ENV_ROOT%\projects"
+
+set "MAKER_DIR_PROJECTS_DOTNET=%MAKER_DIR_PROJECTS%\.Net"
+set "MAKER_DIR_PROJECTS_WEB=%MAKER_DIR_PROJECTS%\Web"
 
 pushd "%MAKER_ENV_ROOT%\.."
-set "MAKER_QT_DIR=%cd%\Qt"
+set "MAKER_DIR_QT=%cd%\QT"
+set "MAKER_DIR_LLVM=%cd%\LLVM"
 popd
 
 if not exist "%MAKER_ENV_BIN%" mkdir "%MAKER_ENV_BIN%"

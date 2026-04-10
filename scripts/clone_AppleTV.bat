@@ -8,7 +8,7 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_APPLETV_DIR=%MAKER_PROJECTS%\AppleTv"
+set "_APPLETV_DIR=%MAKER_DIR_PROJECTS%\AppleTv"
 
 set "_APPLETV_JB_XCode_DIR=%_APPLETV_DIR%\AppleTV3_JailBreak_Blackb0x"
 set "_APPLETV_JB_UnoUsb_DIR=%_APPLETV_DIR%\checkm8-a5"

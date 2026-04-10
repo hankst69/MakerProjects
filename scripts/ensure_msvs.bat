@@ -19,7 +19,7 @@ set "_EMSVS_TGT_ARCHITECTURE=x64"
 
 :test_msvs
 rem validate msvs
-call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :msvs_self_healing:
 if "%_EMSVS_TGT_VERSION%" equ "2019" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2019
@@ -39,7 +39,7 @@ goto :test_msvs_again
 
 :test_msvs_again
 rem validate msvs
-call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :test_msvs_failed
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS %_EMSVS_TGT_VERSION% not available
@@ -63,7 +63,7 @@ if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_T
 exit /b 3
 
 :test_EMSVS_success
-rem if "%_EMSVS_NO_INFOS%" equ "" call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %_EMSVS_TGT_ARCHITECTURE% --no_warnings --no_errors
+rem if "%_EMSVS_NO_INFOS%" equ "" call "%MAKER_DIR_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %_EMSVS_TGT_ARCHITECTURE% --no_warnings --no_errors
 if "%_EMSVS_NO_INFOS%" equ "" echo using: MSVS %MSVS_YEAR% (%MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=

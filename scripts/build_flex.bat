@@ -19,28 +19,28 @@ rem set "_FLEX_BUILD_ARCH=x64"
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 rem install/build...
 rem a) install using predownloaded zip files:
-rem set "_FLEX_DIR=%MAKER_TOOLS%\Flex"
+rem set "_FLEX_DIR=%MAKER_DIR_TOOLS%\Flex"
 rem set "_FLEX_BIN_DIR=%_FLEX_DIR%\flex-%_FLEX_VERSION%"
 rem if not exist "%_FLEX_BIN_DIR%" mkdir "%_FLEX_BIN_DIR%"
 rem if exist "%_FLEX_BIN_DIR%\bin\flex.exe" goto :test_FLEX_succes
 rem unzip flex into %_FLEX_DIR%
 rem pushd "%_FLEX_BIN_DIR%"
-rem call 7z x -y "%MAKER_TOOLS%\packages\bison-2.4.1-dep.zip" 1>NUL
-rem call 7z x -y "%MAKER_TOOLS%\packages\bison-2.4.1-lib.zip" 1>NUL
-rem call 7z x -y "%MAKER_TOOLS%\packages\bison-2.4.1-bin.zip" 1>NUL
-rem call 7z x -y "%MAKER_TOOLS%\packages\bison-2.4.1-src.zip" 1>NUL
+rem call 7z x -y "%MAKER_DIR_TOOLS%\packages\bison-2.4.1-dep.zip" 1>NUL
+rem call 7z x -y "%MAKER_DIR_TOOLS%\packages\bison-2.4.1-lib.zip" 1>NUL
+rem call 7z x -y "%MAKER_DIR_TOOLS%\packages\bison-2.4.1-bin.zip" 1>NUL
+rem call 7z x -y "%MAKER_DIR_TOOLS%\packages\bison-2.4.1-src.zip" 1>NUL
 rem popd
 rem if exist "%_FLEX_BIN_DIR%\bin\flex.exe" goto :test_FLEX_succes
 rem
 rem b) install using choco:
 set "_FLEX_BIN_DIR=%MAKER_ENV_BIN%"
-call "%MAKER_SCRIPTS%\ensure_choco.bat"
+call "%MAKER_DIR_SCRIPTS%\ensure_choco.bat"
 if %ERRORLEVEL% NEQ 0 (
   echo error: CHOCO is not available
   goto :exit_script
@@ -56,13 +56,13 @@ if not exist "%_CHOCO_BIN_BIN%\win_flex.exe" (
 rem echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_ENV_BIN%\flex.bat"
 rem goto :test_FLEX_succes
 copy /Y "%_CHOCO_BIN_BIN%\win_flex.exe" "%_CHOCO_BIN_BIN%\flex.exe" 1>nul 2>nul
-call "%MAKER_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% --no_infos --no_errors
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% --no_infos --no_errors
 if %ERRORLEVEL% EQU 0 goto :exit_script
 set "Path=%_CHOCO_BIN_BIN%;%Path%"
 goto :exit_script
 
 :test_FLEX_succes
-call "%MAKER_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% --no_errors
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% --no_errors
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 set "Path=%MAKER_ENV_BIN%;%Path%"
@@ -71,4 +71,4 @@ set "Path=%MAKER_ENV_BIN%;%Path%"
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 cd /d "%_BMFL_START_DIR%"
 set _BMFL_START_DIR=
-call "%MAKER_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" %_FLEX_VERSION% %MAKER_MSG_VERBOSE%

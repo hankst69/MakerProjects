@@ -17,14 +17,14 @@ if "%_GP_VERSION%" equ ""  set _GP_VERSION=
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_CONFIG% %MAKER_MSG_VERBOSE% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_CONFIG% %MAKER_MSG_VERBOSE% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :Exit
 
 rem install/build...
 echo BUILDING GPERF %_GP_VERSION% (%_GP_BUILD_SYSTEM% %_GP_BUILD_ARCH% %_GP_BUILD_TYPE%)
 
 rem (1) *** cloning GPerf sources ***
-call "%MAKER_SCRIPTS%\clone_gperf.bat" "%_GP_VERSION%" %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\clone_gperf.bat" "%_GP_VERSION%" %MAKER_MSG_VERBOSE%
 
 rem defines: _GP_DIR
 rem defines: _GP_SOURCES_DIR
@@ -65,19 +65,19 @@ set _GP_MSVS_VERSION=GEQ2019
 set _GP_MSVS_ARCH=amd64
 if "%MAKER_MSG_VERBOSE%" neq "" set _GP_
 
-if /I "%_GP_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_GP_MSVS_VERSION% %_GP_MSVS_ARCH% %MAKER_MSG_VERBOSE%
-if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
+if /I "%_GP_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_GP_MSVS_VERSION% %_GP_MSVS_ARCH% %MAKER_MSG_VERBOSE%
+if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 if /I "%_GP_BUILD_SYSTEM%" neq "gnu" if /I "%_GP_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_GP_BUILD_SYSTEM% is not available &goto :Exit)
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" %_GP_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_GP_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :Exit
 )
 rem validate ninja
-if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
+if /I "%_GP_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   goto :Exit
@@ -102,7 +102,7 @@ echo GPERF-CONFIG done
 echo.
 echo GPERF-BUILD (%_GP_BUILD_DIR%)
 cd /d "%_GP_BUILD_DIR%"
-call cmake --build . --config %_GP_BUILD_TYPE% --parallel
+call cmake --build . --config %_GP_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 echo GPERF-BUILD done
 
 :install_gp
@@ -115,9 +115,9 @@ call cmake --install .
 echo GPERF-INSTALL done
 
 :ensure_gp
-call "%MAKER_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_BUILD_ARCH% %_GP_BUILD_TYPE% %MAKER_MSG_VERBOSE% --no_warnings --no_errors --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_BUILD_ARCH% %_GP_BUILD_TYPE% %MAKER_MSG_VERBOSE% --no_warnings --no_errors --no_infos
 if %ERRORLEVEL% NEQ 0 set "PATH=%PATH%;%_GP_BIN_DIR%\bin"
 
 :Exit
 cd /d "%_GP_DIR%"
-call "%MAKER_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_BUILD_ARCH% %_GP_BUILD_TYPE% %MAKER_MSG_VERBOSE% --no_warnings
+call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" "%_GP_VERSION%" %_GP_BUILD_SYSTEM% %_GP_BUILD_ARCH% %_GP_BUILD_TYPE% %MAKER_MSG_VERBOSE% --no_warnings

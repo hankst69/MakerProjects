@@ -3,7 +3,7 @@ call "%~dp0\maker_env.bat" %*
 call "%MAKER_ENV_CORE%\set_version_env" "WFVIEW" "%MAKER_VERSION%"
 
 set "WFVIEW_BASE_DIR=wfview"
-set "WFVIEW_DIR=%MAKER_PROJECTS%\%WFVIEW_BASE_DIR%"
+set "WFVIEW_DIR=%MAKER_DIR_PROJECTS%\%WFVIEW_BASE_DIR%"
 rem pushd "%MAKER_ENV_ROOT%\.."
 rem set "WFVIEW_DIR=%cd%\%WFVIEW_BASE_DIR%"
 rem popd

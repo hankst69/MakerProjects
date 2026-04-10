@@ -5,7 +5,7 @@ call "%~dp0\maker_env.bat"
 set _GPT_VERSION=
 if "%~1" neq "" set "_GPT_VERSION=%~1"
 
-set "_GPT_DIR=%MAKER_TOOLS%\GPerfTools"
+set "_GPT_DIR=%MAKER_DIR_TOOLS%\GPerfTools"
 set "_GPT_SOURCES_DIR=%_GPT_DIR%\source%_GPT_VERSION%\"
 
 rem --- cloning GPerfTools

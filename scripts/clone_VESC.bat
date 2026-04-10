@@ -5,7 +5,7 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_VESC_DIR=%MAKER_TOOLS%\VESC"
+set "_VESC_DIR=%MAKER_DIR_TOOLS%\VESC"
 set "_VESC_FW_DIR=%_VESC_DIR%\vesc_fw"
 set "_VESC_TOOL_DIR=%_VESC_DIR%\vesc_tool"
 

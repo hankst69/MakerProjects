@@ -36,13 +36,13 @@ goto :EOF
 :for_each_next
 if "%~2" equ "" goto :EOF
 for /f "tokens=1,* delims= " %%p in ("%~2") do (
-  if "%%~p" neq "" if exist "%MAKER_SCRIPTS%\clone_%%~p.bat" (
+  if "%%~p" neq "" if exist "%MAKER_DIR_SCRIPTS%\clone_%%~p.bat" (
     if /I "%~1" equ "--short" echo clone %%~p
-    if /I "%~1" equ "--long"  echo "%MAKER_SCRIPTS%\clone_%%~p.bat"
-    if /I "%~1" equ "--clone" call "%MAKER_SCRIPTS%\clone_%%~p.bat"
+    if /I "%~1" equ "--long"  echo "%MAKER_DIR_SCRIPTS%\clone_%%~p.bat"
+    if /I "%~1" equ "--clone" call "%MAKER_DIR_SCRIPTS%\clone_%%~p.bat"
   )
-  if "%%~p" neq "" if not exist "%MAKER_SCRIPTS%\clone_%%~p.bat" (
-    echo warning: clone script '%MAKER_SCRIPTS%\clone_%%~p.bat' does not exist
+  if "%%~p" neq "" if not exist "%MAKER_DIR_SCRIPTS%\clone_%%~p.bat" (
+    echo warning: clone script '%MAKER_DIR_SCRIPTS%\clone_%%~p.bat' does not exist
   )
   if "%%~q" neq "" call :for_each "%~1" "%%~q"
 )

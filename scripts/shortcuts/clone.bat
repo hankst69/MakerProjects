@@ -42,63 +42,63 @@ goto :EOF
 
 :clean_tools
 call "%~dp0\maker_env.bat"
-if not exist "%MAKER_TOOLS%\Emsdk" if not exist "%MAKER_TOOLS%\Choco" if not exist "%MAKER_QT_DIR%" if not exist "%MAKER_TOOLS%\VESC" (
+if not exist "%MAKER_DIR_TOOLS%\Emsdk" if not exist "%MAKER_DIR_TOOLS%\Choco" if not exist "%MAKER_DIR_QT%" if not exist "%MAKER_DIR_TOOLS%\VESC" (
   echo nothing to clean
   goto :EOF
 )
 echo.
 echo ...about to delete cloned sources and build outputs of:
-if exist "%MAKER_TOOLS%\Emsdk" (
+if exist "%MAKER_DIR_TOOLS%\Emsdk" (
   echo.
-  echo %MAKER_TOOLS%\Emsdk
-  dir /b "%MAKER_TOOLS%\Emsdk"
+  echo %MAKER_DIR_TOOLS%\Emsdk
+  dir /b "%MAKER_DIR_TOOLS%\Emsdk"
 )
-if exist "%MAKER_TOOLS%\Choco" (
+if exist "%MAKER_DIR_TOOLS%\Choco" (
   echo.
-  echo %MAKER_TOOLS%\Choco
-  dir /b "%MAKER_TOOLS%\Choco"
+  echo %MAKER_DIR_TOOLS%\Choco
+  dir /b "%MAKER_DIR_TOOLS%\Choco"
 )
-if exist "%MAKER_QT_DIR%" (
+if exist "%MAKER_DIR_QT%" (
   echo.
-  echo %MAKER_QT_DIR%
-  dir /b "%MAKER_QT_DIR%"
+  echo %MAKER_DIR_QT%
+  dir /b "%MAKER_DIR_QT%"
 )
-if exist "%MAKER_TOOLS%\VESC" (
+if exist "%MAKER_DIR_TOOLS%\VESC" (
   echo.
-  echo %MAKER_TOOLS%\VESC
-  dir /b "%MAKER_TOOLS%\VESC"
+  echo %MAKER_DIR_TOOLS%\VESC
+  dir /b "%MAKER_DIR_TOOLS%\VESC"
 )
 echo.
-if exist "%MAKER_TOOLS%\Emsdk" (
+if exist "%MAKER_DIR_TOOLS%\Emsdk" (
   echo.
-  echo ...about to delete '%MAKER_TOOLS%\Emsdk'
+  echo ...about to delete '%MAKER_DIR_TOOLS%\Emsdk'
   echo abort with Ctrl-C ^(any other key to continue^)
   pause
   echo.
-  rmdir /s /q "%MAKER_TOOLS%\Emsdk"
+  rmdir /s /q "%MAKER_DIR_TOOLS%\Emsdk"
 )
-if exist "%MAKER_TOOLS%\Choco" (
+if exist "%MAKER_DIR_TOOLS%\Choco" (
   echo.
-  echo ...about to delete '%MAKER_TOOLS%\Choco'
+  echo ...about to delete '%MAKER_DIR_TOOLS%\Choco'
   echo abort with Ctrl-C ^(any other key to continue^)
   pause
   echo.
-  rmdir /s /q "%MAKER_TOOLS%\Choco"
+  rmdir /s /q "%MAKER_DIR_TOOLS%\Choco"
 )
-if exist "%MAKER_QT_DIR%" (
+if exist "%MAKER_DIR_QT%" (
   echo.
-  echo ...about to delete '%MAKER_QT_DIR%'
+  echo ...about to delete '%MAKER_DIR_QT%'
   echo abort with Ctrl-C ^(any other key to continue^)
   pause
   echo.
-  rmdir /s /q "%MAKER_QT_DIR%"
+  rmdir /s /q "%MAKER_DIR_QT%"
 )
-if exist "%MAKER_TOOLS%\VESC" (
+if exist "%MAKER_DIR_TOOLS%\VESC" (
   echo.
-  echo ...about to delete '%MAKER_TOOLS%\VESC'
+  echo ...about to delete '%MAKER_DIR_TOOLS%\VESC'
   echo abort with Ctrl-C ^(any other key to continue^)
   pause
   echo.
-  rmdir /s /q "%MAKER_TOOLS%\VESC"
+  rmdir /s /q "%MAKER_DIR_TOOLS%\VESC"
 )
 goto :EOF

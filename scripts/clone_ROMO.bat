@@ -10,7 +10,7 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_ROMO_DIR=%MAKER_PROJECTS%\Romo"
+set "_ROMO_DIR=%MAKER_DIR_PROJECTS%\Romo"
 
 set "_ROMO_FW_DIR=%_ROMO_DIR%\Romo_FW"
 set "_ROMO_APP_DIR=%_ROMO_DIR%\Romo_APP"

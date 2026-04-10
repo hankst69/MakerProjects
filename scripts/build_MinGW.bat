@@ -13,7 +13,7 @@ if "%_MGW_BUILD_TYPE%"    equ "" set _MGW_BUILD_TYPE=Release
 if "%_MGW_BUILD_ARCH%"      equ "" set _MGW_BUILD_ARCH=x64
 
 rem take shortcut if possible
-call "%MAKER_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
@@ -31,7 +31,7 @@ rem   -> Install-ChocolateyPath cmdlet issue (this choco cmdlet is missing)
 set "_MGW_DIR=C:\ProgramData\mingw64"
 set "_MGW_BIN_DIR=%_MGW_DIR%\mingw64\bin"
 if exist "%_MGW_BIN_DIR%\gcc.exe" goto :win_MGW_installed
-call "%MAKER_SCRIPTS%\ensure_choco.bat"
+call "%MAKER_DIR_SCRIPTS%\ensure_choco.bat"
 if %ERRORLEVEL% NEQ 0 (
   echo error: CHOCO is not available
   goto :exit_script
@@ -46,7 +46,7 @@ rem goto :test_MGW_succes
 
 
 :test_MGW_succes
-call "%MAKER_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% %_MGW_BUILD_TYPE% %_MGW_BUILD_ARCH% --no_warnings --no_errors --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% %_MGW_BUILD_TYPE% %_MGW_BUILD_ARCH% --no_warnings --no_errors --no_infos
 if %ERRORLEVEL% EQU 0 goto :exit_script
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 set "Path=%_MGW_BIN_DIR%;%Path%"
@@ -55,4 +55,4 @@ set "Path=%_MGW_BIN_DIR%;%Path%"
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 cd /d "%_BMGW_START_DIR%"
 set _BMGW_START_DIR=
-call "%MAKER_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% %_MGW_BUILD_TYPE% %_MGW_BUILD_ARCH% %MAKER_MSG_VERBOSE% --no_warnings
+call "%MAKER_DIR_SCRIPTS%\validate_mingw.bat" %_MGW_VERSION% %_MGW_BUILD_TYPE% %_MGW_BUILD_ARCH% %MAKER_MSG_VERBOSE% --no_warnings

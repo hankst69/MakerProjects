@@ -23,7 +23,7 @@ rem git submodule update --init --recursive
 goto :EOF
 
 call "%~dp0\maker_env.bat"
-set "_ESP_IDF_DIR=%MAKER_TOOLS%\Esp-adf"
-set "_ESP_ADF_DIR=%MAKER_TOOLS%\Esp-adf"
+set "_ESP_IDF_DIR=%MAKER_DIR_TOOLS%\Esp-adf"
+set "_ESP_ADF_DIR=%MAKER_DIR_TOOLS%\Esp-adf"
 rem call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_ARDUINO_ESP8266_DIR%" "https://github.com/esp8266/Arduino.git" --changeDir
-rem cd /d "%MAKER_TOOLS%"
+rem cd /d "%MAKER_DIR_TOOLS%"

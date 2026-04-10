@@ -12,7 +12,7 @@ if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_QMC_VERSION%" equ "" set "_QMC_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
-set "QT_DIR=%MAKER_QT_DIR%"
+set "QT_DIR=%MAKER_DIR_QT%"
 set "_QMC_ENV_DIR=%QT_DIR%\.qm2cm_env"
 set "_QMC_SRC_DIR=%QT_DIR%\qmake2cmake"
 
@@ -29,7 +29,7 @@ if not exist "%_QMC_SRC_DIR%\*"             goto :qmc_build
 
 rem test if PATH is already adapted to find qtcreator.bat
 rem first change the current dir to not unwillingly call the local qtcreator.bat from Maker project root and cause an iteration
-cd "%MAKER_TOOLS%"
+cd "%MAKER_DIR_TOOLS%"
 call qmake2cmake.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   goto :test_qm2cm_success
@@ -48,7 +48,7 @@ echo *** THIS REQUIRES Python 3
 echo.
 
 rem --- validate python
-call "%MAKER_SCRIPTS%\ensure_python.bat" 3 --no_infos
+call "%MAKER_DIR_SCRIPTS%\ensure_python.bat" 3 --no_infos
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )

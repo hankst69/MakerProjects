@@ -25,7 +25,7 @@ set "_LLVM_BUILD_DATETIME_START=%_DATETIME_%"
 rem (1) *** cloning LLVM sources ***
 rem defines: LLVM_DIR
 rem defines: LLVM_SOURCES_DIR
-call "%MAKER_SCRIPTS%\clone_llvm.bat" %_LLVM_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\clone_llvm.bat" %_LLVM_VERSION% %MAKER_MSG_VERBOSE%
 
 if "%LLVM_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if "%LLVM_SOURCES_DIR%" EQU "" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
@@ -33,9 +33,12 @@ if not exist "%LLVM_DIR%" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 if not exist "%LLVM_SOURCES_DIR%" (echo cloning LLVM %_LLVM_VERSION% failed &goto :EOF)
 
 set "_LLVM_BIN_DIR=%LLVM_DIR%\llvm%_LLVM_VERSION%-%_LLVM_BUILD_CONFIG%"
-set "_LLVM_BUILD_DIR=%LLVM_SOURCES_DIR%\._%_LLVM_BUILD_CONFIG%"
+rem set "_LLVM_BUILD_DIR=%LLVM_SOURCES_DIR%\._%_LLVM_BUILD_CONFIG%"
+set "_LLVM_BUILD_DIR=%LLVM_DIR%\._%_LLVM_BUILD_CONFIG%"
+
 set "_LLVM_LOGFILE=%LLVM_DIR%\.logs\llvm_build_%_LLVM_VERSION%_%_LLVM_BUILD_CONFIG%_%_LLVM_BUILD_DATETIME_START%.log"
 if not exist "%LLVM_DIR%\.logs" mkdir "%LLVM_DIR%\.logs"
+echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
 
 if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_
 
@@ -63,15 +66,15 @@ echo *** THIS REQUIRES Cmake 3.16 or newer
 echo.
 
 rem ensure msvs version and amd64 target architecture or MinGW gcc
-if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
-if /I "%_LLVM_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
+if /I "%_LLVM_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
 if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available &goto :_exit)
 
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
@@ -116,9 +119,9 @@ if exist "%_LLVM_BUILD_DIR%\%_LLVM_BUILD_TYPE%\bin\clang.exe" goto :_build_done
   echo BUILD %_LLVM_BUILD_INFO%
   echo BUILD %_LLVM_BUILD_INFO%>>"%_LLVM_LOGFILE%" 2>&1
   cd /d "%_LLVM_BUILD_DIR%"
-  echo cmake --build . --parallel --config %_LLVM_BUILD_TYPE%
-  echo cmake --build . --parallel --config %_LLVM_BUILD_TYPE%>>"%_LLVM_LOGFILE%" 2>&1
-  call cmake --build . --parallel --config %_LLVM_BUILD_TYPE%>>"%_LLVM_LOGFILE%" 2>&1
+  echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
+  echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
+  call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
 :_build_done
 echo BUILD %_LLVM_BUILD_INFO% done
 
@@ -150,7 +153,7 @@ set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_MSG_VERBOSE%" neq "" set LLVM_
 
-call "%MAKER_SCRIPTS%\validate_llvm.bat" "%_LLVM_VERSION%" 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" "%_LLVM_VERSION%" 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :_exit
 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
 
@@ -172,4 +175,4 @@ echo.BUILD-STOP    : %_LLVM_BUILD_DATE_STOP% %_LLVM_BUILD_TIME_STOP%
 echo.BUILD-DURATION: %_LLVM_BUILD_DURATION% sec
 rem
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
-call "%MAKER_SCRIPTS%\validate_llvm.bat" --no_errors
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" --no_errors

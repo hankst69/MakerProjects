@@ -35,7 +35,7 @@ rem welcome
 echo BUILDING VENUS-GUIV2 %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_BUILD_ARCH% %_VCG_BUILD_TYPE%)
 
 rem *** clone Victron GUI-V2 ***
-call "%MAKER_SCRIPTS%\clone_victron.bat" %_VCG_VERSION% %MAKER_MSG_VERBOSE% --silent
+call "%MAKER_DIR_SCRIPTS%\clone_victron.bat" %_VCG_VERSION% %MAKER_MSG_VERBOSE% --silent
 cd /d "%_VCG_START_DIR%"
 rem defines: VICTRON_DIR
 rem defines: VICTRON_GUIV2_VERSION
@@ -104,26 +104,26 @@ echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
 rem ensure BuildSystem availability
-if /I "%_VCG_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
-if /I "%_VCG_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_VCG_MSVS_VERSION% %_VCG_BUILD_ARCH% %MAKER_MSG_VERBOSE%
+if /I "%_VCG_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_DIR_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
+if /I "%_VCG_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_VCG_MSVS_VERSION% %_VCG_BUILD_ARCH% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
 if /I "%_VCG_BUILD_SYSTEM%" neq "gnu" if /I "%_VCG_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_VCG_BUILD_SYSTEM% is not available &goto :_exit)
 
 rem ensure ninja
-if /I "%_VCG_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\validate_ninja.bat" %_VCG_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
+if /I "%_VCG_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" %_VCG_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available - switching to MSVS build system
   goto :_exit
 )
 rem ensure qt
-call "%MAKER_SCRIPTS%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_MSG_VERBOSE% %_VCG_BUILD_SYSTEM%
+call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_MSG_VERBOSE% %_VCG_BUILD_SYSTEM%
 if %ERRORLEVEL% NEQ 0 (
    goto :_exit
 )
 rem validate qt-cmake
-call "%MAKER_SCRIPTS%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :_exit
 )
@@ -158,7 +158,7 @@ rem *** cmake build ***
 echo.
 echo VENUS-GUIV2-BUILD %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE%)
 cd /d "%_VCG_BUILD_DIR%"
-call cmake --build . --parallel --config %_VCG_BUILD_TYPE%
+call cmake --build . --config %_VCG_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 :_build_done
 
 

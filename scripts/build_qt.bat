@@ -99,7 +99,7 @@ echo BUILDING %_QT_BUILD_INFO%
 
 
 rem (1) *** cloning QT sources ***
-call "%MAKER_SCRIPTS%\clone_qt.bat" %_QT_VERSION% %MAKER_MSG_VERBOSE% %_QT_CLONE_OPTIONS%
+call "%MAKER_DIR_SCRIPTS%\clone_qt.bat" %_QT_VERSION% %MAKER_MSG_VERBOSE% %_QT_CLONE_OPTIONS%
 cd /d "%_QT_START_DIR%"
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR
@@ -125,9 +125,9 @@ call "%MAKER_ENV_CORE%\compare_versions.bat" %_QT_VERSION% GEQ 7.0 --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
 rem (2.2) switch to (latest) LLVM 20 if desired (but might require a patch for QT to build)
 rem       todo: clarify, is this qt patch for LLVM20 is still valid or maybe not neccesary anymore
-if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
+if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_DIR_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
   pushd "%QT_SOURCES_DIR%\qttools"
-  call 7z x -y "%MAKER_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
+  call 7z x -y "%MAKER_DIR_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
   popd 
   set _QT_LLVM_VER=20
 )
@@ -232,39 +232,39 @@ echo *** OTPIONAL: Protobuf
 echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
 echo.
 rem ensure msvs version and amd64 target architecture or MinGW gcc
-if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
-if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
 if /I "%_QT_BUILD_SYSTEM%" neq "gnu" if /I "%_QT_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available &goto :_exit)
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
 rem validate ninja
-if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
+if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available
   goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :qt_exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
-call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :qt_exit
 )
 rem validate python
-call "%MAKER_SCRIPTS%\validate_python.bat" GEQ3 "%_QT_BUILD_ARCH%"
+call "%MAKER_DIR_SCRIPTS%\validate_python.bat" GEQ3 "%_QT_BUILD_ARCH%"
 if %ERRORLEVEL% NEQ 0 (
   if /I "%PYTHON_ARCHITECTURE%" neq "%_QT_BUILD_ARCH%" (
     echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%_QT_BUILD_ARCH%'
@@ -274,39 +274,39 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem (7) *** setup QT dependencies ***
 rem validate node.js 
-call "%MAKER_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
+call "%MAKER_DIR_SCRIPTS%\ensure_nodejs.bat" GEQ14 --no_errors
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   goto :qt_exit
 )
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
 rem WARNING: QtWebEngine won't be built. Tool gperf is required.
-call "%MAKER_SCRIPTS%\ensure_gperf.bat" --no_errors %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\ensure_gperf.bat" --no_errors %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GPERF is not available
   rem goto :qt_exit
 )
 rem ensure bison
 rem WARNING: QtWebEngine won't be built. Tool bison is required.
-call "%MAKER_SCRIPTS%\ensure_bison.bat" --no_errors %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\ensure_bison.bat" --no_errors %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :qt_exit
 )
 rem esnure flex
 rem Support check for QtWebEngine failed: Tool flex is required.
-call "%MAKER_SCRIPTS%\ensure_flex.bat" --no_errors %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\ensure_flex.bat" --no_errors %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :qt_exit
 )
 rem setup gRPC
-rem call "%MAKER_SCRIPTS%\build_grpc.bat" x64-windows
+rem call "%MAKER_DIR_SCRIPTS%\build_grpc.bat" x64-windows
   rem pushd "%QT_DIR%"
   rem call vcpkg install grpc:x64-windows
   rem popd
 rem setup Protobuf
-rem call "%MAKER_SCRIPTS%\build_protobuf.bat" x64-windows
+rem call "%MAKER_DIR_SCRIPTS%\build_protobuf.bat" x64-windows
   rem pushd "%QT_DIR%"
   rem call vcpkg install protobuf protobuf:x64-windows
   rem popd
@@ -377,7 +377,7 @@ goto :qt_build_done
   echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
   echo.cmake --build . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
-  call cmake --build . --config %_QT_BUILD_TYPE% --parallel >>"%_QT_LOGFILE%" 2>&1
+  call cmake --build . --config %_QT_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_QT_LOGFILE%" 2>&1
   rem validate build done
   if exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_build_done
   if "%_QT_BUILD_RETRIES%" equ "1" set _QT_BUILD_RETRIES=2
@@ -482,9 +482,9 @@ echo @start /D "%QT_BIN_DIR%\bin" /MAX /B designer.exe %%*>"%MAKER_ENV_BIN%\qtde
 rem -- clear this scripts variables
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 rem the path should already have been added above - but we test again:
-call "%MAKER_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings --no_errors --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings --no_errors --no_infos
 if %ERRORLEVEL% EQU 0 goto :qt_exit_prompt
 set "PATH=%QT_BIN_DIR%\bin;%PATH%"
 set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
 :qt_exit_prompt
-call "%MAKER_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings

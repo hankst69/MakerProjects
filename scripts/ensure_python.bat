@@ -4,7 +4,7 @@ set PYTHON_EXE=
 set PYTHON_VERSION=
 set PYTHON_ARCHITECTURE=
 
-call "%MAKER_SCRIPTS%\validate_python.bat" %MAKER_VERSION% 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_python.bat" %MAKER_VERSION% 1>nul
 if "%ERRORLEVEL%" equ "0" goto :test_python_success
 
 set "_PY_DIR=%USERPROFILE%\AppData\Local\Programs\Python\Python313"
@@ -60,7 +60,7 @@ set "_PY_DIR=C:\ProgramData\Anaconda3"
 :test_python
 if not exist "%_PY_DIR%\python.exe" goto :test_python_failed
 set "PATH=%_PY_DIR%\Scripts;%_PY_DIR%;%PATH%"
-call "%MAKER_SCRIPTS%\validate_python.bat" %MAKER_VERSION% 1>nul
+call "%MAKER_DIR_SCRIPTS%\validate_python.bat" %MAKER_VERSION% 1>nul
 if %ERRORLEVEL% equ 0 goto :test_python_success
 :test_python_failed
 echo error: python %MAKER_VERSION% not available

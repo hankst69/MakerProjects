@@ -5,7 +5,7 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_GP_DIR=%MAKER_TOOLS%\GPerf"
+set "_GP_DIR=%MAKER_DIR_TOOLS%\GPerf"
 
 set _GP_VERSION=
 if "%~1" neq "" set "_GP_VERSION=%~1"

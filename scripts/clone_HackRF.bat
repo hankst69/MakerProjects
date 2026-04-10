@@ -6,7 +6,7 @@
 @echo off
 call "%~dp0\maker_env.bat"
 
-set "_HACKRF_DIR=%MAKER_PROJECTS%\HackRF"
+set "_HACKRF_DIR=%MAKER_DIR_PROJECTS%\HackRF"
 
 set "_HACKRF_FIRMWARE_DIR=%_HACKRF_DIR%\mayhem-firmware"
 set "_HACKRF_MDK_DIR=%_HACKRF_DIR%\mayhem-mdk"

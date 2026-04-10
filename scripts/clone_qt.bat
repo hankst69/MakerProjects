@@ -44,7 +44,8 @@ set "_QTC_VERSION_COMPACT=%_QTC_VERSION:.=%"
 if "%_QTC_SRC_DIR_NAME%" equ "" set "_QTC_SRC_DIR_NAME=qt%_QTC_VERSION_COMPACT%src"
 
 rem define folders
-set "_QTC_DIR=%MAKER_QT_DIR%"
+rem set "_QTC_DIR=%MAKER_DIR_TOOLS%\QT"
+set "_QTC_DIR=%MAKER_DIR_QT%"
 
 set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_DIR_NAME%\"
 set "_QTC_CLONE_TEST_DIR=%_QTC_SOURCES_DIR%\qtbase"
@@ -89,7 +90,7 @@ if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" del /F /Q "%_QTC_SOURCES_
 if exist "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" goto :qt_clone_done
 pushd "%_QTC_SOURCES_DIR%"
 rem ensure perl (is required for cloning the qt submodules)
-call "%MAKER_SCRIPTS%\validate_perl.bat" --no_infos
+call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_infos
 if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
 rem 2) configure the repository
 if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat" || goto :qt_clone_failed

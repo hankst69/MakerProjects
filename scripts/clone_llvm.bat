@@ -5,7 +5,9 @@ call "%~dp0\maker_env.bat" %* --silent
 
 set "_CLLVM_VERSION=%MAKER_VERSION%"
 
-set "LLVM_DIR=%MAKER_TOOLS%\LLVM"
+rem set "LLVM_DIR=%MAKER_DIR_TOOLS%\LLVM"
+set "LLVM_DIR=%MAKER_DIR_LLVM%"
+
 set "LLVM_SOURCES_DIR=%LLVM_DIR%\llvm-project%_CLLVM_VERSION%"
 
 rem if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_

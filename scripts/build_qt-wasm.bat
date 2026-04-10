@@ -35,8 +35,8 @@ set _QTW_GCC_VERSION=
 rem (3) *** ensure GCC (MinGW64) ***
 :qtw_ensure_mingw_gcc
 rem the qt build and ensure scripts are not working properly, we have to call it twice
-call "%MAKER_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE%
-rem call "%MAKER_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE% 1>nul 2>nul
+call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE%
+rem call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GCC is not available
   goto :qtw_exit
@@ -47,7 +47,7 @@ rem goto :qtw_clone_qt_wasm
 rem (4) *** ensure QT Host ***
 rem we need a QT Host version of same version as the target QT-QWASM (for cross compilation) build with MinGW gcc!
 :qtw_ensure_qt_host
-call "%MAKER_SCRIPTS%\ensure_qt.bat" %QTW_VERSION% %MAKER_MSG_VERBOSE% gnu
+call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %QTW_VERSION% %MAKER_MSG_VERBOSE% gnu
 if %ERRORLEVEL% NEQ 0 (
   echo building Qt %QTW_VERSION% failed
   goto :qtw_exit
@@ -67,7 +67,7 @@ set "QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
 
 rem (5) *** clone qt sources for wasm-build ***
 :qtw_clone_qt_wasm
-call "%MAKER_SCRIPTS%\clone_qt.bat" "%QTW_VERSION%" "qt-wasm" %MAKER_MSG_VERBOSE% %_QTW_CLONE_OPTIONS%
+call "%MAKER_DIR_SCRIPTS%\clone_qt.bat" "%QTW_VERSION%" "qt-wasm" %MAKER_MSG_VERBOSE% %_QTW_CLONE_OPTIONS%
 rem defines: QT_DIR
 rem defines: QT_SOURCES_DIR
 rem clone_qt might switch folder so we switch back:
@@ -108,28 +108,28 @@ echo *** THIS REQUIRES SED
 echo *** THIS REQUIRES LLVM/Clang
 echo *** THIS REQUIRES Cmake 3.22 or newer
 echo *** THIS REQUIRES Ninja
-call "%MAKER_SCRIPTS%\validate_cmake.bat" GEQ3.16 %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" GEQ3.16 %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: CMAKE GEQ3.16 is not available
   goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA is not available
   goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% --
+call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 (
   echo êrror: LLVM CLANG is not available
   goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE% --
+call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 (
   echo error: GCC is not available
   goto :qtw_exit
 )
 echo on
-call "%MAKER_SCRIPTS%\ensure_emsdk.bat" %QTW_EMSDK_VERSION% --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\ensure_emsdk.bat" %QTW_EMSDK_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: EMSDK is not available
   goto :qtw_exit
@@ -143,36 +143,36 @@ rem echo *** OTPIONAL: Protobuf
 rem echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
 rem echo.
 rem ensure msvs version and amd64 target architecture
-rem call "%MAKER_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
+rem call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
 rem if %ERRORLEVEL% NEQ 0 (
 rem   goto :qtw_exit
 rem )
-call "%MAKER_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%" %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_python.bat" 3 "%MSVS_TARGET_ARCHITECTURE%" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PYTHON is not available
   rem goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_nodejs.bat" GEQ14 --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_nodejs.bat" GEQ14 --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   rem goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_gperf.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GPERF is not available
   rem goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_bison.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_bison.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_flex.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :qtw_exit
 )
-call "%MAKER_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: PERL is not available
   rem goto :qtw_exit

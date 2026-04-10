@@ -15,7 +15,7 @@ rem   echo error: cloning of a dedicated version is currently not supported in s
 rem   goto :EOF
 rem )
 
-set "VICTRON_DIR=%MAKER_PROJECTS%\Victron"
+set "VICTRON_DIR=%MAKER_DIR_PROJECTS%\Victron"
 set "VICTRON_GUIV2_VERSION=%MAKER_VERSION%"
 set "VICTRON_GUIV2_BASE_DIR=%VICTRON_DIR%\venus-guiv2"
 set "VICTRON_GUIV2_SRC_DIR=%VICTRON_GUIV2_BASE_DIR%_source%VICTRON_GUIV2_VERSION%"

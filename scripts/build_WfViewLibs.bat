@@ -38,7 +38,7 @@ rem welcome
 echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
 
 rem *** clone WFVIEW-Libs sources ***
-call "%MAKER_SCRIPTS%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_MSG_VERBOSE% --silent
+call "%MAKER_DIR_SCRIPTS%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_MSG_VERBOSE% --silent
 rem defines: WFVIEW_VERSION
 rem defines: WFVIEW_DIR
 rem defines: WFVIEW_BASE_DIR
@@ -93,33 +93,33 @@ if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WVL_BUILD_SYSTEM%" neq "msvs" (
   echo error: BuildSystem %_WVL_BUILD_SYSTEM% is not available
   goto :_exit
 )
-if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
+if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_DIR_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MinGW is not available
   goto :_exit
 )
-if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% %MAKER_MSG_VERBOSE%
+if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MSVS %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% is not available
   goto :_exit
 )
 
 rem validate cmake
-call "%MAKER_SCRIPTS%\validate_cmake.bat" %_WVL_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_WVL_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: CMAKE %_WVL_CMAKE_VERSION% is not available
   goto :_exit
 )
 rem ensure ninja
 if /I "%_WVL_BUILD_SYSTEM%" equ "gnu" if %ERRORLEVEL% NEQ 0 goto :_exit
-call "%MAKER_SCRIPTS%\validate_ninja.bat" %_WVL_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" %_WVL_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA %_WVL_NINJA_VERSION% is not available
   goto :_exit
 )
 
 rem ensure fortran (ensure and validate not implemented yet) 
-call "%MAKER_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
 
 
 echo.

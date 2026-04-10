@@ -15,7 +15,7 @@ rem apply version default:
 rem if "%_GR_VERSION%" equ "" set _GR_VERSION=3.1
 
 rem define folders:
-set "_GR_DIR=%MAKER_QT_DIR%"
+set "_GR_DIR=%MAKER_DIR_QT%"
 set "_GR_SOURCES_DIR=%_GR_DIR%\%_GR_SRC_NAME%%_GR_VERSION%"
 
 
