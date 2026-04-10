@@ -39,6 +39,7 @@ set MAKER_ENV_HELP=
 set MAKER_ENV_VERSION=
 set MAKER_ENV_ARCHITECTURE=
 set MAKER_ENV_BUILDTYPE=
+set MAKER_ENV_BUILDMODE=
 set MAKER_ENV_BUILDSYSTEM=
 set MAKER_ENV_BUILDSYSTEM_SWITCH=
 set MAKER_ENV_UNKNOWN_SWITCHES=
@@ -75,6 +76,8 @@ if /I "%__ARG__%" equ "amd64"          (set "MAKER_ENV_ARCHITECTURE=amd64"   &go
 if /I "%__ARG__%" equ "Debug"          (set "MAKER_ENV_BUILDTYPE=debug"      &goto :param_loop)
 if /I "%__ARG__%" equ "Release"        (set "MAKER_ENV_BUILDTYPE=release"    &goto :param_loop)
 if /I "%__ARG__%" equ "MinSizeRel"     (set "MAKER_ENV_BUILDTYPE=minSizeRel" &goto :param_loop)
+if /I "%__ARG__%" equ "Static"         (set "MAKER_ENV_BUILDMODE=static"     &goto :param_loop)
+if /I "%__ARG__%" equ "Shared"         (set "MAKER_ENV_BUILDMODE=shared"     &goto :param_loop)
 if /I "%__ARG__%" equ "msvs"           (set "MAKER_ENV_BUILDSYSTEM=msvs"     &goto :param_loop)
 if /I "%__ARG__%" equ "gnu"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
 if /I "%__ARG__%" equ "gcc"            (set "MAKER_ENV_BUILDSYSTEM=gnu"      &goto :param_loop)
@@ -98,7 +101,7 @@ rem ensure backward compatibility with older scrits (todo: cleanup)
 set "MAKER_ENV_NOINFO=%MAKER_ENV_NOINFOS%"
 
 if "%MAKER_ENV_BUILDSYSTEM%" neq "" set "MAKER_ENV_BUILDSYSTEM_SWITCH=--%MAKER_ENV_BUILDSYSTEM%"
-set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_ARCHITECTURE% %MAKER_ENV_BUILDSYSTEM_SWITCH%"
+set "MAKER_ENV_ALL_ARGS=%MAKER_ENV_VERSION% %MAKER_ENV_UNKNOWN_ARGS% %MAKER_ENV_BUILDTYPE% %MAKER_ENV_BUILDMODE% %MAKER_ENV_ARCHITECTURE% %MAKER_ENV_BUILDSYSTEM_SWITCH%"
 
 rem split unknonw args and switches
 :split_unknown_args
@@ -129,7 +132,7 @@ if "%MAKER_ENV_VERBOSE%" neq "" (set MAKER_ENV&set MAKER_B&set MAKER_P&set MAKER
 rem show help:
 if "%MAKER_ENV_HELP%" neq "" (
   echo.
-  echo MAKER_ENV [switches] [version] [build_type] [architecture] [free_args] [free_switches]
+  echo MAKER_ENV [switches] [version] [build_type] [build_mode] [architecture] [free_args] [free_switches]
   echo switches:
   echo   --no_errors   ^| -ne
   echo   --no_warnings ^| -nw
@@ -142,6 +145,8 @@ if "%MAKER_ENV_HELP%" neq "" (
   echo   any-version-nr
   echo build_type:
   echo   Debug ^| Release ^| MinSizeRel
+  echo build_mode:
+  echo   Shared ^| Static
   echo architecture:
   echo   x86 ^| x64 ^| amd64
 )

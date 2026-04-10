@@ -11,79 +11,8 @@ goto :_QT_START
 
 :_QT_USAGE
 echo USAGE:
-echo %~n0 [version] [--gnu^|--msvs] [--use_llvm20_patch] [-?^|-h^|--help]
-goto :EOF
-
-
-:stop_watch
-set "_START_DATETIME=%~1"
-set _DATE_=
-set _TIME_=
-set _DATETIME_=
-set _DATE_UI=
-set _TIME_UI=
-set _DATE_YY=
-set _DATE_MM=
-set _DATE_DD=
-set _TIME_HH=
-set _TIME_MM=
-set _TIME_SS=
-set _TIME_MS=
-for /f "tokens=2 delims=:" %%i in ('echo.^|date') do set "_DATE_=%%~i" &goto :stop_watch_next
-:stop_watch_next
-if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
-if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
-set _DATE_PT1=
-set _DATE_PT2=
-for /f "tokens=1,* delims= " %%i in ("%_DATE_%") do (set "_DATE_PT1=%%i" &set "_DATE_PT2=%%j")
-if "%_DATE_PT2%" neq "" set "_DATE_=%_DATE_PT2%"
-for /f "tokens=1,2,3 delims=/" %%i in ("%_DATE_%") do (set "_DATE_DD=%%i" &set "_DATE_MM=%%j" &set "_DATE_YY=%%k")
-for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" (set "_TIME_HH=%%i" &set "_TIME_MM=%%j" &set "_TIME_SS=%%k")
-set "_TIME_HH=%_TIME_HH: =%"
-set "_TIME_MM=%_TIME_MM: =%"
-for /f "tokens=1,2 delims=." %%i in ("%_TIME_SS%") do (set "_TIME_SS=%%i" &set "_TIME_MS=%%j")
-set "_TIME_SS=%_TIME_SS: =%"
-set "_TIME_MS=%_TIME_MS: =%"
-set "_DATE_UI=%_DATE_%"
-set "_DATE_=%_DATE_YY%-%_DATE_MM%-%_DATE_DD%"
-set "_TIME_UI=%_TIME_HH%:%_TIME_MM%:%_TIME_SS%"
-set "_TIME_=%_TIME_HH%-%_TIME_MM%-%_TIME_SS%.%_TIME_MS%"
-set "_DATETIME_=%_DATE_%_%_TIME_%"
-if "%_START_DATETIME%" equ "" goto :EOF
-set _STARTT_HH=
-set _STARTT_MM=
-set _STARTT_SS=
-set _STARTT_MS=
-set _DIFFT_HH=
-set _DIFFT_MM=
-set _DIFFT_SS=
-set _DIFFT_MS=
-set _DIFFT_=
-set _START_DATE=
-set _START_TIME=
-for /f "tokens=1,2 delims=_" %%i in ("%_START_DATETIME%") do (set "_START_DATE=%%i" &set "_START_TIME=%%j")
-if "%_START_TIME%" equ "" set "_START_TIME=%_START_DATE%"
-for /f "tokens=1,2,3 delims=-" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
-for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
-if "%_STARTT_HH:~0,1%" equ "0" set "_STARTT_HH=%_STARTT_HH:~1%"
-if "%_STARTT_MM:~0,1%" equ "0" set "_STARTT_MM=%_STARTT_MM:~1%"
-if "%_STARTT_SS:~0,1%" equ "0" set "_STARTT_SS=%_STARTT_SS:~1%"
-set "_STOPT_HH=%_TIME_HH%"
-set "_STOPT_MM=%_TIME_MM%"
-set "_STOPT_SS=%_TIME_SS%"
-if "%_STOPT_HH:~0,1%" equ "0" set "_STOPT_HH=%_STOPT_HH:~1%"
-if "%_STOPT_MM:~0,1%" equ "0" set "_STOPT_MM=%_STOPT_MM:~1%"
-if "%_STOPT_SS:~0,1%" equ "0" set "_STOPT_SS=%_STOPT_SS:~1%"
-set /a _DIFFT_HH=%_STOPT_HH%-%_STARTT_HH%
-set /a _DIFFT_MM=%_STOPT_MM%-%_STARTT_MM%
-set /a _DIFFT_SS=%_STOPT_SS%-%_STARTT_SS%
-if "%_STARTT_MS%" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
-set "_DIFFT_=%_DIFFT_HH%:%_DIFFT_MM%:%_DIFFT_SS%"
-set /a _DIFFTD_HSS=%_DIFFT_HH%*3600
-set /a _DIFFTD_MSS=%_DIFFT_MM%*60
-set /a _DIFFT_DUR_SS=%_DIFFTD_HSS%+%_DIFFTD_MSS%
-set /a _DIFFT_DUR_SS=%_DIFFT_DUR_SS%+%_DIFFT_SS%
-goto :EOF
+echo %~n0 [version] [--gnu^|--msvs] [release^|debug] [shared^|static] [--use_llvm20_patch] [-?^|-h^|--help]
+goto :EOF3
 
 
 :_QT_START
@@ -91,8 +20,9 @@ call "%~dp0\maker_env.bat" %*
 call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
 set "_QT_START_DIR=%cd%"
 set "_QT_VERSION=%MAKER_ENV_VERSION%"
-set "_QT_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
+set "_QT_BUILD_ARCH=%MAKER_ENV_ARCHITECTURE%"
 set "_QT_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
+set "_QT_BUILD_MODE=%MAKER_ENV_BUILDMODE%"
 set "_QT_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
 set "_QT_REBUILD=%MAKER_ENV_REBUILD%"
 
@@ -101,17 +31,18 @@ for /f %%i in ("%MAKER_ENV_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--use_llvm20
 
 rem apply defaults 1
 if "%_QT_VERSION%"      equ "" set _QT_VERSION=6.8.3
-if "%_QT_TGT_ARCH%"     equ "" set _QT_TGT_ARCH=x64
+if "%_QT_BUILD_ARCH%"   equ "" set _QT_BUILD_ARCH=x64
 if "%_QT_BUILD_TYPE%"   equ "" set _QT_BUILD_TYPE=Release
+if "%_QT_BUILD_MODE%"   equ "" set _QT_BUILD_MODE=Shared
 if "%_QT_BUILD_SYSTEM%" equ "" set _QT_BUILD_SYSTEM=msvs
 set "_QT_VERSION_WITH_LLVM_FIX=6.9.0"
 set "_QT_MSVS_VERSION=GEQ2019"
 set "_QT_CMAKE_VERSION=GEQ3.22"
-set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM:~0,2%%_QT_TGT_ARCH:~1%%_QT_BUILD_TYPE:~0,3%"
-set "_QT_BUILD_INFO=%_QT_VERSION% ^(%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%^)"
+set "_QT_BUILD_CFG=%_QT_BUILD_SYSTEM:~0,2%%_QT_BUILD_ARCH:~1%%_QT_BUILD_TYPE:~0,3%"
+set "_QT_BUILD_INFO=%_QT_VERSION% ^(%_QT_BUILD_SYSTEM% %_QT_BUILD_ARCH% %_QT_BUILD_TYPE%^)"
 rem maybe necessary to make _QT_BUILD_TYPE lower case for gnu build
 
-call :stop_watch
+call "%MAKER_SCRIPTS%\stop_watch.bat"
 set "_QT_BUILD_DATE_START=%_DATE_%"
 set "_QT_BUILD_TIME_START=%_TIME_UI%"
 set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
@@ -320,9 +251,9 @@ if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE% %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_ENV_VERBOSE% %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_ENV_VERBOSE% %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: LLVM CLANG is not available
   goto :qt_exit
@@ -334,10 +265,10 @@ if %ERRORLEVEL% NEQ 0 (
   rem goto :qt_exit
 )
 rem validate python
-call "%MAKER_BUILD%\validate_python.bat" GEQ3 "%MSVS_TARGET_ARCHITECTURE%"
+call "%MAKER_BUILD%\validate_python.bat" GEQ3 "%_QT_BUILD_ARCH%"
 if %ERRORLEVEL% NEQ 0 (
-  if /I "%PYTHON_ARCHITECTURE%" neq "%MSVS_TARGET_ARCHITECTURE%" (
-    echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%MSVS_TARGET_ARCHITECTURE%'
+  if /I "%PYTHON_ARCHITECTURE%" neq "%_QT_BUILD_ARCH%" (
+    echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%_QT_BUILD_ARCH%'
   )
   goto :qt_exit
 )
@@ -351,21 +282,21 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
 rem WARNING: QtWebEngine won't be built. Tool gperf is required.
-call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors
+call "%MAKER_BUILD%\ensure_gperf.bat" --no_errors %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GPERF is not available
   rem goto :qt_exit
 )
 rem ensure bison
 rem WARNING: QtWebEngine won't be built. Tool bison is required.
-call "%MAKER_BUILD%\ensure_bison.bat" --no_errors
+call "%MAKER_BUILD%\ensure_bison.bat" --no_errors %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :qt_exit
 )
 rem esnure flex
 rem Support check for QtWebEngine failed: Tool flex is required.
-call "%MAKER_BUILD%\ensure_flex.bat" --no_errors
+call "%MAKER_BUILD%\ensure_flex.bat" --no_errors %_QT_BUILD_SYSTEM% %_QT_BUILD_TYPE% %_QT_BUILD_MODE% %_QT_BUILD_ARCH%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :qt_exit
@@ -461,7 +392,7 @@ rem (9-2) *** perform QT Modules build ***
 goto :qt_modules_build_done
 if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_BUILD_INFO% already done &goto :qt_modules_build_done
 :qt_modules_build
-  echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_TGT_ARCH% %_QT_BUILD_TYPE%)
+  echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_BUILD_ARCH% %_QT_BUILD_TYPE%)
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
@@ -515,7 +446,7 @@ cd /d "%_QT_START_DIR%"
 echo.>>"%_QT_LOGFILE%"
 call qtdiag --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
 rem call "%_QT_BUILD_DIR%\qtbase\bin\qtdiag" --gl-extensions --fonts >>"%_QT_LOGFILE%" 2>&1
-call :stop_watch "%_QT_BUILD_DATETIME_START%"
+call "%MAKER_SCRIPTS%\stop_watch.bat" "%_QT_BUILD_DATETIME_START%"
 set "_QT_BUILD_DATE_STOP=%_DATE_%"
 set "_QT_BUILD_TIME_STOP=%_TIME_UI%"
 set "_QT_BUILD_DURATION=%_DIFFT_DUR_SS%"
@@ -536,7 +467,7 @@ rem the minimal qt binaries seem to exists -> redirect current qt to it:
 rem -- create shortcuts
 set "QT_BIN_DIR=%_QT_BIN_DIR%"
 set "QT_VERSION=%_QT_VERSION%"
-set "QT_TGT_ARCH=%_QT_TGT_ARCH%"
+set "QT_TGT_ARCH=%_QT_BUILD_ARCH%"
 set "QT_BUILD_TYPE=%_QT_BUILD_TYPE%"
 set "QT_BUILD_SYSTEM=%_QT_BUILD_SYSTEM%"
 set "QT_CMAKE=%_QT_BIN_DIR%\bin\qt-cmake.bat"
