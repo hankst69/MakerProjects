@@ -90,12 +90,13 @@ rem if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%
   set "_LLVM_CONFIG_GENERATOR=Ninja"
   set "_LLVM_CONFIG_OPTIONS="
   if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-  echo using generator "%_LLVM_CONFIG_GENERATOR%"
-  call "%QT_SOURCES_DIR%\configure.bat" --help >>"%_LLVM_LOGFILE%" 2>&1
-  rem
   if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
-  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
-  set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+  echo using generator "%_LLVM_CONFIG_GENERATOR%"
+  rem
+  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
+  set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
+  rem
   rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
   rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
   set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
@@ -105,7 +106,7 @@ rem if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%
   echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE>>"%_LLVM_LOGFILE%" 2>&1
   call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE>>"%_LLVM_LOGFILE%" 2>&1
 rem :_configure_done
-echo CONFIGURE %_LLVM_VERSION% done
+echo CONFIGURE %_LLVM_BUILD_INFO% done
 
 
 rem (5) *** perform build ***
@@ -119,7 +120,7 @@ if exist "%_LLVM_BUILD_DIR%\%_LLVM_BUILD_TYPE%\bin\clang.exe" goto :_build_done
   echo cmake --build . --parallel --config %_LLVM_BUILD_TYPE%>>"%_LLVM_LOGFILE%" 2>&1
   call cmake --build . --parallel --config %_LLVM_BUILD_TYPE%>>"%_LLVM_LOGFILE%" 2>&1
 :_build_done
-echo BUILD %_LLVM_VERSION% done
+echo BUILD %_LLVM_BUILD_INFO% done
 
 
 rem (7) *** perform install ***
