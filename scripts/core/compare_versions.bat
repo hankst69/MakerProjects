@@ -10,7 +10,7 @@ echo   tgt_version  : major[.minor[.patch]]
 echo   compare_mode : EQU^|GTR^|GEQ^|LSS^|LEQ
 echo      [options] : --no_errors^|-ne
 echo                : --no_warnings^|-nw
-echo                : --no_info^|-ni
+echo                : --no_infos^|-ni
 echo                : --verbose^|-v
 echo                : --help^|-h^|-?
 echo.
@@ -44,7 +44,7 @@ set _COMPARE_TGT_VERSION=
 set _COMPARE_VERSION_MODE=
 set _COMPARE_NO_WARNINGS=
 set _COMPARE_NO_ERRORS=
-set _COMPARE_NO_INFO=
+set _COMPARE_NO_INFOS=
 set _COMPARE_VERBOSE=
 set _COMPARE_HELP=
 :_param_loop
@@ -55,8 +55,8 @@ if /I "%_ARG_TMP_%" equ "--no_errors"   (set "_COMPARE_NO_ERRORS=%_ARG_TMP_%" &g
 if /I "%_ARG_TMP_%" equ "-ne"           (set "_COMPARE_NO_ERRORS=--no_errors" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "--no_warnings" (set "_COMPARE_NO_WARNINGS=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-nw"           (set "_COMPARE_NO_WARNINGS=--no_warnings" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "--no_info"     (set "_COMPARE_NO_INFO=%_ARG_TMP_%" &goto :_param_loop)
-if /I "%_ARG_TMP_%" equ "-ni"           (set "_COMPARE_NO_INFO=--no_info" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "--no_infos"    (set "_COMPARE_NO_INFOS=%_ARG_TMP_%" &goto :_param_loop)
+if /I "%_ARG_TMP_%" equ "-ni"           (set "_COMPARE_NO_INFOS=--no_infos" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "--verbose"     (set "_COMPARE_VERBOSE=%_ARG_TMP_%" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "-v"            (set "_COMPARE_VERBOSE=--verbose" &goto :_param_loop)
 if /I "%_ARG_TMP_%" equ "--help"        (set "_COMPARE_HELP=%_ARG_TMP_%" &goto :_param_loop)
@@ -90,9 +90,9 @@ if "%_COMPARE_SRC_VERSION%" equ "" (echo error 1%_COMPARE_SCRIPT_NAME%: missing 
 if "%_COMPARE_TGT_VERSION%" equ "" (echo error 2%_COMPARE_SCRIPT_NAME%: missing argument ^<tgt_version^> &call :_usage &call :_clean_temp_variables &exit /b 2)
 
 :_params_postprocessing
-call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" --no_errors --no_warnings --no_info
+call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_SRC_VERSION%" --no_errors --no_warnings --no_infos
 set _COMPARE_SRC_VERSION=%VERSION%
-call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_TGT_VERSION%" --no_errors --no_warnings --no_info
+call "%_COMPARE_SCRIPT_ROOT%\split_version.bat" "%_COMPARE_TGT_VERSION%" --no_errors --no_warnings --no_infos
 set _COMPARE_TGT_VERSION=%VERSION%
 if "%_COMPARE_VERSION_MODE%" equ "" set _COMPARE_VERSION_MODE=%VERSION_COMPARE%
 
@@ -130,7 +130,7 @@ set _COMPARE_TGT_VERSION=
 set _COMPARE_VERSION_MODE=
 set _COMPARE_NO_WARNINGS=
 set _COMPARE_NO_ERRORS=
-set _COMPARE_NO_INFO=
+set _COMPARE_NO_INFOS=
 set _COMPARE_VERBOSE=
 set _COMPARE_HELP=
 goto :EOF
@@ -208,6 +208,6 @@ call :_clean_temp_variables
 exit /b 8
 
 :version_compare_success
-if "%_COMPARE_NO_INFO%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION%' met
+if "%_COMPARE_NO_INFOS%" equ "" echo version requirement '%_COMPARE_SRC_VERSION_MAJOR%.%_COMPARE_SRC_VERSION_MINOR%.%_COMPARE_SRC_VERSION_PATCH% %_COMPARE_VERSION_MODE% %_COMPARE_TGT_VERSION%' met
 call :_clean_temp_variables
 exit /b 0

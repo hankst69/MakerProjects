@@ -20,7 +20,7 @@ if "%_TARGET_DIR%" equ "" echo error: missing argument 'target-folder' &goto :Us
 if "%_ARCHIVE_PATH%" equ "" echo error: missing argument 'archive-path' &goto :Usage
 if "%_TARGET_DIR:~-1%" equ "\" set "_TARGET_DIR=%_TARGET_DIR:~0,-1%"
 if "%_TARGET_DIR:~-1%" equ "/" set "_TARGET_DIR=%_TARGET_DIR:~0,-1%"
-if "%MAKER_ENV_VERBOSE%" equ "" goto :Start
+if "%MAKER_MSG_VERBOSE%" equ "" goto :Start
 echo _TARGET_DIR       = "%_TARGET_DIR%"
 echo _ARCHIVE_PATH     = "%_ARCHIVE_PATH%"
 echo _ARCHIVE_NAME     = "%_ARCHIVE_NAME%"

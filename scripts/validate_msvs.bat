@@ -1,7 +1,7 @@
 @rem validate msvs:
 @echo off
 call "%~dp0\maker_env.bat" %* --silent
-set "_VMSVS_NO_INFOS=%MAKER_ENV_NOINFOS%"
+set "_VMSVS_NO_INFOS=%MAKER_MSG_NOINFOS%"
 
 set MSVS_YEAR=
 set MSVS_VERSION=
@@ -10,7 +10,7 @@ set MSVS_VERSION_MINOR=
 set MSVS_VERSION_PATCH=
 set MSVS_TARGET_ARCHITECTURE=
 
-@call "%~dp0core\generic_validate.bat" "MSVS" "msbuild -version" "echo %VSCMD_VER%" "--tool_arch:%VSCMD_ARG_TGT_ARCH%" %* --no_info
+@call "%~dp0core\generic_validate.bat" "MSVS" "msbuild -version" "echo %VSCMD_VER%" "--tool_arch:%VSCMD_ARG_TGT_ARCH%" %* --no_infos
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 set "MSVS_TARGET_ARCHITECTURE=%VSCMD_ARG_TGT_ARCH%"
@@ -24,7 +24,7 @@ if /I "%MSVS_VERSION_MAJOR%" equ "11" (set "MSVS_YEAR=2012" &goto :test_msvs_suc
 if /I "%MSVS_VERSION_MAJOR%" equ "10" (set "MSVS_YEAR=2010" &goto :test_msvs_success)
 if /I "%MSVS_VERSION_MAJOR%" equ "9"  (set "MSVS_YEAR=2008" &goto :test_msvs_success)
 if /I "%MSVS_VERSION_MAJOR%" equ "8"  (set "MSVS_YEAR=2005" &goto :test_msvs_success)
-if "%MAKER_ENV_NOERRORS%" equ "" echo error 88: MSVS not available (unexpected major version '%MSVS_VERSION_MAJOR%')
+if "%MAKER_MSG_NOERRORS%" equ "" echo error 88: MSVS not available (unexpected major version '%MSVS_VERSION_MAJOR%')
 exit /b 88
 
 :test_msvs_success

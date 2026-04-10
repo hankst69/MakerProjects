@@ -1,6 +1,6 @@
 @echo off
 call "%~dp0core\maker_env.bat" %*
-set "CHOCO_DIR=%MAKER_BIN%\.choco"
+set "CHOCO_DIR=%MAKER_ENV_BIN%\.choco"
 set "ChocolateyInstall=%CHOCO_DIR%"
 
 call "%~dp0core\generic_validate.bat" "CHOCO" "choco --version" "call choco --version" %* >"%CHOCO_DIR%\.validate.txt"

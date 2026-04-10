@@ -22,7 +22,7 @@ if "%_DOWNLOAD_URL%" equ "" echo error: missing argument 'download-url' &goto :U
 if "%_TARGET_DIR:~-1%" equ "\" set "_TARGET_DIR=%_TARGET_DIR:~0,-1%"
 if "%_TARGET_DIR:~-1%" equ "/" set "_TARGET_DIR=%_TARGET_DIR:~0,-1%"
 set "_DOWNLOAD_FILE_PATH=%_TARGET_DIR%\%_DOWNLOAD_FILE_NAME%"
-if "%MAKER_ENV_VERBOSE%" equ "" goto :Start
+if "%MAKER_MSG_VERBOSE%" equ "" goto :Start
 echo _TARGET_DIR         = "%_TARGET_DIR%"
 echo _DOWNLOAD_URL       = "%_DOWNLOAD_URL%"
 echo _DOWNLOAD_FILE_NAME = "%_DOWNLOAD_FILE_NAME%"

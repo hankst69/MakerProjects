@@ -14,13 +14,13 @@ set "_APPLETV_JB_XCode_DIR=%_APPLETV_DIR%\AppleTV3_JailBreak_Blackb0x"
 set "_APPLETV_JB_UnoUsb_DIR=%_APPLETV_DIR%\checkm8-a5"
 set "_APPLETV_JB_IPWNDFU_DIR=%_APPLETV_DIR%\ipwndfu"
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_APPLETV_JB_XCode_DIR%" "https://github.com/NSSpiral/Blackb0x.git" %*
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_APPLETV_JB_XCode_DIR%" "https://github.com/NSSpiral/Blackb0x.git" %*
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_APPLETV_JB_UnoUsb_DIR%" "https://github.com/hankst69/checkm8-a5.git" %*
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_APPLETV_JB_UnoUsb_DIR%" "https://github.com/hankst69/checkm8-a5.git" %*
 rem set "_APPLETV_JB_UnoHostLib_DIR=%_APPLETV_DIR%\ArduinoUno_UsbHostShieldLib2.0"
-rem call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_APPLETV_JB_UnoHostLib_DIR%" "https://github.com/felis/USB_Host_Shield_2.0.git" %*
+rem call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_APPLETV_JB_UnoHostLib_DIR%" "https://github.com/felis/USB_Host_Shield_2.0.git" %*
 rem todo: automatically patch the downloaded usb_host_shield_lib with usb_host_library.patch from checkm8-a5 ... 
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_APPLETV_JB_IPWNDFU_DIR%" "https://github.com/axi0mX/ipwndfu.git" %*
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_APPLETV_JB_IPWNDFU_DIR%" "https://github.com/axi0mX/ipwndfu.git" %*
 
 cd /d "%_APPLETV_DIR%"

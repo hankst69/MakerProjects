@@ -9,11 +9,11 @@ set _SPLIT_TGT_VERSION=
 set _SPLIT_TGT_COMPARE=
 set _SPLIT_NO_WARNINGS=
 set _SPLIT_NO_ERRORS=
-set _SPLIT_NO_INFO=
+set _SPLIT_NO_INFOS=
 :param_loop
 if /I "%~1" equ "--no_warnings" (set "_SPLIT_NO_WARNINGS=%~1" &shift &goto :param_loop)
 if /I "%~1" equ "--no_errors"   (set "_SPLIT_NO_ERRORS=%~1" &shift &goto :param_loop)
-if /I "%~1" equ "--no_info"     (set "_SPLIT_NO_INFO=%~1" &shift &goto :param_loop)
+if /I "%~1" equ "--no_infos"    (set "_SPLIT_NO_INFOS=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_SPLIT_TGT_VERSION%" equ "" (set "_SPLIT_TGT_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo warning: unknown argument '%~1' &shift &goto :param_loop)
 
@@ -51,11 +51,11 @@ set VERSION=%VERSION_MAJOR%.%VERSION_MINOR%.%VERSION_PATCH%
 if "%VERSION_PATCH%" equ "" set VERSION=%VERSION_MAJOR%.%VERSION_MINOR%
 if "%VERSION_MINOR%%VERSION_PATCH%" equ "" set VERSION=%VERSION_MAJOR%
 
-if "%_SPLIT_NO_INFO%" equ "" echo using: version %VERSION%
+if "%_SPLIT_NO_INFOS%" equ "" echo using: version %VERSION%
 set _SPLIT_SCRIPT_NAME=
 set _SPLIT_TGT_VERSION=
 set _SPLIT_TGT_COMPARE=
 set _SPLIT_NO_WARNINGS=
 set _SPLIT_NO_ERRORS=
-set _SPLIT_NO_INFO=
+set _SPLIT_NO_INFOS=
 exit /b 0

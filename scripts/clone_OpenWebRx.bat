@@ -13,8 +13,8 @@ set "_OPENWEBRX_SRC_DIR=%MAKER_PROJECTS_OPENWEBRX%\openwebrx"
 set "_OPENWEBRX+_SRC_DIR=%MAKER_PROJECTS_OPENWEBRX%\openwebrx+"
 
 
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_OPENWEBRX_SRC_DIR%"  "https://github.com/jketterl/openwebrx.git" --switchBranch develop
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_OPENWEBRX+_SRC_DIR%" "https://github.com/luarvique/openwebrx.git"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_OPENWEBRX_SRC_DIR%"  "https://github.com/jketterl/openwebrx.git" --switchBranch develop
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_OPENWEBRX+_SRC_DIR%" "https://github.com/luarvique/openwebrx.git"
 
 cd /d "%_OPENWEBRX_DIR%"
 dir /ad

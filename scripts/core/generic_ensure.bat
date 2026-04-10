@@ -10,7 +10,7 @@ shift
 if "%~1" neq "" set "_GENERIC_ENSURE_ARGS=%_GENERIC_ENSURE_ARGS% %1"
 if "%~1" neq "" goto :param_loop
 call "%_GENERIC_ENSURE_STARTDIR%\maker_env.bat" %_GENERIC_ENSURE_ARGS%
-if "%MAKER_ENV_VERBOSE%" neq "" set _GENERIC_ENSURE
+if "%MAKER_MSG_VERBOSE%" neq "" set _GENERIC_ENSURE
 
 
 :ge_main
@@ -33,11 +33,11 @@ goto :EOF
 set "_PROJ_NAME=%~1"
 set "_PROJ_ARGS=%~2"
 rem echo %ERRORLEVEL%
-if "%MAKER_ENV_VERBOSE%" neq "" echo "%MAKER_BUILD%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+if "%MAKER_MSG_VERBOSE%" neq "" echo "%MAKER_SCRIPTS%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS%
 rem echo %ERRORLEVEL%
-call "%MAKER_BUILD%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS% 1>nul 2>nul
+call "%MAKER_SCRIPTS%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS% 1>nul 2>nul
 rem echo %ERRORLEVEL%
-if %ERRORLEVEL% EQU 0 call "%MAKER_BUILD%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+if %ERRORLEVEL% EQU 0 call "%MAKER_SCRIPTS%\validate_%_PROJ_NAME%.bat" %_PROJ_ARGS%
 rem echo %ERRORLEVEL%
 goto :EOF
 
@@ -45,8 +45,8 @@ goto :EOF
 :ge_build
 set "_PROJ_NAME=%~1"
 set "_PROJ_ARGS=%~2"
-if "%MAKER_ENV_NOWARNINGS%" equ "" echo warning: %_PROJ_NAME% %MAKER_ENV_VERSION% is not available - trying to build from sources
-if "%MAKER_ENV_VERBOSE%" neq "" echo "%MAKER_BUILD%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
-call "%MAKER_BUILD%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning: %_PROJ_NAME% %MAKER_VERSION% is not available - trying to build from sources
+if "%MAKER_MSG_VERBOSE%" neq "" echo "%MAKER_SCRIPTS%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
+call "%MAKER_SCRIPTS%\build_%_PROJ_NAME%.bat" %_PROJ_ARGS%
 rem echo %ERRORLEVEL%
 goto :EOF

@@ -6,37 +6,39 @@ goto :_start
 
 :_usage
 echo USAGE:
-echo %~n0 [version] [--use_gcc] [-?^|-h^|--help]
+echo %~n0 [version] [--gnu^|--msvs] [--release^|--debug] [-?^|-h^|--help]
 goto :EOF
 
 :_start
 call "%~dp0\maker_env.bat" %*
-call "%MAKER_SCRIPTS%\clear_temp_envs.bat" "_WVL_" 1>nul 2>nul
+call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_WVL_" 1>nul 2>nul
 set "_WVL_THIS_DIR=%~dp0"
 set "_WVL_START_DIR=%cd%"
-set "_WVL_VERSION=%MAKER_ENV_VERSION%"
-set "_WVL_BUILD_SYSTEM=%MAKER_ENV_BUILDSYSTEM%"
-set "_WVL_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
-set "_WVL_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
-set "_WVL_REBUILD=%MAKER_ENV_REBUILD%"
+set "_WVL_VERSION=%MAKER_VERSION%"
+set "_WVL_REBUILD=%MAKER_REBUILD%"
+
+set "_WVL_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
+set "_WVL_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_WVL_BUILD_MODE=%MAKER_BUILD_MODE%"
+set "_WVL_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 
 rem apply defaults
-if "%_WVL_TGT_ARCH%"     equ "" set _WVL_TGT_ARCH=x64
+if "%_WVL_BUILD_ARCH%"   equ "" set _WVL_BUILD_ARCH=x64
 if "%_WVL_BUILD_TYPE%"   equ "" set _WVL_BUILD_TYPE=release
 if "%_WVL_BUILD_SYSTEM%" equ "" set _WVL_BUILD_SYSTEM=msvs
-set "_WVL_BUILD_CFG=%_WVL_BUILD_SYSTEM:~0,2%%_WVL_TGT_ARCH:~1%%_WVL_BUILD_TYPE:~0,3%"
-set "_WVL_BUILD_INFO=%_WVL_VERSION% ^(%_WVL_BUILD_SYSTEM% %_WVL_TGT_ARCH% %_WVL_BUILD_TYPE%^)"
+set "_WVL_BUILD_CONFIG=%_WVL_BUILD_SYSTEM:~0,2%%_WVL_BUILD_ARCH:~1%%_WVL_BUILD_TYPE:~0,3%"
+set "_WVL_BUILD_INFO=%_WVL_VERSION% ^(%_WVL_BUILD_SYSTEM% %_WVL_BUILD_ARCH% %_WVL_BUILD_TYPE%^)"
 
 rem debug
-if "%MAKER_ENV_VERBOSE%" neq "" set MAKER
-if "%MAKER_ENV_VERBOSE%" neq "" set _WVL_
-if "%MAKER_ENV_VERBOSE%" neq "" set _WFV_
+if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
+if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
+if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
 rem welcome
 echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
 
 rem *** clone WFVIEW-Libs sources ***
-call "%MAKER_BUILD%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_ENV_VERBOSE% --silent
+call "%MAKER_SCRIPTS%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_MSG_VERBOSE% --silent
 rem defines: WFVIEW_VERSION
 rem defines: WFVIEW_DIR
 rem defines: WFVIEW_BASE_DIR
@@ -51,10 +53,10 @@ if not exist "%WFVIEW_LIBS_SRC_DIR%" (echo cloning WFVIEW-Libs failed &goto :EOF
 set "_WVL_DIR=%WFVIEW_DIR%"
 set "_WVL_SOURCES_DIR=%WFVIEW_LIBS_SRC_DIR%"
 set "_WVL_BIN_DIR=%WFVIEW_LIBS_DIR%"
-set "_WVL_BUILD_DIR=%WFVIEW_LIBS_SRC_DIR%\._%_WVL_BUILD_CFG%"
+set "_WVL_BUILD_DIR=%WFVIEW_LIBS_SRC_DIR%\._%_WVL_BUILD_CONFIG%"
 
 cd /d "%_WVL_START_DIR%"
-if "%MAKER_ENV_VERBOSE%" neq "" set _WVL_
+if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
 
 rem *** cleaning old build if demanded ***
 if "%_WVL_REBUILD%" neq "" (
@@ -91,33 +93,33 @@ if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WVL_BUILD_SYSTEM%" neq "msvs" (
   echo error: BuildSystem %_WVL_BUILD_SYSTEM% is not available
   goto :_exit
 )
-if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_BUILD%\ensure_mingw.bat" %MAKER_ENV_VERBOSE%
+if /I "%_WVL_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MinGW is not available
   goto :_exit
 )
-if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_BUILD%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% %MAKER_ENV_VERBOSE%
+if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" call "%MAKER_SCRIPTS%\ensure_msvs.bat" %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: MSVS %_WVL_MSVS_VERSION% %_WVL_MSVS_ARCH% is not available
   goto :_exit
 )
 
 rem validate cmake
-call "%MAKER_BUILD%\validate_cmake.bat" %_WVL_CMAKE_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_SCRIPTS%\validate_cmake.bat" %_WVL_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: CMAKE %_WVL_CMAKE_VERSION% is not available
   goto :_exit
 )
 rem ensure ninja
 if /I "%_WVL_BUILD_SYSTEM%" equ "gnu" if %ERRORLEVEL% NEQ 0 goto :_exit
-call "%MAKER_BUILD%\validate_ninja.bat" %_WVL_NINJA_VERSION% --no_errors %MAKER_ENV_VERBOSE%
+call "%MAKER_SCRIPTS%\validate_ninja.bat" %_WVL_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA %_WVL_NINJA_VERSION% is not available
   goto :_exit
 )
 
 rem ensure fortran (ensure and validate not implemented yet) 
-call "%MAKER_BUILD%\build_fortran.bat" %MAKER_ENV_VERBOSE%
+call "%MAKER_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
 
 
 echo.
@@ -126,7 +128,7 @@ rem
 set "_WVL_CONFIG_GENERATOR=Ninja"
 set "_WVL_CONFIG_OPTIONS="
 if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_WVL_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_WVL_CONFIG_OPTIONS=-A %_WVL_TGT_ARCH%"
+if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_WVL_CONFIG_OPTIONS=-A %_WVL_BUILD_ARCH%"
 
 rem WFVIEW_OPUS_DIR
 rem WFVIEW_OPUS_SRC_DIR
@@ -153,8 +155,8 @@ set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
 if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%"
 if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%"
 set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
-call "%MAKER_SCRIPTS%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_ENV_SILENT%
-if /I "%_WVL_TGT_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
+call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_MSG_SILENT%
+if /I "%_WVL_BUILD_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
 
 echo.
 echo.************************************************************************************************************************

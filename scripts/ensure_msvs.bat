@@ -1,14 +1,14 @@
 @echo off
 call "%~dp0\maker_env.bat" %* --silent
 
-set "_EMSVS_TGT_ARCHITECTURE=%MAKER_ENV_ARCHITECTURE%"
-set "_EMSVS_TGT_VERSION=%MAKER_ENV_VERSION_COMPARE%%MAKER_ENV_VERSION%"
-set "_EMSVS_NO_WARNINGS=%MAKER_ENV_NOWARNINGS%"
-set "_EMSVS_NO_ERRORS=%MAKER_ENV_NOERRORS%"
-set "_EMSVS_NO_INFOS=%MAKER_ENV_NOINFOS%"
+set "_EMSVS_TGT_ARCHITECTURE=%MAKER_BUILD_ARCH%"
+set "_EMSVS_TGT_VERSION=%MAKER_VERSION_COMPARE%%MAKER_VERSION%"
+set "_EMSVS_NO_WARNINGS=%MAKER_MSG_NOWARNINGS%"
+set "_EMSVS_NO_ERRORS=%MAKER_MSG_NOERRORS%"
+set "_EMSVS_NO_INFOS=%MAKER_MSG_NOINFOS%"
 
-if "%MAKER_ENV_UNKNOWN_ARGS%" neq "" (echo warning: unknown argument/s '%MAKER_ENV_UNKNOWN_ARGS%')
-if "%MAKER_ENV_UNKNOWN_SWITHCES%" neq "" (echo warning: unknown switch/es '%MAKER_ENV_UNKNOWN_SWITHCES%')
+if "%MAKER_UNKNOWN_ARGS%" neq "" (echo warning: unknown argument/s '%MAKER_UNKNOWN_ARGS%')
+if "%MAKER_UNKNOWN_SWITHCES%" neq "" (echo warning: unknown switch/es '%MAKER_UNKNOWN_SWITHCES%')
 
 if "%_EMSVS_TGT_ARCHITECTURE%" equ "amd64" (set "_EMSVS_TGT_ARCHITECTURE=x64")
 if "%_EMSVS_TGT_ARCHITECTURE%" neq "" goto :test_msvs
@@ -19,7 +19,7 @@ set "_EMSVS_TGT_ARCHITECTURE=x64"
 
 :test_msvs
 rem validate msvs
-call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_ENV_VERBOSE% --no_info
+call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :msvs_self_healing:
 if "%_EMSVS_TGT_VERSION%" equ "2019" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat" goto :init_vs2019
@@ -39,7 +39,7 @@ goto :test_msvs_again
 
 :test_msvs_again
 rem validate msvs
-call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_ENV_VERBOSE% --no_info
+call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %MAKER_MSG_VERBOSE% --no_infos
 if "%ERRORLEVEL%" equ "0" goto :test_EMSVS_version_ok
 :test_msvs_failed
 if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS %_EMSVS_TGT_VERSION% not available
@@ -53,7 +53,7 @@ if "%_EMSVS_NO_WARNINGS%" equ "" echo warning: MSVS uses target architecture %MS
 set _EMSVS_TGT_ARCH=x86
 if /I "%_EMSVS_TGT_ARCHITECTURE%" equ "x64" set "_EMSVS_TGT_ARCH=amd64"
 set VSCMD_DEBUG=0
-if "%MAKER_ENV_VERBOSE%" neq "" set VSCMD_DEBUG=2
+if "%MAKER_MSG_VERBOSE%" neq "" set VSCMD_DEBUG=2
 call vsdevcmd -arch=%_EMSVS_TGT_ARCH%
 set _EMSVS_TGT_ARCH=
 set "MSVS_TARGET_ARCHITECTURE=%VSCMD_ARG_TGT_ARCH%"
@@ -63,7 +63,7 @@ if "%_EMSVS_NO_ERRORS%" equ "" echo error: MSVS uses target architecture %MSVS_T
 exit /b 3
 
 :test_EMSVS_success
-rem if "%_EMSVS_NO_INFOS%" equ "" call "%MAKER_BUILD%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %_EMSVS_TGT_ARCHITECTURE% --no_warnings --no_errors
+rem if "%_EMSVS_NO_INFOS%" equ "" call "%MAKER_SCRIPTS%\validate_msvs.bat" %_EMSVS_TGT_VERSION% %_EMSVS_TGT_ARCHITECTURE% --no_warnings --no_errors
 if "%_EMSVS_NO_INFOS%" equ "" echo using: MSVS %MSVS_YEAR% (%MSVS_VERSION%) for %MSVS_TARGET_ARCHITECTURE%
 set _EMSVS_TGT_ARCHITECTURE=
 set _EMSVS_TGT_VERSION=

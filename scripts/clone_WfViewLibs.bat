@@ -20,31 +20,31 @@ if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 
 set "WFVIEW_OPUS_DIR=%WFVIEW_LIBS_DIR%\opus"
 set "WFVIEW_OPUS_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\opus"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_OPUS_SRC_DIR%" "https://github.com/xiph/opus.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_OPUS_SRC_DIR%" "https://github.com/xiph/opus.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_RTAUDIO_DIR=%WFVIEW_LIBS_DIR%\rtaudio"
 set "WFVIEW_RTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\rtaudio"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SRC_DIR%" "https://github.com/thestk/rtaudio.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SRC_DIR%" "https://github.com/thestk/rtaudio.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_EIGEN_DIR=%WFVIEW_LIBS_DIR%\eigen"
 set "WFVIEW_EIGEN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\eigen"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_EIGEN_SRC_DIR%" "https://gitlab.com/libeigen/eigen.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_EIGEN_SRC_DIR%" "https://gitlab.com/libeigen/eigen.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_PORTAUDIO_DIR=%WFVIEW_LIBS_DIR%\portaudio"
 set "WFVIEW_PORTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\portaudio"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_PORTAUDIO_SRC_DIR%" "https://github.com/PortAudio/portaudio.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_PORTAUDIO_SRC_DIR%" "https://github.com/PortAudio/portaudio.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_QCUSTOMPLOT_DIR=%WFVIEW_LIBS_DIR%\qcustomplot"
 set "WFVIEW_QCUSTOMPLOT_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\qcustomplot"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_QCUSTOMPLOT_SRC_DIR%" "https://github.com/hankst69/qcustomplot.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_QCUSTOMPLOT_SRC_DIR%" "https://github.com/hankst69/qcustomplot.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_HIDAPI_DIR=%WFVIEW_LIBS_DIR%\hidapi"
 set "WFVIEW_HIDAPI_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\hidapi"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://github.com/avaneev/r8brain-free-src.git" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://github.com/avaneev/r8brain-free-src.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
@@ -53,8 +53,8 @@ set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
 set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
 set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip
 rem set "WFVIEW_LIBFT4222_VERSION=LibFT4222-v1.4.8"
-call "%MAKER_SCRIPTS%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_ENV_SILENT%
-call "%MAKER_SCRIPTS%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_ENV_SILENT%
+call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
 
-if "%MAKER_ENV_VERBOSE%" neq "" set WFVIEW_
+if "%MAKER_MSG_VERBOSE%" neq "" set WFVIEW_
 cd /d "%WFVIEW_LIBS_SRC_DIR%"

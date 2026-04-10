@@ -1,1 +1,0 @@
-@"%~dp0build_qt.bat" --use_gcc %*

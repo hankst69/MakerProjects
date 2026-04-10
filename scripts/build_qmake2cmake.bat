@@ -19,12 +19,12 @@ set "_QMC_SRC_DIR=%QT_DIR%\qmake2cmake"
 if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QMC_ENV_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QMC_SRC_DIR%" 1>nul 2>nul
-  del /F /Q "%MAKER_BIN%\qmake2cmake.bat" 2>NUL
+  del /F /Q "%MAKER_ENV_BIN%\qmake2cmake.bat" 2>NUL
 )
 
 rem test if qmake2cmake is already available
 if not exist "%_QMC_ENV_DIR%\.venv_created" goto :qmc_build
-if not exist "%MAKER_BIN%\qmake2cmake.bat"  goto :qmc_build
+if not exist "%MAKER_ENV_BIN%\qmake2cmake.bat"  goto :qmc_build
 if not exist "%_QMC_SRC_DIR%\*"             goto :qmc_build
 
 rem test if PATH is already adapted to find qtcreator.bat
@@ -34,7 +34,7 @@ call qmake2cmake.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   goto :test_qm2cm_success
 )
-if exist "%MAKER_BIN%\qmake2cmake.bat" set "Path=%Path%;%MAKER_BIN%"
+if exist "%MAKER_ENV_BIN%\qmake2cmake.bat" set "Path=%Path%;%MAKER_ENV_BIN%"
 call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   goto :test_qm2cm_success
@@ -48,7 +48,7 @@ echo *** THIS REQUIRES Python 3
 echo.
 
 rem --- validate python
-call "%MAKER_BUILD%\ensure_python.bat" 3 --no_info
+call "%MAKER_SCRIPTS%\ensure_python.bat" 3 --no_infos
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
@@ -57,14 +57,14 @@ mkdir "%_QMC_SRC_DIR%" 1>nul 2>nul
 cd /d "%_QMC_SRC_DIR%"
 call git clone "https://github.com/hankst69/qmake2cmake.git" .
 cd /d "%QT_DIR%"
-del /F /Q "%MAKER_BIN%\qmake2cmake.bat" 2>NUL
-echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qmake2cmake.bat"
-echo @call "%_QMC_ENV_DIR%\Scripts\activate" >>"%MAKER_BIN%\qmake2cmake.bat"
-echo @rem call qmake2cmake %%*>>"%MAKER_BIN%\qmake2cmake.bat"
-echo @call python "%_QMC_SRC_DIR%\pro2cmake.py" %%*>>"%MAKER_BIN%\qmake2cmake.bat"
-echo @call deactivate 1^>nul 2^>nul %%*>>"%MAKER_BIN%\qmake2cmake.bat"
-rem type "%MAKER_BIN%\qmake2cmake.bat"
-echo @call "%MAKER_BIN%\qmake2cmake.bat" %%*>"%MAKER_BIN%\qm2cm.bat"
+del /F /Q "%MAKER_ENV_BIN%\qmake2cmake.bat" 2>NUL
+echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_ENV_BIN%\qmake2cmake.bat"
+echo @call "%_QMC_ENV_DIR%\Scripts\activate" >>"%MAKER_ENV_BIN%\qmake2cmake.bat"
+echo @rem call qmake2cmake %%*>>"%MAKER_ENV_BIN%\qmake2cmake.bat"
+echo @call python "%_QMC_SRC_DIR%\pro2cmake.py" %%*>>"%MAKER_ENV_BIN%\qmake2cmake.bat"
+echo @call deactivate 1^>nul 2^>nul %%*>>"%MAKER_ENV_BIN%\qmake2cmake.bat"
+rem type "%MAKER_ENV_BIN%\qmake2cmake.bat"
+echo @call "%MAKER_ENV_BIN%\qmake2cmake.bat" %%*>"%MAKER_ENV_BIN%\qm2cm.bat"
 
 if exist "%_QMC_ENV_DIR%\.venv_created" goto :test_qm2cm
 
@@ -92,7 +92,7 @@ goto :test_qm2cm
 
 :test_qm2cm
 call qmake2cmake.bat --validate 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_BIN%"
+if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_ENV_BIN%"
 call qmake2cmake.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_qm2cm_success
   

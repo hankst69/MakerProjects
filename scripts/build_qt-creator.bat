@@ -13,7 +13,7 @@ if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
-set "_QTCREATOR_BIN=%MAKER_BIN%\.qtcreator"
+set "_QTCREATOR_BIN=%MAKER_ENV_BIN%\.qtcreator"
 set "QT_DIR=%MAKER_QT_DIR%"
 set "_QT_ENV_DIR=%QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%QT_DIR%\.qt_make"
@@ -22,7 +22,7 @@ if "%_REBUILD%" neq "" (
   rmdir /s /q "%_QT_INSTALL_MAKE%" 1>nul 2>nul
   rem rmdir /s /q "%_QT_ENV_DIR%"  1>nul 2>nul
   rmdir /s /q "%_QTCREATOR_BIN%" 1>nul 2>nul
-  del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
+  del /F /Q "%MAKER_ENV_BIN%\qtcreator.bat" 2>NUL
 )
 
 rem test if qt-creater is already available
@@ -32,12 +32,12 @@ if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
     call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
   )
 )
-del /F /Q "%MAKER_BIN%\qtcreator.bat" 2>NUL
+del /F /Q "%MAKER_ENV_BIN%\qtcreator.bat" 2>NUL
 if exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
-  echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qtcreator.bat"
-  echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_BIN%\qtcreator.bat"
+  echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_ENV_BIN%\qtcreator.bat"
+  echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_ENV_BIN%\qtcreator.bat"
 )
-rem type "%MAKER_BIN%\qtcreator.bat"
+rem type "%MAKER_ENV_BIN%\qtcreator.bat"
 
 rem test if PATH is already adapted to find qtcreator.bat
 rem first change the current dir to not unwillingly call the local qtcreator.bat from Maker project root and cause an iteration
@@ -47,8 +47,8 @@ if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
   goto :test_qtcreator_success
 )
-rem if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%;%_QTCREATOR_BIN%\bin"
-if exist "%MAKER_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_BIN%"
+rem if exist "%MAKER_ENV_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_ENV_BIN%;%_QTCREATOR_BIN%\bin"
+if exist "%MAKER_ENV_BIN%\qtcreator.bat" set "Path=%Path%;%MAKER_ENV_BIN%"
 call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 (
   rem echo QtCreator already available
@@ -63,31 +63,31 @@ echo *** THIS REQUIRES running in an ELEVATED SHELL ^(currently^) ***
 echo *** THIS REQUIRES Python 3
 echo.
 
-call "%MAKER_BUILD%\clone_qt.bat" %_QT_VERSION%
+call "%MAKER_SCRIPTS%\clone_qt.bat" %_QT_VERSION%
 set "_QT_ENV_DIR=%QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%QT_DIR%\.qt_make"
 
 rem --- validate python
-call "%MAKER_BUILD%\validate_python.bat" 3
+call "%MAKER_SCRIPTS%\validate_python.bat" 3
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem --- ensure proper MSVS 2019 is available where target architecture matches python architecture
-call "%MAKER_BUILD%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
+call "%MAKER_SCRIPTS%\ensure_msvs.bat" 2019 %PYTHON_ARCHITECTURE%
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 rem -- ensure make is available
-call "%MAKER_BUILD%\validate_make.bat" GEQ3 1>nul
-if %ERRORLEVEL% NEQ 0 call "%MAKER_BUILD%\build_make.bat"
-call "%MAKER_BUILD%\validate_make.bat" GEQ3
+call "%MAKER_SCRIPTS%\validate_make.bat" GEQ3 1>nul
+if %ERRORLEVEL% NEQ 0 call "%MAKER_SCRIPTS%\build_make.bat"
+call "%MAKER_SCRIPTS%\validate_make.bat" GEQ3
 if %ERRORLEVEL% NEQ 0 (
   goto :exit_script
 )
 
 rem -- ensure qt_install makefiles are available
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
-  call "%MAKER_BUILD%\core\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
+  call "%MAKER_SCRIPTS%\core\clone_in_folder.bat" "%_QT_INSTALL_MAKE%" "http://github.com/vedderb/bldc" --silent
 )
 if not exist "%_QT_INSTALL_MAKE%\MakeFile" (
   echo error: QT Make files not available
@@ -160,11 +160,11 @@ if not exist "%_QTCREATOR_BIN%\bin\qtcreator.exe" (
   if not exist "%_QTCREATOR_BIN%" mkdir "%_QTCREATOR_BIN%"
   call xcopy /S /Y /Q "%_QT_INSTALL_MAKE%\tools\Qt\Tools\QtCreator" "%_QTCREATOR_BIN%" 1>NUL
 )
-echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_BIN%\qtcreator.bat"
-echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_BIN%\qtcreator.bat"
+echo @if /I "%%~1" equ "--validate" ^(exit /b 0^)>"%MAKER_ENV_BIN%\qtcreator.bat"
+echo @start /D "%_QTCREATOR_BIN%\bin" /B qtcreator.exe %%*>>"%MAKER_ENV_BIN%\qtcreator.bat"
 
 call qtcreator.bat --validate 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_BIN%"
+if %ERRORLEVEL% NEQ 0 set "Path=%Path%;%MAKER_ENV_BIN%"
 call qtcreator.bat --validate 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :test_qtcreator_success
   
@@ -178,7 +178,7 @@ rem echo to start Qt-Creator:
 rem echo ^>qtcreator
 rem echo or
 rem echo ^>build_qt-creator --start
-rem if /I "%_BQTC_ARG1%" equ "--start" (echo starting Qt-Creator &call "%MAKER_BIN%\qtcreator.bat")
+rem if /I "%_BQTC_ARG1%" equ "--start" (echo starting Qt-Creator &call "%MAKER_ENV_BIN%\qtcreator.bat")
 
 
 :exit_script

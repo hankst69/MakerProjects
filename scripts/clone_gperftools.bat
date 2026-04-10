@@ -10,7 +10,7 @@ set "_GPT_SOURCES_DIR=%_GPT_DIR%\source%_GPT_VERSION%\"
 
 rem --- cloning GPerfTools
 echo GPERFTOOLS-CLONE %_GPT_VERSION%
-call "%MAKER_SCRIPTS%\clone_in_folder.bat" "%_GPT_SOURCES_DIR%" "https://github.com/gperftools/gperftools"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_GPT_SOURCES_DIR%" "https://github.com/gperftools/gperftools"
 pushd "%_GPT_SOURCES_DIR%"
 
 echo GPERFTOOLS-CLONE %_GPT_VERSION% done

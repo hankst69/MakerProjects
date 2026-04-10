@@ -5,28 +5,28 @@
 set "_BMBS_START_DIR=%cd%"
 
 call "%~dp0\maker_env.bat" %*
-rem if "%MAKER_ENV_VERBOSE%" neq "" echo on
+rem if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 rem init with command line arguments
-set "_BISON_VERSION=%MAKER_ENV_VERSION%"
-set "_BISON_BUILD_TYPE=%MAKER_ENV_BUILDTYPE%"
-set "_BISON_TGT_ARCH=%MAKER_ENV_ARCHITECTURE%"
+set "_BISON_VERSION=%MAKER_VERSION%"
+set "_BISON_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_BISON_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 
 rem apply defaults
 if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=GEQ2.4.1
 rem if "%_BISON_VERSION%"    equ "" set _BISON_VERSION=2.7.0
 rem if "%_BISON_BUILD_TYPE%" equ "" set _BISON_BUILD_TYPE=Release
-rem set "_BISON_TGT_ARCH=x64"
+rem set "_BISON_BUILD_ARCH=x64"
 
 rem take shortcut if possible
 set ERRORLEVEL=
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
+call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :exit_script
 
 set "_BISON_DIR=%MAKER_TOOLS%\Bison"
 set "_BISON_BIN_DIR=%_BISON_DIR%\bison-%_BISON_VERSION%"
 
-if "%MAKER_ENV_VERBOSE%" neq "" set _BISON_BIN_DIR
+if "%MAKER_MSG_VERBOSE%" neq "" set _BISON_BIN_DIR
 
 rem install/build...
 goto :install_bison_c
@@ -47,7 +47,7 @@ if not exist "%_BISON_BIN_DIR%\bin\bison.exe" (
   goto :exit_script
 )
 :test_bison_path
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
+call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% 1>nul 2>nul
 if %ERRORLEVEL% neq 0 set "PATH=%_BISON_BIN_DIR%\bin;%PATH%"
 goto :exit_script
 rem
@@ -60,7 +60,7 @@ rem
 :install_bison_c
 rem c) install using choco:
 set _BISON_BIN_DIR=
-call "%MAKER_BUILD%\ensure_choco.bat"
+call "%MAKER_SCRIPTS%\ensure_choco.bat"
 if %ERRORLEVEL% NEQ 0 (
   echo error: CHOCO is not available
   goto :exit_script
@@ -73,21 +73,21 @@ if not exist "%_CHOCO_BIN_BIN%\win_bison.exe" (
   goto :exit_script
 )
 :win_bison_installed
-rem echo @call "%_CHOCO_BIN_BIN%\win_bison.exe" %%* >"%MAKER_BIN%\bison.bat"
-rem echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_BIN%\flex.bat"
+rem echo @call "%_CHOCO_BIN_BIN%\win_bison.exe" %%* >"%MAKER_ENV_BIN%\bison.bat"
+rem echo @call "%_CHOCO_BIN_BIN%\win_flex.exe" %%* >"%MAKER_ENV_BIN%\flex.bat"
 rem goto :test_win_bison_path
 copy /Y "%_CHOCO_BIN_BIN%\win_bison.exe" "%_CHOCO_BIN_BIN%\bison.exe" 1>nul 2>nul
 set "_BISON_BIN_DIR=%_CHOCO_BIN_BIN%"
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% --no_info --no_errors
+call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% --no_infos --no_errors
 if %ERRORLEVEL% EQU 0 goto :exit_script
 set "Path=%_CHOCO_BIN_BIN%;%Path%"
 goto :exit_script
 
 :test_win_bison_path
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION%--no_info --no_errors
-if %ERRORLEVEL% neq 0 set "Path=%MAKER_BIN%;%Path%"
+call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% --no_infos --no_errors
+if %ERRORLEVEL% neq 0 set "Path=%MAKER_ENV_BIN%;%Path%"
 
 :exit_script
 cd /d "%_BMBS_START_DIR%"
 set _BMBS_START_DIR=
-call "%MAKER_BUILD%\validate_bison.bat" %_BISON_VERSION% %MAKER_ENV_VERBOSE%
+call "%MAKER_SCRIPTS%\validate_bison.bat" %_BISON_VERSION% %MAKER_MSG_VERBOSE%
