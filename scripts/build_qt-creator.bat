@@ -1,24 +1,20 @@
 @rem https://github.com/vedderb/bldc?tab=readme-ov-file#on-all-platforms
 @rem https://pypi.org/project/aqtinstall/#:~:text=Same%20as%20usual%2C%20it%20can%20be%20installed%20with,some%20of%20which%20are%20precompiled%20in%20several%20platforms.
 @echo off
-call "%~dp0\maker_env.bat"
+call "%~dp0\maker_env.bat" %* --silent
 set "_BQTC_START_DIR=%cd%"
 set "_BQTC_ARG1=%~1"
 
-set _QT_VERSION=6.6.3
-set _REBUILD=
-:param_loop
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
-if "%~1" neq ""             (if "%_QT_VERSION%" equ "" set "_QT_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
+set "_QTC_VERSION=%MAKER_VERSION%"
+set "_QTC_REBUILD=%MAKER_REBUILD%"
+set _QTC_VERSION=6.6.3
 
 set "_QTCREATOR_BIN=%MAKER_ENV_BIN%\.qtcreator"
 set "QT_DIR=%MAKER_DIR_QT%"
 set "_QT_ENV_DIR=%QT_DIR%\.qt_env"
 set "_QT_INSTALL_MAKE=%QT_DIR%\.qt_make"
 
-if "%_REBUILD%" neq "" (
+if "%_QTC_REBUILD%" neq "" (
   rmdir /s /q "%_QT_INSTALL_MAKE%" 1>nul 2>nul
   rem rmdir /s /q "%_QT_ENV_DIR%"  1>nul 2>nul
   rmdir /s /q "%_QTCREATOR_BIN%" 1>nul 2>nul

@@ -2,11 +2,12 @@
 @echo off
 set "_BGP_START_DIR=%cd%"
 
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env.bat" %* --silent
 rem if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 rem init with command line arguments
 set "_GP_VERSION=%MAKER_VERSION%"
+set "_GP_REBUILD=%MAKER_REBUILD%"
 set "_GP_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 set "_GP_BUILD_TYPE=%MAKER_BUILD_TYPE%"
 set "_GP_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
@@ -37,7 +38,7 @@ set "_GP_BUILD_DIR=%_GP_DIR%\._%_GP_VERSION%%_GP_BUILD_CONFIG%"
 set "_GP_BIN_DIR=%_GP_DIR%\gperf%_GP_VERSION%-%_GP_BUILD_SYSTEM%"
 
 rem (2) *** cleaning QT build if demanded ***
-if "%_REBUILD%" equ "true" (
+if "%_GP_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_GP_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_GP_BUILD_DIR%" 1>nul 2>nul

@@ -1,22 +1,17 @@
 @rem https://www.piwheels.org/faq.html#venv
 @echo off
-call "%~dp0\maker_env.bat"
+call "%~dp0\maker_env.bat" %* --silent
 set "_BQMC_START_DIR=%cd%"
 set "_BQMC_ARG1=%~1"
 
-set _QMC_VERSION=
-set _REBUILD=
-:param_loop
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
-if "%~1" neq ""             (if "%_QMC_VERSION%" equ "" set "_QMC_VERSION=%~1" &shift &goto :param_loop)
-if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
+set "_QMC_VERSION=%MAKER_VERSION%"
+set "_QMC_REBUILD=%MAKER_REBUILD%"
 
 set "QT_DIR=%MAKER_DIR_QT%"
 set "_QMC_ENV_DIR=%QT_DIR%\.qm2cm_env"
 set "_QMC_SRC_DIR=%QT_DIR%\qmake2cmake"
 
-if "%_REBUILD%" neq "" (
+if "%_QMC_REBUILD%" neq "" (
   rmdir /s /q "%_QMC_ENV_DIR%" 1>nul 2>nul
   rmdir /s /q "%_QMC_SRC_DIR%" 1>nul 2>nul
   del /F /Q "%MAKER_ENV_BIN%\qmake2cmake.bat" 2>NUL

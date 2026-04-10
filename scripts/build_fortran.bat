@@ -11,16 +11,16 @@ set "_BFRT_START_DIR=%cd%"
 set "_BFRT_ARG1=%~1"
 
 set _FRT_VERSION=
-set _REBUILD=
+set _FRT_REBUILD=
 :param_loop
-if /I "%~1" equ "--rebuild" (set "_REBUILD=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"        (set "_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "--rebuild" (set "_FRT_REBUILD=true" &shift &goto :param_loop)
+if /I "%~1" equ "-r"        (set "_FRT_REBUILD=true" &shift &goto :param_loop)
 if "%~1" neq ""             (if "%_FRT_VERSION%" equ "" set "_FRT_VERSION=%~1" &shift &goto :param_loop)
 if "%~1" neq ""             (echo error: unkown argument '%~1' &shift &goto :param_loop)
 
 set "_FRT_ENV_DIR=%MAKER_ENV_BIN%\.ifort_env"
 
-if "%_REBUILD%" neq "" (
+if "%_FRT_REBUILD%" neq "" (
   del /F /Q "%MAKER_ENV_BIN%\gfortran.bat" 2>NUL
   del /F /Q "%MAKER_ENV_BIN%\ifort.bat" 2>NUL
   del /F /Q "%MAKER_ENV_BIN%\ifx.bat" 2>NUL

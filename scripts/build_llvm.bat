@@ -1,6 +1,6 @@
 @echo off
 set "_BLLVM_START_DIR=%cd%"
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env.bat" %* --silent
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
 
 set "_LLVM_VERSION=%MAKER_VERSION%"
@@ -15,14 +15,15 @@ rem apply defaults
 if "%_LLVM_VERSION%" equ "" set _LLVM_VERSION=
 set "_LLVM_BUILD_INFO=LLVM %_LLVM_VERSION% %MAKER_BUILD_INFO%"
 
-
 call "%MAKER_ENV_CORE%\stop_watch.bat"
 set "_LLVM_BUILD_DATE_START=%_DATE_%"
 set "_LLVM_BUILD_TIME_START=%_TIME_UI%"
 set "_LLVM_BUILD_DATETIME_START=%_DATETIME_%"
 
-
 rem (1) *** cloning LLVM sources ***
+rem if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
+rem if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_
+
 rem defines: LLVM_DIR
 rem defines: LLVM_SOURCES_DIR
 call "%MAKER_DIR_SCRIPTS%\clone_llvm.bat" %_LLVM_VERSION% %MAKER_MSG_VERBOSE%
@@ -40,11 +41,11 @@ set "_LLVM_LOGFILE=%LLVM_DIR%\.logs\llvm_build_%_LLVM_VERSION%_%_LLVM_BUILD_CONF
 if not exist "%LLVM_DIR%\.logs" mkdir "%LLVM_DIR%\.logs"
 echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
 
+if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
 if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_
 
-
 rem (2) *** removing prior build outputs ***
-if "%_REBUILD%" equ "true" (
+if "%_LLVM_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_LLVM_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_LLVM_BUILD_DIR%" 1>nul 2>nul
@@ -98,7 +99,7 @@ rem if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%
   rem
   rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
   rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
-  set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
+  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
   rem
   rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
   rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"

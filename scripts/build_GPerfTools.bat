@@ -7,13 +7,13 @@ if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 rem init with command line arguments
 set "_GPT_VERSION=%MAKER_VERSION%"
+set "_GPT_REBUILD=%MAKER_REBUILD%"
 set "_GPT_BUILD_TYPE=%MAKER_BUILD_TYPE%"
 set "_GPT_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 
 rem apply defaults
 if "%_GPT_VERSION%" equ "" set _GPT_VERSION=
-if "%_GPT_BUILD_TYPE%" equ "" set _GPT_=Release
-set "_GPT_BUILD_ARCH=x64"
+set _GPT_BUILD_ARCH=x64
 set _GPT_BUILD_TYPE=Release
 
 rem take shortcut if possible
@@ -38,7 +38,7 @@ set "_GPT_BIN_DIR=%_GPT_DIR%\gperftools%_GPT_VERSION%"
 
 
 rem (2) *** cleaning QT build if demanded ***
-if "%_REBUILD%" equ "true" (
+if "%_GPT_REBUILD%" neq "" (
   echo preparing rebuild...
   rmdir /s /q "%_GPT_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_GPT_BUILD_DIR%" 1>nul 2>nul

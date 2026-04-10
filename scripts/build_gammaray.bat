@@ -7,7 +7,7 @@ call "%~dp0\maker_env.bat" %*
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_GR_"
 
 set "_GR_VERSION=%MAKER_VERSION%"
-set "_GT_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_GR_BUILD_TYPE=%MAKER_BUILD_TYPE%"
 set "_GR_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 set "_GR_REBUILD=%MAKER_REBUILD%"
 
