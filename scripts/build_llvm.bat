@@ -41,8 +41,12 @@ set "_LLVM_LOGFILE=%LLVM_DIR%\.logs\llvm_build_%_LLVM_VERSION%_%_LLVM_BUILD_CONF
 if not exist "%LLVM_DIR%\.logs" mkdir "%LLVM_DIR%\.logs"
 echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
 
+echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%>"%_LLVM_LOGFILE%"
+set _LLVM_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_LLVM_LOGFILE%"
+
 if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
 if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_
+
 
 rem (2) *** removing prior build outputs ***
 if "%_LLVM_REBUILD%" neq "" (
@@ -51,20 +55,31 @@ if "%_LLVM_REBUILD%" neq "" (
   rmdir /s /q "%_LLVM_BUILD_DIR%" 1>nul 2>nul
 )
 
-if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_rebuild
-if not exist "%_LLVM_BIN_DIR%\lib\lldWasm.lib" goto :_rebuild
+
+rem build validation
+set "_LLVM_LIBEXTENSION=.a"
+set "_LLVM_EXEEXTENSION=.exe"
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_LIBEXTENSION=.lib" 
+set "_LLVM_TEST_LIB1=%_LLVM_BIN_DIR%\lib\libLLVMCore%_LLVM_LIBEXTENSION%"
+set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\lldWasm%_LLVM_LIBEXTENSION%"
+set "_LLVM_TEST_EXE1=%_LLVM_BIN_DIR%\bin\llvm-link%_LLVM_EXEEXTENSION%"
+set "_LLVM_TEST_EXE2=%_LLVM_BIN_DIR%\bin\clang%_LLVM_EXEEXTENSION%"
+set "_LLVM_TEST_EXE3=%_LLVM_BIN_DIR%\bin\flang%_LLVM_EXEEXTENSION%"
+
+if not exist "%_LLVM_TEST_LIB2%" goto :_rebuild
+if not exist "%_LLVM_TEST_EXE2%" goto :_rebuild
 goto :_install_done
 
 
 rem (3) *** ensuring prerequisites ***
 :_rebuild
-echo.
-echo rebuilding %_LLVM_BUILD_INFO% from sources
-echo see https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm
-echo.
-echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw-w64
-echo *** THIS REQUIRES Cmake 3.16 or newer
-echo.
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo rebuilding %_LLVM_BUILD_INFO% from sources %_LLVM_TEE_LOG%
+echo see https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw-w64 %_LLVM_TEE_LOG%
+echo *** THIS REQUIRES Cmake 3.16 or newer %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
 
 rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
@@ -72,7 +87,10 @@ if /I "%_LLVM_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat"
 if %ERRORLEVEL% NEQ 0 (
   goto :EOF
 )
-if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available &goto :_exit)
+if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available
+  goto :_exit
+)
 
 rem validate cmake
 call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" GEQ3.16
@@ -83,73 +101,108 @@ if %ERRORLEVEL% NEQ 0 (
 if not exist "%_LLVM_BIN_DIR%" mkdir "%_LLVM_BIN_DIR%"
 if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
+if not exist "%_LLVM_TEST_LIB1%" goto :_configure
+if not exist "%_LLVM_TEST_EXE1%" goto :_configure
+goto :_configure2
 
-rem (4) *** perform cmake configuration ***
+
 :_configure
-rem if exist "%_LLVM_BUILD_DIR%\lib\Analysis\LLVMAnalysis.dir\%_LLVM_BUILD_TYPE%\AliasAnalysis.obj" goto :_configure_done
-  echo.
-  echo CONFIGURE %_LLVM_BUILD_INFO%
-  echo CONFIGURE %_LLVM_BUILD_INFO%>"%_LLVM_LOGFILE%"
-  rem
-  set "_LLVM_CONFIG_GENERATOR=Ninja"
-  set "_LLVM_CONFIG_OPTIONS="
-  if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
-  if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
-  echo using generator "%_LLVM_CONFIG_GENERATOR%"
-  rem
-  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
-  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
-  rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
-  rem
-  rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
-  rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
-  set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
-  rem
-  echo. >>"%_LLVM_LOGFILE%"
-  echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE
-  echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE>>"%_LLVM_LOGFILE%" 2>&1
-  call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE>>"%_LLVM_LOGFILE%" 2>&1
-rem :_configure_done
-echo CONFIGURE %_LLVM_BUILD_INFO% done
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo CONFIGURE %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+rem
+set "_LLVM_CONFIG_GENERATOR=Ninja"
+set "_LLVM_CONFIG_OPTIONS="
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
+echo using generator "%_LLVM_CONFIG_GENERATOR%" %_LLVM_TEE_LOG%
+rem
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
+rem
+rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
+rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
+set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+rem
+echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE %_LLVM_TEE_LOG%
+call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE 2>&1 >>"%_LLVM_LOGFILE%"
+:_configure_done
+echo CONFIGURE %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
-
-rem (5) *** perform build ***
 :_build
-if exist "%_LLVM_BUILD_DIR%\%_LLVM_BUILD_TYPE%\bin\clang.exe" goto :_build_done
-  echo.
-  echo BUILD %_LLVM_BUILD_INFO%
-  echo BUILD %_LLVM_BUILD_INFO%>>"%_LLVM_LOGFILE%" 2>&1
-  cd /d "%_LLVM_BUILD_DIR%"
-  echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
-  echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
-  call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo BUILD %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+cd /d "%_LLVM_BUILD_DIR%"
+echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
+call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% 2>&1 >>"%_LLVM_LOGFILE%"
 :_build_done
-echo BUILD %_LLVM_BUILD_INFO% done
+echo BUILD %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
-
-rem (7) *** perform install ***
 :_install
-if exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_install_done
-  echo.
-  echo INSTALL %_LLVM_BUILD_INFO%
-  echo INSTALL %_LLVM_BUILD_INFO%>>"%_LLVM_LOGFILE%" 2>&1
-  cd /d "%_LLVM_BUILD_DIR%"
-  echo cmake --install .
-  echo cmake --install .>>"%_LLVM_LOGFILE%" 2>&1
-  call cmake --install .>>"%_LLVM_LOGFILE%" 2>&1
-)
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo INSTALL %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+cd /d "%_LLVM_BUILD_DIR%"
+echo cmake --install . %_LLVM_TEE_LOG%
+call cmake --install . 2>&1 >>"%_LLVM_LOGFILE%"
 :_install_done
-if exist "%_LLVM_BIN_DIR%\bin\clang.exe" (
-  echo INSTALL %_LLVM_BUILD_INFO% done
+if exist "%_LLVM_TEST_EXE1%" (
+  echo INSTALL %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 ) else (
-  echo error: INSTALL %_LLVM_BUILD_INFO% FAILED
+  echo error: INSTALL %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
+  goto :_validate
+)
+
+:_configure2
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo CONFIGURE-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+rem
+set "_LLVM_CONFIG_GENERATOR=Ninja"
+set "_LLVM_CONFIG_OPTIONS="
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
+echo using generator "%_LLVM_CONFIG_GENERATOR%" %_LLVM_TEE_LOG%
+rem
+set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
+rem
+rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
+rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
+set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
+rem
+echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE %_LLVM_TEE_LOG%
+call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE 2>&1 >>"%_LLVM_LOGFILE%"
+:_configure2_done
+echo CONFIGURE-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+
+:_build2
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo BUILD-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+cd /d "%_LLVM_BUILD_DIR%"
+echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
+call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% 2>&1 >>"%_LLVM_LOGFILE%"
+:_build2_done
+echo BUILD-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+
+:_install2
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo INSTALL-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
+cd /d "%_LLVM_BUILD_DIR%"
+echo cmake --install . %_LLVM_TEE_LOG%
+call cmake --install . 2>&1 >>"%_LLVM_LOGFILE%"
+:_install2_done
+if exist "%_LLVM_TEST_EXE2%" (
+  echo INSTALL-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+) else (
+  echo error: INSTALL-2 %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
+  goto :_validate
 )
 
 
-rem (8) *** make LLVM available ***
+rem *** make LLVM available ***
 :_validate
-if not exist "%_LLVM_BIN_DIR%\bin\llc.exe" goto :_exit
-if not exist "%_LLVM_BIN_DIR%\bin\clang.exe" goto :_exit
+if not exist "%_LLVM_TEST_EXE1%" goto :_exit
+if not exist "%_LLVM_TEST_EXE2%" goto :_exit
 set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_MSG_VERBOSE%" neq "" set LLVM_
@@ -167,13 +220,13 @@ call "%MAKER_ENV_CORE%\stop_watch.bat" "%_LLVM_BUILD_DATETIME_START%"
 set "_LLVM_BUILD_DATE_STOP=%_DATE_%"
 set "_LLVM_BUILD_TIME_STOP=%_TIME_UI%"
 set "_LLVM_BUILD_DURATION=%_DIFFT_DUR_SS%"
-echo.>>"%_LLVM_LOGFILE%"
-echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP% ^(duration %_LLVM_BUILD_DURATION% sec^)>>"%_LLVM_LOGFILE%"
-echo.
-echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
-echo.BUILD-START   : %_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%
-echo.BUILD-STOP    : %_LLVM_BUILD_DATE_STOP% %_LLVM_BUILD_TIME_STOP%
-echo.BUILD-DURATION: %_LLVM_BUILD_DURATION% sec
+rem echo.>>"%_LLVM_LOGFILE%"
+rem echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP% ^(duration %_LLVM_BUILD_DURATION% sec^)>>"%_LLVM_LOGFILE%"
+echo.&echo.>>"%_LLVM_LOGFILE%"
+echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%" %_LLVM_TEE_LOG%
+echo.BUILD-START   : %_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START% %_LLVM_TEE_LOG%
+echo.BUILD-STOP    : %_LLVM_BUILD_DATE_STOP% %_LLVM_BUILD_TIME_STOP% %_LLVM_TEE_LOG%
+echo.BUILD-DURATION: %_LLVM_BUILD_DURATION% sec %_LLVM_TEE_LOG%
 rem
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" --no_errors
