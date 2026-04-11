@@ -125,7 +125,7 @@ rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG
 set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 rem
 echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE %_LLVM_TEE_LOG%
-call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_LLVM_LOGFILE%" 2>&1
 :_configure_done
 echo CONFIGURE %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
@@ -134,7 +134,7 @@ echo.&echo.>>"%_LLVM_LOGFILE%"
 echo BUILD %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
-call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
 :_build_done
 echo BUILD %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
@@ -143,7 +143,7 @@ echo.&echo.>>"%_LLVM_LOGFILE%"
 echo INSTALL %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
-call cmake --install . 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake --install . >>"%_LLVM_LOGFILE%" 2>&1
 :_install_done
 if exist "%_LLVM_TEST_EXE1%" (
   echo INSTALL %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
@@ -171,7 +171,7 @@ rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG
 set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
 rem
 echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE %_LLVM_TEE_LOG%
-call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_LLVM_LOGFILE%" 2>&1
 :_configure2_done
 echo CONFIGURE-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
@@ -180,7 +180,7 @@ echo.&echo.>>"%_LLVM_LOGFILE%"
 echo BUILD-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
-call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
 :_build2_done
 echo BUILD-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 
@@ -189,7 +189,7 @@ echo.&echo.>>"%_LLVM_LOGFILE%"
 echo INSTALL-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
-call cmake --install . 2>&1 >>"%_LLVM_LOGFILE%"
+call cmake --install . >>"%_LLVM_LOGFILE%" 2>&1
 :_install2_done
 if exist "%_LLVM_TEST_EXE2%" (
   echo INSTALL-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
