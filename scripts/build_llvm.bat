@@ -61,14 +61,14 @@ set "_LLVM_LIBEXTENSION=.a"
 set "_LLVM_EXEEXTENSION=.exe"
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_LIBEXTENSION=.lib" 
 set "_LLVM_TEST_LIB1=%_LLVM_BIN_DIR%\lib\libLLVMCore%_LLVM_LIBEXTENSION%"
-set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\lldWasm%_LLVM_LIBEXTENSION%"
+set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\liblldWasm%_LLVM_LIBEXTENSION%"
 set "_LLVM_TEST_EXE1=%_LLVM_BIN_DIR%\bin\llvm-link%_LLVM_EXEEXTENSION%"
 set "_LLVM_TEST_EXE2=%_LLVM_BIN_DIR%\bin\clang%_LLVM_EXEEXTENSION%"
 set "_LLVM_TEST_EXE3=%_LLVM_BIN_DIR%\bin\flang%_LLVM_EXEEXTENSION%"
 
 if not exist "%_LLVM_TEST_LIB2%" goto :_rebuild
 if not exist "%_LLVM_TEST_EXE2%" goto :_rebuild
-goto :_install_done
+goto :_install2_done
 
 
 rem (3) *** ensuring prerequisites ***
@@ -116,10 +116,6 @@ if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studi
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
 echo using generator "%_LLVM_CONFIG_GENERATOR%" %_LLVM_TEE_LOG%
 rem
-rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
-rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
-rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
-rem
 rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
 rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
 set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_LLVM_BUILD_TYPE%"
@@ -145,11 +141,13 @@ cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
 call cmake --install . >>"%_LLVM_LOGFILE%" 2>&1
 :_install_done
+dir /s /b "%_LLVM_BIN_DIR%" >>"%_LLVM_LOGFILE%"
+dir "%_LLVM_BIN_DIR%\bin" >>"%_LLVM_LOGFILE%"
 if exist "%_LLVM_TEST_EXE1%" (
   echo INSTALL %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 ) else (
   echo error: INSTALL %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
-  goto :_validate
+  rem goto :_validate
 )
 
 :_configure2
@@ -162,9 +160,12 @@ if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studi
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
 echo using generator "%_LLVM_CONFIG_GENERATOR%" %_LLVM_TEE_LOG%
 rem
-set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;flang"
+rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lld;lldb;libc"
 rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;flang;lld;lldb;mlir;polly;libc"
 rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lldb"
+set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;lld;lldb"
 rem
 rem if "%_LLVM_BUILD_MODE%" equ "shared" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=ON"
 rem if "%_LLVM_BUILD_MODE%" equ "static" set "_LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DBUILD_SHARED_LIBS=OFF"
@@ -191,6 +192,8 @@ cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
 call cmake --install . >>"%_LLVM_LOGFILE%" 2>&1
 :_install2_done
+dir /s /b "%_LLVM_BIN_DIR%" >>"%_LLVM_LOGFILE%"
+dir "%_LLVM_BIN_DIR%\bin" >>"%_LLVM_LOGFILE%"
 if exist "%_LLVM_TEST_EXE2%" (
   echo INSTALL-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
 ) else (
