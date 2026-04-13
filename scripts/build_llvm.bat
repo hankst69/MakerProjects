@@ -103,7 +103,9 @@ if not exist "%_LLVM_BUILD_DIR%" mkdir "%_LLVM_BUILD_DIR%"
 
 if not exist "%_LLVM_TEST_LIB1%" goto :_configure
 if not exist "%_LLVM_TEST_EXE1%" goto :_configure
-goto :_configure2
+if not exist "%_LLVM_TEST_LIB2%" goto :_configure2
+if not exist "%_LLVM_TEST_EXE2%" goto :_configure2
+goto :_validate
 
 
 :_configure
@@ -124,18 +126,18 @@ echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix 
 call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_LLVM_LOGFILE%" 2>&1
 :_configure_done
 echo CONFIGURE %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
 
 :_build
-echo.&echo.>>"%_LLVM_LOGFILE%"
 echo BUILD %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
 call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
 :_build_done
 echo BUILD %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
 
 :_install
-echo.&echo.>>"%_LLVM_LOGFILE%"
 echo INSTALL %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
@@ -145,13 +147,13 @@ dir /s /b "%_LLVM_BIN_DIR%" >>"%_LLVM_LOGFILE%"
 dir "%_LLVM_BIN_DIR%\bin" >>"%_LLVM_LOGFILE%"
 if exist "%_LLVM_TEST_EXE1%" (
   echo INSTALL %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+  echo.&echo.>>"%_LLVM_LOGFILE%"
 ) else (
   echo error: INSTALL %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
-  rem goto :_validate
+  echo.&echo.>>"%_LLVM_LOGFILE%"
 )
 
 :_configure2
-echo.&echo.>>"%_LLVM_LOGFILE%"
 echo CONFIGURE-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 rem
 set "_LLVM_CONFIG_GENERATOR=Ninja"
@@ -177,18 +179,18 @@ echo cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix 
 call cmake -S "%LLVM_SOURCES_DIR%\llvm" -B "%_LLVM_BUILD_DIR%" --install-prefix "%_LLVM_BIN_DIR%" -G "%_LLVM_CONFIG_GENERATOR%" %_LLVM_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_LLVM_LOGFILE%" 2>&1
 :_configure2_done
 echo CONFIGURE-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
 
 :_build2
-echo.&echo.>>"%_LLVM_LOGFILE%"
 echo BUILD-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% %_LLVM_TEE_LOG%
 call cmake --build . --config %_LLVM_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL% >>"%_LLVM_LOGFILE%" 2>&1
 :_build2_done
 echo BUILD-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+echo.&echo.>>"%_LLVM_LOGFILE%"
 
 :_install2
-echo.&echo.>>"%_LLVM_LOGFILE%"
 echo INSTALL-2 %_LLVM_BUILD_INFO% %_LLVM_TEE_LOG%
 cd /d "%_LLVM_BUILD_DIR%"
 echo cmake --install . %_LLVM_TEE_LOG%
@@ -198,41 +200,43 @@ dir /s /b "%_LLVM_BIN_DIR%" >>"%_LLVM_LOGFILE%"
 dir "%_LLVM_BIN_DIR%\bin" >>"%_LLVM_LOGFILE%"
 if exist "%_LLVM_TEST_EXE2%" (
   echo INSTALL-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+  echo.&echo.>>"%_LLVM_LOGFILE%"
 ) else (
   echo error: INSTALL-2 %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
+  echo.&echo.>>"%_LLVM_LOGFILE%"
   goto :_validate
 )
 
-
-rem *** make LLVM available ***
 :_validate
+call "%MAKER_ENV_CORE%\stop_watch.bat" "%_LLVM_BUILD_DATETIME_START%"
+set "_LLVM_BUILD_DATE_STOP=%_DATE_%"
+set "_LLVM_BUILD_TIME_STOP=%_TIME_UI%"
+set "_LLVM_BUILD_DURATION=%_DIFFT_DUR_SS%"
 if not exist "%_LLVM_TEST_EXE1%" goto :_exit
 if not exist "%_LLVM_TEST_EXE2%" goto :_exit
+echo.>>"%_LLVM_LOGFILE%"
+echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP% ^(duration %_LLVM_BUILD_DURATION% sec^)>>"%_LLVM_LOGFILE%"
+echo.&echo.>>"%_LLVM_LOGFILE%"
+
+rem *** make LLVM available for CMAKE ***
 set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_MSG_VERBOSE%" neq "" set LLVM_
 
 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" "%_LLVM_VERSION%" 1>nul 2>nul
 if %ERRORLEVEL% EQU 0 goto :_exit
+rem *** make LLVM available as TOOL ***
 set "PATH=%PATH%;%_LLVM_BIN_DIR%\bin"
-
-:_exit
-cd /d "%LLVM_DIR%"
-cd /d "%_BLLVM_START_DIR%"
-set _BLLVM_START_DIR=
-rem
-call "%MAKER_ENV_CORE%\stop_watch.bat" "%_LLVM_BUILD_DATETIME_START%"
-set "_LLVM_BUILD_DATE_STOP=%_DATE_%"
-set "_LLVM_BUILD_TIME_STOP=%_TIME_UI%"
-set "_LLVM_BUILD_DURATION=%_DIFFT_DUR_SS%"
-rem echo.>>"%_LLVM_LOGFILE%"
-rem echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP% ^(duration %_LLVM_BUILD_DURATION% sec^)>>"%_LLVM_LOGFILE%"
-rem echo.&echo.>>"%_LLVM_LOGFILE%"
+rem autro
 echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%" %_LLVM_TEE_LOG%
 echo.BUILD-START   : %_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START% %_LLVM_TEE_LOG%
 echo.BUILD-STOP    : %_LLVM_BUILD_DATE_STOP% %_LLVM_BUILD_TIME_STOP% %_LLVM_TEE_LOG%
 echo.BUILD-DURATION: %_LLVM_BUILD_DURATION% sec %_LLVM_TEE_LOG%
 echo.
-rem
+
+:_exit
+cd /d "%LLVM_DIR%"
+cd /d "%_BLLVM_START_DIR%"
+set _BLLVM_START_DIR=
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" --no_errors
