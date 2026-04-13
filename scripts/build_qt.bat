@@ -45,6 +45,10 @@ set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+
+rem
+rem QT BUILD options
+rem https://wiki.qt.io/Qt_6.8_Tools_and_Versions#Software_configurations_for_Qt_6.8.3
 rem
 rem MSVS BUILD options
 set _QT_BUILD_OPTIONS_MSVS=
@@ -67,8 +71,12 @@ rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -sql-mysql"
 set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -no-sql-odbc"
 rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -skip qtsql"
 set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --trace=ctf"
+rem 
+rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -no-qdoc"
+rem
 rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -cmake-generator ""MinGW Makefiles"""
 set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -- -DMINGW=1 --log-level=VERBOSE"
+set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DFEATURE_clangcpp=OFF -DINPUT_headersclean=ON
 rem
 rem BUILD options
 set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
@@ -114,6 +122,10 @@ set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CONFIG%"
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CONFIG%_%_QT_BUILD_DATETIME_START%.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
 
+echo.%_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START% >"%_QT_LOGFILE%"
+set _QT_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_QT_LOGFILE%"
+
+
 
 rem (2) *** specify LLVM version ***
 rem (2.1) match LLVM version to target QT version 
@@ -125,18 +137,20 @@ call "%MAKER_ENV_CORE%\compare_versions.bat" %_QT_VERSION% GEQ 7.0 --no_errors
 if %ERRORLEVEL% equ 0 set _QT_LLVM_VER=20
 rem (2.2) switch to (latest) LLVM 20 if desired (but might require a patch for QT to build)
 rem       todo: clarify, is this qt patch for LLVM20 is still valid or maybe not neccesary anymore
-if "%_QT_LLVM_VER%" neq "20" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_DIR_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
+if "%_QT_LLVM_VER%" equ "18" if "%_QT_USE_LLVM20_PATCH%" neq "" if exist "%MAKER_DIR_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" (
   pushd "%QT_SOURCES_DIR%\qttools"
   call 7z x -y "%MAKER_DIR_TOOLS%\packages\qt663_qttools-llvm20-patch.7z" 1>NUL
   popd 
   set _QT_LLVM_VER=20
 )
-set _QT_LLVM_VER_VERIFY=%_QT_LLVM_VER%
 rem (2.3) switch to latest LLVM version (no version nr specified where possible when we shall use LLVM 20 or LLVM 18)
 rem       todo: clarify if this is valid for QT6.8.3 without the LLVM20 patch
 rem       todo: somehow handle the case when the latest LLVM is much newer than current 20 and then gets incompatible with QT build
-if "%_QT_LLVM_VER%" equ "20" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
-if "%_QT_LLVM_VER%" equ "18" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
+set _QT_LLVM_VER_VERIFY=GEQ%_QT_LLVM_VER%
+rem if "%_QT_LLVM_VER%" equ "20" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
+rem if "%_QT_LLVM_VER%" equ "18" set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=20
+call "%MAKER_ENV_CORE%\compare_versions.bat" %_QT_LLVM_VER% GTR 20.0 --no_errors
+if %ERRORLEVEL% equ 0 set set _QT_LLVM_VER=&set _QT_LLVM_VER_VERIFY=GTR20
 
 
 rem *** verbose listing of variables ***
@@ -216,21 +230,23 @@ rem              -> build Protobuf from source: https://github.com/protocolbuffe
 rem 
 rem call "%QT_SOURCES_DIR%\configure.bat" --help
 rem 
-echo.
-echo rebuilding %_QT_BUILD_INFO% from sources
-echo see https://doc.qt.io/qt-6/windows-building.html
-echo.
-echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw
-echo *** THIS REQUIRES Python 3
-echo *** THIS REQUIRES Cmake 3.22 or newer
-echo *** OTPIONAL: Ninja
-echo *** OTPIONAL: Perl
-echo *** OTPIONAL: LLVM/Clang
-echo *** OTPIONAL: Node.js
-echo *** OTPIONAL: gRPC
-echo *** OTPIONAL: Protobuf
-echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine)
-echo.
+echo.BUILD-LOGFILE : "%_QT_LOGFILE%"
+echo.&echo.>>"%_QT_LOGFILE%"
+echo rebuilding %_QT_BUILD_INFO% from sources %_QT_TEE_LOG%
+echo see https://doc.qt.io/qt-6/windows-building.html %_QT_TEE_LOG%
+echo.&echo.>>"%_QT_LOGFILE%"
+echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw %_QT_TEE_LOG%
+echo *** THIS REQUIRES Python 3 %_QT_TEE_LOG%
+echo *** THIS REQUIRES Cmake 3.22 or newer %_QT_TEE_LOG%
+echo *** OTPIONAL: Ninja %_QT_TEE_LOG%
+echo *** OTPIONAL: Perl %_QT_TEE_LOG%
+echo *** OTPIONAL: LLVM/Clang %_QT_TEE_LOG%
+echo *** OTPIONAL: Node.js %_QT_TEE_LOG%
+echo *** OTPIONAL: gRPC %_QT_TEE_LOG%
+echo *** OTPIONAL: Protobuf %_QT_TEE_LOG%
+echo *** OPTIONAL: gperf, bison, flex (for QtWebEngine) %_QT_TEE_LOG%
+echo.&echo.>>"%_QT_LOGFILE%"
+rem
 rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
@@ -328,8 +344,8 @@ rem   NOT exist
 rem   Configuring with --debug-find-pkg=Qt6Mqtt might reveal details why the
 rem   package was not found.
 :qt_configure_test
-if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo CONFIGURE %_QT_BUILD_INFO% not yet done or incomplete &goto :qt_configure
-if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo CONFIGURE %_QT_BUILD_INFO% already done &goto :qt_configure_done
+rem if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo CONFIGURE %_QT_BUILD_INFO% not yet done or incomplete &goto :qt_configure
+rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo CONFIGURE %_QT_BUILD_INFO% already done &goto :qt_configure_done
 :qt_configure
   echo CONFIGURE %_QT_BUILD_INFO%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"

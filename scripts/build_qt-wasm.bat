@@ -180,6 +180,16 @@ if %ERRORLEVEL% NEQ 0 (
 
 
 rem (8) *** configure QT-WASM ***
+rem
+rem https://wiki.qt.io/Qt_6.8_Tools_and_Versions#Software_configurations_for_Qt_6.8.3
+rem ID                    = webassembly-windows	
+rem Dependencies          = windows-10_22h2-mingw13	
+rem Target                = WebAssembly (clang-x86_64)	
+rem Host                  = Windows_10_22H2 (mingw-x86_64)	
+rem Coin Options          = Packaging, Sccache, DisableTests, UseConfigure, GenerateSBOM, VerifySBOM		
+rem Configure Arguments   = 
+rem Environment Variables = Path=Template:.Env.EMSDK PATH;Template:.Env.MINGW PATH\bin;Template:.Env.Path, EM_CONFIG=Template:.Env.EMSDK/.emscripten, TARGET_CONFIGURE_ARGS=-release -platform wasm-emscripten -nomake examples, TARGET_CMAKE_ARGS=-DQT_GENERATE_WRAPPER_SCRIPTS_FOR_ALL_HOSTS=ON, NON_QTBASE_TARGET_CMAKE_ARGS=-DFEATURE_pkg_config=OFF -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH=Template:.Env.Protobuf ROOT mingw -DQT_PROTOBUF_WELL_KNOWN_TYPES_PROTO_DIR=Template:.Env.Protobuf ROOT mingw/include
+rem 
 :qtw_configure_test
 if exist "%QTW_BUILD_DIR%\qtbase\cmake_install.cmake" echo QT-CONFIGURE WASM %QTW_VERSION% already done &goto :qtw_configure_done
 :qtw_configure

@@ -39,9 +39,8 @@ set "_LLVM_BUILD_DIR=%LLVM_DIR%\._%_LLVM_BUILD_CONFIG%"
 
 set "_LLVM_LOGFILE=%LLVM_DIR%\.logs\llvm_build_%_LLVM_VERSION%_%_LLVM_BUILD_CONFIG%_%_LLVM_BUILD_DATETIME_START%.log"
 if not exist "%LLVM_DIR%\.logs" mkdir "%LLVM_DIR%\.logs"
-echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
 
-echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%>"%_LLVM_LOGFILE%"
+echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START% >"%_LLVM_LOGFILE%"
 set _LLVM_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_LLVM_LOGFILE%"
 
 if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
@@ -73,6 +72,7 @@ goto :_install2_done
 
 rem (3) *** ensuring prerequisites ***
 :_rebuild
+echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
 echo.&echo.>>"%_LLVM_LOGFILE%"
 echo rebuilding %_LLVM_BUILD_INFO% from sources %_LLVM_TEE_LOG%
 echo see https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm %_LLVM_TEE_LOG%
@@ -160,6 +160,8 @@ if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_GENERATOR=Visual Studi
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_CONFIG_OPTIONS=-A %_LLVM_BUILD_ARCH%"
 echo using generator "%_LLVM_CONFIG_GENERATOR%" %_LLVM_TEE_LOG%
 rem
+rem https://llvm.org/docs/CMake.html#frequently-used-llvm-related-variables
+rem
 rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="all"
 rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld;lldb;flang"
 rem set _LLVM_CONFIG_OPTIONS=%_LLVM_CONFIG_OPTIONS% -DLLVM_ENABLE_PROJECTS="clang;flang;lld;lldb;libc"
@@ -225,11 +227,12 @@ set "_LLVM_BUILD_TIME_STOP=%_TIME_UI%"
 set "_LLVM_BUILD_DURATION=%_DIFFT_DUR_SS%"
 rem echo.>>"%_LLVM_LOGFILE%"
 rem echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP% ^(duration %_LLVM_BUILD_DURATION% sec^)>>"%_LLVM_LOGFILE%"
-echo.&echo.>>"%_LLVM_LOGFILE%"
+rem echo.&echo.>>"%_LLVM_LOGFILE%"
 echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%" %_LLVM_TEE_LOG%
 echo.BUILD-START   : %_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START% %_LLVM_TEE_LOG%
 echo.BUILD-STOP    : %_LLVM_BUILD_DATE_STOP% %_LLVM_BUILD_TIME_STOP% %_LLVM_TEE_LOG%
 echo.BUILD-DURATION: %_LLVM_BUILD_DURATION% sec %_LLVM_TEE_LOG%
+echo.
 rem
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_LLVM_" 1>nul 2>nul
 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" --no_errors
