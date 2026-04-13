@@ -85,17 +85,18 @@ rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
 if /I "%_LLVM_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  goto :EOF
-)
-if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (
-  echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available
+  echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available %_LLVM_TEE_LOG%
   goto :_exit
 )
-
+if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_LLVM_BUILD_SYSTEM% is not available %_LLVM_TEE_LOG%
+  goto :_exit
+)
 rem validate cmake
 call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" GEQ3.16
 if %ERRORLEVEL% NEQ 0 (
-  goto :EOF
+  echo error: CMAKE GEQ3.16 is not available %_LLVM_TEE_LOG%
+  goto :_exit
 )
 
 if not exist "%_LLVM_BIN_DIR%" mkdir "%_LLVM_BIN_DIR%"

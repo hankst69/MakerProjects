@@ -190,15 +190,22 @@ if not exist "%_QT_TEST_EXE_3%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_4%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_5%" goto :qt_rebuild
 if not exist "%_QT_TEST_EXE_6%" goto :qt_rebuild
-rem if not exist "%_QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" goto :qt_rebuild
-call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo %_QT_BUILD_INFO% already available&goto :qt_install_done
-set "PATH=%PATH%;%_QT_BIN_DIR%\bin"
-call which Qt6WebSockets.dll 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo %_QT_BUILD_INFO% already available&goto :qt_install_done
-echo error: %_QT_BUILD_INFO% seems to be prebuild but is not working
-echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%'
-goto :qt_exit
+set ERRORLEVEL=
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings --no_errors --no_infos
+if %ERRORLEVEL% EQU 0 (
+  echo %_QT_BUILD_INFO% already available %_QT_TEE_LOG%
+  goto :qt_install_done
+)
+set "PATH=%_QT_BIN_DIR%\bin;%PATH%"
+set "INCLUDE=%_QT_BIN_DIR%\include;%INCLUDE%"
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings --no_errors --no_infos
+if %ERRORLEVEL% EQU 0 (
+  echo %_QT_BUILD_INFO% already available %_QT_TEE_LOG%
+  goto :qt_install_done
+)
+echo error: %_QT_BUILD_INFO% seems to be prebuild but is not working %_QT_TEE_LOG%
+echo try rebuilding via '%~n0 --rebuild %_QT_VERSION%' %_QT_TEE_LOG%
+rem goto :qt_exit
 
 
 :qt_rebuild
@@ -251,18 +258,23 @@ rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_QT_MSVS_VERSION% amd64 %MAKER_MSG_VERBOSE%
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available %_QT_TEE_LOG%
   goto :qt_exit
 )
-if /I "%_QT_BUILD_SYSTEM%" neq "gnu" if /I "%_QT_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available &goto :_exit)
+if /I "%_QT_BUILD_SYSTEM%" neq "gnu" if /I "%_QT_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_QT_BUILD_SYSTEM% is not available %_QT_TEE_LOG%
+  goto :qt_exit
+)
 rem validate cmake
 call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_QT_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: CMAKE %_QT_CMAKE_VERSION% is not available %_QT_TEE_LOG%
   goto :qt_exit
 )
 rem validate ninja
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NINJA is not available
+  echo warning: NINJA is not available %_QT_TEE_LOG%
   goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
@@ -270,21 +282,19 @@ call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %
 if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: LLVM CLANG is not available
+  echo error: LLVM CLANG is not available %_QT_TEE_LOG%
   goto :qt_exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
 call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: PERL is not available
+  echo warning: PERL is not available %_QT_TEE_LOG%
   rem goto :qt_exit
 )
 rem validate python
 call "%MAKER_DIR_SCRIPTS%\validate_python.bat" GEQ3 "%_QT_BUILD_ARCH%"
 if %ERRORLEVEL% NEQ 0 (
-  if /I "%PYTHON_ARCHITECTURE%" neq "%_QT_BUILD_ARCH%" (
-    echo error: python architecture '%PYTHON_ARCHITECTURE%' does not match msvs target architecture '%_QT_BUILD_ARCH%'
-  )
+  echo error: python GEQ3 matching architecture %_QT_BUILD_ARCH% is not availabe %_QT_TEE_LOG%
   goto :qt_exit
 )
 
@@ -306,14 +316,14 @@ rem ensure bison
 rem WARNING: QtWebEngine won't be built. Tool bison is required.
 call "%MAKER_DIR_SCRIPTS%\ensure_bison.bat" --no_errors %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: BISON is not available
+  echo warning: BISON is not available %_QT_TEE_LOG%
   rem goto :qt_exit
 )
 rem esnure flex
 rem Support check for QtWebEngine failed: Tool flex is required.
 call "%MAKER_DIR_SCRIPTS%\ensure_flex.bat" --no_errors %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: FLEX is not available
+  echo warning: FLEX is not available %_QT_TEE_LOG%
   rem goto :qt_exit
 )
 rem setup gRPC
@@ -329,9 +339,9 @@ rem call "%MAKER_DIR_SCRIPTS%\build_protobuf.bat" x64-windows
 
 rem setup Python packages
 rem clarify: create a dedicated  python venv for configuring/building ?
-call python -m pip install --upgrade pip
-call python -m pip install html5lib
-rem call python -m pip wheel html5lib
+call python -m pip install --upgrade pip >>"%_QT_LOGFILE%" 2>&1
+call python -m pip install html5lib >>"%_QT_LOGFILE%" 2>&1
+rem call python -m pip wheel html5lib >>"%_QT_LOGFILE%" 2>&1
 
 
 rem (8) *** configure QT build ***
@@ -347,7 +357,8 @@ rem   package was not found.
 rem if not exist "%_QT_BUILD_DIR%\qtmqtt\src\mqtt\cmake_install.cmake" echo CONFIGURE %_QT_BUILD_INFO% not yet done or incomplete &goto :qt_configure
 rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo CONFIGURE %_QT_BUILD_INFO% already done &goto :qt_configure_done
 :qt_configure
-  echo CONFIGURE %_QT_BUILD_INFO%
+  echo.&echo.>>"%_QT_LOGFILE%"
+  echo CONFIGURE %_QT_BUILD_INFO% %_QT_TEE_LOG%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo. >>"%_QT_LOGFILE%"
@@ -358,8 +369,8 @@ rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo CONFIGURE %_QT_BUILD
   echo. "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%" 2>&1
   set _QT_CONFIGURE_RETRIES=0
   :qt_configure_do
-  echo. >>"%_QT_LOGFILE%"
-  echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% >>"%_QT_LOGFILE%" 2>&1
+  echo.&echo. >>"%_QT_LOGFILE%"
+  echo QT-CONFIGURE TRY %_QT_CONFIGURE_RETRIES% %_QT_TEE_LOG%
   echo. >>"%_QT_LOGFILE%"
   cd /d "%_QT_BUILD_DIR%"
   call "%QT_SOURCES_DIR%\configure.bat" -prefix "%_QT_BIN_DIR%" %_QT_BUILD_OPTIONS% >>"%_QT_LOGFILE%" 2>&1
@@ -368,7 +379,7 @@ rem if exist "%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat" echo CONFIGURE %_QT_BUILD
   if "%_QT_CONFIGURE_RETRIES%" equ "1" set _QT_CONFIGURE_RETRIES=2
   if "%_QT_CONFIGURE_RETRIES%" equ "0" set _QT_CONFIGURE_RETRIES=1
   if "%_QT_CONFIGURE_RETRIES%" equ ""  set _QT_CONFIGURE_RETRIES=1
-  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE %_QT_BUILD_INFO% incomplete after %_QT_CONFIGURE_RETRIES% tries & goto :qt_configure_done
+  if "%_QT_CONFIGURE_RETRIES%" equ "2" echo QT-CONFIGURE %_QT_BUILD_INFO% incomplete after %_QT_CONFIGURE_RETRIES% tries %_QT_TEE_LOG% & goto :qt_configure_done
   goto :qt_configure_do
 :qt_configure_done
 
@@ -387,7 +398,8 @@ if not exist "%_QT_TEST_EXE_6%" goto :qt_build
 echo BUILD %_QT_BUILD_INFO% already done
 goto :qt_build_done
 :qt_build
-  echo BUILD %_QT_BUILD_INFO%
+  echo.&echo.>>"%_QT_LOGFILE%"
+  echo BUILD %_QT_BUILD_INFO% %_QT_TEE_LOG%
   if not exist "%_QT_BUILD_DIR%" mkdir "%_QT_BUILD_DIR%"
   cd /d "%_QT_BUILD_DIR%"
   echo.>>"%_QT_LOGFILE%"
@@ -406,9 +418,13 @@ goto :qt_build_done
 rem (9-2) *** perform QT Modules build ***
 :qt_modules_build_test
 goto :qt_modules_build_done
-if exist "%_QT_TEST_LIB_MQTT%" echo QT-MQTT-BUILD %_QT_BUILD_INFO% already done &goto :qt_modules_build_done
+if exist "%_QT_TEST_LIB_MQTT%" (
+  echo QT-MQTT-BUILD %_QT_BUILD_INFO% already done %_QT_TEE_LOG%
+  goto :qt_modules_build_done
+)
 :qt_modules_build
-  echo QT-MQTT-BUILD %_QT_VERSION% (%_QT_BUILD_SYSTEM% %_QT_BUILD_ARCH% %_QT_BUILD_TYPE%)
+  echo.&echo.>>"%_QT_LOGFILE%"
+  echo QT-MQTT-BUILD %_QT_BUILD_INFO% %_QT_TEE_LOG%
   if not exist "%_QT_BUILD_DIR%\qtmqtt" mkdir "%_QT_BUILD_DIR%\qtmqtt"
   cd /d "%_QT_BUILD_DIR%\qtmqtt"
   echo.>>"%_QT_LOGFILE%"
@@ -430,30 +446,33 @@ if not exist "%_QT_TEST_DLL_WEBSOKETS%" echo running Install due missing "%_QT_T
 if not exist "%_QT_TEST_LIB_MQTT%"      echo running Install due missing "%_QT_TEST_LIB_MQTT%" &goto :qt_install_do
 goto :qt_install_test
 :qt_install_do
-  echo INSTALL %_QT_BUILD_INFO%
+  echo.&echo.>>"%_QT_LOGFILE%"
+  echo INSTALL %_QT_BUILD_INFO% %_QT_TEE_LOG%
   cd /d "%_QT_BUILD_DIR%"
-  echo.>>"%_QT_LOGFILE%"
   echo.%cd%>>"%_QT_LOGFILE%"
   echo.cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
   call cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
-  cd /d "%_QT_BUILD_DIR%\qtmqtt"
-  echo.>>"%_QT_LOGFILE%"
-  echo.%cd%>>"%_QT_LOGFILE%"
-  echo.cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
-  call cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
-  if not exist "%_QT_BIN_DIR%\bin\Qt6WebSockets.dll" echo error: INSTALL %_QT_BUILD_INFO% FAILED&goto :qt_install_done
+  rem cd /d "%_QT_BUILD_DIR%\qtmqtt"
+  rem echo.>>"%_QT_LOGFILE%"
+  rem echo.%cd%>>"%_QT_LOGFILE%"
+  rem echo.cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%"
+  rem call cmake --install . --config %_QT_BUILD_TYPE% >>"%_QT_LOGFILE%" 2>&1
+  if not exist "%_QT_TEST_DLL_WEBSOKETS%" goto :qt_install_failed
 :qt_install_test
-rem set_path (forced) to find the freshly build/installed targets
+rem set_path (forced) to the freshly build/installed targets
 set "PATH=%QT_BIN_DIR%\bin;%PATH%"
 set "INCLUDE=%QT_BIN_DIR%\include;%INCLUDE%"
-call which uic.exe 1>nul 2>nul
-if %ERRORLEVEL% EQU 0 echo INSTALL %_QT_BUILD_INFO% available &goto :qt_install_done
-echo error: INSTALL %_QT_BUILD_INFO% failed
+call "%MAKER_DIR_SCRIPTS%\validate_qt.bat" %QT_VERSION% %QT_BUILD_CONFIG% --no_warnings --no_errors --no_infos
+if %ERRORLEVEL% EQU 0 (
+  echo INSTALL %_QT_BUILD_INFO% available %_QT_TEE_LOG%
+  goto :qt_install_done
+)
+:qt_install_failed
+echo error: INSTALL %_QT_BUILD_INFO% failed %_QT_TEE_LOG%
 goto :qt_exit
 
 
 :qt_install_done
-
 rem (11) post configure QT
 rem call "QT_BIN_DIR%/bin/qt-configure-module.bat"
 
