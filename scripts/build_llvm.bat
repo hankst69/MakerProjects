@@ -73,13 +73,17 @@ goto :_install2_done
 rem (3) *** ensuring prerequisites ***
 :_rebuild
 echo.BUILD-LOGFILE : "%_LLVM_LOGFILE%"
-echo.&echo.>>"%_LLVM_LOGFILE%"
+echo.
+echo.>>"%_LLVM_LOGFILE%"
 echo rebuilding %_LLVM_BUILD_INFO% from sources %_LLVM_TEE_LOG%
 echo see https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm %_LLVM_TEE_LOG%
-echo.&echo.>>"%_LLVM_LOGFILE%"
+echo.
+echo.>>"%_LLVM_LOGFILE%"
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw-w64 %_LLVM_TEE_LOG%
 echo *** THIS REQUIRES Cmake 3.16 or newer %_LLVM_TEE_LOG%
-echo.&echo.>>"%_LLVM_LOGFILE%"
+echo.
+echo.>>"%_LLVM_LOGFILE%"
+set _LLVM_CMAKE_VERSION=GEQ3.16
 
 rem ensure msvs version and amd64 target architecture or MinGW gcc
 if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" GEQ2019 amd64 %MAKER_MSG_VERBOSE%
@@ -93,9 +97,9 @@ if /I "%_LLVM_BUILD_SYSTEM%" neq "gnu" if /I "%_LLVM_BUILD_SYSTEM%" neq "msvs" (
   goto :_exit
 )
 rem validate cmake
-call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" GEQ3.16
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_LLVM_CMAKE_VERSION%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: CMAKE GEQ3.16 is not available %_LLVM_TEE_LOG%
+  echo error: CMAKE %_LLVM_CMAKE_VERSION% is not available %_LLVM_TEE_LOG%
   goto :_exit
 )
 

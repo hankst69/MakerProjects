@@ -15,11 +15,15 @@ call "%~dp0\maker_env.bat" %* --silent
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_WFV_" 1>nul 2>nul
 set "_WFV_THIS_DIR=%~dp0"
 set "_WFV_START_DIR=%cd%"
+
 set "_WFV_VERSION=%MAKER_VERSION%"
-set "_WFV_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
-set "_WFV_BUILD_TYPE=%MAKER_BUILD_TYPE%"
-set "_WFV_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 set "_WFV_REBUILD=%MAKER_REBUILD%"
+set "_WFV_BUILD_ARCH=%MAKER_BUILD_ARCH%"
+set "_WFV_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_WFV_BUILD_MODE=%MAKER_BUILD_MODE%"
+set "_WFV_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
+set "_WFV_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
+
 set _WFV_OPEN_PROJECT=
 for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--open" set _WFV_OPEN_PROJECT=--open
 for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-o" set _WFV_OPEN_PROJECT=--open
@@ -28,18 +32,9 @@ for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-rebuild+" set _
 for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-r+" set _WVL_REBUILD=--rebuild
 if "%_WVL_REBUILD%" neq "" set "_WFV_REBUILD=%_WVL_REBUILD%"
 
-
 rem apply defaults
-if "%_WFV_BUILD_ARCH%"   equ ""   set _WFV_BUILD_ARCH=x64
-if "%_WFV_BUILD_TYPE%" equ ""   set _WFV_BUILD_TYPE=release
-if "%_WFV_BUILD_SYSTEM%" equ "" set _WFV_BUILD_SYSTEM=msvs
-rem apply hardcoded values
-rem set _WFV_BUILD_ARCH=x64
-rem set _WFV_BUILD_TYPE=Debug
-rem set _WFV_BUILD_TYPE=Release
-rem set _WFV_BUILD_TYPE=MinSizeRel
-set "_WFV_BUILD_CONFIG=%_WFV_BUILD_SYSTEM:~0,2%%_WFV_BUILD_ARCH:~1%%_WFV_BUILD_TYPE:~0,3%"
-set "_WFV_BUILD_INFO=%_WFV_VERSION% ^(%_WFV_BUILD_SYSTEM% %_WFV_BUILD_ARCH% %_WFV_BUILD_TYPE%^)"
+if "%_WFV_VERSION%" equ "" set _WFV_VERSION=
+set "_WFV_BUILD_INFO=WFVIEW %_WFV_VERSION% %MAKER_BUILD_INFO%"
 
 rem debug
 rem if "%MAKER_MSG_VERBOSE%" neq "" set MAKER_ENV
@@ -142,7 +137,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 rem *** build required libraries ***
 echo.
-call "%MAKER_DIR_SCRIPTS%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %_WFV_BUILD_ARCH% %MAKER_MSG_VERBOSE% %MAKER_MSG_SILENT%
+call "%MAKER_DIR_SCRIPTS%\build_wfviewlibs.bat" %_WVL_REBUILD% %_WFV_VERSION% %_WFV_BUILD_SYSTEM% %_WFV_BUILD_TYPE% %_WFV_BUILD_MODE% %_WFV_BUILD_ARCH% %MAKER_MSG_VERBOSE% %MAKER_MSG_SILENT%
 if %ERRORLEVEL% NEQ 0 (
   echo error: BUILDING of WFVIEW-LIBRARIES failed
   goto :_exit
