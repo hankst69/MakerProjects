@@ -26,6 +26,7 @@ set "MAKER_DIR_PROJECTS_WEB=%MAKER_DIR_PROJECTS%\Web"
 pushd "%MAKER_ENV_ROOT%\.."
 set "MAKER_DIR_QT=%cd%\QT"
 set "MAKER_DIR_LLVM=%cd%\LLVM"
+set "MAKER_DIR_AT=%cd%\AT"
 popd
 
 if not exist "%MAKER_ENV_BIN%" mkdir "%MAKER_ENV_BIN%"
