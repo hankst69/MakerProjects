@@ -33,7 +33,7 @@ if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
 if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
+echo BUILDING %_WVL_BUILD_INFO%
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_DIR_SCRIPTS%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_MSG_VERBOSE% --silent
@@ -75,7 +75,7 @@ if not exist "%_WVL_BUILD_DIR%" mkdir "%_WVL_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING WFVIEW-LIBRARIES %_WVL_BUILD_INFO% from sources
+echo BUILDING %_WVL_BUILD_INFO% from sources
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
@@ -120,8 +120,7 @@ rem ensure fortran (ensure and validate not implemented yet)
 if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" call "%MAKER_DIR_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
 
 
-echo.
-echo BUILD WFVIEW-LIBRARIES %_WVL_BUILD_INFO%
+rem echo.
 rem
 set "_WVL_CONFIG_GENERATOR=Ninja"
 set "_WVL_CONFIG_OPTIONS="
@@ -191,7 +190,29 @@ if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE_EIGEN%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE_EIGEN% 
-call cmake --install "." --config %_WVL_BUILD_TYPE_EIGEN% 
+call cmake --install "." --config %_WVL_BUILD_TYPE_EIGEN%
+:: Available targets (use: cmake --build . --target TARGET):
+:: ------------+--------------------------------------------------------------
+:: Target      |   Description
+:: ------------+--------------------------------------------------------------
+:: install     | Install Eigen. Headers will be installed to:
+::             |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>
+::             |   Using the following values:
+::             |     CMAKE_INSTALL_PREFIX: C:/GIT/Maker/projects/wfview/libs/eigen
+::             |     INCLUDE_INSTALL_DIR:  include/eigen3
+::             |   Change the install location of Eigen headers using:
+::             |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix
+::             |   Or:
+::             |     cmake . -DINCLUDE_INSTALL_DIR=yourdir
+:: uninstall   | Remove files installed by the install target
+:: doc         | Generate the API documentation, requires Doxygen & LaTeX
+:: install-doc | Install the API documentation
+:: check       | Build and run the unit-tests. Read this page:
+::             |   http://eigen.tuxfamily.org/index.php?title=Tests
+:: blas        | Build BLAS library (not the same thing as Eigen)
+:: lapack      | Build LAPACK subset library (not the same thing as Eigen):: 
+:: ------------+--------------------------------------------------------------
+rem cmake --build . --target install
 
 echo.
 echo.************************************************************************************************************************
@@ -242,7 +263,7 @@ set "_cmake_bld=%_WVL_BUILD_DIR%\libsndfile"
 set "_cmake_bin=%WFVIEW_LIBSNDFILE_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
-call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DOPUS_LIBRARY="%WFVIEW_OPUS_DIR%" --log-level=VERBOSE
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE -DOGG_FOUND=TRUE -DOPUS_FOUND=TRUE -DOPUS_LIBRARY="%WFVIEW_OPUS_DIR%" -DOPUS_INCLUDE_DIR="%WFVIEW_OPUS_DIR%\include"
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
@@ -257,8 +278,6 @@ if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
-pwd
-echo call cmake --install "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
 rem echo.

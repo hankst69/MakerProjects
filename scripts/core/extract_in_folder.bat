@@ -65,17 +65,14 @@ if exist "%_ARCHIVE_PATH%\*" (
   set "_ARCHIVE_NAME=!__archive_name!"
   rem set _ARCHIVE_
 )
-rem if "%_EXTRACT_SILENT%" neq "true" (
-  echo ************************************************************************************************************************
-  echo * extracting "!_ARCHIVE_NAME!" into "%_TARGET_DIR%"
-  if "%_EXTRACT_SILENT%" equ "true" (
-  echo ************************************************************************************************************************ )
-rem )
+echo ************************************************************************************************************************
+echo * extracting "!_ARCHIVE_NAME!" into "%_TARGET_DIR%"
+if "%_EXTRACT_SILENT%" equ "true" (
+echo ************************************************************************************************************************ )
 if not exist "%_TARGET_DIR%" goto :Extract
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" neq "true" (
-  endlocal
   if "%_EXTRACT_SILENT%" neq "true" (
     echo * -^> "%_TARGET_DIR%" already contains data
     echo *    remove the target folder via: 'rmdir /s /q "%_TARGET_DIR%"'
@@ -83,10 +80,11 @@ if "!_dir_is_empty!" neq "true" (
     echo ************************************************************************************************************************
     echo.
   )
+  endlocal
   goto :EOF
 )
 endlocal
-rem echo call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
+echo call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
 call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
 goto :EOF
 
@@ -94,8 +92,9 @@ goto :EOF
 :Extract
 setlocal EnableDelayedExpansion
 rem echo :Extract "%~1" "%~2" "%~3"
-rem set _TARGET_DIR
-rem set _ARCHIVE_
+rem set "_TARGET_DIR=%~1"
+rem set "_ARCHIVE_PATH=%~2"
+rem set "_ARCHIVE_NAME=%~3"
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 if not exist "%_ARCHIVE_PATH%" (
   echo * -^> ERROR: extraction of "%_ARCHIVE_NAME%" failed
@@ -106,14 +105,14 @@ if not exist "%_ARCHIVE_PATH%" (
   set _ARCHIVE_PATH=
   exit /b 78
 )
-call powershell -command "Expand-Archive -Force '!_ARCHIVE_PATH!' '%_TARGET_DIR%'; Expand-Archive -Force '!_ARCHIVE_PATH!' '%_TARGET_DIR%';"
-rem pushd "%_TARGET_DIR%"
-rem call tar -x -f "!_ARCHIVE_PATH!"
-rem popd
+rem call powershell -command "Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%'; Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%';"
+pushd "%_TARGET_DIR%"
+call tar -x -f "%_ARCHIVE_PATH%"
+popd
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" equ "true" (
-  echo * -^> ERROR: extraction of "!_ARCHIVE_NAME!" failed
+  echo * -^> ERROR: extraction of "%_ARCHIVE_NAME%" failed
   echo ************************************************************************************************************************
   endlocal
   set _ARCHIVE_NAME=
