@@ -8,16 +8,19 @@ set "WFVIEW_LIBS_SRC_DIR=%WFVIEW_DIR%\libs_src"
 rem wfview dependencies
 rem https://wfview.org/developers/how-to-compile-with-windows/
 rem ALL         (rtaudio, Eigen, portaudio, qcustomplot, hidapi, opus) https://www.wfview.org/public_builds/00_Dependencies/Developer/2025_libraries.zip
-rem opus        (..\opus\include)      https://github.com/xiph/opus.git
-rem hidapi      (..\hidapi\hidapi)     https://github.com/libusb/hidapi.git
-rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio.git
-rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git  (https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz)
-rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
-rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio.git
 rem
-rem             (..\anr)               https://github.com/tals/audacity-noise-reduction (tree master -> sub filder noisereduction)
-rem libsndfile  (..\libsndfile)        https://github.com/libsndfile/libsndfile.git
-rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src.git
+rem opus        (..\opus\include)      https://github.com/xiph/opus
+rem hidapi      (..\hidapi\hidapi)     https://github.com/libusb/hidapi
+rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio
+rem qcustomplot (..\qcustomplot)       https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz
+rem                                    https://github.com/hankst69/qcustomplot
+rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen
+rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio
+rem libsndfile  (..\libsndfile)        https://github.com/libsndfile/libsndfile
+rem anr         (..\anr)               https://github.com/tals/audacity-noise-reduction (tree master -> sub folder noisereduction)
+rem                                    https://github.com/hankst69/audacity-noise-reduction
+rem
+rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src
 rem LibFT4222   (..\libft4222)         https://ftdichip.com/software-examples/ft4222h-software-examples/
 if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 
@@ -45,13 +48,13 @@ set "WFVIEW_HIDAPI_DIR=%WFVIEW_LIBS_DIR%\hidapi"
 set "WFVIEW_HIDAPI_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\hidapi"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_MSG_SILENT%
 
-set "WFVIEW_ANR_DIR=%WFVIEW_LIBS_DIR%\anr"
-set "WFVIEW_ANR_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\anr"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/tals/audacity-noise-reduction.git" %MAKER_MSG_SILENT%
-
 set "WFVIEW_LIBSNDFILE_DIR=%WFVIEW_LIBS_DIR%\libsndfile"
 set "WFVIEW_LIBSNDFILE_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libsndfile"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_LIBSNDFILE_SRC_DIR%" "https://github.com/libsndfile/libsndfile.git" %MAKER_MSG_SILENT%
+
+set "WFVIEW_ANR_DIR=%WFVIEW_LIBS_DIR%\anr"
+set "WFVIEW_ANR_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\anr"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/hankst69/audacity-noise-reduction.git" %MAKER_MSG_SILENT% --switchBranch fixes/cmake
 
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"

@@ -117,7 +117,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem ensure fortran (ensure and validate not implemented yet) 
-call "%MAKER_DIR_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
+if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" call "%MAKER_DIR_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
 
 
 echo.
@@ -140,21 +140,16 @@ rem WFVIEW_QCUSTOMPLOT_DIR
 rem WFVIEW_QCUSTOMPLOT_SRC_DIR
 rem WFVIEW_HIDAPI_DIR
 rem WFVIEW_HIDAPI_SRC_DIR
+rem WFVIEW_ANR_DIR
+rem WFVIEW_ANR_SRC_DIR
+rem WFVIEW_LIBSNDFILE_DIR
+rem WFVIEW_LIBSNDFILE_SRC_DIR
+rem WFVIEW_R8BRAIN_DIR
+rem WFVIEW_R8BRAIN_SRC_DIR
 rem WFVIEW_LIBFT4222_DIR
 rem WFVIEW_LIBFT4222_SRC_DIR
 rem WFVIEW_LIBFT4222_SRC_DIR_WINDOWS
 rem WFVIEW_LIBFT4222_SRC_DIR_LINUX
-
-echo.
-echo.************************************************************************************************************************
-echo.* building libft4222
-echo.************************************************************************************************************************
-set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
-if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%"
-if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%"
-set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
-call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_MSG_SILENT%
-if /I "%_WVL_BUILD_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
 
 echo.
 echo.************************************************************************************************************************
@@ -215,6 +210,7 @@ echo.
 echo.************************************************************************************************************************
 echo.* building qcustomplot
 echo.************************************************************************************************************************
+rem see https://gitlab.com/hankst69/wfview-wasm/-/blob/0bf9f6016c5421801b325e7004cd2b53015f87e0/.github/workflows/macos-universal-qt6.bak -> Build QCustomPlot (Universal)
 set "_cmake_src=%WFVIEW_QCUSTOMPLOT_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\qcustomplot"
 set "_cmake_bin=%WFVIEW_QCUSTOMPLOT_DIR%"
@@ -237,10 +233,50 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
 
+echo.
+echo.************************************************************************************************************************
+echo.* building libsndfile
+echo.************************************************************************************************************************
+set "_cmake_src=%WFVIEW_LIBSNDFILE_SRC_DIR%"
+set "_cmake_bld=%_WVL_BUILD_DIR%\libsndfile"
+set "_cmake_bin=%WFVIEW_LIBSNDFILE_DIR%"
+if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
+cd /d "%_cmake_bld%"
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DOPUS_LIBRARY="%WFVIEW_OPUS_DIR%" --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE% 
+call cmake --install "." --config %_WVL_BUILD_TYPE% 
+
+echo.
+echo.************************************************************************************************************************
+echo.* building anr
+echo.************************************************************************************************************************
+set "_cmake_src=%WFVIEW_ANR_SRC_DIR%"
+set "_cmake_bld=%_WVL_BUILD_DIR%\anr"
+set "_cmake_bin=%WFVIEW_LIBSNDFILE_DIR%"
+if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
+cd /d "%_cmake_bld%"
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE% 
+pwd
+echo call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake --install "." --config %_WVL_BUILD_TYPE% 
+
 rem echo.
 rem echo.************************************************************************************************************************
 rem echo.* building r8brain-free-src
 rem echo.************************************************************************************************************************
+
+echo.
+echo.************************************************************************************************************************
+echo.* building libft4222
+echo.************************************************************************************************************************
+set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR%\%WFVIEW_LIBFT4222_VERSION%.zip"
+if /i "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%"
+if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR_LINUX%"
+set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
+call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_MSG_SILENT%
+if /I "%_WVL_BUILD_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
+
 
 :_exit
 cd /d "%_WVL_BIN_DIR%"

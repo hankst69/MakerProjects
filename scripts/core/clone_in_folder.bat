@@ -87,14 +87,14 @@ if /I "%_GIT_CURRENT_URL%" equ "%_GIT_CLONE_URL%" (
   if "%_SILENT_CLONE_MODE%" neq "true" (
     git remote -v
     if "%_SWITCH_BRANCH%" neq "" (
-      echo.
+      rem echo.
       git switch %_SWITCH_BRANCH%
     )
     git status
     git fetch
   ) else (
     if "%_SWITCH_BRANCH%" neq "" (
-      echo.
+      rem echo.
       git switch %_SWITCH_BRANCH% 1>nul 2>nul
     )
   )

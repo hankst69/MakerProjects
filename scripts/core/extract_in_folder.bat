@@ -107,6 +107,9 @@ if not exist "%_ARCHIVE_PATH%" (
   exit /b 78
 )
 call powershell -command "Expand-Archive -Force '!_ARCHIVE_PATH!' '%_TARGET_DIR%'; Expand-Archive -Force '!_ARCHIVE_PATH!' '%_TARGET_DIR%';"
+rem pushd "%_TARGET_DIR%"
+rem call tar -x -f "!_ARCHIVE_PATH!"
+rem popd
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" equ "true" (

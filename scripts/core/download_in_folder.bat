@@ -54,12 +54,10 @@ set _FREE_ARGS=
 goto :EOF
 
 :Start
-rem if "%_DOWNLOAD_SILENT%" neq "true" (
-  echo ************************************************************************************************************************
-  echo * downloading "%_DOWNLOAD_FILE_NAME%" into "%_TARGET_DIR%"
-  if "%_DOWNLOAD_SILENT%" equ "true" (
-  echo ************************************************************************************************************************ )
-rem )
+echo ************************************************************************************************************************
+echo * downloading "%_DOWNLOAD_FILE_NAME%" into "%_TARGET_DIR%"
+if "%_DOWNLOAD_SILENT%" equ "true" (
+echo ************************************************************************************************************************ )
 if not exist "%_DOWNLOAD_FILE_PATH%" goto :Download
 if "%_DOWNLOAD_SILENT%" neq "true" (
   echo * -^> "%_DOWNLOAD_FILE_NAME%" already exists in "%_TARGET_DIR%"
@@ -72,7 +70,8 @@ goto :Exit
 
 :Download
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
-call powershell -command "$webclient=new-object System.Net.WebClient; $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%'); $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%');" 2>nul
+rem call powershell -command "$webclient=new-object System.Net.WebClient; $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%'); $webclient.DownloadFile('%_DOWNLOAD_URL%','%_DOWNLOAD_FILE_PATH%');" 2>nul
+call curl -o "%_DOWNLOAD_FILE_PATH%" "%_DOWNLOAD_URL%"
 if not exist "%_DOWNLOAD_FILE_PATH%" (
   echo * -^> ERROR: download of "%_DOWNLOAD_FILE_NAME%" failed
   echo ************************************************************************************************************************
