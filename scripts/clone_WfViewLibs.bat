@@ -14,6 +14,9 @@ rem portaudio   (..\portaudio\include) https://github.com/PortAudio/portaudio.gi
 rem qcustomplot (..\qcustomplot)       https://github.com/hankst69/qcustomplot.git  (https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz)
 rem eigen       (..\eigen)             https://gitlab.com/libeigen/eigen.git
 rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio.git
+rem
+rem             (..\anr)               https://github.com/tals/audacity-noise-reduction (tree master -> sub filder noisereduction)
+rem libsndfile  (..\libsndfile)        https://github.com/libsndfile/libsndfile.git
 rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src.git
 rem LibFT4222   (..\libft4222)         https://ftdichip.com/software-examples/ft4222h-software-examples/
 if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
@@ -42,6 +45,14 @@ set "WFVIEW_HIDAPI_DIR=%WFVIEW_LIBS_DIR%\hidapi"
 set "WFVIEW_HIDAPI_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\hidapi"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_MSG_SILENT%
 
+set "WFVIEW_ANR_DIR=%WFVIEW_LIBS_DIR%\anr"
+set "WFVIEW_ANR_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\anr"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/tals/audacity-noise-reduction.git" %MAKER_MSG_SILENT%
+
+set "WFVIEW_LIBSNDFILE_DIR=%WFVIEW_LIBS_DIR%\libsndfile"
+set "WFVIEW_LIBSNDFILE_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libsndfile"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_LIBSNDFILE_SRC_DIR%" "https://github.com/libsndfile/libsndfile.git" %MAKER_MSG_SILENT%
+
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://github.com/avaneev/r8brain-free-src.git" %MAKER_MSG_SILENT%
@@ -50,6 +61,7 @@ set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR_WINDOWS=%WFVIEW_LIBFT4222_SRC_DIR%\WINDOWS"
 set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
+
 set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
 set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip
 rem set "WFVIEW_LIBFT4222_VERSION=LibFT4222-v1.4.8"
