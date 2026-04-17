@@ -19,6 +19,7 @@ rem rtaudio     (..\rtaudio)           https://github.com/thestk/rtaudio
 rem libsndfile  (..\libsndfile)        https://github.com/libsndfile/libsndfile
 rem anr         (..\anr)               https://github.com/tals/audacity-noise-reduction (tree master -> sub folder noisereduction)
 rem                                    https://github.com/hankst69/audacity-noise-reduction
+rem adpcm-xq    (..\adpcm)             https://github.com/dbry/adpcm-xq
 rem
 rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src
 rem LibFT4222   (..\libft4222)         https://ftdichip.com/software-examples/ft4222h-software-examples/
@@ -55,6 +56,10 @@ call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_LIBSNDFILE_SRC_DIR%" "https
 set "WFVIEW_ANR_DIR=%WFVIEW_LIBS_DIR%\anr"
 set "WFVIEW_ANR_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\anr"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/hankst69/audacity-noise-reduction.git" %MAKER_MSG_SILENT% --switchBranch fixes/cmake
+
+set "WFVIEW_ADPCM_DIR=%WFVIEW_LIBS_DIR%\adpcm"
+set "WFVIEW_ADPCM_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\adpcm"
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ADPCM_SRC_DIR%" "https://github.com/dbry/adpcm-xq" %MAKER_MSG_SILENT%
 
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"

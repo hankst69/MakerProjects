@@ -32,7 +32,7 @@ if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
 if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
 if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
-rem welcome
+
 echo.########################################################################################################################
 echo # BUILDING %_WVL_BUILD_INFO%
 echo.########################################################################################################################
@@ -67,9 +67,11 @@ if "%_WVL_REBUILD%" neq "" (
   echo.
   echo.************************************************************************************************************************
   echo.* preparing rebuild...
-  echo.************************************************************************************************************************
+  echo * -^> removing "%_WVL_BIN_DIR%" ...
   rmdir /s /q "%_WVL_BIN_DIR%" 1>nul 2>nul
+  echo * -^> removing "%_WVL_BUILD_DIR%" ...
   rmdir /s /q "%_WVL_BUILD_DIR%" 1>nul 2>nul
+  echo.************************************************************************************************************************
 )
 
 rem ensure base folders exist
@@ -79,19 +81,17 @@ if not exist "%_WVL_BUILD_DIR%" mkdir "%_WVL_BUILD_DIR%"
 
 :_rebuild
 rem *** ensuring prerequisites ***
-echo.
-echo.************************************************************************************************************************
-echo * REBUILDING %_WVL_BUILD_INFO%
-echo.************************************************************************************************************************
-echo.
-echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
-echo *** THIS REQUIRES Cmake 3.22 or newer
-echo *** THIS REQUIRES Fortran (for Eigen)
-echo.
 set _WVL_CMAKE_VERSION=GEQ3.22
 set _WVL_MSVS_VERSION=GEQ2019
 set _WVL_MSVS_ARCH=amd64
 set _WVL_NINJA_VERSION=GEQ1.10
+echo.
+echo.************************************************************************************************************************
+echo * REBUILDING %_WVL_BUILD_INFO%
+echo * -^> requires: VisualStudio 2019 or 2022 or MinGW
+echo * -^> requires: Cmake 3.22 or newer
+rem echo * -^> requires: QT %_WFV_QT_VERSION%
+echo.************************************************************************************************************************
 
 rem ensure BuildSystem availability
 if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" if /I "%_WVL_BUILD_SYSTEM%" neq "msvs" (
@@ -177,6 +177,7 @@ set "_cmake_bld=%_WVL_BUILD_DIR%\rtaudio"
 set "_cmake_bin=%WFVIEW_RTAUDIO_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
+rem Use RTAUDIO_BUILD_SHARED_LIBS / RTAUDIO_BUILD_STATIC_LIBS if they are defined, otherwise default to standard BUILD_SHARED_LIBS.
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
@@ -278,12 +279,26 @@ echo.* building anr
 echo.************************************************************************************************************************
 set "_cmake_src=%WFVIEW_ANR_SRC_DIR%"
 set "_cmake_bld=%_WVL_BUILD_DIR%\anr"
-set "_cmake_bin=%WFVIEW_LIBSNDFILE_DIR%"
+set "_cmake_bin=%WFVIEW_ANR_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
+
+echo.
+echo.************************************************************************************************************************
+echo.* building adpcm
+echo.************************************************************************************************************************
+set "_cmake_src=%WFVIEW_ADPCM_SRC_DIR%"
+set "_cmake_bld=%_WVL_BUILD_DIR%\adpcm"
+set "_cmake_bin=%WFVIEW_ADPCM_DIR%"
+if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
+cd /d "%_cmake_bld%"
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE% 
+call cmake --install "." --config %_WVL_BUILD_TYPE% 
+
 
 rem echo.
 rem echo.************************************************************************************************************************
