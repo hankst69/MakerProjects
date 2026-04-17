@@ -33,7 +33,10 @@ if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
 if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
 rem welcome
-echo BUILDING %_WVL_BUILD_INFO%
+echo.########################################################################################################################
+echo # BUILDING %_WVL_BUILD_INFO%
+echo.########################################################################################################################
+echo.
 
 rem *** clone WFVIEW-Libs sources ***
 call "%MAKER_DIR_SCRIPTS%\clone_wfviewLibs.bat" %_WVL_VERSION% %MAKER_MSG_VERBOSE% --silent
@@ -57,15 +60,17 @@ cd /d "%_WVL_START_DIR%"
 if "%MAKER_MSG_VERBOSE%" neq "" set _WVL_
 
 rem *** cleaning old build if demanded ***
+rem due potential switch from msvs libs to gnu .a files or vice versa, we have to always delete the bin folder to force reinstallation
+rem remark: we use the same lib folder strucutre for both build systems (reference to inlude and lib folders in wfview CmakeLists.txt))
+rem set _WVL_REBUILD=-r
 if "%_WVL_REBUILD%" neq "" (
-  echo preparing rebuild...
+  echo.
+  echo.************************************************************************************************************************
+  echo.* preparing rebuild...
+  echo.************************************************************************************************************************
   rmdir /s /q "%_WVL_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_WVL_BUILD_DIR%" 1>nul 2>nul
 )
-rem due potential switch from msvs libs to gnu .a files or vice versa, we have to always delete the bin folder to force reinstallation
-rem remark: we use the same lib folder strucutre for both build systems (reference to inlude and lib folders in wfview CmakeLists.txt))
-echo preparing build...
-rem rmdir /s /q "%_WVL_BIN_DIR%" 1>nul 2>nul
 
 rem ensure base folders exist
 if not exist "%_WVL_BIN_DIR%" mkdir "%_WVL_BIN_DIR%"
@@ -75,7 +80,9 @@ if not exist "%_WVL_BUILD_DIR%" mkdir "%_WVL_BUILD_DIR%"
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING %_WVL_BUILD_INFO% from sources
+echo.************************************************************************************************************************
+echo * REBUILDING %_WVL_BUILD_INFO%
+echo.************************************************************************************************************************
 echo.
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
 echo *** THIS REQUIRES Cmake 3.22 or newer
@@ -115,13 +122,11 @@ if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA %_WVL_NINJA_VERSION% is not available
   goto :_exit
 )
-
 rem ensure fortran (ensure and validate not implemented yet) 
 if /I "%_WVL_BUILD_SYSTEM%" neq "gnu" call "%MAKER_DIR_SCRIPTS%\build_fortran.bat" %MAKER_MSG_VERBOSE%
-
-
 rem echo.
-rem
+
+
 set "_WVL_CONFIG_GENERATOR=Ninja"
 set "_WVL_CONFIG_OPTIONS="
 if /I "%_WVL_BUILD_SYSTEM%" equ "msvs" set "_WVL_CONFIG_GENERATOR=Visual Studio %MSVS_VERSION_MAJOR% %MSVS_YEAR%"

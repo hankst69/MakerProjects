@@ -27,10 +27,11 @@ set "_WFV_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
 set _WFV_OPEN_PROJECT=
 for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--open" set _WFV_OPEN_PROJECT=--open
 for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-o" set _WFV_OPEN_PROJECT=--open
-set _WVL_REBUILD=
-for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-rebuild+" set _WVL_REBUILD=--rebuild
-for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-r+" set _WVL_REBUILD=--rebuild
-if "%_WVL_REBUILD%" neq "" set "_WFV_REBUILD=%_WVL_REBUILD%"
+rem set _WVL_REBUILD=
+rem for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "--rebuild+" set _WVL_REBUILD=--rebuild
+rem for /f %%i in ("%MAKER_UNKNOWN_SWITCHES%") do if /I "%%~i" equ "-r+" set _WVL_REBUILD=--rebuild
+rem if "%_WVL_REBUILD%" neq "" set "_WFV_REBUILD=%_WVL_REBUILD%"
+set _WVL_REBUILD=%_WFV_REBUILD%
 
 rem apply defaults
 if "%_WFV_VERSION%" equ "" set _WFV_VERSION=
@@ -42,7 +43,10 @@ rem if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
 
 rem welcome
-echo BUILD WFVIEW %_WFV_BUILD_INFO%
+echo.########################################################################################################################
+echo # BUILDING %_WFV_BUILD_INFO%
+echo.########################################################################################################################
+echo.
 
 rem *** clone WFVIEW sources ***
 call "%MAKER_DIR_SCRIPTS%\clone_wfview.bat" %_WFV_VERSION% %MAKER_MSG_VERBOSE% --silent
@@ -66,7 +70,10 @@ if "%MAKER_MSG_VERBOSE%" neq "" set _WFV_
 
 rem *** cleaning old build if demanded ***
 if "%_WFV_REBUILD%" neq "" (
-  echo preparing rebuild...
+  echo.
+  echo.************************************************************************************************************************
+  echo.* preparing rebuild...
+  echo.************************************************************************************************************************
   rmdir /s /q "%_WFV_BIN_DIR%" 1>nul 2>nul
   rmdir /s /q "%_WFV_BUILD_DIR%" 1>nul 2>nul
 )
@@ -83,7 +90,7 @@ goto :_build
 rem *** ensuring prerequisites ***
 echo.
 echo.************************************************************************************************************************
-echo * REBUILDING WFVIEW %_WFV_BUILD_INFO%
+echo * REBUILDING %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 echo *** THIS REQUIRES QT %_WFV_QT_VERSION%
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
@@ -162,7 +169,7 @@ if not exist "%_WFV_SOURCES_DIR%\CmakeLists.txt" (
 rem *** cmake configure ***
 echo.
 echo.************************************************************************************************************************
-echo * CONFIGURE WFVIEW %_WFV_BUILD_INFO%
+echo * CONFIGURE %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 set "_WFV_CONFIG_GENERATOR=Ninja"
@@ -186,7 +193,7 @@ if "%_WFV_OPEN_PROJECT%" neq "" call cmake --open .
 rem *** cmake build ***
 echo.
 echo.************************************************************************************************************************
-echo * BUILD WFVIEW %_WFV_BUILD_INFO%
+echo * BUILD %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 echo cmake --build . --config %_WFV_BUILD_TYPE%
@@ -197,7 +204,7 @@ call cmake --build . --config %_WFV_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 rem *** cmake install ***
 echo.
 echo.************************************************************************************************************************
-echo * INSTALL WFVIEW %_WFV_BUILD_INFO%
+echo * INSTALL %_WFV_BUILD_INFO%
 echo.************************************************************************************************************************
 cd /d "%_WFV_BUILD_DIR%"
 echo cmake --install . --config %_WFV_BUILD_TYPE%
@@ -215,7 +222,7 @@ call xcopy /S /Y /Q "%_WFV_SOURCES_DIR%\rigs" "%_WFV_BIN_DIR%\bin\rigs\"
 cd /d "%_WFV_START_DIR%"
 if not exist "%_WFV_EXECUTABLE%" goto :EOF
 echo.
-echo BUILD WFVIEW %_WFV_BUILD_INFO% COMPLETE
+echo BUILD %_WFV_BUILD_INFO% COMPLETE
 echo.
 echo to start wfview:
 echo "%_WFV_EXECUTABLE%"
