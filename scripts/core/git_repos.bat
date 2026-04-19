@@ -3,7 +3,8 @@ rem fix: ******  B A T C H   R E C U R S I O N  exceeds STACK limits ******
 rem https://stackoverflow.com/questions/11916823/batch-limitation-maximum-recursion-while-browsing-menus
 rem SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set "GITREPOS_SCRIPT=%~dpnx0"
-set "GITREPOS_NAME=%~n0"
+set "GITREPOS_SCRIPT_DIR=%~dp0"
+set "GITREPOS_SCRIPT_NAME=%~n0"
 set "GITREPOS_START_DIR=%cd%"
 
 set GITREPOS_COMPACT=
@@ -52,71 +53,10 @@ if "%GITREPOS_DIFF%" neq "" goto :Diff
 goto :MainBegin
 
 
-:stop_watch
-set "_START_TIME=%~1"
-set _DATE_=
-set _TIME_=
-set _DATE_YY=
-set _DATE_MM=
-set _DATE_DD=
-set _TIME_HH=
-set _TIME_MM=
-set _TIME_SS=
-set _TIME_MS=
-for /f "tokens=2 delims=:" %%i in ('echo.^|date') do set "_DATE_=%%~i" &goto :stop_watch_next
-:stop_watch_next
-if "%_DATE_:~0,1%" equ " " set "_DATE_=%_DATE_:~1%"
-if "%_DATE_:~-1%" equ " " set "_DATE_=%_DATE_:~0,-1%"
-set _DATE_PT1=
-set _DATE_PT2=
-for /f "tokens=1,* delims= " %%i in ("%_DATE_%") do (set "_DATE_PT1=%%i" &set "_DATE_PT2=%%j")
-if "%_DATE_PT2%" neq "" set "_DATE_=%_DATE_PT2%"
-for /f "tokens=1,2,3 delims=/" %%i in ("%_DATE_%") do (set "_DATE_DD=%%i" &set "_DATE_MM=%%j" &set "_DATE_YY=%%k")
-for /f "tokens=2,3,4 delims=:" %%i in ('echo.^|time') do if "%%j" neq "" (set "_TIME_HH=%%i" &set "_TIME_MM=%%j" &set "_TIME_SS=%%k")
-set "_TIME_HH=%_TIME_HH: =%"
-set "_TIME_MM=%_TIME_MM: =%"
-for /f "tokens=1,2 delims=." %%i in ("%_TIME_SS%") do (set "_TIME_SS=%%i" &set "_TIME_MS=%%j")
-set "_TIME_SS=%_TIME_SS: =%"
-set "_TIME_MS=%_TIME_MS: =%"
-set "_TIME_=%_TIME_HH%:%_TIME_MM%:%_TIME_SS%"
-set "_DATE_UI=%_DATE_%"
-set "_DATE_=%_DATE_YY%-%_DATE_MM%-%_DATE_DD%"
-if "%_START_TIME%" equ "" goto :EOF
-set _STARTT_HH=
-set _STARTT_MM=
-set _STARTT_SS=
-set _STARTT_MS=
-set _DIFFT_HH=
-set _DIFFT_MM=
-set _DIFFT_SS=
-set _DIFFT_MS=
-set _DIFFT_=
-for /f "tokens=1,2,3 delims=:" %%i in ("%_START_TIME%") do (set "_STARTT_HH=%%i" &set "_STARTT_MM=%%j" &set "_STARTT_SS=%%k")
-for /f "tokens=1,2 delims=." %%i in ("%_STARTT_SS%") do (set "_STARTT_SS=%%i" &set "_STARTT_MS=%%j")
-if "%_STARTT_HH:~0,1%" equ "0" set "_STARTT_HH=%_STARTT_HH:~1%"
-if "%_STARTT_MM:~0,1%" equ "0" set "_STARTT_MM=%_STARTT_MM:~1%"
-if "%_STARTT_SS:~0,1%" equ "0" set "_STARTT_SS=%_STARTT_SS:~1%"
-set "_STOPT_HH=%_TIME_HH%"
-set "_STOPT_MM=%_TIME_MM%"
-set "_STOPT_SS=%_TIME_SS%"
-if "%_STOPT_HH:~0,1%" equ "0" set "_STOPT_HH=%_STOPT_HH:~1%"
-if "%_STOPT_MM:~0,1%" equ "0" set "_STOPT_MM=%_STOPT_MM:~1%"
-if "%_STOPT_SS:~0,1%" equ "0" set "_STOPT_SS=%_STOPT_SS:~1%"
-set /a _DIFFT_HH=%_STOPT_HH%-%_STARTT_HH%
-set /a _DIFFT_MM=%_STOPT_MM%-%_STARTT_MM%
-set /a _DIFFT_SS=%_STOPT_SS%-%_STARTT_SS%
-if "%_STARTT_MS%" neq "" set /a _DIFFT_MS=%_TIME_MS%-%_STARTT_MS%
-set "_DIFFT_=%_DIFFT_HH%:%_DIFFT_MM%:%_DIFFT_SS%"
-set /a _DIFFTD_HSS=%_DIFFT_HH%*3600
-set /a _DIFFTD_MSS=%_DIFFT_MM%*60
-set /a _DIFFT_DUR_SS=%_DIFFTD_HSS%+%_DIFFTD_MSS%
-set /a _DIFFT_DUR_SS=%_DIFFT_DUR_SS%+%_DIFFT_SS%
-goto :EOF
-
 
 :MainBegin
 setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
-call :stop_watch
+call "%GITREPOS_SCRIPT_DIR%\stop_watch.bat"
 set "GITREPOS_DATE_START=%_DATE_%"
 set "GITREPOS_TIME_START=%_TIME_%"
 
@@ -126,8 +66,12 @@ set GITREPOS_MAXLENGTH_ABS=0
 set GITREPOS_MAXLENGTH_REL=0
 if exist "%GITREPOS_DIR%\.git\*" (
   set GITREPOS_COUNT=1
+  for /f %%d in ('dir /AD /b "%GITREPOS_DIR%"') do (
+    for /f %%g in ('dir /s /AD /b "%%~d"') do if /i "%%~xg" equ ".git" goto :Analyze
+  )
   goto :MainDump
 )
+:Analyze
 if "%GITREPOS_FAST%" neq "" (
   set GITREPOS_COUNT=99
   set GITREPOS_MAXLENGTH_ABS=70
@@ -166,7 +110,7 @@ for /f %%d in ('dir /s /AD /b') do if /i "%%~xd" equ ".git" call :Dump_Git_Repo 
 popd
 
 :MainBEnd
-call :stop_watch "%GITREPOS_TIME_START%"
+call "%GITREPOS_SCRIPT_DIR%\stop_watch" "%GITREPOS_TIME_START%"
 set "GITREPOS_DATE_STOP=%_DATE_%"
 set "GITREPOS_TIME_STOP=%_TIME_%"
 if %GITREPOS_COUNT% gtr 1 (
@@ -179,7 +123,8 @@ endlocal
 :Exit
 set GITREPOS_START_DIR=
 set GITREPOS_SCRIPT=
-set GITREPOS_NAME=
+set GITREPOS_SCRIPT_DIR=
+set GITREPOS_SCRIPT_NAME=
 set GITREPOS_DIR=
 set GITREPOS_PULL=
 set GITREPOS_LIST_REMOTES=
@@ -201,10 +146,10 @@ goto :EOF
 
 
 :Diff
-echo *** %GITREPOS_NAME% compare vs. han_scripts version ***
+echo *** %GITREPOS_SCRIPT_NAME% compare vs. han_scripts version ***
 echo diff "%GITREPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
-if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%GITREPOS_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
-if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo ERROR: compare of '%GITREPOS_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
+if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%GITREPOS_SCRIPT_NAME%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
+if not exist "%HANSCRIPT_ROOT%\git_repos.bat" echo ERROR: compare of '%GITREPOS_SCRIPT_NAME%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
 call diff "%GITREPOS_SCRIPT%" "%HANSCRIPT_ROOT%\git_repos.bat"
 goto :Exit
 
@@ -212,11 +157,11 @@ goto :Exit
 :Usage
 echo.
 echo USAGE:
-echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--fast^|-f] [--status^|-s] [--pull^|-p]
-echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
-echo %GITREPOS_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
-echo %GITREPOS_NAME% [--diff^|-diff^|-di]
-echo %GITREPOS_NAME% [--help^|-h^|-?]
+echo %GITREPOS_SCRIPT_NAME% [[--dir^|-d] ^<path^>]  [--verbose^|-v] [--compact^|-c] [--fast^|-f] [--status^|-s] [--pull^|-p]
+echo %GITREPOS_SCRIPT_NAME% [[--dir^|-d] ^<path^>]  [--list_branches^|-lb]
+echo %GITREPOS_SCRIPT_NAME% [[--dir^|-d] ^<path^>]  [--checkout_branches^|-cb]
+echo %GITREPOS_SCRIPT_NAME% [--diff^|-diff^|-di]
+echo %GITREPOS_SCRIPT_NAME% [--help^|-h^|-?]
 echo.
 goto :Exit
 
