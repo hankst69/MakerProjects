@@ -1,20 +1,24 @@
 @rem https://doc.qt.io/qt-6/wasm.html
 @echo off
 call "%~dp0\maker_env.bat" %*
-
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QTW_" 1>nul 2>nul
 set "_QTW_START_DIR=%cd%"
+set "_QTW_VERSION=%MAKER_VERSION%"
+set "_QTW_REBUILD=%MAKER_REBUILD%"
+set "_QTW_BUILD_ARCH=%MAKER_BUILD_ARCH%"
+set "_QTW_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_QTW_BUILD_MODE=%MAKER_BUILD_MODE%"
+set "_QTW_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
+set "_QTW_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
+
+set "QTW_VERSION=%_MAKER_VERSION%"
 
 if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
-set "QTW_VERSION=%MAKER_VERSION%"
-set "_QTW_REBUILD=%MAKER_REBUILD%"
-
 
 rem (1) *** define QT-WASM version defaults and clone options ***
-rem set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
-rem if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=--silent --clean_before_clone --init_submodules --clone_submodules"
 set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+rem set "_QTW_CLONE_OPTIONS=--silent"
 if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=%_QTW_CLONE_OPTIONS% --clean_before_clone"
 rem version default:
 rem if "%QTW_VERSION%" equ "" set QTW_VERSION=6.6.3
@@ -32,22 +36,10 @@ if "%MAKER_VERSION_MAJOR%_%MAKER_VERSION_MINOR%" equ "6_6" set QTW_EMSDK_VERSION
 set _QTW_GCC_VERSION=
 
 
-rem (3) *** ensure GCC (MinGW64) ***
-:qtw_ensure_mingw_gcc
-rem the qt build and ensure scripts are not working properly, we have to call it twice
-call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE%
-rem call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE% 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: GCC is not available
-  goto :qtw_exit
-)
-
-rem goto :qtw_clone_qt_wasm
-
-rem (4) *** ensure QT Host ***
+rem (3) *** ensure QT Host ***
 rem we need a QT Host version of same version as the target QT-QWASM (for cross compilation) build with MinGW gcc!
 :qtw_ensure_qt_host
-call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %QTW_VERSION% %MAKER_MSG_VERBOSE% gnu
+call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %QTW_VERSION% gnu %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo building Qt %QTW_VERSION% failed
   goto :qtw_exit
@@ -61,7 +53,8 @@ rem defines: QT_LLVM_VER
 if "%QT_BIN_DIR%" EQU "" (echo error: Qt %QTW_VERSION% not available &goto :qtw_exit)
 if not exist "%QT_BIN_DIR%" (echo error: Qt %QTW_VERSION% not available &goto :qtw_exit)
 if not exist "%QT_BIN_DIR%\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" (echo error: Qt %QTW_VERSION% incomplete &goto :qtw_exit)
-if not exist "%QT_BIN_DIR%\bin\Qt6WebSockets.dll" (echo error: Qt %QTW_VERSION% incomplete &goto :qtw_exit)
+if not exist "%QT_TEST_LIB_MQTT%" (echo error: Qt %QTW_VERSION% incomplete &goto :qtw_exit)
+
 set "QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
 
 
@@ -76,6 +69,7 @@ rem with QT-WASM the Build-Dir is the Source_Dir
 set "QTW_SOURCES_DIR=%QT_SOURCES_DIR%"
 set "QTW_BUILD_DIR=%QT_SOURCES_DIR%"
 set "QTW_BIN_DIR=%QTW_BUILD_DIR%qtbase"
+
 rem we clone also qt-wasm-examples
 set "QTW_EXAMPLES_DIR=%QT_DIR%\qt-webassembly-examples"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%QTW_EXAMPLES_DIR%" "https://github.com/msorvig/qt-webassembly-examples.git" %MAKER_MSG_VERBOSE% --silent
@@ -118,7 +112,7 @@ if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA is not available
   goto :qtw_exit
 )
-call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% --
+call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% gnu --no_errors %MAKER_MSG_VERBOSE% --
 if %ERRORLEVEL% NEQ 0 (
   echo êrror: LLVM CLANG is not available
   goto :qtw_exit
@@ -157,17 +151,17 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: NODE.JS is not available
   rem goto :qtw_exit
 )
-call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_gperf.bat" gnu --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: GPERF is not available
   rem goto :qtw_exit
 )
-call "%MAKER_DIR_SCRIPTS%\validate_bison.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_bison.bat" gnu --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: BISON is not available
   rem goto :qtw_exit
 )
-call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_flex.bat" gnu --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo warning: FLEX is not available
   rem goto :qtw_exit
