@@ -194,7 +194,9 @@ rem set "_QTW_CLANG_INSTALL_DIR=%_QTW_LLVM_INSTALL_DIR%"
 rem set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%qbase"
 set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%"
 set "_QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
-set _QTW_RETRIES=0
+set _QTW_RETRIES=1
+set _QTW_RETRY=0
+goto :qtw_configure_test
 :qtw_configure_do
   cd /d "%QTW_BUILD_DIR%"
   rem https://doc.qt.io/qt-6/wasm.html
@@ -209,12 +211,8 @@ set _QTW_RETRIES=0
   rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%" mingw32-make module-qtbase module-qtdeclarative
   rem call "%QTW_BUILD_DIR%\configure.bat" -no-warnings-are-errors -xplatform wasm-emscripten -platform win32-g++ -nomake examples -prefix "%_QTW_PREFIX_DIR%"
 
-  echo DEBUG CONFIGURE SETTINGS
-  set _QT_
-  set _QTW_
-  set QT_
-  set QTW_
-  rem path
+  rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+  rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
   set "_QTW_BUILD_OPTIONS=-platform wasm-emscripten"
   set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
   set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-zlib -qt-pcre"
@@ -222,12 +220,20 @@ set _QTW_RETRIES=0
   set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% --trace=ctf"
   set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
   set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests"
+
+  echo DEBUG INFO: CONFIGURATION SETTINGS
+  set _QT_
+  set _QTW_
+  set QT_
+  set QTW_
+  rem path
+  
   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
   rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% LLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" FEATURE_clang_ON --log-level=VERBOSE
+  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DFEATURE_clang=ON --log-level=VERBOSE
   call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DFEATURE_clang=ON --log-level=VERBOSE
   
-  rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
-  rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+:qtw_configure_test
   if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Core\Qt6CoreConfig.cmake" echo missing Qt6CoreConfig.cmake &goto :qtw_configure_retry
   if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Gui\Qt6GuiConfig.cmake" echo missing Qt6GuiConfig.cmake &goto :qtw_configure_retry
   if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6Network\Qt6NetworkConfig.cmake" echo missing Qt6NetworkConfig.cmake &goto :qtw_configure_retry
@@ -245,21 +251,17 @@ set _QTW_RETRIES=0
   rem if not exist "%_QT_BUILD_DIR%\qtbase\lib\cmake\Qt6DBus\Qt6DBusConfig.cmake" echo missing Qt6CoreConfig.cmake &goto :qtw_configure_retry
   goto :qtw_configure_done
 :qtw_configure_retry
-  if "%_QTW_RETRIES%" equ "0" echo QT-CONFIGURE WASM incomplete &goto :qtw_configure_done
-  if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=0
-  if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=1
-  if "%_QTW_RETRIES%" equ "3" set _QTW_RETRIES=2
-  if "%_QTW_RETRIES%" equ "4" set _QTW_RETRIES=3
+  set /A _QTW_RETRY=%_QTW_RETRY%+1
+  if %_QTW_RETRY% geq %_QTW_RETRIES% echo QT-CONFIGURE WASM incomplete &goto :qtw_configure_done
   goto :qtw_configure_do
 :qtw_configure_done
 
 
 rem (9) *** build QT-WASM ***
-:qtw_build_test
-rem if exist "%QTW_BIN_DIR%\bin\qmake.bat" echo QT-BUILD WASM %QTW_VERSION% already done &goto :qtw_build_done
 :qtw_build
 echo QT-BUILD WASM %QTW_VERSION%
-set _QTW_RETRIES=0
+set _QTW_RETRIES=1
+set _QTW_RETRY=0
 :qtw_build_do
   cd /d "%QTW_BUILD_DIR%"
   rem https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
@@ -268,17 +270,15 @@ set _QTW_RETRIES=0
   rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
   call cmake --build . -t qtbase -t qtdeclarative
 
+:qtw_build_test
   if not exist "%QTW_BUILD_DIR%\qtbase\bin\qtloader.js" echo missing qtloader.js &goto :qtw_build_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\libQt6Core.a" echo missing libQt6Core.a &goto :qtw_build_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\libQt6Core.a" echo missing libQt6QuickWidgets.a &goto :qtw_build_retry
   if not exist "%QTW_BUILD_DIR%\plugins\imageformats\libqtga.a" echo missing libqtga.a &goto :qtw_build_retry
   goto :qtw_build_done
 :qtw_build_retry  
-  if "%_QTW_RETRIES%" equ "0" echo QT-BUILD WASM incomplete &goto :qtw_build_done
-  if "%_QTW_RETRIES%" equ "1" set _QTW_RETRIES=0
-  if "%_QTW_RETRIES%" equ "2" set _QTW_RETRIES=1
-  if "%_QTW_RETRIES%" equ "3" set _QTW_RETRIES=2
-  if "%_QTW_RETRIES%" equ "4" set _QTW_RETRIES=3
+  set /A _QTW_RETRY=%_QTW_RETRY%+1
+  if %_QTW_RETRY% geq %_QTW_RETRIES% echo QT-BUILD WASM incomplete &goto :qtw_configure_done
   goto :qtw_build_do
 :qtw_build_done
 
