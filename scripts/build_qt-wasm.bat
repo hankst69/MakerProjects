@@ -293,10 +293,12 @@ if not exist "%QTW_BIN_DIR%" exit /b 100
 if not exist "%QTW_BIN_DIR%\bin" exit /b 101
 if not exist "%QTW_BIN_DIR%\bin\qmake.bat" exit /b 102
 
+rem make Qt-Wasm qmake and make available
 set "path=%QTW_BIN_DIR%\bin;%path%"
+call "%MAKER_DIR_SCRIPTS%\ensure_make.bat" %MAKER_MSG_VERBOSE%
 goto :qtw_install_done
 
-rem try to test qt-wasm qmake
+rem todo: try to test qt-wasm qmake
 set "_QTW_TEST_TOOL=qmake"
 call "%~dp0\core\generic_validate.bat" "_QTWASM" "%_QTW_TEST_TOOL% --version" "for /f ""tokens=1,2,3,4,* delims= "" %%%%i in ('call %_QTW_TEST_TOOL% --version') do if /I %%%%j EQU Qt if /I %%%%k EQU version echo %%%%l" %QTW_VERSION% %MAKER_MSG_VERBOSE% 1>nul 2>nul
 if %ERRORLEVEL% NEQ 0 set "path=%QTW_BIN_DIR%\bin;%path%"
@@ -304,9 +306,8 @@ set _QTW_TEST_TOOL=
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QTWASM" 1>nul 2>nul
 call "%~dp0\validate_qt-wasm.bat" %QTW_VERSION% %MAKER_MSG_VERBOSE%
 exit /b %ERRORLEVEL%
+
 :qtw_install_done
-
-
 :qtw_exit
 rem cd /d "%QT_DIR%"
 cd /d "%_QTW_START_DIR%"
