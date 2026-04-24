@@ -13,7 +13,7 @@ set "_QTW_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
 
 set "QTW_VERSION=%_MAKER_VERSION%"
 
-if "%MAKER_MSG_VERBOSE%" neq "" echo on
+rem if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 
 rem (1) *** define QT-WASM version defaults and clone options ***
@@ -214,13 +214,17 @@ goto :qtw_configure_test
 
   rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
-  set "_QTW_BUILD_OPTIONS=-platform wasm-emscripten"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-zlib -qt-pcre"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -sql-mysql -no-sql-odbc"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% --trace=ctf"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
-  set "_QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests"
+  set _QTW_BUILD_OPTIONS=-platform wasm-emscripten
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-zlib -qt-pcre
+  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -sql-mysql
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-sql-odbc
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% --trace=ctf
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests
+  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%"
+  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -DFEATURE_clang=ON
+  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%"
 
   echo DEBUG INFO: CONFIGURATION SETTINGS
   set _QT_
@@ -229,10 +233,8 @@ goto :qtw_configure_test
   set QTW_
   rem path
   
-  rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
-  rem call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% LLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" FEATURE_clang_ON --log-level=VERBOSE
-  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DFEATURE_clang=ON -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%" -DFEATURE_clang=ON -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%" --log-level=VERBOSE
+  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% --log-level=VERBOSE
+  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% --log-level=VERBOSE
   
 :qtw_configure_test
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6Core\Qt6CoreConfig.cmake" echo missing Qt6CoreConfig.cmake &goto :qtw_configure_retry
@@ -301,6 +303,11 @@ if not exist "%QTW_BIN_DIR%\bin\qmake.bat" exit /b 102
 rem make Qt-Wasm qmake and make available
 set "path=%QTW_BIN_DIR%\bin;%path%"
 call "%MAKER_DIR_SCRIPTS%\ensure_make.bat" %MAKER_MSG_VERBOSE%
+echo.
+echo.QT-WASM example:
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>qmake gui_localfiles.pro
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>make
+echo.
 goto :qtw_install_done
 
 rem todo: try to test qt-wasm qmake
@@ -315,5 +322,6 @@ exit /b %ERRORLEVEL%
 :qtw_install_done
 :qtw_exit
 rem cd /d "%QT_DIR%"
-cd /d "%_QTW_START_DIR%"
+rem cd /d "%_QTW_START_DIR%"
+cd /d "%QTW_EXAMPLES_DIR%"
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QTW_" 1>nul 2>nul

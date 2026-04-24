@@ -15,8 +15,8 @@ goto :_QTC_START
 
 :_QTC_USAGE
 echo USAGE:
-echo %~n0 [version] [--clone_submodules] [--dont_init_submodules] [--force_clone] [--clean_before_clone] [-?^|-h^|--help]
-rem echo %~n0 [version] [--clone_submodules] [--init_submodules] [--force_clone] [--clean_before_clone] [-?^|-h^|--help]
+echo %~n0 [version] [clone-dir-suffix]  [--clone_submodules] [--dont_init_submodules] [--force_clone] [--clean_before_clone] [--clone_webengine]
+echo.%~n0 [--help^|-h^|-?]
 goto :EOF
 
 :_QTC_START
@@ -32,11 +32,15 @@ set _QTC_FORCE_CLONE=
 set _QTC_CLEAN_BEFORE_CLONE=
 set _QTC_INIT_SUBMODULES=true
 set _QTC_CLONE_SUBMODULES=
+set _QTC_INITREPOSITORY_ARGS=--module-subset=default,-qtwebengine
+set _QTC_USAGE=
 for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--force_clone"          set _QTC_FORCE_CLONE=true
 for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clean_before_clone"   set _QTC_CLEAN_BEFORE_CLONE=true
 for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--init_submodules"      set _QTC_INIT_SUBMODULES=true
-for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_submodules"     set _QTC_CLONE_SUBMODULES=true
 for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--dont_init_submodules" set _QTC_INIT_SUBMODULES=
+for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_submodules"     set _QTC_CLONE_SUBMODULES=true
+for %%i in (%MAKER_UNKNOWN_SWITCHES%) do @if /I "%%~i" equ "--clone_webengine"      set _QTC_INITREPOSITORY_ARGS=
+
 
 rem apply defaults
 if "%_QTC_VERSION%"  equ "" set _QTC_VERSION=6.8.3
@@ -44,13 +48,11 @@ set "_QTC_VERSION_COMPACT=%_QTC_VERSION:.=%"
 set "_QTC_SRC_DIR_NAME=qt%_QTC_VERSION_COMPACT%src"
 if "%_QTC_SRC_DIR_NAME_SUFFIX%" neq "" set "_QTC_SRC_DIR_NAME=qt%_QTC_VERSION_COMPACT%-%_QTC_SRC_DIR_NAME_SUFFIX%"
 
+
 rem define folders
 rem set "_QTC_DIR=%MAKER_DIR_TOOLS%\QT"
 set "_QTC_DIR=%MAKER_DIR_QT%"
-
 set "_QTC_SOURCES_DIR=%_QTC_DIR%\%_QTC_SRC_DIR_NAME%\"
-set "_QTC_CLONE_TEST_DIR=%_QTC_SOURCES_DIR%\qtbase"
-set "_QTC_CLONE_TEST_FILE=%_QTC_CLONE_TEST_DIR%\configure.bat"
 
 if "%MAKER_MSG_VERBOSE%" neq "" set _QTC_
 
@@ -59,18 +61,26 @@ if "%_QTC_CLEAN_BEFORE_CLONE%" neq "" (
   echo preparing fresh clone by cleaning target folder
   rmdir /s /q "%_QTC_SOURCES_DIR%" 1>nul 2>nul
 )
-if exist "%_QTC_CLONE_TEST_DIR%\*" (
-  if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
-    if "%_QTC_FORCE_CLONE%" neq "" del /F /Q "%_QTC_CLONE_TEST_FILE%" 1>nul 2>nul
-    if "%_QTC_FORCE_CLONE%" neq "" rmdir /s /q "%_QTC_CLONE_TEST_DIR%"
-    if not exist "%_QTC_CLONE_TEST_DIR%\*" mkdir "%_QTC_CLONE_TEST_DIR%"
-    pushd "%_QTC_CLONE_TEST_DIR%"
+if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" neq "" (
+  if exist "%_QTC_SOURCES_DIR%\qtbase\*" (
+    rem if "%_QTC_FORCE_CLONE%" neq "" 
+    (
+      del /F /Q "%_QTC_SOURCES_DIR%\qtbase\configure.bat" 1>nul 2>nul
+      rmdir /s /q "%_QTC_SOURCES_DIR%\qtbase"
+    )
+    if not exist "%_QTC_SOURCES_DIR%\qtbase\*" mkdir "%_QTC_SOURCES_DIR%\qtbase"
+    pushd "%_QTC_SOURCES_DIR%\qtbase"
     call git restore qtbase 1>nul 2>nul
     popd
   )
 )
 
-if exist "%_QTC_CLONE_TEST_FILE%" if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" equ "" echo QT-CLONE %_QTC_VERSION% %_QTC_SRC_DIR_NAME_SUFFIX% already done &goto :qt_clone_done
+if "%_QTC_FORCE_CLONE%%_QTC_CLONE_SUBMODULES%" equ "" (
+  if exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" (
+    echo QT-CLONE %_QTC_VERSION% %_QTC_SRC_DIR_NAME_SUFFIX% already done
+    goto :qt_clone_done
+  )
+)
 
 
 :qt_clone
@@ -84,29 +94,34 @@ pushd "%_QTC_SOURCES_DIR%"
 call git pull
 popd
 
+:qt_init_submodules_prepare
+if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" (
+  del /F /Q "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" 1>nul 2>nul
+  pushd "%_QTC_SOURCES_DIR%\qtbase"
+  call git pull
+  popd
+)
 
 :qt_init_submodules
 if "%_QTC_INIT_SUBMODULES%" equ "" goto :qt_clone_done
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" del /F /Q "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" 1>nul 2>nul
 if exist "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" goto :qt_clone_done
-pushd "%_QTC_SOURCES_DIR%"
-rem ensure perl (is required for cloning the qt submodules)
+:: ensure perl (is required for cloning the qt submodules)
 call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_infos
 if %ERRORLEVEL% NEQ 0 goto :qt_clone_failed
-rem 2) configure the repository
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if exist "%_QTC_SOURCES_DIR%\init-repository.bat" call "%_QTC_SOURCES_DIR%\init-repository.bat" || goto :qt_clone_failed
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository" || goto :qt_clone_failed
-rem 3) init submodules
-call git submodule init || goto :qt_clone_failed
-rem 4) clone submodules
-call git submodule update --init --recursive || goto :qt_clone_failed
+pushd "%_QTC_SOURCES_DIR%"
+:: init the repositories submodules
+if exist "%_QTC_SOURCES_DIR%\init-repository.bat"     call "%_QTC_SOURCES_DIR%\init-repository.bat" %_QTC_INITREPOSITORY_ARGS%  --force  || goto :qt_clone_failed
+if not exist "%_QTC_SOURCES_DIR%\init-repository.bat" call perl "%_QTC_SOURCES_DIR%\init-repository" %_QTC_INITREPOSITORY_ARGS%  --force || goto :qt_clone_failed
+:: init via git instead of qt-script init-repository
+rem call git submodule init || goto :qt_clone_failed
+rem call git submodule update --init --recursive || goto :qt_clone_failed
 echo qt_init_submodules_done>.qt_init_submodules_done
 popd
 goto :qt_clone_done
 
 
 :qt_clone_done
-if not exist "%_QTC_SOURCES_DIR%\qtbase\configure.bat" goto :qt_clone_failed
+if not exist "%_QTC_SOURCES_DIR%\.qt_init_submodules_done" goto :qt_clone_failed
 echo QT-CLONE %_QTC_VERSION% %_QTC_SRC_DIR_NAME_SUFFIX% done
 if "%_QTC_SOURCES_DIR%" neq "" cd /d "%_QTC_SOURCES_DIR%"
 set "QT_DIR=%_QTC_DIR%"
