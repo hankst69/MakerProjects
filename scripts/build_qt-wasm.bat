@@ -65,8 +65,8 @@ echo.
 echo QT-WASM %QTW_VERSION% - testing INSTALLATION: %_QTW_TEE_LOG%
 if not exist "%QTW_BIN_DIR%\bin\qmake.bat" echo missing libQt6Mqtt.a %_QTW_TEE_LOG% &goto qtw_rebuild
 if not exist "%QTW_BIN_DIR%\lib\libQt6Core.a" echo missing libQt6Mqtt.a %_QTW_TEE_LOG% &goto qtw_rebuild
-if not exist "%QTW_BUILD_DIR%\plugins\imageformats\libqtga.a" echo missing libqtga.a %_QTW_TEE_LOG% &goto qtw_rebuild
 if not exist "%QTW_BIN_DIR%\lib\libQt6Mqtt.a" echo missing libQt6Mqtt.a %_QTW_TEE_LOG% &goto qtw_rebuild
+if not exist "%QTW_BUILD_DIR%\plugins\imageformats\libqtga.a" echo missing libqtga.a %_QTW_TEE_LOG% &goto qtw_rebuild
 goto :qtw_setup
 
 
@@ -233,18 +233,18 @@ goto :qtw_configure_test
 
   rem ... -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem ...future WASM supported modules -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
-  set _QTW_BUILD_OPTIONS=-platform wasm-emscripten
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -qt-zlib -qt-pcre
-  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -sql-mysql
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-sql-odbc
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% --trace=ctf
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%"
-  set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -DFEATURE_clangcpp=OFF
-  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -DFEATURE_clang=ON
-  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%"
+  set _QTW_CONFIG_OPTIONS=-platform wasm-emscripten
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -qt-zlib -qt-pcre
+  rem set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -sql-mysql
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -no-sql-odbc
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% --trace=ctf
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -skip qtwebengine -skip qtwebview
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -no-warnings-are-errors -nomake examples -nomake tests
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -- -DLLVM_INSTALL_DIR="%_QTW_LLVM_INSTALL_DIR%"
+  set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -DFEATURE_clangcpp=OFF
+  rem set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -DFEATURE_clang=ON
+  rem set _QTW_CONFIG_OPTIONS=%_QTW_CONFIG_OPTIONS% -DClang_DIR="%_QTW_LLVM_INSTALL_DIR%"
 
   echo.>>"%_QTW_LOGFILE%"
   echo DEBUG INFO: CONFIGURATION SETTINGS >>"%_QTW_LOGFILE%"
@@ -255,8 +255,8 @@ goto :qtw_configure_test
   path >>"%_QTW_LOGFILE%"
   echo.>>"%_QTW_LOGFILE%"
   
-  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% --log-level=VERBOSE %_QTW_TEE_LOG%
-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_BUILD_OPTIONS% --log-level=VERBOSE >>"%_QTW_LOGFILE%" 2>&1
+  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE %_QTW_TEE_LOG%
+  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_QTW_LOGFILE%" 2>&1
   
 :qtw_configure_test
   echo.
@@ -270,11 +270,11 @@ goto :qtw_configure_test
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6QuickControls2\Qt6QuickControls2Config.cmake" echo missing Qt6QuickControls2Config.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6QuickLayouts\Qt6QuickLayoutsConfig.cmake" echo missing Qt6QuickLayoutsConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6Core5Compat\Qt6Core5CompatConfig.cmake" echo missing Qt6Core5CompatConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
-  if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6ImageFormats\Qt6ImageFormatsConfig.cmake" echo missing Qt6ImageFormatsConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6OpenGL\Qt6OpenGLConfig.cmake" echo missing Qt6OpenGLConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6Svg\Qt6SvgConfig.cmake" echo missing Qt6SvgConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6WebSockets\Qt6WebSocketsConfig.cmake" echo missing Qt6WebSocketsConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6Mqtt\Qt6MqttConfig.cmake" echo missing Qt6MqttConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
+  rem if not exist "%QTW_BUILD_DIR%\qtbase\lib\cmake\Qt6ImageFormats\Qt6ImageFormatsConfig.cmake" echo missing Qt6ImageFormatsConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   rem if not exist "%QT_BUILD_DIR%\qtbase\lib\cmake\Qt6DBus\Qt6DBusConfig.cmake" echo missing Qt6DBusConfig.cmake %_QTW_TEE_LOG% &goto :qtw_configure_retry
   goto :qtw_configure_done
 :qtw_configure_retry
@@ -295,13 +295,17 @@ goto :qtw_build_test
   echo QT-BUILD WASM %QTW_VERSION% (TRY %_QTW_TRY%) %_QTW_TEE_LOG%
   echo ******************************************************************************** %_QTW_TEE_LOG%
   cd /d "%QTW_BUILD_DIR%"
-  rem https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
-  rem call cmake --build . -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick -t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
+  :: https://doc.qt.io/qt-6/wasm.html#supported-qt-modules
+  rem set _QTW_BUILD_OPTIONS=-t qtbase -t qtdeclarative
+  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -t qtCore -t qtGui -t qtNetwork -t qtWidgets -t qtQml -t qtQuick-t qtQuickControls -t qtQuickLayouts -t qt5CoreCompatibilityAPIs -t qtImageFormats -t qtOpenGL -t qtSVG -t qtWebSockets -t qt6Mqtt
   rem future WASM supported modules:
-  rem call cmake --build . -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
-  echo cmake --build . -t qtbase -t qtdeclarative %_QTW_TEE_LOG%
-  call cmake --build . -t qtbase -t qtdeclarative >>"%_QTW_LOGFILE%" 2>&1
-
+  rem set _QTW_BUILD_OPTIONS=%_QTW_BUILD_OPTIONS% -t qtThreading -t qtConcurrent -t qtEmscriptenAsyncify -t qtSockets
+  ::
+  rem set _QTW_BUILD_OPTIONS=-t qtbase -t qtdeclarative -t qtSVG -t qtWebSockets -t qt6Mqtt
+  set _QTW_BUILD_OPTIONS=
+  echo cmake --build . %_QTW_BUILD_OPTIONS% %_QTW_TEE_LOG%
+  call cmake --build . %_QTW_BUILD_OPTIONS% >>"%_QTW_LOGFILE%" 2>&1
+  
 :qtw_build_test
   echo.
   echo QT-WASM %QTW_VERSION% - testing BUILD: %_QTW_TEE_LOG%
@@ -321,7 +325,7 @@ rem (11) *** install QT-WASM ***
 :qtw_install
 cd /d "%QTW_BUILD_DIR%"
 echo cmake --install . %_QTW_TEE_LOG%
-call cmake --install .
+call cmake --install . >>"%_QTW_LOGFILE%" 2>&1
 
 :qtw_setup
 if "%QTW_BIN_DIR%" equ "" echo QT-WASM %QTW_VERSION% INSTALL incomplete %_QTW_TEE_LOG% &goto :qtw_exit
@@ -333,9 +337,17 @@ rem make Qt-Wasm qmake and make available
 set "path=%QTW_BIN_DIR%\bin;%path%"
 call "%MAKER_DIR_SCRIPTS%\ensure_make.bat" %MAKER_MSG_VERBOSE%
 echo.
-echo.QT-WASM example:
+echo.QT-WASM example ciompile and run:
+rem see also https://bayernmuller.github.io/blog/240104-webassembly-qt/
 echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>qmake gui_localfiles.pro
 echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>make
+echo. now run the generated gui_localfiles.wasm and the test html page gui_localfiles.html via local webserver and browser
+echo. 1) via emscripten emrun tool:
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>emrun --browser chrome gui_localfiles.html
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>tip: emrun --list_browser
+echo. 2) via python webserver:
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>python -m http.server 8000
+echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>explorer "http://localhost:8000/gui_localfiles.html" (open in webwrowser)
 echo.
 goto :qtw_install_done
 
