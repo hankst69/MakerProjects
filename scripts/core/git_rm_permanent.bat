@@ -68,8 +68,9 @@ call deactivate 1>nul 2>nul
 
 
 :Reset
-if "%_reset_mode%" neq "" if exist "%_venv_gfr%" rmdir /s /q "%_venv_gfr%"
-if "%_reset_mode%" neq "" if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_dir%"
+if not exist "%_repo_orig_dir%\.git\*" set "_reset_mode=true"
+if "%_reset_mode%" equ "true" if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_dir%"
+if "%_reset_mode%%_forced_mode%" equ "truetrue" if exist "%_venv_gfr%" rmdir /s /q "%_venv_gfr%"
 
 
 :Install

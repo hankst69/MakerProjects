@@ -14,18 +14,20 @@ rem arg2: dir-to-delete
 set _clone_url=
 set _clone_repo_name=
 set _sub_dir_to_delete=
+set _branch_name=
 set _test_mode=
-set _forced_mode=
+set _force_mode=
 set _reset_mode=
 :param_loop
 if /I "%~1" equ "--test"      (set "_test_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "-t"          (set "_test_mode=true" &shift &goto :param_loop)
-if /I "%~1" equ "--forced"    (set "_forced_mode=true" &shift &goto :param_loop)
-if /I "%~1" equ "-f"          (set "_forced_mode=true" &shift &goto :param_loop)
-if /I "%~1" equ "--reset"     (set "_reset_mode=true" &shift &goto :param_loop)
-if /I "%~1" equ "-r"          (set "_reset_mode=true" &shift &goto :param_loop)
+if /I "%~1" equ "--force"     (set "_force_mode=--force" &shift &goto :param_loop)
+if /I "%~1" equ "-f"          (set "_force_mode=--force" &shift &goto :param_loop)
+if /I "%~1" equ "--reset"     (set "_reset_mode=--reset" &shift &goto :param_loop)
+if /I "%~1" equ "-r"          (set "_reset_mode=--reset" &shift &goto :param_loop)
 if "%~1" neq "" if "%_clone_url%"         equ "" (set "_clone_url=%~1" &set "_clone_repo_name=%~nx1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_sub_dir_to_delete%" equ "" (set "_sub_dir_to_delete=%~1" &shift &goto :param_loop)
+if "%~1" neq "" if "%_branch_name%" equ "" (set "_branch_name=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo error: unexpected argument '%~1' &shift &goto :param_loop)
 
 if "%_clone_url%" equ "" (echo error: missing argument 1: 'clone-url' &goto :Usage)
@@ -34,7 +36,7 @@ goto :Start
 
 :Usage
 echo.
-echo USAGE: %_script_name% git-repo-url sub-dir-to-delete [--test^|-t] [--forced^|-f] [--reset^|-r]
+echo USAGE: %_script_name% git-repo-url sub-dir-to-delete [branch-name] [--test^|-t] [--force^|-f] [--reset^|-r]
 echo.
 goto :Exit
 
@@ -52,7 +54,7 @@ set _clone_url=
 set _clone_repo_name=
 set _sub_dir_to_delete=
 set _test_mode=
-set _forced_mode=
+set _force_mode=
 set _reset_mode=
 goto :EOF
 
@@ -69,8 +71,15 @@ call deactivate 1>nul 2>nul
 
 
 :Reset
-if "%_reset_mode%" neq "" if exist "%_venv_gfr%" rmdir /s /q "%_venv_gfr%"
-if "%_reset_mode%" neq "" if exist "%_repo_orig_dir%" rmdir /s /q "%_repo_orig_dir%"
+if not exist "%_repo_orig_dir%\.git\*" set "_reset_mode=true"
+if "%_reset_mode%" neq "" if exist "%_venv_gfr%" (
+  echo cleaning folder "%_venv_gfr%"
+  rmdir /s /q "%_venv_gfr%"
+)
+if "%_reset_mode%%_force_mode%" equ "--reset--force" if exist "%_repo_orig_dir%" (
+  echo cleaning folder "%_repo_orig_dir%"
+  rmdir /s /q "%_repo_orig_dir%"
+)
 
 
 :Install
@@ -100,6 +109,13 @@ echo -------------------------------------------------------
 echo git clone "%_clone_url%" "%_repo_orig_dir%"
 echo -------------------------------------------------------
 call git clone "%_clone_url%" "%_repo_orig_dir%"
+if "%_branch_name%" equ "" goto :git_clean_from_commit_history
+echo -------------------------------------------------------
+echo git switch "%_branch_name%"
+echo -------------------------------------------------------
+pushd "%_repo_orig_dir%"
+call git switch "%_branch_name%"
+popd
 
 
 :git_clean_from_commit_history
@@ -112,12 +128,12 @@ rem https://www.somethingorothersoft.com/2009/09/08/the-definitive-step-by-step-
 
 if exist "%_Dir_TO_PERMANENTLY_REMOVE_win%\*" goto :git_clean_from_commit_history_do
 echo.warning: the directory to remove does not exist '%_Dir_TO_PERMANENTLY_REMOVE_win%'
-if "%_forced_mode%" equ "" (
-  echo.         use --forced option to remove that directory from the git history
+if "%_force_mode%" equ "" (
+  echo.         use --force option to remove that directory from the git history
   goto :Exit
 )
 echo.
-echo. '--forced' option active - continue removing
+echo. '--force' option active - continue removing
 
 :git_clean_from_commit_history_do
 echo.
@@ -142,8 +158,8 @@ rem if exist ".git/refs/original" rmdir /s /q ".git/refs/original"
 rem call git reflog expire --expire=now --all
 rem call git gc --prune=now
 rem echo -----------------------
-echo git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths
-call git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths
+echo git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths %_force_mode%
+call git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths %_force_mode%
 call deactivate
 echo -----------------------
 echo.
