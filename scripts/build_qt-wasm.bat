@@ -337,17 +337,18 @@ rem make Qt-Wasm qmake and make available
 set "path=%QTW_BIN_DIR%\bin;%path%"
 call "%MAKER_DIR_SCRIPTS%\ensure_make.bat" %MAKER_MSG_VERBOSE%
 echo.
-echo.QT-WASM example ciompile and run:
+echo.QT-WASM example:
 rem see also https://bayernmuller.github.io/blog/240104-webassembly-qt/
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>qmake gui_localfiles.pro
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>make
+echo.^>cd %QTW_EXAMPLES_DIR%\gui_localfiles
+echo.^>qmake gui_localfiles.pro
+echo.^>make
 echo. now run the generated gui_localfiles.wasm and the test html page gui_localfiles.html via local webserver and browser
 echo. 1) via emscripten emrun tool:
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>emrun --browser chrome gui_localfiles.html
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>tip: emrun --list_browser
-echo. 2) via python webserver:
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>python -m http.server 8000
-echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>explorer "http://localhost:8000/gui_localfiles.html" (open in webwrowser)
+echo.^>emrun --browser chrome gui_localfiles.html
+echo. tip: emrun --list_browser
+rem echo. 2) via python webserver:
+rem echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>python -m http.server 8000
+rem echo.%QTW_EXAMPLES_DIR%\gui_localfiles^>explorer "http://localhost:8000/gui_localfiles.html" (open in webwrowser)
 echo.
 goto :qtw_install_done
 

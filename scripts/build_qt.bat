@@ -307,25 +307,25 @@ if %ERRORLEVEL% NEQ 0 (
 )
 rem ensure gperf (for QtWebEngine see https://stackoverflow.com/questions/73498046/building-qt5-from-source-qtwebenginecore-module-will-not-be-built-tool-gperf-i)
 rem WARNING: QtWebEngine won't be built. Tool gperf is required.
-call "%MAKER_DIR_SCRIPTS%\ensure_gperf.bat" --no_errors %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: GPERF is not available
-  rem goto :qt_exit
-)
+::call "%MAKER_DIR_SCRIPTS%\ensure_gperf.bat" --no_errors %_QT_BUILD_CONFIG%
+::if %ERRORLEVEL% NEQ 0 (
+::  echo warning: GPERF is not available
+::  rem goto :qt_exit
+::)
 rem ensure bison
 rem WARNING: QtWebEngine won't be built. Tool bison is required.
-call "%MAKER_DIR_SCRIPTS%\ensure_bison.bat" --no_errors %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: BISON is not available %_QT_TEE_LOG%
-  rem goto :qt_exit
-)
+::call "%MAKER_DIR_SCRIPTS%\ensure_bison.bat" --no_errors %_QT_BUILD_CONFIG%
+::if %ERRORLEVEL% NEQ 0 (
+::  echo warning: BISON is not available %_QT_TEE_LOG%
+::  rem goto :qt_exit
+::)
 rem esnure flex
 rem Support check for QtWebEngine failed: Tool flex is required.
-call "%MAKER_DIR_SCRIPTS%\ensure_flex.bat" --no_errors %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 (
-  echo warning: FLEX is not available %_QT_TEE_LOG%
-  rem goto :qt_exit
-)
+::call "%MAKER_DIR_SCRIPTS%\ensure_flex.bat" --no_errors %_QT_BUILD_CONFIG%
+::if %ERRORLEVEL% NEQ 0 (
+::  echo warning: FLEX is not available %_QT_TEE_LOG%
+::  rem goto :qt_exit
+::)
 rem setup gRPC
 rem call "%MAKER_DIR_SCRIPTS%\build_grpc.bat" x64-windows
   rem pushd "%QT_DIR%"
