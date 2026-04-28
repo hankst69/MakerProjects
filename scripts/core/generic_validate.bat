@@ -186,10 +186,10 @@ goto :EOF
 set "_VALIDATE_BUILD_CONFIG_KEY=%_VALIDATE_NAME%_build_config"
 set _VALIDATE_BUILD_CONFIG_VALUE=
 call :_tool_get_build_config_value %_VALIDATE_BUILD_CONFIG_KEY%
-if "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "-" if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning %_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config info not available
+if "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "-" if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning: %_VALIDATE_NAME% build config info is not available
 if "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "-" goto :_tool_validation_final_success
-if /I "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "%_VALIDATE_TGT_BUILD_CONFIG%" :_tool_validation_final_success
-if "%MAKER_MSG_NOERRORS%" equ "" echo error 9_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config not matching with requirement
+if /I "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "%_VALIDATE_TGT_BUILD_CONFIG%" goto :_tool_validation_final_success
+if "%MAKER_MSG_NOERRORS%" equ "" echo error 9_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config not matching with requirement '%_VALIDATE_BUILD_CONFIG_VALUE%'!='%_VALIDATE_TGT_BUILD_CONFIG%'
 call :_clean_script_variables
 exit /b 9
 
