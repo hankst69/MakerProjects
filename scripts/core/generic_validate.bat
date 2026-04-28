@@ -37,6 +37,7 @@ call "%_VALIDATE_SCRIPT_ROOT%\maker_env.bat" %_VALIDATE_ARGS% --silent
 set "_VALIDATE_TGT_VERSION=%MAKER_VERSION%"
 set "_VALIDATE_TGT_VERSION_COMPARE=%MAKER_VERSION_COMPARE%"
 set "_VALIDATE_TGT_ARCHITECTURE=%MAKER_BUILD_ARCH%"
+set "_VALIDATE_TGT_BUILD_CONFIG=%MAKER_BUILD_CONFIG%
 if "%MAKER_UNKNOWN_SWITCH_1%" equ "" goto :_params_postprocessing
 if /I "%MAKER_UNKNOWN_SWITCH_1:~0,12%" equ "--tool_arch:" set "_VALIDATE_TOOL_ARCHITECTURE=%MAKER_UNKNOWN_SWITCH_1:~12%"
 
@@ -110,6 +111,7 @@ echo _VALIDATE_VERSION             : '%_VALIDATE_VERSION%'
 echo _VALIDATE_TGT_VERSION         : %_VALIDATE_TGT_VERSION%
 echo _VALIDATE_TGT_VERSION_COMPARE : %_VALIDATE_TGT_VERSION_COMPARE%
 echo _VALIDATE_TGT_ARCHITECTURE    : %_VALIDATE_TGT_ARCHITECTURE%
+echo _VALIDATE_TGT_BUILD_CONFIG    : %_VALIDATE_TGT_BUILD_CONFIG%
 echo _VALIDATE_TOOL_ARCHITECTURE   : %_VALIDATE_TOOL_ARCHITECTURE%
 rem echo %_VALIDATE_NAME%_VERSION       :
 rem echo %_VALIDATE_NAME%_VERSION_MAJOR :
@@ -127,8 +129,8 @@ call :_clean_script_variables
 exit /b 4
 
 :_tool_available
+:_tool_test_version
 set _VALIDATE_VERSION=
-rem call cmd /Q /E:ON /V:ON /C "%_VALIDATE_VERSION_CMD%">"%TEMP%\_VALIDATE_VERSION_CMD.tmp"
 %_VALIDATE_VERSION_CMD%>"%TEMP%\_VALIDATE_VERSION_CMD.tmp"
 set /P _VALIDATE_VERSION=<"%TEMP%\_VALIDATE_VERSION_CMD.tmp"
 del /Q /F "%TEMP%\_VALIDATE_VERSION_CMD.tmp" 1>nul 2>nul
@@ -173,6 +175,19 @@ call :_clean_script_variables
 exit /b 8
 
 :_tool_validation_success
+:_tool_test_build_config
+rem read tool build config
+set %_VALIDATE_NAME%_build_config=
+call %_VALIDATE_NAME%_build_config
+if "%%_VALIDATE_NAME%_build_config%" equ "" if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning %_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config info not available
+if "%%_VALIDATE_NAME%_build_config%" equ "" goto :_tool_validation_final_success
+echo "%%_VALIDATE_NAME%_build_config%"
+if /I "%_VALIDATE_TGT_BUILD_CONFIG%" equ "%%_VALIDATE_NAME%_build_config%" :_tool_validation_final_success
+if "%MAKER_MSG_NOERRORS%" equ "" echo error 9_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config not matching with requirement
+call :_clean_script_variables
+exit /b 9
+
+:_tool_validation_final_success
 if "%MAKER_MSG_NOINFOS%" equ "" cmd /Q /V:ON /C echo using: %_VALIDATE_NAME% !%_VALIDATE_NAME%_VERSION! %_VALIDATE_TOOL_ARCHITECTURE%
 call :_clean_script_variables
 exit /b 0

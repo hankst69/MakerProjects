@@ -206,7 +206,7 @@ call cmake --install . >>"%_LLVM_LOGFILE%" 2>&1
 dir /s /b "%_LLVM_BIN_DIR%" >>"%_LLVM_LOGFILE%"
 dir "%_LLVM_BIN_DIR%\bin" >>"%_LLVM_LOGFILE%"
 if exist "%_LLVM_TEST_EXE2%" (
-  echo INSTALL-2 %_LLVM_BUILD_INFO% done %_LLVM_TEE_LOG%
+  echo INSTALL-2 %_LLVM_BUILD_INFO% DONE %_LLVM_TEE_LOG%
   echo.&echo.>>"%_LLVM_LOGFILE%"
 ) else (
   echo error: INSTALL-2 %_LLVM_BUILD_INFO% FAILED %_LLVM_TEE_LOG%
@@ -226,6 +226,7 @@ echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP%
 echo.&echo.>>"%_LLVM_LOGFILE%"
 
 rem *** make LLVM available for CMAKE ***
+echo set LLVM_build_config=%_LLVM_BUILD_CONFIG%>"%_LLVM_BIN_DIR%\bin\LLVM_build_config.bat"
 set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_MSG_VERBOSE%" neq "" set LLVM_
