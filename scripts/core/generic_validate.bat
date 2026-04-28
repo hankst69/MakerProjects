@@ -174,15 +174,21 @@ if "%MAKER_MSG_NOERRORS%" equ "" echo error 8_%_VALIDATE_SCRIPT_NAME%: %_VALIDAT
 call :_clean_script_variables
 exit /b 8
 
+:_tool_get_build_config_value
+set %~1=-
+call %~1 1>nul 2>nul
+rem set %~1
+for /f %%i in ('echo %%%~1%%') do set "_VALIDATE_BUILD_CONFIG_VALUE=%%i"
+goto :EOF
+
 :_tool_validation_success
 :_tool_test_build_config
-rem read tool build config
-set %_VALIDATE_NAME%_build_config=
-call %_VALIDATE_NAME%_build_config
-if "%%_VALIDATE_NAME%_build_config%" equ "" if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning %_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config info not available
-if "%%_VALIDATE_NAME%_build_config%" equ "" goto :_tool_validation_final_success
-echo "%%_VALIDATE_NAME%_build_config%"
-if /I "%_VALIDATE_TGT_BUILD_CONFIG%" equ "%%_VALIDATE_NAME%_build_config%" :_tool_validation_final_success
+set "_VALIDATE_BUILD_CONFIG_KEY=%_VALIDATE_NAME%_build_config"
+set _VALIDATE_BUILD_CONFIG_VALUE=
+call :_tool_get_build_config_value %_VALIDATE_BUILD_CONFIG_KEY%
+if "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "-" if "%MAKER_MSG_NOWARNINGS%" equ "" echo warning %_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config info not available
+if "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "-" goto :_tool_validation_final_success
+if /I "%_VALIDATE_BUILD_CONFIG_VALUE%" equ "%_VALIDATE_TGT_BUILD_CONFIG%" :_tool_validation_final_success
 if "%MAKER_MSG_NOERRORS%" equ "" echo error 9_%_VALIDATE_SCRIPT_NAME%: %_VALIDATE_NAME% build config not matching with requirement
 call :_clean_script_variables
 exit /b 9
