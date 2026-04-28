@@ -39,13 +39,11 @@ set "_LLVM_BUILD_DIR=%LLVM_DIR%\._%_LLVM_BUILD_CONFIG%"
 
 set "_LLVM_LOGFILE=%LLVM_DIR%\.logs\llvm_build_%_LLVM_VERSION%_%_LLVM_BUILD_CONFIG%_%_LLVM_BUILD_DATETIME_START%.log"
 if not exist "%LLVM_DIR%\.logs" mkdir "%LLVM_DIR%\.logs"
-
 echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START% >"%_LLVM_LOGFILE%"
 set _LLVM_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_LLVM_LOGFILE%"
 
 if "%MAKER_MSG_VERBOSE%" neq "" set MAKER
 if "%MAKER_MSG_VERBOSE%" neq "" set _LLVM_
-
 
 rem (2) *** removing prior build outputs ***
 if "%_LLVM_REBUILD%" neq "" (
@@ -54,16 +52,18 @@ if "%_LLVM_REBUILD%" neq "" (
   rmdir /s /q "%_LLVM_BUILD_DIR%" 1>nul 2>nul
 )
 
-
 rem build validation
-set "_LLVM_LIBEXTENSION=.a"
-set "_LLVM_EXEEXTENSION=.exe"
-if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_LIBEXTENSION=.lib" 
-set "_LLVM_TEST_LIB1=%_LLVM_BIN_DIR%\lib\libLLVMCore%_LLVM_LIBEXTENSION%"
-set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\liblldWasm%_LLVM_LIBEXTENSION%"
+set "_LLVM_TEST_LIB1=%_LLVM_BIN_DIR%\lib\libLLVMCore.a"
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_TEST_LIB1=%_LLVM_BIN_DIR%\lib\LLVMCore.lib"
+set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\liblldWasm.a"
+if /I "%_LLVM_BUILD_SYSTEM%" equ "msvs" set "_LLVM_TEST_LIB2=%_LLVM_BIN_DIR%\lib\lldWasm.lib"
 set "_LLVM_TEST_EXE1=%_LLVM_BIN_DIR%\bin\llvm-link%_LLVM_EXEEXTENSION%"
 set "_LLVM_TEST_EXE2=%_LLVM_BIN_DIR%\bin\clang%_LLVM_EXEEXTENSION%"
 set "_LLVM_TEST_EXE3=%_LLVM_BIN_DIR%\bin\flang%_LLVM_EXEEXTENSION%"
+
+set "_LLVM_TEST_EXE1=%_LLVM_BIN_DIR%\bin\llvm-link.exe"
+set "_LLVM_TEST_EXE2=%_LLVM_BIN_DIR%\bin\clang-cpp.exe"
+set "_LLVM_TEST_EXE3=%_LLVM_BIN_DIR%\bin\clang-cl.exe"
 
 if not exist "%_LLVM_TEST_LIB2%" goto :_rebuild
 if not exist "%_LLVM_TEST_EXE2%" goto :_rebuild

@@ -45,6 +45,7 @@ set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
 rem CLONE options
 rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
 set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
+if "%_QT_REBUILD%" neq "" set "_QT_CLONE_OPTIONS=%_QT_CLONE_OPTIONS% --clean_before_clone"
 
 rem
 rem QT BUILD options
@@ -160,7 +161,9 @@ if "%MAKER_MSG_VERBOSE%" neq "" set _QT_
 rem (4) *** cleaning QT build if demanded ***
 if "%_QT_REBUILD%" neq "" (
   echo preparing rebuild...
+  echo deleting "%_QT_BIN_DIR%"
   rmdir /s /q "%_QT_BIN_DIR%" 1>nul 2>nul
+  echo deleting "%_QT_BUILD_DIR%"
   rmdir /s /q "%_QT_BUILD_DIR%" 1>nul 2>nul
 )
 if not exist "%_QT_BIN_DIR%" mkdir "%_QT_BIN_DIR%"
@@ -278,9 +281,9 @@ if %ERRORLEVEL% NEQ 0 (
   goto :qt_exit
 )
 rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
+if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
   echo error: LLVM CLANG is not available %_QT_TEE_LOG%
   goto :qt_exit
