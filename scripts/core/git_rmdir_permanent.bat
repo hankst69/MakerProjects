@@ -4,6 +4,7 @@
 @rem https://www.somethingorothersoft.com/
 @rem https://commandmasters.com/commands/git-filter-repo-common/
 @echo off
+set "_script_file=%~dpnx0"
 set "_script_dir=%~dp0"
 set "_script_name=%~n0"
 set "_start_dir=%cd%"
@@ -18,6 +19,7 @@ set _branch_name=
 set _test_mode=
 set _force_mode=
 set _reset_mode=
+set _diff_mode=
 :param_loop
 if /I "%~1" equ "--test"      (set "_test_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "-t"          (set "_test_mode=true" &shift &goto :param_loop)
@@ -25,24 +27,36 @@ if /I "%~1" equ "--force"     (set "_force_mode=--force" &shift &goto :param_loo
 if /I "%~1" equ "-f"          (set "_force_mode=--force" &shift &goto :param_loop)
 if /I "%~1" equ "--reset"     (set "_reset_mode=--reset" &shift &goto :param_loop)
 if /I "%~1" equ "-r"          (set "_reset_mode=--reset" &shift &goto :param_loop)
+if /I "%~1" equ "--diff"      (set "_diff_mode=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-d"          (set "_diff_mode=--diff" &shift &goto :param_loop)
 if "%~1" neq "" if "%_clone_url%"         equ "" (set "_clone_url=%~1" &set "_clone_repo_name=%~nx1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_sub_dir_to_delete%" equ "" (set "_sub_dir_to_delete=%~1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_branch_name%" equ "" (set "_branch_name=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo error: unexpected argument '%~1' &shift &goto :param_loop)
 
+if "%_diff_mode%" neq "" goto :Diff
 if "%_clone_url%" equ "" (echo error: missing argument 1: 'clone-url' &goto :Usage)
 if "%_sub_dir_to_delete%" equ "" (echo error: missing argument 2: 'sub-dir' &goto :Usage)
 goto :Start
 
+:Diff
+echo *** %_script_name% compare vs. han_scripts version ***
+echo diff "%_script_file%" "%HANSCRIPT_ROOT%\%_script_name%.bat"
+if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%_script_name%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
+if not exist "%HANSCRIPT_ROOT%\%_script_name%.bat" echo ERROR: compare of '%_script_name%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
+call diff "%_script_file%" "%HANSCRIPT_ROOT%\%_script_name%.bat"
+goto :Exit
+
 :Usage
 echo.
-echo USAGE: %_script_name% git-repo-url sub-dir-to-delete [branch-name] [--test^|-t] [--force^|-f] [--reset^|-r]
+echo USAGE: %_script_name% git-repo-url sub-dir-to-delete [branch-name] [--test^|-t] [--force^|-f] [--reset^|-r] [--diff^|-d]
 echo.
 goto :Exit
 
 :Exit
 rem cd /d "%_work_dir%"
 cd /d "%_start_dir%"
+set _script_file=
 set _script_dir=
 set _script_name=
 set _start_dir=
@@ -52,10 +66,12 @@ set _repo_orig_dir=
 set _repo_new_dir=
 set _clone_url=
 set _clone_repo_name=
+set _branch_name=
 set _sub_dir_to_delete=
 set _test_mode=
 set _force_mode=
 set _reset_mode=
+set _diff_mode=
 goto :EOF
 
 

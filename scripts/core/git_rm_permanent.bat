@@ -1,6 +1,7 @@
 @rem https://stackoverflow.com/questions/2004024/how-to-permanently-delete-a-file-stored-in-git
 @rem https://docs.github.com/de/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository
 @echo off
+set "_script_file=%~dpnx0"
 set "_script_dir=%~dp0"
 set "_script_name=%~n0"
 set "_start_dir=%cd%"
@@ -12,9 +13,11 @@ set _clone_url=
 set _clone_repo_name=
 set _file_to_delete=
 set _file_to_delete_name=
+set _branch_name=
 set _test_mode=
 set _forced_mode=
 set _reset_mode=
+set _diff_mode=
 :param_loop
 if /I "%~1" equ "--test"      (set "_test_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "-t"          (set "_test_mode=true" &shift &goto :param_loop)
@@ -22,23 +25,36 @@ if /I "%~1" equ "--forced"    (set "_forced_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "-f"          (set "_forced_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "--reset"     (set "_reset_mode=true" &shift &goto :param_loop)
 if /I "%~1" equ "-r"          (set "_reset_mode=true" &shift &goto :param_loop)
+if /I "%~1" equ "--diff"      (set "_diff_mode=--diff" &shift &goto :param_loop)
+if /I "%~1" equ "-d"          (set "_diff_mode=--diff" &shift &goto :param_loop)
 if "%~1" neq "" if "%_clone_url%"      equ "" (set "_clone_url=%~1" &set "_clone_repo_name=%~nx1" &shift &goto :param_loop)
 if "%~1" neq "" if "%_file_to_delete%" equ "" (set "_file_to_delete=%~1" &set "_file_to_delete_name=%~nx1" &shift &goto :param_loop)
+if "%~1" neq "" if "%_branch_name%" equ "" (set "_branch_name=%~1" &shift &goto :param_loop)
 if "%~1" neq "" (echo error: unexpected argument '%~1' &shift &goto :param_loop)
 
+if "%_diff_mode%" neq "" goto :Diff
 if "%_clone_url%"      equ "" (echo error: missing argument 1: 'clone-url' &goto :Usage)
 if "%_file_to_delete%" equ "" (echo error: missing argument 2: 'file-to-delete' &goto :Usage)
 goto :Start
 
+:Diff
+echo *** %_script_name% compare vs. han_scripts version ***
+echo diff "%_script_file%" "%HANSCRIPT_ROOT%\%_script_name%.bat"
+if "%HANSCRIPT_ROOT%" equ "" echo ERROR: compare of '%_script_name%' against han_scripts version not possible - HANSCRIPT_ROOT not defined &goto :Exit
+if not exist "%HANSCRIPT_ROOT%\%_script_name%.bat" echo ERROR: compare of '%_script_name%' against han_scripts version not possible - han_scripts version does not exist &goto :Exit
+call diff "%_script_file%" "%HANSCRIPT_ROOT%\%_script_name%.bat"
+goto :Exit
+
 :Usage
 echo.
-echo USAGE: %_script_name% git-repo-url file-to-delete [--test^|-t] [--forced^|-f] [--reset^|-r]
+echo USAGE: %_script_name% git-repo-url file-to-delete [branch-name] [--test^|-t] [--forced^|-f] [--reset^|-r] [--diff^|-d]
 echo.
 goto :Exit
 
 :Exit
 rem cd /d "%_work_dir%"
 cd /d "%_start_dir%"
+set _script_file=
 set _script_dir=
 set _script_name=
 set _start_dir=
@@ -48,11 +64,13 @@ set _repo_orig_dir=
 set _repo_new_dir=
 set _clone_url=
 set _clone_repo_name=
+set _branch_name=
 set _file_to_delete=
 set _file_to_delete_name=
 set _test_mode=
 set _forced_mode=
 set _reset_mode=
+set _diff_mode=
 goto :EOF
 
 
@@ -100,6 +118,13 @@ echo -------------------------------------------------------
 echo git clone "%_clone_url%" "%_repo_orig_dir%"
 echo -------------------------------------------------------
 call git clone "%_clone_url%" "%_repo_orig_dir%"
+if "%_branch_name%" equ "" goto :git_clean_from_commit_history
+echo -------------------------------------------------------
+echo git switch "%_branch_name%"
+echo -------------------------------------------------------
+pushd "%_repo_orig_dir%"
+call git switch "%_branch_name%"
+popd
 
 
 :git_clean_from_commit_history
