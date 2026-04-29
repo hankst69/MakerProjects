@@ -42,54 +42,62 @@ set "_QT_BUILD_DATE_START=%_DATE_%"
 set "_QT_BUILD_TIME_START=%_TIME_UI%"
 set "_QT_BUILD_DATETIME_START=%_DATETIME_%"
 
-rem CLONE options
-rem set "_QT_CLONE_OPTIONS=--silent --init_submodules"
-set "_QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
-if "%_QT_REBUILD%" neq "" set "_QT_CLONE_OPTIONS=%_QT_CLONE_OPTIONS% --clean_before_clone"
 
-rem
-rem QT BUILD options
-rem https://wiki.qt.io/Qt_6.8_Tools_and_Versions#Software_configurations_for_Qt_6.8.3
-rem
+:: CLONE options
+rem set _QT_CLONE_OPTIONS=--silent --init_submodules
+set _QT_CLONE_OPTIONS=--silent --init_submodules --clone_submodules
+if "%_QT_REBUILD%" neq "" set _QT_CLONE_OPTIONS=%_QT_CLONE_OPTIONS% --clean_before_clone
+
+
+:: QT BUILD options
+:: https://wiki.qt.io/Qt_6.8_Tools_and_Versions#Software_configurations_for_Qt_6.8.3
+::
 rem MSVS BUILD options
 set _QT_BUILD_OPTIONS_MSVS=
-rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre"
-rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% --trace=ctf"
-rem set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -skip qtwebengine"
-  rem CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
-  rem   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
-  rem   building against version 1929.  You can turn off this version check by
-  rem   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
-set "_QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -- -DQT_NO_MSVC_MIN_VERSION_CHECK=ON --log-level=VERBOSE"
+rem set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre
+rem set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% --trace=ctf
+rem set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -skip qtwebengine
+:: CMake Error at qtbase/cmake/QtWindowsHelpers.cmake:10 (message):
+::   Qt requires at least Visual Studio 2022 (MSVC 1930 or newer), you're
+::   building against version 1929.  You can turn off this version check by
+::   setting QT_NO_MSVC_MIN_VERSION_CHECK to ON.
+set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -- --log-level=VERBOSE
+set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -DQT_NO_MSVC_MIN_VERSION_CHECK=ON
+::set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -DINPUT_headersclean=ON
+set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -DFEATURE_clangcpp=OFF
+set _QT_BUILD_OPTIONS_MSVS=%_QT_BUILD_OPTIONS_MSVS% -DQT_FEATURE_qdoc=OFF
 rem
 rem MingGW-GCC BUILD options
-set "_QT_BUILD_OPTIONS_GCC=-platform win32-g++"
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg"
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-zlib -qt-pcre"
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --freetype=qt --harfbuzz=qt --libpng=qt --libjpeg=qt --zlib=qt --pcre=qt --sqlite=qt"
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-sqlite"
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -sql-mysql"
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -no-sql-odbc"
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -skip qtsql"
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --trace=ctf"
-rem 
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -no-qdoc"
+set _QT_BUILD_OPTIONS_GCC=-platform win32-g++
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-freetype -qt-harfbuzz -qt-libpng -qt-libjpeg
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-zlib -qt-pcre
+rem set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --freetype=qt --harfbuzz=qt --libpng=qt --libjpeg=qt --zlib=qt --pcre=qt --sqlite=qt
+rem set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -qt-sqlite
+rem set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -sql-mysql
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -no-sql-odbc
+rem set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -skip qtsql
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% --trace=ctf
 rem
-rem set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -cmake-generator ""MinGW Makefiles"""
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -- -DMINGW=1 --log-level=VERBOSE"
-set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DFEATURE_clangcpp=OFF -DINPUT_headersclean=ON
+::set "_QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -cmake-generator ""MinGW Makefiles"""
 rem
-rem BUILD options
-set "_QT_BUILD_OPTIONS=-nomake examples -nomake tests"
-set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview"
-if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release"
-if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -debug"
-rem if /I "%_QT_BUILD_TYPE%" equ "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info"
-rem if /I "%_QT_BUILD_TYPE%" neq "release" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info"
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -- --log-level=VERBOSE
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DMINGW=1
+::set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DINPUT_headersclean=ON
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DFEATURE_clangcpp=OFF
+set _QT_BUILD_OPTIONS_GCC=%_QT_BUILD_OPTIONS_GCC% -DQT_FEATURE_qdoc=OFF
+::
+:: TOTAL BUILD OPTIONS
+::
+set _QT_BUILD_OPTIONS=-nomake examples -nomake tests
+set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -skip qtwebengine -skip qtwebview
+if /I "%_QT_BUILD_TYPE%" equ "release" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -release
+if /I "%_QT_BUILD_TYPE%" neq "release" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -debug
+rem if /I "%_QT_BUILD_TYPE%" equ "release" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -force-debug-info
+rem if /I "%_QT_BUILD_TYPE%" neq "release" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -separate-debug-info
 rem
-if /I "%_QT_BUILD_MODE%" equ "static" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static"
-if /I "%_QT_BUILD_MODE%" neq "static" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -shared"
-if /I "%_QT_BUILD_MODE%" equ "static" if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static-runtime"
+if /I "%_QT_BUILD_MODE%" equ "static" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static
+if /I "%_QT_BUILD_MODE%" neq "static" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -shared
+if /I "%_QT_BUILD_MODE%" equ "static" if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set _QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% -static-runtime
 rem
 if /I "%_QT_BUILD_SYSTEM%" equ "msvs" set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_MSVS%"
 if /I "%_QT_BUILD_SYSTEM%" equ "gnu"  set "_QT_BUILD_OPTIONS=%_QT_BUILD_OPTIONS% %_QT_BUILD_OPTIONS_GCC%"
@@ -118,14 +126,14 @@ if not exist "%QT_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %_QT_VERSION% failed &goto :qt_exit)
 
 set "_QT_BIN_DIR=%QT_DIR%\qt%_QT_VERSION%-%_QT_BUILD_CONFIG%"
-set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CONFIG%"
+rem set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QT_BUILD_CONFIG%"
+set "_QT_BUILD_DIR=%QT_DIR%\._%_QT_BUILD_CONFIG%"
 
 set "_QT_LOGFILE=%QT_DIR%\.logs\qt_build_%_QT_VERSION%_%_QT_BUILD_CONFIG%_%_QT_BUILD_DATETIME_START%.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
 
 echo.%_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START% >"%_QT_LOGFILE%"
 set _QT_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_QT_LOGFILE%"
-
 
 
 rem (2) *** specify LLVM version ***
@@ -240,10 +248,11 @@ rem              -> build Protobuf from source: https://github.com/protocolbuffe
 rem 
 rem call "%QT_SOURCES_DIR%\configure.bat" --help
 rem 
-echo.BUILD-LOGFILE : "%_QT_LOGFILE%"
 echo.&echo.>>"%_QT_LOGFILE%"
 echo rebuilding %_QT_BUILD_INFO% from sources %_QT_TEE_LOG%
 echo see https://doc.qt.io/qt-6/windows-building.html %_QT_TEE_LOG%
+echo.
+echo.BUILD-LOGFILE : "%_QT_LOGFILE%"
 echo.&echo.>>"%_QT_LOGFILE%"
 echo *** THIS REQUIRES VisualStudio 2019 or 2022 or Mingw %_QT_TEE_LOG%
 echo *** THIS REQUIRES Python 3 %_QT_TEE_LOG%
@@ -280,13 +289,12 @@ if %ERRORLEVEL% NEQ 0 (
   echo warning: NINJA is not available %_QT_TEE_LOG%
   goto :qt_exit
 )
-rem validate llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
-call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\build_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
-if %ERRORLEVEL% NEQ 0 call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% &:: %_QT_BUILD_CONFIG%
+::ensure llvm (due error: set LLVM_INSTALL_DIR + need to set the FEATURE_clang and FEATURE_clangcpp CMake variable to ON to re-evaluate this checks)
+::call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %_QT_LLVM_VER% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %_QT_LLVM_VER_VERIFY% --no_errors %MAKER_MSG_VERBOSE% %_QT_BUILD_CONFIG%
 if %ERRORLEVEL% NEQ 0 (
-  echo error: LLVM CLANG is not available %_QT_TEE_LOG%
-  goto :qt_exit
+  echo warning: LLVM CLANG is not available %_QT_TEE_LOG%
+  rem goto :qt_exit
 )
 rem validate perl (for opus optimization) (also see QNX/gperf see https://github.com/gperftools/gperftools/issues/1429)
 call "%MAKER_DIR_SCRIPTS%\validate_perl.bat" --no_errors %MAKER_MSG_VERBOSE%
@@ -491,12 +499,12 @@ set "_QT_BUILD_TIME_STOP=%_TIME_UI%"
 set "_QT_BUILD_DURATION=%_DIFFT_DUR_SS%"
 echo.>>"%_QT_LOGFILE%"
 echo.%_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%...%_QT_BUILD_TIME_STOP% ^(duration %_QT_BUILD_DURATION% sec^)>>"%_QT_LOGFILE%"
-echo.
+rem echo.
 echo.BUILD-LOGFILE : "%_QT_LOGFILE%"
 echo.BUILD-START   : %_QT_BUILD_DATE_START% %_QT_BUILD_TIME_START%
 echo.BUILD-STOP    : %_QT_BUILD_DATE_STOP% %_QT_BUILD_TIME_STOP%
 echo.BUILD-DURATION: %_QT_BUILD_DURATION% sec
-echo.
+rem echo.
 if not exist "%_QT_TEST_LIB_MQTT%" (
   echo BUILD %_QT_BUILD_INFO% incomplete
   call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QT_" 1>nul 2>nul
@@ -513,6 +521,11 @@ set "QT_CMAKE=%_QT_BIN_DIR%\bin\qt-cmake.bat"
 if not exist "%QT_CMAKE%" set "QT_CMAKE=%_QT_BUILD_DIR%\qtbase\bin\qt-cmake.bat"
 set "QT_LLVM_VER=%_QT_LLVM_VER%"
 set "QT_TEST_LIB_MQTT=%_QT_TEST_LIB_MQTT%"
+::
+:: -- persist build config
+set QT_BUILD_CONFIG=%_QT_BUILD_CONFIG%
+echo @set QT_build_config=%QT_BUILD_CONFIG%>"%QT_BIN_DIR%\bin\QT_build_config.bat"
+::
 if "%MAKER_MSG_VERBOSE%" neq "" set QT_
 rem echo @"%QT_SOURCES_DIR%\configure.bat" %%*>"%MAKER_ENV_BIN%\qtconfigure.bat"
 rem echo @"%QT_SOURCES_DIR%\qtbase\configure.bat" %%*>"%MAKER_ENV_BIN%\qtconfigure.bat"

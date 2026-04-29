@@ -226,7 +226,7 @@ echo.%_LLVM_BUILD_DATE_START% %_LLVM_BUILD_TIME_START%...%_LLVM_BUILD_TIME_STOP%
 echo.&echo.>>"%_LLVM_LOGFILE%"
 
 rem *** make LLVM available for CMAKE ***
-echo set LLVM_build_config=%_LLVM_BUILD_CONFIG%>"%_LLVM_BIN_DIR%\bin\LLVM_build_config.bat"
+echo @set LLVM_build_config=%_LLVM_BUILD_CONFIG%>"%_LLVM_BIN_DIR%\bin\LLVM_build_config.bat"
 set "LLVM_INSTALL_DIR=%_LLVM_BIN_DIR%"
 set "LLVM_VERSION=%_LLVM_VERSION%"
 if "%MAKER_MSG_VERBOSE%" neq "" set LLVM_

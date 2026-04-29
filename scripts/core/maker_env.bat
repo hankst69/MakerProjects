@@ -13,7 +13,7 @@ rem call powershell -command "(Get-CimInstance -ClassName Win32_Processor).Numbe
 rem call powershell -command "(Get-CimInstance -ClassName Win32_Processor).NumberOfLogicalProcessors;"
 set MAKER_NUM_PROCESSORS=%NUMBER_OF_PROCESSORS%
 set /A MAKER_NUM_CORES=%NUMBER_OF_PROCESSORS%/2
-set /A MAKER_NUM_PARALLEL=%NUMBER_OF_PROCESSORS%/6
+set /A MAKER_NUM_PARALLEL=%NUMBER_OF_PROCESSORS%/10
 if %MAKER_NUM_PARALLEL% lss 2 set MAKER_NUM_PARALLEL=1
 
 set "MAKER_DIR_SCRIPTS=%MAKER_ENV_ROOT%\scripts"
