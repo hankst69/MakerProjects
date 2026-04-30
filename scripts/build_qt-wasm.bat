@@ -3,13 +3,10 @@
 call "%~dp0\maker_env.bat" %*
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_QTW_" 1>nul 2>nul
 set "_QTW_START_DIR=%cd%"
-set "_QTW_VERSION=%MAKER_VERSION%"
+set "QTW_VERSION=%MAKER_VERSION%"
 set "_QTW_REBUILD=%MAKER_REBUILD%"
 set "_QTW_BUILD_ARCH=%MAKER_BUILD_ARCH%"
-set "_QTW_BUILD_TYPE=%MAKER_BUILD_TYPE%"
-set "_QTW_BUILD_MODE=%MAKER_BUILD_MODE%"
-set "_QTW_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
-set "_QTW_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
+set "_QTW_BUILD_CONFIG=wasm"
 
 call "%MAKER_ENV_CORE%\stop_watch.bat"
 set "_QTW_BUILD_DATE_START=%_DATE_%"
@@ -26,7 +23,7 @@ rem (2) *** define QT-WASM version clone options ***
 set "_QTW_CLONE_OPTIONS=--silent --init_submodules --clone_submodules"
 set "_QTW_CLONE_OPTIONS=--silent --init_submodules"
 rem set "_QTW_CLONE_OPTIONS=--silent"
-if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=%_QTW_CLONE_OPTIONS% --clean_before_clone"
+rem if "%_QTW_REBUILD%" neq "" set "_QTW_CLONE_OPTIONS=%_QTW_CLONE_OPTIONS% --clean_before_clone"
 
 rem (3) *** match QTW_EMSDK_VERSION to given QTW_VERSION ***
 rem
@@ -41,23 +38,40 @@ set _QTW_GCC_VERSION=
 rem if "%MAKER_MSG_VERBOSE%" neq "" echo on
 
 
-rem (4) *** clone qt sources for wasm-build ***
+rem (4-1) *** clone qt sources for wasm-build ***
 :qtw_clone_qt_wasm
 echo clone_qt "%QTW_VERSION%" "wasm" %MAKER_MSG_VERBOSE% %_QTW_CLONE_OPTIONS%
-call "%MAKER_DIR_SCRIPTS%\clone_qt.bat" "%QTW_VERSION%" "wasm" %MAKER_MSG_VERBOSE% %_QTW_CLONE_OPTIONS%
-rem defines: QT_DIR
-rem defines: QT_SOURCES_DIR
+call "%MAKER_DIR_SCRIPTS%\clone_qt.bat" "%QTW_VERSION%" %MAKER_MSG_VERBOSE% %_QTW_CLONE_OPTIONS%
 rem clone_qt might switch folder so we switch back:
 cd /d "%_QTW_START_DIR%"
-rem with QT-WASM the Build-Dir is the Source_Dir
+rem defines: QT_DIR
+rem defines: QT_SOURCES_DIR
+if "%QT_DIR%" EQU "" (echo cloning Qt %QTW_VERSION% failed &goto :qt_exit)
+if "%QT_SOURCES_DIR%" EQU "" (echo cloning Qt %QTW_VERSION% failed &goto :qt_exit)
+if not exist "%QT_DIR%" (echo cloning Qt %QTW_VERSION% failed &goto :qt_exit)
+if not exist "%QT_SOURCES_DIR%" (echo cloning Qt %QTW_VERSION% failed &goto :qt_exit)
+
 set "QTW_SOURCES_DIR=%QT_SOURCES_DIR%"
-set "QTW_BUILD_DIR=%QT_SOURCES_DIR%"
-set "QTW_BIN_DIR=%QTW_BUILD_DIR%"
+set "QTW_BIN_DIR=%QT_DIR%\qt%QTW_VERSION%-%_QTW_BUILD_CONFIG%"
+rem set "_QT_BUILD_DIR=%QT_SOURCES_DIR%\._%_QTW_BUILD_CONFIG%"
+set "QTW_BUILD_DIR=%QT_DIR%\._%_QTW_BUILD_CONFIG%"
 
 rem we clone also qt-wasm-examples
 set "QTW_EXAMPLES_DIR=%MAKER_DIR_PROJECTS%\Qt\qt-webassembly-examples"
 set "QTW_EXAMPLES_DIR=%QT_DIR%\qt-webassembly-examples"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%QTW_EXAMPLES_DIR%" "https://github.com/msorvig/qt-webassembly-examples.git" %MAKER_MSG_VERBOSE% --silent
+
+
+rem (4-2) *** cleaning QT build if demanded ***
+if "%_QTW_REBUILD%" neq "" (
+  echo preparing rebuild...
+  echo deleting "%QTW_BIN_DIR%"
+  rmdir /s /q "%QTW_BIN_DIR%" 1>nul 2>nul
+  echo deleting "%QTW_BUILD_DIR%"
+  rmdir /s /q "%QTW_BUILD_DIR%" 1>nul 2>nul
+)
+if not exist "%QTW_BIN_DIR%" mkdir "%QTW_BIN_DIR%"
+if not exist "%QTW_BUILD_DIR%" mkdir "%QTW_BUILD_DIR%"
 
 
 rem (4) *** test for build necessarity ***
@@ -72,7 +86,7 @@ goto :qtw_setup
 
 :qtw_rebuild
 rem (5) *** rebuild QT-WASM  ***
-set "_QTW_LOGFILE=%QT_DIR%\.logs\qt-wasm_build_%_QTW_VERSION%_%_QTW_BUILD_CONFIG%_%_QTW_BUILD_DATETIME_START%.log"
+set "_QTW_LOGFILE=%QT_DIR%\.logs\qt-wasm_build_%QTW_VERSION%_%_QTW_BUILD_CONFIG%_%_QTW_BUILD_DATETIME_START%.log"
 if not exist "%QT_DIR%\.logs" mkdir "%QT_DIR%\.logs"
 echo.%_QTW_BUILD_DATE_START% %_QTW_BUILD_TIME_START% >"%_QTW_LOGFILE%"
 set _QTW_TEE_LOG=^| "%MAKER_ENV_CORE%\tee.bat" "%_QTW_LOGFILE%"
@@ -207,12 +221,9 @@ rem Configure Arguments   =
 rem Environment Variables = Path=Template:.Env.EMSDK PATH;Template:.Env.MINGW PATH\bin;Template:.Env.Path, EM_CONFIG=Template:.Env.EMSDK/.emscripten, TARGET_CONFIGURE_ARGS=-release -platform wasm-emscripten -nomake examples, TARGET_CMAKE_ARGS=-DQT_GENERATE_WRAPPER_SCRIPTS_FOR_ALL_HOSTS=ON, NON_QTBASE_TARGET_CMAKE_ARGS=-DFEATURE_pkg_config=OFF -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH=Template:.Env.Protobuf ROOT mingw -DQT_PROTOBUF_WELL_KNOWN_TYPES_PROTO_DIR=Template:.Env.Protobuf ROOT mingw/include
 rem 
 :qtw_configure
-rem if not exist "%QTW_BUILD_DIR%" mkdir "%QTW_BUILD_DIR%"
-rem if not exist "%QTW_BUILD_DIR%\qtbase" mkdir "%QTW_BUILD_DIR%\qtbase"
+if not exist "%QTW_BUILD_DIR%" mkdir "%QTW_BUILD_DIR%"
 set "_QTW_LLVM_INSTALL_DIR=%LLVM_INSTALL_DIR:\=/%"
-rem set "_QTW_CLANG_INSTALL_DIR=%_QTW_LLVM_INSTALL_DIR%"
-rem set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%qbase"
-set "_QTW_PREFIX_DIR=%QTW_BUILD_DIR:\=/%"
+set "_QTW_PREFIX_DIR=%QTW_BIN_DIR:\=/%"
 set "_QTW_HOST_DIR=%QT_BIN_DIR:\=/%"
 set _QTW_TRIES=2
 set _QTW_TRY=0
@@ -259,8 +270,8 @@ goto :qtw_configure_test
   path >>"%_QTW_LOGFILE%"
   echo.>>"%_QTW_LOGFILE%"
   
-  echo "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE %_QTW_TEE_LOG%
-  call "%QTW_BUILD_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_QTW_LOGFILE%" 2>&1
+  echo "%QTW_SOURCES_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE %_QTW_TEE_LOG%
+  call  "%QTW_SOURCES_DIR%\configure.bat" -qt-host-path "%QTW_HOST_DIR%" -prefix "%_QTW_PREFIX_DIR%" %_QTW_CONFIG_OPTIONS% --log-level=VERBOSE >>"%_QTW_LOGFILE%" 2>&1
   
 :qtw_configure_test
   echo.
