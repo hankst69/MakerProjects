@@ -138,11 +138,15 @@ if %ERRORLEVEL% NEQ 0 (
   echo error: NINJA is not available %_QTW_TEE_LOG%
   goto :qtw_exit
 )
-call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% gnu --no_errors %MAKER_MSG_VERBOSE%
+call "%MAKER_DIR_SCRIPTS%\validate_llvm.bat" %QT_LLVM_VER% gnu --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo êrror: LLVM CLANG is not available %_QTW_TEE_LOG%
-  goto :qtw_exit
+  echo warning: LLVM CLANG is not available %_QTW_TEE_LOG%
 )
+::call "%MAKER_DIR_SCRIPTS%\ensure_llvm.bat" %QT_LLVM_VER% gnu --no_errors %MAKER_MSG_VERBOSE%
+::if %ERRORLEVEL% NEQ 0 (
+::  echo error: LLVM CLANG is not available %_QTW_TEE_LOG%
+::  goto :qtw_exit
+::)
 call "%MAKER_DIR_SCRIPTS%\ensure_gcc.bat" %_QTW_GCC_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
   echo error: GCC is not available %_QTW_TEE_LOG%
