@@ -13,6 +13,8 @@ call "%~dp0\maker_env.bat"
 
 @rem https://kodi.tv/addons/omega/plugin.video.ted.talks/
 @:: https://github.com/moreginger/xbmc-plugin.video.ted.talks
+@:: https://mirrors.kodi.tv/addons/helix/script.module.elementtree/script.module.elementtree-1.2.8.zip
+@:: https://mirrors.kodi.tv/addons/helix/script.module.parsedom/script.module.parsedom-2.5.2.zip
 
 @rem https://kodi.wiki/view/HOW-TO:HelloWorld_addon
 @:: https://github.com/zag2me/script.hello.world
@@ -41,6 +43,11 @@ call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_SCRIPTS_DIR%" "https://githu
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_SCRIPT_HELLOWORLD_DIR%" "https://github.com/hankst69/kodi-addons.script.hello.world.git"
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_PLUGIN_IPCAMS_DIR%" "https://github.com/hankst69/kodi-addons.plugin.video.ipcams.git" --switchBranch Helix
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_PLUGIN_TED_DIR%" "https://github.com/hankst69/kodi-addons.plugin.video.ted.talks.git" --switchBranch helix
+
+call curl -o "%_KODI_MYADDONS_DIR%\script.module.elementtree-1.2.8.zip" "https://mirrors.kodi.tv/addons/helix/script.module.elementtree/script.module.elementtree-1.2.8.zip"
+echo curl -o "%_KODI_MYADDONS_DIR%\script.module.elementtree-1.2.8.zip" "https://mirrors.kodi.tv/addons/helix/script.module.elementtree/script.module.elementtree-1.2.8.zip"
+call curl -o "%_KODI_MYADDONS_DIR%\script.module.parsedom-2.5.2.zip" "https://mirrors.kodi.tv/addons/helix/script.module.parsedom/script.module.parsedom-2.5.2.zip"
+echo curl -o "%_KODI_MYADDONS_DIR%\script.module.parsedom-2.5.2.zip" "https://mirrors.kodi.tv/addons/helix/script.module.parsedom/script.module.parsedom-2.5.2.zip"
 
 set "_KODY_PACK_MYADDONS=%_KODI_MYADDONS_DIR%\pack.bat"
 
