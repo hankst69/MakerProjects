@@ -66,6 +66,8 @@ set _test_mode=
 set _forced_mode=
 set _reset_mode=
 set _diff_mode=
+set _dir_to_extract_win=
+set _dir_to_extract_unix=
 goto :EOF
 
 
@@ -77,6 +79,9 @@ if not exist "%_work_dir%" mkdir "%_work_dir%"
 set "_venv_gfr=%_work_dir%\.gitfilterrepo"
 set "_repo_orig_dir=%_work_dir%\_git_xtdir_tmp"
 set "_repo_new_dir=%_work_dir%\_git_xtdir_new"
+
+set "_dir_to_extract_win=%_sub_dir:/=\%"
+set "_dir_to_extract_unix=%_sub_dir:\=/%"
 
 call deactivate 1>nul 2>nul
 echo.
@@ -95,7 +100,7 @@ call python -m pip install git-filter-repo
 :git_filter_repo_installed
 
 
-if "%_test_mode%" neq "" goto :_test
+if "%_test_mode%" neq "" goto :_skip_clone
 cd /d "%_work_dir%"
 
 
@@ -108,18 +113,18 @@ echo git clone "%_clone_url%" "%_repo_orig_dir%"
 echo -------------------------------------------------------
 call git clone "%_clone_url%" "%_repo_orig_dir%"
 
-:_test
+:_skip_clone
 cd /d "%_repo_orig_dir%"
 echo.
 echo -------------------------------------------------------
-echo git-filter-repo --path "%_sub_dir%/"
+echo git-filter-repo --path "%_dir_to_extract_unix%/"
 echo -------------------------------------------------------
-call git-filter-repo --path "%_sub_dir%/"
+call git-filter-repo --path "%_dir_to_extract_unix%/"
 echo.
 echo -------------------------------------------------------
-echo git-filter-repo --path-rename "%_sub_dir%/:"
+echo git-filter-repo --path-rename "%_dir_to_extract_unix%/:"
 echo -------------------------------------------------------
-call git-filter-repo --path-rename "%_sub_dir%/:"
+call git-filter-repo --path-rename "%_dir_to_extract_unix%/:"
 
 cd /d "%_work_dir%"
 if exist "%_repo_new_dir%" rmdir /s /q "%_repo_new_dir%"

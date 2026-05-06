@@ -72,6 +72,8 @@ set _test_mode=
 set _forced_mode=
 set _reset_mode=
 set _diff_mode=
+set _file_to_permanently_remove_win=
+set _file_to_permanently_remove_unix=
 goto :EOF
 
 
@@ -129,14 +131,13 @@ popd
 
 
 :git_clean_from_commit_history
-rem set "_File_TO_PERMANENTLY_REMOVE=%_file_to_delete%"
-set "_File_TO_PERMANENTLY_REMOVE_win=%_file_to_delete:/=\%"
-set "_File_TO_PERMANENTLY_REMOVE_unix=%_file_to_delete:\=/%"
-rem set _File_TO_PERMANENTLY_REMOVE
+set "_file_to_permanently_remove_win=%_file_to_delete:/=\%"
+set "_file_to_permanently_remove_unix=%_file_to_delete:\=/%"
+rem set _file_to_permanently_remove
 
 cd /d "%_repo_orig_dir%"
-if exist "%_File_TO_PERMANENTLY_REMOVE_win%" goto :git_clean_from_commit_history_do
-echo.warning: the file to remove does not exist '%_File_TO_PERMANENTLY_REMOVE_win%'
+if exist "%_file_to_permanently_remove_win%" goto :git_clean_from_commit_history_do
+echo.warning: the file to remove does not exist '%_file_to_permanently_remove_win%'
 if "%_forced_mode%" equ "" (
   echo.         use --forced option to remove that file from the git history
   goto :Exit
@@ -147,7 +148,7 @@ echo. '--forced' option active - continue removing
 :git_clean_from_commit_history_do
 echo.
 echo -------------------------------------------------------
-echo removing '%_File_TO_PERMANENTLY_REMOVE_unix%' permanently
+echo removing '%_file_to_permanently_remove_unix%' permanently
 echo -------------------------------------------------------
 echo.
 echo git gc
@@ -159,8 +160,8 @@ echo.
 call "%_venv_gfr%\Scripts\activate"
 set _dry_run=
 if "%_test_mode%" neq "" set "_dry_run=--dry-run"
-echo git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
-call git-filter-repo --sensitive-data-removal --invert-paths --path "%_File_TO_PERMANENTLY_REMOVE_unix%" %_dry_run%
+echo git-filter-repo --sensitive-data-removal --invert-paths --path "%_file_to_permanently_remove_unix%" %_dry_run%
+call git-filter-repo --sensitive-data-removal --invert-paths --path "%_file_to_permanently_remove_unix%" %_dry_run%
 call deactivate
 echo -----------------------
 echo.

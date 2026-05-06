@@ -73,6 +73,8 @@ set _test_mode=
 set _force_mode=
 set _reset_mode=
 set _diff_mode=
+set _dir_to_permanently_remove_win=
+set _dir_to_permanently_remove_unix=
 goto :EOF
 
 
@@ -136,15 +138,14 @@ popd
 
 
 :git_clean_from_commit_history
-set "_Dir_TO_PERMANENTLY_REMOVE="%_sub_dir_to_delete%"
-set "_Dir_TO_PERMANENTLY_REMOVE_win=%_sub_dir_to_delete:/=\%"
-set "_Dir_TO_PERMANENTLY_REMOVE_unix=%_sub_dir_to_delete:\=/%"
+set "_dir_to_permanently_remove_win=%_sub_dir_to_delete:/=\%"
+set "_dir_to_permanently_remove_unix=%_sub_dir_to_delete:\=/%"
 
 cd /d "%_repo_orig_dir%"
 rem https://www.somethingorothersoft.com/2009/09/08/the-definitive-step-by-step-guide-on-how-to-delete-a-directory-permanently-from-git-on-widnows-for-dumbasses-like-myself
 
-if exist "%_Dir_TO_PERMANENTLY_REMOVE_win%\*" goto :git_clean_from_commit_history_do
-echo.warning: the directory to remove does not exist '%_Dir_TO_PERMANENTLY_REMOVE_win%'
+if exist "%_dir_to_permanently_remove_win%\*" goto :git_clean_from_commit_history_do
+echo.warning: the directory to remove does not exist '%_dir_to_permanently_remove_win%'
 if "%_force_mode%" equ "" (
   echo.         use --force option to remove that directory from the git history
   goto :Exit
@@ -155,7 +156,7 @@ echo. '--force' option active - continue removing
 :git_clean_from_commit_history_do
 echo.
 echo -------------------------------------------------------
-echo removing '%_Dir_TO_PERMANENTLY_REMOVE_unix%' permanently
+echo removing '%_dir_to_permanently_remove_unix%' permanently
 echo -------------------------------------------------------
 echo.
 echo git gc
@@ -167,16 +168,16 @@ echo.
 call "%_venv_gfr%\Scripts\activate"
 set _dry_run=
 if "%_test_mode%" neq "" set "_dry_run=--dry-run"
-rem echo git-filter-repo --index-filter "git rm -r --cached --ignore-unmatch %_Dir_TO_PERMANENTLY_REMOVE_unix%" HEAD %_dry_run%
-rem call git-filter-repo --index-filter "git rm -r --cached --ignore-unmatch %_Dir_TO_PERMANENTLY_REMOVE_unix%" HEAD %_dry_run%
+rem echo git-filter-repo --index-filter "git rm -r --cached --ignore-unmatch %_dir_to_permanently_remove_unix%" HEAD %_dry_run%
+rem call git-filter-repo --index-filter "git rm -r --cached --ignore-unmatch %_dir_to_permanently_remove_unix%" HEAD %_dry_run%
 rem echo.
 rem call git update-ref -d refs/original/refs/heads/master
 rem if exist ".git/refs/original" rmdir /s /q ".git/refs/original"
 rem call git reflog expire --expire=now --all
 rem call git gc --prune=now
 rem echo -----------------------
-echo git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths %_force_mode%
-call git filter-repo --path "%_Dir_TO_PERMANENTLY_REMOVE_unix%" --invert-paths %_force_mode%
+echo git filter-repo --path "%_dir_to_permanently_remove_unix%" --invert-paths %_force_mode%
+call git filter-repo --path "%_dir_to_permanently_remove_unix%" --invert-paths %_force_mode%
 call deactivate
 echo -----------------------
 echo.
