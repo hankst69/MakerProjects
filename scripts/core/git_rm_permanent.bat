@@ -8,6 +8,7 @@ set "_start_dir=%cd%"
 
 rem arg1: repo-url
 rem arg2: file-to-delete
+rem arg3: [branch-name]
 
 set _clone_url=
 set _clone_repo_name=
