@@ -15,24 +15,21 @@ call "%~dp0\maker_env.bat" %*
 
 call "%MAKER_ENV_CORE%\clear_temp_envs.bat" "_VCG_" 1>nul 2>nul
 set "_VCG_START_DIR=%cd%"
+
 set "_VCG_VERSION=%MAKER_VERSION%"
-set "_VCG_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
-set "_VCG_BUILD_TYPE=%MAKER_BUILD_TYPE%"
-set "_VCG_BUILD_ARCH=%MAKER_BUILD_ARCH%"
 set "_VCG_REBUILD=%MAKER_REBUILD%"
+set "_VCG_BUILD_ARCH=%MAKER_BUILD_ARCH%"
+set "_VCG_BUILD_TYPE=%MAKER_BUILD_TYPE%"
+set "_VCG_BUILD_MODE=%MAKER_BUILD_MODE%"
+set "_VCG_BUILD_SYSTEM=%MAKER_BUILD_SYSTEM%"
+set "_VCG_BUILD_CONFIG=%MAKER_BUILD_CONFIG%"
 
 rem apply defaults
-if "%_VCG_BUILD_ARCH%"     equ "" set _VCG_BUILD_ARCH=x64
-if "%_VCG_BUILD_TYPE%"   equ "" set _VCG_BUILD_TYPE=Release
-if "%_VCG_BUILD_SYSTEM%" equ "" set _VCG_BUILD_SYSTEM=msvs
-rem apply hardcoded values
-rem set _VCG_BUILD_ARCH=x64
-rem set _VCG_BUILD_TYPE=Debug
-rem set _VCG_BUILD_TYPE=Release
-rem set _VCG_BUILD_TYPE=MinSizeRel
+if "%_VCG_VERSION%" equ "" set _VCG_VERSION=
+set "_VCG_BUILD_INFO=VENUS-GUIV2 %_VCG_VERSION% %MAKER_BUILD_INFO%"
 
 rem welcome
-echo BUILDING VENUS-GUIV2 %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_BUILD_ARCH% %_VCG_BUILD_TYPE%)
+echo BUILDING %_VCG_BUILD_INFO%
 
 rem *** clone Victron GUI-V2 ***
 call "%MAKER_DIR_SCRIPTS%\clone_victron.bat" %_VCG_VERSION% %MAKER_MSG_VERBOSE% --silent
@@ -50,7 +47,7 @@ set "_VCG_DIR=%VICTRON_DIR%"
 set "_VCG_SOURCES_DIR=%VICTRON_GUIV2_SRC_DIR%"
 set "_VCG_BIN_DIR=%VICTRON_GUIV2_BASE_DIR%%VICTRON_GUIV2_VERSION%"
 rem set "_VCG_BUILD_DIR=%VICTRON_GUIV2_BASE_DIR%_build%VICTRON_GUIV2_VERSION%"
-set "_VCG_BUILD_DIR=%VICTRON_GUIV2_SRC_DIR%_build_%_VCG_BUILD_SYSTEM%%_WFV_BUILD_ARCH%%_WFV_BUILD_TYPE%"
+set "_VCG_BUILD_DIR=%VICTRON_GUIV2_SRC_DIR%_build_%_VCG_BUILD_SYSTEM%%_VCG_BUILD_ARCH%%_VCG_BUILD_TYPE%"
 
 if "%MAKER_MSG_VERBOSE%" neq "" set _VCG_
 
@@ -77,7 +74,7 @@ goto :_exit
 :_rebuild
 rem *** ensuring prerequisites ***
 echo.
-echo BUILDING Victron Venus-GUI-V2 %VICTRON_GUIV2_VERSION% from sources
+echo BUILDING Victron %_VCG_BUILD_INFO% from sources
 echo see https://github.com/victronenergy/gui-v2/wiki/How-to-build-venus-gui-v2#building-for-desktop
 echo.
 rem D:\GIT\Maker\projects\-Victron\venus-guiv2\bin>venus-gui-v2.exe --version
@@ -98,33 +95,52 @@ call "%MAKER_ENV_CORE%\set_version_env.bat" "VICTRON_GUIV2" "%VICTRON_GUIV2_VERS
 if "%VICTRON_GUIV2__VERSION_MAJOR%.%VICTRON_GUIV2_VERSION_MINOR%" equ "1.1" set _VCG_QT_VERSION=6.6.3
 rem seems newest VS2022 (July 2025) requires Qt6.8.3 for CMake and Ninja to work
 rem set _VCG_QT_VERSION=6.8.3
-
-echo *** THIS REQUIRES QT %_VCG_QT_VERSION% REMARK: find current required version in: https://github.com/victronenergy/gui-v2/blob/main/scripts/.env
-echo *** THIS REQUIRES VisualStudio 2019 or 2022 or MinGW
-echo *** THIS REQUIRES Cmake 3.22 or newer
 echo.
+echo.************************************************************************************************************************
+echo * REBUILDING %_VCG_BUILD_INFO%
+echo * -^> requires: QT %_VCG_QT_VERSION%
+echo *    REMARK: find current required version in: https://github.com/victronenergy/gui-v2/blob/main/scripts/.env
+echo * -^> requires: VisualStudio 2019 or 2022 or MinGW
+echo * -^> requires: Cmake 3.22 or newer
+echo.************************************************************************************************************************
+
 rem ensure BuildSystem availability
-if /I "%_VCG_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_DIR_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
-if /I "%_VCG_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_VCG_MSVS_VERSION% %_VCG_BUILD_ARCH% %MAKER_MSG_VERBOSE%
-if %ERRORLEVEL% NEQ 0 (
+if /I "%_VCG_BUILD_SYSTEM%" neq "gnu" if /I "%_VCG_BUILD_SYSTEM%" neq "msvs" (
+  echo error: BuildSystem %_VCG_BUILD_SYSTEM% is not available
   goto :_exit
 )
-if /I "%_VCG_BUILD_SYSTEM%" neq "gnu" if /I "%_VCG_BUILD_SYSTEM%" neq "msvs" (echo error: BuildSystem %_VCG_BUILD_SYSTEM% is not available &goto :_exit)
-
+if /I "%_VCG_BUILD_SYSTEM%" equ "gnu"  call "%MAKER_DIR_SCRIPTS%\ensure_mingw.bat" %MAKER_MSG_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MinGW is not available
+  goto :_exit
+)
+if /I "%_VCG_BUILD_SYSTEM%" equ "msvs" call "%MAKER_DIR_SCRIPTS%\ensure_msvs.bat" %_VCG_MSVS_VERSION% %_VCG_MSVS_ARCH% %MAKER_MSG_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: MSVS %_VCG_MSVS_VERSION% %_VCG_MSVS_ARCH% is not available
+  goto :_exit
+)
 rem ensure ninja
 if /I "%_VCG_BUILD_SYSTEM%" equ "gnu" call "%MAKER_DIR_SCRIPTS%\validate_ninja.bat" %_VCG_NINJA_VERSION% --no_errors %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-  echo warning: NINJA is not available - switching to MSVS build system
+  echo error: NINJA %_VCG_NINJA_VERSION% is not available
   goto :_exit
 )
 rem ensure qt
-call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %_VCG_QT_VERSION% %MAKER_MSG_VERBOSE% %_VCG_BUILD_SYSTEM%
+call "%MAKER_DIR_SCRIPTS%\ensure_qt.bat" %_VCG_QT_VERSION% %_VCG_BUILD_SYSTEM% %_VCG_BUILD_TYPE% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
-   goto :_exit
+  echo error: QT %_VCG_QT_VERSION% %_VCG_BUILD_SYSTEM% %_VCG_BUILD_TYPE% is not available
+  goto :_exit
 )
 rem validate qt-cmake
 call "%MAKER_DIR_SCRIPTS%\validate_qt-cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
 if %ERRORLEVEL% NEQ 0 (
+  echo error: QT-CMAKE %_VCG_CMAKE_VERSION% is not available
+  goto :_exit
+)
+rem validate cmake
+call "%MAKER_DIR_SCRIPTS%\validate_cmake.bat" %_VCG_CMAKE_VERSION% %MAKER_MSG_VERBOSE%
+if %ERRORLEVEL% NEQ 0 (
+  echo error: CMAKE %_VCG_CMAKE_VERSION% is not available
   goto :_exit
 )
 
@@ -132,7 +148,7 @@ if %ERRORLEVEL% NEQ 0 (
 rem *** cmake configure ***
 :_configure
 echo.
-echo VENUS-GUIV2-CONFIGURE %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_BUILD_ARCH% %_VCG_BUILD_TYPE%)
+echo CONFIGURE %_VCG_BUILD_INFO%
 rem next 3 lines only work if the build folder is a sub folder within the source folder:
 rem pushd "%_VCG_BUILD_DIR%"
 rem call "%QT_CMAKE%" -DCMAKE_BUILD_TYPE=MinSizeRel ..\
@@ -156,7 +172,7 @@ if /I "%_VCG_BUILD_SYSTEM%" equ "MSVS" goto :_configure_4_msvs
 rem *** cmake build ***
 :_build
 echo.
-echo VENUS-GUIV2-BUILD %VICTRON_GUIV2_VERSION% (%_VCG_BUILD_TYPE%)
+echo BUILD %_VCG_BUILD_INFO%
 cd /d "%_VCG_BUILD_DIR%"
 call cmake --build . --config %_VCG_BUILD_TYPE% --parallel %MAKER_NUM_PARALLEL%
 :_build_done
@@ -167,7 +183,7 @@ rem *** cmake install ***
 rem todo: skip install when already done...
 :_install_do
 echo.
-echo VENUS-GUIV2-INSTALL %_VCG_VERSION% (%_VCG_BUILD_SYSTEM% %_VCG_BUILD_ARCH% %_VCG_BUILD_TYPE% -^> %_VCG_BIN_DIR%)
+echo INSTALL %_VCG_BUILD_INFO% -^> %_VCG_BIN_DIR%
 cd /d "%_VCG_BUILD_DIR%"
 call cmake --install . --config %_VCG_BUILD_TYPE%
 rem echo on
