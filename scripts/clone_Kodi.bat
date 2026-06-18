@@ -26,7 +26,7 @@ call "%~dp0\maker_env.bat"
 
 set "_KODI_DIR=%MAKER_DIR_PROJECTS%\Kodi"
 
-set "_KODI_XBMC_DIR=%_KODI_DIR%\xbmc"
+set "_KODI_XBMC_DIR=%_KODI_DIR%\kodi"
 set "_KODI_PLUGINS_DIR=%_KODI_DIR%\plugins"
 set "_KODI_SCRIPTS_DIR=%_KODI_DIR%\scripts"
 set "_KODI_MYADDONS_DIR=%_KODI_DIR%\myhelix_addons"
@@ -36,7 +36,15 @@ set "_KODI_PLUGIN_IPCAMS_DIR=%_KODI_MYADDONS_DIR%\plugin.video.ipcams"
 set "_KODI_PLUGIN_TED_DIR=%_KODI_MYADDONS_DIR%\plugin.video.ted.talks"
 
 
-rem call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_XBMC_DIR%" "https://github.com/xbmc/xbmc.git" %* --switchBranch Helix
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_XBMC_DIR%" "https://github.com/xbmc/xbmc.git" %* --switchBranch Helix
+call curl -o "%_KODI_DIR%\README.Windows.md" "https://raw.githubusercontent.com/xbmc/xbmc/refs/heads/master/docs/README.Windows.md"
+set "WORKSPACE=%_KODI_XBMC_DIR%"
+echo call "%_KODI_XBMC_DIR%\tools\buildsteps\win32\prepare-env.bat"
+echo call "%_KODI_XBMC_DIR%\tools\buildsteps\win32\download-depends.bat"
+echo call "%_KODI_XBMC_DIR%\tools\buildsteps\win32\download-msys.bat"
+echo call "%_KODI_XBMC_DIR%\tools\buildsteps\win32\make-mingwlibs.bat"
+echo call "%_KODI_XBMC_DIR%\tools\buildsteps\win32\make-xbmc.bat"
+
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_PLUGINS_DIR%" "https://github.com/xbmc/repo-plugins.git" %* --switchBranch helix
 call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%_KODI_SCRIPTS_DIR%" "https://github.com/xbmc/repo-scripts.git" %* --switchBranch helix
 
@@ -56,10 +64,23 @@ set "_KODY_PACK_MYADDONS=%_KODI_MYADDONS_DIR%\pack.bat"
 
 echo.@echo off >"%_KODY_PACK_MYADDONS%"
 echo.cd /d "%_KODI_MYADDONS_DIR%" >>"%_KODY_PACK_MYADDONS%"
+echo.del plugin.video.ipcams.zip >>"%_KODY_PACK_MYADDONS%"
 echo.call 7z a -tzip plugin.video.ipcams.zip plugin.video.ipcams -x!plugin.video.ipcams\.git* -x!plugin.video.ipcams\.vs* >>"%_KODY_PACK_MYADDONS%"
+echo.del plugin.video.ted.talks.zip >>"%_KODY_PACK_MYADDONS%"
 echo.call 7z a -tzip plugin.video.ted.talks.zip plugin.video.ted.talks -x!plugin.video.ted.talks\.git* -x!plugin.video.ted.talks\.vs* >>"%_KODY_PACK_MYADDONS%"
+echo.del script.hello.world.zip >>"%_KODY_PACK_MYADDONS%"
 echo.call 7z a -tzip script.hello.world.zip script.hello.world -x!script.hello.world\.git* -x!script.hello.world\.vs* >>"%_KODY_PACK_MYADDONS%"
-
+echo.echo.>>"%_KODY_PACK_MYADDONS%"
+echo.echo ---------------------------------------------------------------------------------------------------------------------- >>"%_KODY_PACK_MYADDONS%"
+echo.echo ATV Media Downloads: >>"%_KODY_PACK_MYADDONS%"
+echo.echo /private/var/mobile/Media/Downloads >>"%_KODY_PACK_MYADDONS%"
+echo.echo.>>"%_KODY_PACK_MYADDONS%"
+echo.echo ATV KODI log: >>"%_KODY_PACK_MYADDONS%"
+echo.echo /private/var/mobile/Library/Preferences/kodi.log >>"%_KODY_PACK_MYADDONS%"
+echo.echo.>>"%_KODY_PACK_MYADDONS%"
+echo.echo ATV KODI plugin settings: >>"%_KODY_PACK_MYADDONS%"
+echo.echo /private/var/mobile/Library/Preferences/Kodi/userdata/addon_data/ >>"%_KODY_PACK_MYADDONS%"
+echo.echo.>>"%_KODY_PACK_MYADDONS%"
 cd /d "%_KODI_MYADDONS_DIR%"
 goto :EOF
 
