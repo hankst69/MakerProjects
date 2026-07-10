@@ -1,0 +1,200 @@
+*** Git repositories list ***
+"C:\GIT\Maker":
+ "C:\GIT\Maker"                                                         (https://github.com/hankst69/MakerProjects)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - projects_20260202.txt
+                                                                        - nothing added to commit but untracked files present (use "git add" to track)
+
+ "C:\GIT\Maker\3D-Print"                                                (https://github.com/hankst69/3D-Print.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\HackRF\mayhem-firmware"                         (https://github.com/portapack-mayhem/mayhem-firmware.git)
+                                                                        STATUS:
+                                                                        - On branch next
+                                                                        - Your branch is up to date with 'origin/next'.
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - firmware/tools/make_airlines_db/airlines.db
+                                                                        - firmware/tools/ui_about_simple.cpp
+                                                                        - nothing added to commit but untracked files present (use "git add" to track)
+
+ "C:\GIT\Maker\projects\han_Dev"                                        (https://github.com/hankst69/han_Dev.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\han_HAM"                                        (https://github.com/hankst69/han_HAM.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - No commits yet
+                                                                        - nothing to commit (create/copy files and use "git add" to track)
+
+ "C:\GIT\Maker\projects\han_HAM--"                                      (https://github.com/hankst69/han_HAM.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch and 'origin/main' have diverged,
+                                                                        - and have 60 and 59 different commits each, respectively.
+                                                                        - (use "git pull" if you want to integrate the remote branch with yours)
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - Shack/uSDX/KiCAD/
+                                                                        - nothing added to commit but untracked files present (use "git add" to track)
+
+ "C:\GIT\Maker\projects\han_Solar"                                      (https://github.com/hankst69/han_Solar.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\net\IPTools"                                    (https://github.com/hankst69/IPTools.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\net\SOLID"                                      (https://github.com/hankst69/SOLID.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Python"                                         (https://github.com/hankst69/Python.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Romo\Romo_APP"                                  (https://github.com/Navideck/Romo.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Romo\Romo_ARKit"                                (https://github.com/laanlabs/HomeRobot.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Romo\Romo_FW"                                   (https://github.com/Navideck/Romo-Firmware.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - .vs/ProjectSettings.json
+                                                                        - .vs/Romo_FW/
+                                                                        - .vs/slnx.sqlite
+                                                                        - nothing added to commit but untracked files present (use "git add" to track)
+
+ "C:\GIT\Maker\projects\Romo\Romo_SDK"                                  (https://github.com/champierre/Romo.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Romo\Scratch2Romo"                              (https://github.com/Navideck/Scratch2Romo.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Victron\venus-guiv2_source"                     (https://github.com/victronenergy/gui-v2.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\Victron\venus-html5-app"                        (https://github.com/victronenergy/venus-html5-app.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\web\html5_rtsp_player"                          (https://github.com/hankst69/html5_rtsp_player)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\web\KnowHow"                                    (https://github.com/hankst69/UserScript-KnowHow)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\projects\web\UserScripts"                                (https://github.com/hankst69/UserScripts)
+                                                                        STATUS:
+                                                                        - On branch DLWSMEDIA_with_HLSPlayer
+                                                                        - Your branch is up to date with 'origin/DLWSMEDIA_with_HLSPlayer'.
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - SaveChromeTabGroups/
+                                                                        - nothing added to commit but untracked files present (use "git add" to track)
+
+fatal: detected dubious ownership in repository at 'C:/GIT/Maker/tools/Choco'
+'C:/GIT/Maker/tools/Choco' is owned by:
+	'S-1-5-32-544'
+but the current user is:
+	'S-1-5-21-462691900-2967613020-3702357964-619444'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/GIT/Maker/tools/Choco
+                                                                        STATUS:
+fatal: detected dubious ownership in repository at 'C:/GIT/Maker/tools/Choco'
+'C:/GIT/Maker/tools/Choco' is owned by:
+	'S-1-5-32-544'
+but the current user is:
+	'S-1-5-21-462691900-2967613020-3702357964-619444'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/GIT/Maker/tools/Choco
+
+ "C:\GIT\Maker\tools\Emsdk\3.1.37"                                      (https://github.com/emscripten-core/emsdk.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is behind 'origin/main' by 5 commits, and can be fast-forwarded.
+                                                                        - (use "git pull" to update your local branch)
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\tools\Emsdk\latest"                                      (https://github.com/emscripten-core/emsdk.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\tools\GPerf\gperf_sources"                               (https://github.com/hankst69/gperf.git)
+                                                                        STATUS:
+                                                                        - On branch master
+                                                                        - Your branch is up to date with 'origin/master'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\tools\LLVM\llvm-project"                                 (https://github.com/llvm/llvm-project.git)
+                                                                        STATUS:
+                                                                        - On branch main
+                                                                        - Your branch is up to date with 'origin/main'.
+                                                                        - nothing to commit, working tree clean
+
+ "C:\GIT\Maker\tools\Qt\qt_sources6.8.3"                                (ssh://codereview.qt-project.org/qt/qt5)
+ "C:\GIT\Maker\tools\Qt\qt_sources6.8.3"                                (https://code.qt.io/qt/qt5.git)
+                                                                        STATUS:
+                                                                        - On branch 6.8.3
+                                                                        - Your branch is up to date with 'origin/6.8.3'.
+                                                                        - Changes not staged for commit:
+                                                                        - (use "git add <file>..." to update what will be committed)
+                                                                        - (use "git restore <file>..." to discard changes in working directory)
+                                                                        - (commit or discard the untracked or modified content in submodules)
+                                                                        - modified:   qttools (modified content)
+                                                                        - Untracked files:
+                                                                        - (use "git add <file>..." to include in what will be committed)
+                                                                        - .qt_init_submodules_done
+                                                                        - no changes added to commit (use "git add" and/or "git commit -a")
+
