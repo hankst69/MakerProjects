@@ -69,7 +69,7 @@ echo ***************************************************************************
 echo * extracting "!_ARCHIVE_NAME!" into "%_TARGET_DIR%"
 if "%_EXTRACT_SILENT%" equ "true" (
 echo ************************************************************************************************************************ )
-if not exist "%_TARGET_DIR%" goto :Extract
+if not exist "%_TARGET_DIR%" goto :_Extract
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
 if "!_dir_is_empty!" neq "true" (
@@ -84,17 +84,19 @@ if "!_dir_is_empty!" neq "true" (
   goto :EOF
 )
 endlocal
-echo call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
+:_Extract
 call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
 goto :EOF
 
 
 :Extract
 setlocal EnableDelayedExpansion
-rem echo :Extract "%~1" "%~2" "%~3"
-rem set "_TARGET_DIR=%~1"
-rem set "_ARCHIVE_PATH=%~2"
-rem set "_ARCHIVE_NAME=%~3"
+echo :Extract "%~1" "%~2" "%~3"
+set "_TARGET_NAME=%~nx1"
+set "_TARGET_DIR=%~1"
+set "_ARCHIVE_PATH=%~2"
+set "_ARCHIVE_NAME=%~3"
+
 if not exist "%_TARGET_DIR%" mkdir "%_TARGET_DIR%"
 if not exist "%_ARCHIVE_PATH%" (
   echo * -^> ERROR: extraction of "%_ARCHIVE_NAME%" failed
@@ -108,6 +110,25 @@ if not exist "%_ARCHIVE_PATH%" (
 rem call powershell -command "Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%'; Expand-Archive -Force '%_ARCHIVE_PATH%' '%_TARGET_DIR%';"
 pushd "%_TARGET_DIR%"
 call tar -x -f "%_ARCHIVE_PATH%"
+set _dir_is_empty=true
+for /f %%i in ('dir /a-D /b "%_TARGET_DIR%" 2^>nul') do set _dir_is_empty=false
+if "!_dir_is_empty!" equ "true" (
+  set _dir_has_subdirs=0
+  set _dir_name=
+  for /f %%i in ('dir /aD /b "%_TARGET_DIR%" 2^>nul') do set /a "_dir_has_subdirs+=1" &set "_dir_name=%%i"
+  rem echo _dir_has_subdirs: !_dir_has_subdirs!
+  if "!_dir_has_subdirs!" equ "1" (
+    if exist "%_TARGET_DIR%-" rmdir /s /q "%_TARGET_DIR%-"
+    pushd "%_TARGET_DIR%\.."
+    echo ren "%_TARGET_NAME%" "%_TARGET_NAME%-"
+    ren "%_TARGET_NAME%" "%_TARGET_NAME%-"
+    popd
+    if exist "%_TARGET_DIR%" rmdir /s /q "%_TARGET_DIR%"
+    mkdir "%_TARGET_DIR%"
+    XCOPY "%_TARGET_DIR%-\!_dir_name!\*" "%_TARGET_DIR%" /s
+    if exist "%_TARGET_DIR%-" rmdir /s /q "%_TARGET_DIR%-"
+  )
+)
 popd
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
