@@ -71,10 +71,18 @@ set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR_WINDOWS=%WFVIEW_LIBFT4222_SRC_DIR%\WINDOWS"
 set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
 :: "https://ftdichip.com/software-examples/ft4222h-software-examples/"
-set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
-set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip"
-call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
-call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
+:: "https://www.spigotmc.org/threads/wget-and-curl-downloads-fail-due-to-cloudfare.58844/"
+:: "https://stackoverflow.com/questions/17182553/sites-not-accepting-wget-user-agent-header"
+:: "https://www.zenrows.com/blog/curl-bypass-cloudflare#sending-a-request"
+:: curl -o "D:\GIT\Maker\projects\wfview\libs_src\libft4222\WINDOWS\LibFT4222-v1.4.8.zip" "https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip" --verbose
+rem set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
+rem set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip"
+rem call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
+rem call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
+set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip?__cf_chl_rt_tk=hUozUEpMeaLm9dJ28L3s5YEX5xVMIOQoaql4FcnSgS8-1784059392-1.0.1.1-Ks_VOSo2FTouF4_rOKJVwvaa7GaTpbd9MdC7CutIJOk"
+set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip?__cf_chl_tk=q.2a6xyiPWyVCzG91ny0FITNvM9pJ5MStUyUKtDBr5I-1784063220-1.0.1.1-vnZRQnKj2bi_M_Utpl1oArEi7tsN.tEPoXfq9PKgDMU"
+call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%\LibFT4222-v1.4.8.zip" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT% 
+call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%\libft4222-linux-1.4.4.232.zip" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT% 
 
 set "WFVIEW_PTHREADS_SRC_URI_WINDOWS=https://sf-eu-introserv-3.dl.sourceforge.net/project/pthreads4w/pthreads4w-code-v3.0.0.zip?viasf=1&fid=93a3d0a939553cfc&e=1784044533&st=tGsEyA_3v05VgJaDS78BSQ"
 set "WFVIEW_PTHREADS_DWNLD_DIR=%WFVIEW_LIBS_SRC_DIR%\pthreads_dwnld"

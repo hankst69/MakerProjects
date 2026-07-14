@@ -321,11 +321,6 @@ call xcopy "%_cmake_src%\..\PTHREADS-BUILT" "%_cmake_bin%" /s
 rmdir /s /q "%_cmake_src%\..\PTHREADS-BUILT"
 :skip_pthreads_windows
 
-rem echo.
-rem echo.************************************************************************************************************************
-rem echo.* building r8brain-free-src
-rem echo.************************************************************************************************************************
-
 echo.
 echo.************************************************************************************************************************
 echo.* building libft4222
@@ -336,6 +331,11 @@ if /i "%_WVL_BUILD_SYSTEM%" equ "gnu"  set "_cmake_src=%WFVIEW_LIBFT4222_SRC_DIR
 set "_cmake_bin=%WFVIEW_LIBFT4222_DIR%"
 call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%_cmake_bin%" "%_cmake_src%" %MAKER_MSG_SILENT%
 if /I "%_WVL_BUILD_ARCH%" equ "x64" for /f %%i in ('dir /s /b "%WFVIEW_LIBFT4222_DIR%\*arm64*"') do if exist "%%~i\*" rmdir /s /q "%%~i"
+
+rem echo.
+rem echo.************************************************************************************************************************
+rem echo.* building r8brain-free-src
+rem echo.************************************************************************************************************************
 
 
 :_exit

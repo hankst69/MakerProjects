@@ -51,6 +51,8 @@ set _FREE_ARGS=
 goto :EOF
 
 :Start
+::echo _ARCHIVE_PATH=%_ARCHIVE_PATH%
+::echo _ARCHIVE_NAME=%_ARCHIVE_NAME%
 setlocal EnableDelayedExpansion
 rem resolve _ARCHIVE_PATH into single zip file
 if exist "%_ARCHIVE_PATH%\*" (
@@ -65,6 +67,8 @@ if exist "%_ARCHIVE_PATH%\*" (
   set "_ARCHIVE_NAME=!__archive_name!"
   rem set _ARCHIVE_
 )
+::echo _ARCHIVE_PATH=!_ARCHIVE_PATH!
+::echo _ARCHIVE_NAME=!_ARCHIVE_NAME!
 echo ************************************************************************************************************************
 echo * extracting "!_ARCHIVE_NAME!" into "%_TARGET_DIR%"
 if "%_EXTRACT_SILENT%" equ "true" (
@@ -72,6 +76,7 @@ echo ***************************************************************************
 if not exist "%_TARGET_DIR%" goto :_Extract
 set _dir_is_empty=true
 for /f %%i in ('dir /a /b "%_TARGET_DIR%"') do set _dir_is_empty=false
+rem set _EXTRACT_SILENT=
 if "!_dir_is_empty!" neq "true" (
   if "%_EXTRACT_SILENT%" neq "true" (
     echo * -^> "%_TARGET_DIR%" already contains data
@@ -83,9 +88,13 @@ if "!_dir_is_empty!" neq "true" (
   endlocal
   goto :EOF
 )
-endlocal
 :_Extract
-call :Extract "%_TARGET_DIR%" "%_ARCHIVE_PATH%" "%_ARCHIVE_NAME%"
+::echo _ARCHIVE_PATH=%_ARCHIVE_PATH%
+::echo _ARCHIVE_NAME=%_ARCHIVE_NAME%
+::echo _ARCHIVE_PATH=!_ARCHIVE_PATH!
+::echo _ARCHIVE_NAME=!_ARCHIVE_NAME!
+call :Extract "%_TARGET_DIR%" "!_ARCHIVE_PATH!" "!_ARCHIVE_NAME!"
+endlocal
 goto :EOF
 
 
