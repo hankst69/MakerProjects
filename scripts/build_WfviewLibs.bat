@@ -257,8 +257,8 @@ set "_cmake_bin=%WFVIEW_HIDAPI_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE
-call cmake --build "." --config %_WVL_BUILD_TYPE% 
-call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake --build "." --config %_WVL_BUILD_TYPE%
+call cmake --install "." --config %_WVL_BUILD_TYPE%
 
 echo.
 echo.************************************************************************************************************************
@@ -270,8 +270,8 @@ set "_cmake_bin=%WFVIEW_LIBSNDFILE_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" --log-level=VERBOSE -DOGG_FOUND=TRUE -DOPUS_FOUND=TRUE -DOPUS_LIBRARY="%WFVIEW_OPUS_DIR%" -DOPUS_INCLUDE_DIR="%WFVIEW_OPUS_DIR%\include"
-call cmake --build "." --config %_WVL_BUILD_TYPE% 
-call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake --build "." --config %_WVL_BUILD_TYPE%
+call cmake --install "." --config %_WVL_BUILD_TYPE%
 
 echo.
 echo.************************************************************************************************************************
@@ -282,9 +282,9 @@ set "_cmake_bld=%_WVL_BUILD_DIR%\anr"
 set "_cmake_bin=%WFVIEW_ANR_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
-call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
-call cmake --build "." --config %_WVL_BUILD_TYPE% 
-call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" -DCMAKE_INSTALL_INCLUDEDIR="include"  --log-level=VERBOSE
+call cmake --build "." --config %_WVL_BUILD_TYPE%
+call cmake --install "." --config %_WVL_BUILD_TYPE%
 
 echo.
 echo.************************************************************************************************************************
@@ -296,11 +296,10 @@ set "_cmake_bin=%WFVIEW_ADPCM_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
-call cmake --build "." --config %_WVL_BUILD_TYPE% 
-call cmake --install "." --config %_WVL_BUILD_TYPE% 
+call cmake --build "." --config %_WVL_BUILD_TYPE%
+call cmake --install "." --config %_WVL_BUILD_TYPE%
 
-
-if /i "%_WVL_BUILD_SYSTEM%" neq "msvs" goto :skip_pthreads_windows
+rem if /i "%_WVL_BUILD_SYSTEM%" neq "msvs" goto :skip_pthreads_windows
 echo.
 echo.************************************************************************************************************************
 echo.* building pthreads (windows)
