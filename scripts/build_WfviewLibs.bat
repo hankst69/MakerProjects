@@ -282,7 +282,7 @@ set "_cmake_bld=%_WVL_BUILD_DIR%\anr"
 set "_cmake_bin=%WFVIEW_ANR_DIR%"
 if not exist "%_cmake_bld%" mkdir "%_cmake_bld%"
 cd /d "%_cmake_bld%"
-call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" -DCMAKE_INSTALL_INCLUDEDIR="include"  --log-level=VERBOSE
+call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" -DCMAKE_INSTALL_INCLUDEDIR="include" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE%
 call cmake --install "." --config %_WVL_BUILD_TYPE%
 
@@ -299,7 +299,7 @@ call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -
 call cmake --build "." --config %_WVL_BUILD_TYPE%
 call cmake --install "." --config %_WVL_BUILD_TYPE%
 
-rem if /i "%_WVL_BUILD_SYSTEM%" neq "msvs" goto :skip_pthreads_windows
+if /i "%_WVL_BUILD_SYSTEM%" neq "msvs" goto :skip_pthreads_windows
 echo.
 echo.************************************************************************************************************************
 echo.* building pthreads (windows)
@@ -312,6 +312,13 @@ cd /d "%_cmake_bld%"
 call cmake -S "%_cmake_src%" -B "%_cmake_bld%" --install-prefix "%_cmake_bin%" -G "%_WVL_CONFIG_GENERATOR%" %_WVL_CONFIG_OPTIONS% -DCMAKE_BUILD_TYPE="%_WVL_BUILD_TYPE%" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBSNDFILE_DIR="%WFVIEW_LIBSNDFILE_DIR%" --log-level=VERBOSE
 call cmake --build "." --config %_WVL_BUILD_TYPE% 
 call cmake --install "." --config %_WVL_BUILD_TYPE% 
+rem nmake build
+cd /d "%_cmake_src%"
+call nmake all install
+if exist "%_cmake_bin%" rmdir /s /q "%_cmake_bin%" 
+mkdir "%_cmake_bin%"
+call xcopy "%_cmake_src%\..\PTHREADS-BUILT" "%_cmake_bin%" /s
+rmdir /s /q "%_cmake_src%\..\PTHREADS-BUILT"
 :skip_pthreads_windows
 
 rem echo.

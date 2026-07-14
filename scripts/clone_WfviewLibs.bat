@@ -20,6 +20,7 @@ rem libsndfile  (..\libsndfile)        https://github.com/libsndfile/libsndfile
 rem anr         (..\anr)               https://github.com/tals/audacity-noise-reduction (tree master -> sub folder noisereduction)
 rem                                    https://github.com/hankst69/audacity-noise-reduction
 rem adpcm-xq    (..\adpcm)             https://github.com/dbry/adpcm-xq
+rem                                    https://github.com/hankst69/adpcm-xq.git)
 rem
 rem r8brain     (..\r8brain-free-src)  https://github.com/avaneev/r8brain-free-src
 rem LibFT4222   (..\libft4222)         https://ftdichip.com/software-examples/ft4222h-software-examples/
@@ -59,7 +60,7 @@ call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://gith
 
 set "WFVIEW_ADPCM_DIR=%WFVIEW_LIBS_DIR%\adpcm"
 set "WFVIEW_ADPCM_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\adpcm"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ADPCM_SRC_DIR%" "https://github.com/dbry/adpcm-xq" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ADPCM_SRC_DIR%" "https://github.com/hankst69/adpcm-xq.git" --switchBranch add-cmake-install-rule %MAKER_MSG_SILENT%
 
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"
@@ -69,7 +70,7 @@ set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR_WINDOWS=%WFVIEW_LIBFT4222_SRC_DIR%\WINDOWS"
 set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
-
+:: "https://ftdichip.com/software-examples/ft4222h-software-examples/"
 set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
 set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip"
 call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
