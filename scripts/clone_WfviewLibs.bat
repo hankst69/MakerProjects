@@ -75,14 +75,16 @@ set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/
 call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
 call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
 
-rem curl -o pthreads4w-code-v3.0.0.zip https://sourceforge.net/projects/pthreads4w/files/latest/download/pthreads4w-code-v3.0.0.zip
-set "WFVIEW_PTHREADS_SRC_URI_WINDOWS=https://sourceforge.net/projects/pthreads4w/files/latest/download/pthreads4w-code-v3.0.0.zip"
+set "WFVIEW_PTHREADS_SRC_URI_WINDOWS=https://sf-eu-introserv-3.dl.sourceforge.net/project/pthreads4w/pthreads4w-code-v3.0.0.zip?viasf=1&fid=93a3d0a939553cfc&e=1784044533&st=tGsEyA_3v05VgJaDS78BSQ"
 set "WFVIEW_PTHREADS_DWNLD_DIR=%WFVIEW_LIBS_SRC_DIR%\pthreads_dwnld"
+set "WFVIEW_PTHREADS_DWNLD_FILE=%WFVIEW_PTHREADS_DWNLD_DIR%\pthreads4w-code-v3.0.0.zip"
 set "WFVIEW_PTHREADS_DIR=%WFVIEW_LIBS_DIR%\pthreads"
 set "WFVIEW_PTHREADS_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\pthreads"
-call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_PTHREADS_DWNLD_DIR%" "%WFVIEW_PTHREADS_SRC_URI_WINDOWS%" %MAKER_MSG_SILENT%
-call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%WFVIEW_PTHREADS_SRC_DIR%" "%WFVIEW_PTHREADS_DWNLD_DIR%" %MAKER_MSG_SILENT%
-
+rem if exist "%WFVIEW_PTHREADS_DWNLD_DIR%" rmdir /s /q "%WFVIEW_PTHREADS_DWNLD_DIR%"
+:: mkdir "%WFVIEW_PTHREADS_DWNLD_DIR%"
+:: curl -o "%WFVIEW_PTHREADS_DWNLD_FILE%" "https://sf-eu-introserv-3.dl.sourceforge.net/project/pthreads4w/pthreads4w-code-v3.0.0.zip?viasf=1&fid=93a3d0a939553cfc&e=1784044533&st=tGsEyA_3v05VgJaDS78BSQ"
+call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_PTHREADS_DWNLD_FILE%" "%WFVIEW_PTHREADS_SRC_URI_WINDOWS%" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%WFVIEW_PTHREADS_SRC_DIR%" "%WFVIEW_PTHREADS_DWNLD_FILE%" %MAKER_MSG_SILENT%
 
 if "%MAKER_MSG_VERBOSE%" neq "" set WFVIEW_
 cd /d "%WFVIEW_LIBS_SRC_DIR%"
