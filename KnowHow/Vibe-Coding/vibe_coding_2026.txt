@@ -1,0 +1,22 @@
+vibe_coding_2026.txt
+
+
+1) CPP Library 
+ - GeoLocation
+ - GroundPlane
+ - Horizon-Radius
+ - Horizon-Dome (half sphere with Horizon-Radius and sphere center at GroundPlane GeoLocation point)
+ - SunRise-Time and SunSet-Time for given date
+ - 
+ 
+2) I/Q Demodulation AM FM LSB USB 
+   2PSK 4PSK 16PSK
+   2FSK 4FSK 
+   
+3)
+WASM Qt
+WASM WebGPU
+WASM Audio
+WASM USB
+WASM NetWork
+WASM MultiThreading
