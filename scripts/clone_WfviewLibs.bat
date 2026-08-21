@@ -1,6 +1,6 @@
 @echo off
-call "%~dp0\maker_env.bat" %*
-if "%WFVIEW_DIR%" equ "" call "%~dp0\clone_wfview.bat" %* --do_not_clone
+call "%~dp0\maker_env" %*
+if "%WFVIEW_DIR%" equ "" call "%~dp0\clone_wfview" %* --do_not_clone
 
 set "WFVIEW_LIBS_DIR=%WFVIEW_DIR%\libs"
 set "WFVIEW_LIBS_SRC_DIR=%WFVIEW_DIR%\libs_src"
@@ -28,43 +28,45 @@ if not exist "%WFVIEW_DIR%" mkdir "%WFVIEW_DIR%"
 
 set "WFVIEW_OPUS_DIR=%WFVIEW_LIBS_DIR%\opus"
 set "WFVIEW_OPUS_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\opus"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_OPUS_SRC_DIR%" "https://github.com/xiph/opus.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_OPUS_SRC_DIR%" "https://github.com/xiph/opus.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_RTAUDIO_DIR=%WFVIEW_LIBS_DIR%\rtaudio"
 set "WFVIEW_RTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\rtaudio"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_RTAUDIO_SRC_DIR%" "https://github.com/thestk/rtaudio.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_RTAUDIO_SRC_DIR%" "https://github.com/thestk/rtaudio.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_EIGEN_DIR=%WFVIEW_LIBS_DIR%\eigen"
 set "WFVIEW_EIGEN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\eigen"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_EIGEN_SRC_DIR%" "https://gitlab.com/libeigen/eigen.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_EIGEN_SRC_DIR%" "https://gitlab.com/libeigen/eigen.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_PORTAUDIO_DIR=%WFVIEW_LIBS_DIR%\portaudio"
 set "WFVIEW_PORTAUDIO_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\portaudio"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_PORTAUDIO_SRC_DIR%" "https://github.com/PortAudio/portaudio.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_PORTAUDIO_SRC_DIR%" "https://github.com/PortAudio/portaudio.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_QCUSTOMPLOT_DIR=%WFVIEW_LIBS_DIR%\qcustomplot"
 set "WFVIEW_QCUSTOMPLOT_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\qcustomplot"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_QCUSTOMPLOT_SRC_DIR%" "https://github.com/hankst69/qcustomplot.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_QCUSTOMPLOT_SRC_DIR%" "https://github.com/hankst69/qcustomplot.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_HIDAPI_DIR=%WFVIEW_LIBS_DIR%\hidapi"
 set "WFVIEW_HIDAPI_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\hidapi"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_HIDAPI_SRC_DIR%" "https://github.com/libusb/hidapi.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_LIBSNDFILE_DIR=%WFVIEW_LIBS_DIR%\libsndfile"
 set "WFVIEW_LIBSNDFILE_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libsndfile"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_LIBSNDFILE_SRC_DIR%" "https://github.com/libsndfile/libsndfile.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_LIBSNDFILE_SRC_DIR%" "https://github.com/libsndfile/libsndfile.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_ANR_DIR=%WFVIEW_LIBS_DIR%\anr"
 set "WFVIEW_ANR_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\anr"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/hankst69/audacity-noise-reduction.git" %MAKER_MSG_SILENT% --switchBranch fixes/cmake
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/hankst69/audacity-noise-reduction.git" %MAKER_MSG_SILENT% --changeDir
+call "%MAKER_ENV_CORE%\git_sync_fork" "https://github.com/tals/audacity-noise-reduction.git" master
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_ANR_SRC_DIR%" "https://github.com/hankst69/audacity-noise-reduction.git" %MAKER_MSG_SILENT% --switchBranch fixes/cmake
 
 set "WFVIEW_ADPCM_DIR=%WFVIEW_LIBS_DIR%\adpcm"
 set "WFVIEW_ADPCM_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\adpcm"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_ADPCM_SRC_DIR%" "https://github.com/hankst69/adpcm-xq.git" --switchBranch add-cmake-install-rule %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_ADPCM_SRC_DIR%" "https://github.com/hankst69/adpcm-xq.git" --switchBranch add-cmake-install-rule %MAKER_MSG_SILENT%
 
 set "WFVIEW_R8BRAIN_DIR=%WFVIEW_LIBS_DIR%\r8brain-free-src"
 set "WFVIEW_R8BRAIN_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\r8brain-free-src"
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://github.com/avaneev/r8brain-free-src.git" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_R8BRAIN_SRC_DIR%" "https://github.com/avaneev/r8brain-free-src.git" %MAKER_MSG_SILENT%
 
 set "WFVIEW_LIBFT4222_DIR=%WFVIEW_LIBS_DIR%\libft4222"
 set "WFVIEW_LIBFT4222_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\libft4222"
@@ -77,12 +79,12 @@ set "WFVIEW_LIBFT4222_SRC_DIR_LINUX=%WFVIEW_LIBFT4222_SRC_DIR%\LINUX"
 :: curl -o "D:\GIT\Maker\projects\wfview\libs_src\libft4222\WINDOWS\LibFT4222-v1.4.8.zip" "https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip" --verbose
 rem set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip"
 rem set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip"
-rem call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
-rem call "%MAKER_ENV_CORE%\download_in_folder.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
+rem call "%MAKER_ENV_CORE%\download_in_folder" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT%
+rem call "%MAKER_ENV_CORE%\download_in_folder" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT%
 set "WFVIEW_LIBFT4222_URI_WINDOWS=https://ftdichip.com/wp-content/uploads/2025/06/LibFT4222-v1.4.8.zip?__cf_chl_rt_tk=hUozUEpMeaLm9dJ28L3s5YEX5xVMIOQoaql4FcnSgS8-1784059392-1.0.1.1-Ks_VOSo2FTouF4_rOKJVwvaa7GaTpbd9MdC7CutIJOk"
 set "WFVIEW_LIBFT4222_URI_LINUX=https://ftdichip.com/wp-content/uploads/2025/04/libft4222-linux-1.4.4.232.zip?__cf_chl_tk=q.2a6xyiPWyVCzG91ny0FITNvM9pJ5MStUyUKtDBr5I-1784063220-1.0.1.1-vnZRQnKj2bi_M_Utpl1oArEi7tsN.tEPoXfq9PKgDMU"
-call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%\LibFT4222-v1.4.8.zip" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT% 
-call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%\libft4222-linux-1.4.4.232.zip" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT% 
+call "%MAKER_ENV_CORE%\download_in_file" "%WFVIEW_LIBFT4222_SRC_DIR_WINDOWS%\LibFT4222-v1.4.8.zip" "%WFVIEW_LIBFT4222_URI_WINDOWS%" %MAKER_MSG_SILENT% 
+call "%MAKER_ENV_CORE%\download_in_file" "%WFVIEW_LIBFT4222_SRC_DIR_LINUX%\libft4222-linux-1.4.4.232.zip" "%WFVIEW_LIBFT4222_URI_LINUX%" %MAKER_MSG_SILENT% 
 
 set "WFVIEW_PTHREADS_SRC_URI_WINDOWS=https://sf-eu-introserv-3.dl.sourceforge.net/project/pthreads4w/pthreads4w-code-v3.0.0.zip?viasf=1&fid=93a3d0a939553cfc&e=1784044533&st=tGsEyA_3v05VgJaDS78BSQ"
 set "WFVIEW_PTHREADS_DWNLD_DIR=%WFVIEW_LIBS_SRC_DIR%\pthreads_dwnld"
@@ -92,8 +94,8 @@ set "WFVIEW_PTHREADS_SRC_DIR=%WFVIEW_LIBS_SRC_DIR%\pthreads"
 rem if exist "%WFVIEW_PTHREADS_DWNLD_DIR%" rmdir /s /q "%WFVIEW_PTHREADS_DWNLD_DIR%"
 :: mkdir "%WFVIEW_PTHREADS_DWNLD_DIR%"
 :: curl -o "%WFVIEW_PTHREADS_DWNLD_FILE%" "https://sf-eu-introserv-3.dl.sourceforge.net/project/pthreads4w/pthreads4w-code-v3.0.0.zip?viasf=1&fid=93a3d0a939553cfc&e=1784044533&st=tGsEyA_3v05VgJaDS78BSQ"
-call "%MAKER_ENV_CORE%\download_in_file.bat" "%WFVIEW_PTHREADS_DWNLD_FILE%" "%WFVIEW_PTHREADS_SRC_URI_WINDOWS%" %MAKER_MSG_SILENT%
-call "%MAKER_ENV_CORE%\extract_in_folder.bat" "%WFVIEW_PTHREADS_SRC_DIR%" "%WFVIEW_PTHREADS_DWNLD_FILE%" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\download_in_file" "%WFVIEW_PTHREADS_DWNLD_FILE%" "%WFVIEW_PTHREADS_SRC_URI_WINDOWS%" %MAKER_MSG_SILENT%
+call "%MAKER_ENV_CORE%\extract_in_folder" "%WFVIEW_PTHREADS_SRC_DIR%" "%WFVIEW_PTHREADS_DWNLD_FILE%" %MAKER_MSG_SILENT%
 
 if "%MAKER_MSG_VERBOSE%" neq "" set WFVIEW_
 cd /d "%WFVIEW_LIBS_SRC_DIR%"

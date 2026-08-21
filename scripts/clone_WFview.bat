@@ -1,5 +1,5 @@
 @echo off
-call "%~dp0\maker_env.bat" %*
+call "%~dp0\maker_env" %*
 call "%MAKER_ENV_CORE%\set_version_env" "WFVIEW" "%MAKER_VERSION%"
 
 set "WFVIEW_BASE_DIR=wfview"
@@ -20,13 +20,11 @@ set "WFVIEW_CHECKOUT_BRANCH=cmake_wasm"
 rem if "%WFVIEW_VERSION_MAJOR%.%VERSION_MINOR%" equ "2.20" set "WFVIEW_CHECKOUT_BRANCH=v2.20-dev"
 if "%MAKER_MSG_VERBOSE%" neq "" set WFVIEW_
 
-call "%MAKER_ENV_CORE%\clone_in_folder.bat" "%WFVIEW_SRC_DIR%" "https://gitlab.com/hankst69/wfview-wasm.git" %MAKER_MSG_SILENT%
-
-rem call "%~dp0\clone_WFViewLibs.bat" %*
+call "%MAKER_ENV_CORE%\clone_in_folder" "%WFVIEW_SRC_DIR%" "https://gitlab.com/hankst69/wfview-wasm.git" %MAKER_MSG_SILENT%
 
 :: Sync Fork (master branch) with Origin git repository
 cd /d "%WFVIEW_SRC_DIR%"
-call call "%MAKER_ENV_CORE%\git_sync_fork" "https://gitlab.com/eliggett/wfview.git" master
+call "%MAKER_ENV_CORE%\git_sync_fork" "https://gitlab.com/eliggett/wfview.git" master
 
 echo.
 call git switch %WFVIEW_CHECKOUT_BRANCH%

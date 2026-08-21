@@ -3,7 +3,8 @@
 :: %2 : other_repo_branch
 :: %3 : this_repo_branch
 :: %4 : other_repo_remote_name
-:: %5 : push
+:: %5 : do_not_push
+set "_script_name=%~n0"
 set "_remote_url=%~1"
 set "_remote_branch=%~2"
 set "_local_branch=%~3"
