@@ -66,6 +66,14 @@ for /f "tokens=*" %%f in ('dir /b "%__SCRIPT_FILE%" 2^>nul') do set "__SCRIPT_NA
 if exist "%__SCRIPT_FILE%" goto :StartScript
 
 
+:FindShortcutMatch
+rem (3) try to match the given PROJECT with the upper case letters of an existing script file aka PROJECT_ID
+set __SCRIPT_NAME=
+set __SCRIPT_FILE=
+call :FindShortcut "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%" "%__PROJECT%"
+if exist "%__SCRIPT_FILE%" goto :StartScript
+
+
 :FindSingleMatch
 rem (2) see if there exists exactly one script file with given PROJECT as the start of script name
 set __SCRIPT_NAME=
@@ -77,18 +85,12 @@ if !_found_matches! gtr 1 (
   call :ListMatches "%__PROJECT%" "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%"
   echo.
 )
-if !_found_matches! neq 1 goto :FindShortcutMatch
+if !_found_matches! neq 1 goto :FindSingleMatch_None
 rem we found a single script match - so we call this one
 for /f "tokens=*" %%f in ('dir /b "%__SCRIPTS_DIR%\%__CLASS_NAME%_%__PROJECT%*.bat" 2^>nul') do set "__SCRIPT_FILE=%__SCRIPTS_DIR%\%%~nxf" &set "__SCRIPT_NAME=%%~nf"
 if exist "%__SCRIPT_FILE%" goto :StartScript
+:FindSingleMatch_None
 
-
-:FindShortcutMatch
-rem (3) try to match the given PROJECT with the upper case letters of an existing script file aka PROJECT_ID
-set __SCRIPT_NAME=
-set __SCRIPT_FILE=
-call :FindShortcut "%__CLASS_NAME%" "%__SCRIPTS_DIR%" "%__SCRIPTS_SHORTCUTS_FILE%" "%__PROJECT%"
-if exist "%__SCRIPT_FILE%" goto :StartScript
 
 rem (4) no matches for given __PROJECT found
 if !_found_matches! equ 0 (
