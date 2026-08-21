@@ -10,8 +10,24 @@ vibe_coding_2026.txt
  - 
  
 2) I/Q Demodulation AM FM LSB USB 
-   2PSK 4PSK 16PSK
-   2FSK 4FSK 
+   PSK QPSK
+   AFSK (Bell 202: 1200Hz=1 2200Hz=0)
+
+https://en.wikipedia.org/wiki/Signal_modulation
+https://en.wikipedia.org/wiki/Frequency-shift_keying
+https://en.wikipedia.org/wiki/Phase-shift_keying
+
+WSJT:
+https://en.wikipedia.org/wiki/WSJT_(amateur_radio_software)
+https://en.wikipedia.org/wiki/FT8
+https://wsjtx.github.io/wsjtx/index.html
+https://github.com/WSJTX/wsjtx
+https://github.com/iu8lmc/Decodium-4.0-Core-Shannon (FT2)
+
+APRS:
+https://en.wikipedia.org/wiki/Automatic_Packet_Reporting_System
+https://en.wikipedia.org/wiki/Bell_202
+
    
 3)
 WASM Qt
