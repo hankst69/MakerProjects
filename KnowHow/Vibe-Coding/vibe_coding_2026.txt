@@ -1,7 +1,7 @@
 vibe_coding_2026.txt
 
 
-1) CPP Library 
+1) SolarSim CPP Library + Gui
  - GeoLocation
  - GroundPlane
  - Horizon-Radius
@@ -36,3 +36,83 @@ WASM Audio
 WASM USB
 WASM NetWork
 WASM MultiThreading
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) SolarSim CPP Library + Gui
+
+### PROMPT (Claude Opus 5) ###
+I like to create a cpp class library for geo related geometrical locations.
+Using this class lib I like to create a CPP Qt gui app that can simulate the solar light, shadows and energy level for a given earth location and given day.
+
+I would like to start with a class GeoLocation that defines a given point on earth based on GPS coordinates.
+For this location I would like to be able to calculate a GroundPlane that is a tangential plane on earth surface. 
+Initially model the earth as a sphere for easier math but prepare later extension to model earth as an ellipsoid as in WGS84.
+
+Place a halph sphere onto the GroundPlane where he centerpoint of the sphere is the standpoint of initial given GeoLocation.
+The radius of that halfsphere is the distance from standpoint to visible horizon.
+Calculate that horizon distance by assuming a fiew point height og 1600mm aboth ground plane at standpoint GeoLocation. From that view point draw a tangent of earth sphere and calculate the intersectin of that line with GroundPlane.
+Now we have our Horizon-Dome.
+-------------------------------
+Files
+•	CMakeLists.txt, geolib/CMakeLists.txt — build setup (C++17, geolib target with public include/).
+•	geolib/include/geolib/Vector3.h — minimal 3D vector math.
+•	geolib/include/geolib/Angle.h — degree/radian helpers.
+•	geolib/include/geolib/EarthModel.h + src/EarthModel.cpp — abstract EarthModel interface (radii, flattening, localRadius, toEcef) with SphericalEarthModel as the default. A Wgs84EarthModel can later be added by implementing the same interface; no client code changes needed.
+•	GeoLocation.h/.cpp — lat/lon/alt point, ECEF conversion, local east/north/up basis, groundPlane(), great-circle distanceTo().
+•	GroundPlane.h/.cpp — tangential plane at a location; ENU↔ECEF transforms and signed height above plane.
+•	HorizonDome.h/.cpp — half sphere on the ground plane centered at the standpoint.
+Horizon math (viewer height h, default 1.6 m, earth radius R):
+•	line of sight to tangent point: √(h(2R+h))
+•	dome radius (tangent line ∩ ground plane): R·√(h(2R+h)) / (2R+h) ≈ 4.5 km for h = 1.6 m
+•	also exposed: geocentric horizon angle, arc distance, curvature drop, pointOnDome(azimuth, elevation) and contains().
+Next step, when you're ready: a SolarPosition class (sun azimuth/elevation for a date/time) projected onto this dome, then the Qt GUI app as a second CMake subdirectory.
+
+### PROMPT ###
+Add a SolarPosition class that calculates the sun position projected onto our HorizonDome for a a given date/time.
+-------------------------------
+New files
+•	geolib/include/geolib/DateTimeUtc.h + src/DateTimeUtc.cpp — UTC date/time struct with julianDay() and julianCentury() (J2000.0 epoch), needed as the time input for the solar algorithm.
+•	geolib/include/geolib/SolarPosition.h + src/SolarPosition.cpp — the new class.
+•	geolib/CMakeLists.txt — added both sources.
+SolarPosition Constructed from a GeoLocation and a DateTimeUtc; computes once in the constructor using the NOAA solar position algorithm (~1 arc-minute accuracy):
+•	azimuth() — degrees clockwise from north, matching HorizonDome::pointOnDome's convention.
+•	elevation() / zenithAngle() — geometric horizontal coordinates relative to the ground plane.
+•	refractedElevation() — elevation with the NOAA atmospheric refraction correction (useful near sunrise/sunset).
+•	declination(), hourAngle(), equationOfTime() — intermediate astronomical values exposed for display/debugging.
+•	isAboveHorizon().
+•	direction() — unit vector in the local east/north/up frame of the ground plane.
+•	projectOnDome(const HorizonDome&) — the requested projection: returns the ENU point on the dome surface via dome.pointOnDome(azimuth, elevation), clamping elevation to 0 (the dome rim) when the sun is below the horizon.
+•	relativeIrradiance() — cos(zenith), 0 below horizon; a starting point for the later energy-level simulation.
+Usage sketch: GeoLocation loc(...); HorizonDome dome(loc); SolarPosition sun(loc, {2024, 6, 21, 10, 30}); auto p = sun.projectOnDome(dome);
+Next natural step: a SunPath helper that samples SolarPosition across a day to produce the arc on the dome, plus shadow casting from the direction vector — then the Qt app.
+
+### PROMPT ###
+Add a SunPath helper class that samples SolarPosition across a day to produce the arc on the dome.
+-------------------------------
+New files
+•	geolib/include/geolib/SunPath.h + geolib/src/SunPath.cpp
+•	geolib/CMakeLists.txt — added src/SunPath.cpp.
+SunPathSample — one sample: time (UTC), position (SolarPosition), domePoint (projection in the dome's local east/north/up frame).
+SunPath Constructed from a HorizonDome plus a UTC date and an optional sample count (default 144 → one sample every 10 minutes, count + 1 samples covering 00:00…24:00). All samples are computed once in the constructor via SolarPosition::projectOnDome.
+•	samples() — all samples of the day.
+•	visibleSamples() / arcPoints() — only the samples above the horizon; arcPoints() gives the polyline of the arc on the dome, ready to feed a renderer.
+•	at(hour, minute, second) — sun position at an arbitrary time of that day.
+•	hasSunrise(), sunrise(out), sunset(out) — horizon crossings, refined by bisection between the bracketing samples; return false for polar day/night.
+•	highestSample() — solar noon sample.
+•	relativeDailyEnergy() — Σ relativeIrradiance() × interval in hours, a simple relative daily insolation measure.
+Usage sketch: HorizonDome dome(loc); SunPath path(dome, 2024, 6, 21); auto arc = path.arcPoints();
+Note the times are UTC; if you want local wall-clock input later, a small timezone/DST wrapper around DateTimeUtc would be the cleanest addition. 
+Next step would be shadow casting from SolarPosition::direction() onto the ground plane, then the Qt viewer.
+
+### PROMPT ###
+Add a README.md that describes the geolib and planned gui app
+-------------------------------
+Created README.md at the workspace root.
+Contents:
+•	Overview — the split into the geolib math library and the planned Qt GUI app.
+•	Building — CMake 3.16+, C++17, configure/build commands.
+•	geolib — a table of all current types (Vector3, Angle helpers, EarthModel/SphericalEarthModel, GeoLocation, GroundPlane, HorizonDome, DateTimeUtc, SolarPosition, SunPath) with their headers and purpose, followed by sections explaining the earth model extensibility, the tangential ground plane and its ENU frame, the horizon dome including the radius formula and the ~4.5 km value for 1.6 m eye height, the NOAA-based sun position, and the day sampling in SunPath.
+•	Example — a short usage snippet from GeoLocation through SunPath to sunrise and solar noon.
+•	GUI application (planned) — location/date input, 3D dome and sun arc view with time slider, obstacle placement, shadow casting, energy diagram, export.
+•	Roadmap — shadow helpers, panel model, timezone handling, WGS84 model, unit tests, the Qt app.
