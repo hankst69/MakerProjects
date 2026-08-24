@@ -116,3 +116,338 @@ Contents:
 •	Example — a short usage snippet from GeoLocation through SunPath to sunrise and solar noon.
 •	GUI application (planned) — location/date input, 3D dome and sun arc view with time slider, obstacle placement, shadow casting, energy diagram, export.
 •	Roadmap — shadow helpers, panel model, timezone handling, WGS84 model, unit tests, the Qt app.
+
+### PROMPT ###
+Add a README.md that describes the geolib and planned gui app
+-------------------------------
+Created README.md at the workspace root.
+Contents:
+•	Overview — the split into the geolib math library and the planned Qt GUI app.
+•	Building — CMake 3.16+, C++17, configure/build commands.
+•	geolib — a table of all current types (Vector3, Angle helpers, EarthModel/SphericalEarthModel, GeoLocation, GroundPlane, HorizonDome, DateTimeUtc, SolarPosition, SunPath) with their headers and purpose, followed by sections explaining the earth model extensibility, the tangential ground plane and its ENU frame, the horizon dome including the radius formula and the ~4.5 km value for 1.6 m eye height, the NOAA-based sun position, and the day sampling in SunPath.
+•	Example — a short usage snippet from GeoLocation through SunPath to sunrise and solar noon.
+•	GUI application (planned) — location/date input, 3D dome and sun arc view with time slider, obstacle placement, shadow casting, energy diagram, export.
+•	Roadmap — shadow helpers, panel model, timezone handling, WGS84 model, unit tests, the Qt app.
+
+### PROMPT ###
+Please elaborate on the calculation of the SolarPosition. The results are given in PolarCoordinate system relative to the specific GroundPlane, Date and Time. Which coordinate system is used in calculation? Also which origin (sun in center, earth in center, GeoLocation in center?)
+-------------------------------
+Good question — the algorithm silently walks through four different reference frames. Here is the chain as implemented in geolib/src/SolarPosition.cpp.
+
+1. Time: no frame yet, just an epoch
+DateTimeUtc::julianCentury() converts UTC to t = Julian centuries since J2000.0 (2000-01-01 12:00 TT). Every polynomial below is a series expansion in t.
+Caveat: we feed UTC directly where the theory expects TT (≈ UTC + 69 s today). That is an error of ~0.0008° in the sun's longitude — well below the algorithm's own ~1 arc-minute accuracy, so it is ignored.
+
+2. Heliocentric → geocentric ecliptic (sun-centred orbit, expressed earth-centred)
+geomMeanLong, geomMeanAnom, eccent, sunEqOfCentre, sunTrueLong, sunAppLong
+These describe the earth's Keplerian orbit around the sun — so the underlying model here is sun-centred. But the classical trick is applied immediately: the earth's heliocentric longitude + 180° is the sun's geocentric longitude, and that is exactly what geomMeanLong (280.46646 + …) already encodes.
+So the working frame is the geocentric ecliptic frame:
+•	origin: earth centre
+•	fundamental plane: the ecliptic (earth's orbital plane)
+•	sunTrueLong = ecliptic longitude λ of the sun, measured from the vernal equinox
+sunEqOfCentre is the equation of centre — the correction from the mean (circular) anomaly to the true anomaly of the elliptical orbit. sunAppLong then subtracts aberration (−0.00569°, light travel time) and nutation in longitude (the omega term), giving the apparent longitude. Ecliptic latitude of the sun is taken as 0.
+
+3. Geocentric ecliptic → geocentric equatorial
+meanObliq, obliqCorr  →  m_declinationDeg = asin(sin(ε) · sin(λ))
+A rotation by the obliquity ε about the vernal-equinox axis tilts the ecliptic onto the celestial equator. Same origin (earth centre), new fundamental plane (equator). The result is the sun's declination δ. Right ascension is not computed explicitly — the hour angle is obtained via solar time instead, which is the cheaper NOAA route.
+
+4. Hour angle: the earth's rotation, referred to your meridian
+m_equationOfTimeMin   → difference true solar time vs. mean solar time
+trueSolarTime         = UTC minutes + EoT + 4 · longitude
+m_hourAngleDeg        = trueSolarTime / 4 − 180
+
+4 · longitude (4 min per degree) rotates from the Greenwich meridian to the standpoint's meridian, so the frame is now earth-centred but observer-oriented: origin still earth centre, but the reference direction is the local meridian. H = 0 at true local solar noon, negative in the morning, positive in the afternoon.
+Only the longitude of GeoLocation enters here.
+
+5. Geocentric equatorial → topocentric horizontal (the ground plane)
+cos(zenith) = sin(φ)·sin(δ) + cos(φ)·cos(δ)·cos(H)
+elevation   = 90 − zenith
+azimuth     from the same spherical triangle, flipped when H > 0
+This is the spherical law of cosines on the astronomical triangle (pole – zenith – sun). It rotates by the latitude φ so that the local zenith becomes the pole of the frame. The result is the horizontal (topocentric) frame:
+•	fundamental plane: exactly your GroundPlane
+•	azimuth measured clockwise from north, elevation above the plane
+•	this is the polar coordinate pair (azimuth, elevation) that direction() turns into the ENU unit vector and that projectOnDome() feeds into HorizonDome::pointOnDome
+The origin question, precisely
+The direction angles are computed geocentrically and then simply declared to be topocentric. Strictly the origin should be shifted from the earth centre to the standpoint (parallax). For the sun, whose distance is ~23500 earth radii, the horizontal parallax is at most 8.8 arc-seconds — again below the algorithm's accuracy, so the shift is deliberately omitted. That is why GeoLocation::altitude() and the EarthModel play no role in SolarPosition at all; only latitude and longitude do.
+The only place where the observer's position genuinely becomes the origin is downstream, in HorizonDome / GroundPlane, which are true ENU frames centred on the standpoint. And refractedElevation() is the one step that is physically local — it bends the ray in the observer's atmosphere.
+Summary
+Step	Origin	Fundamental plane	Output
+Orbit series	sun (recast to earth)	ecliptic	λ, mean anomaly, e
+Apparent longitude	earth centre	ecliptic	λ_app
+Obliquity rotation	earth centre	equator	δ
+EoT + longitude	earth centre	local meridian	H
+Astronomical triangle	earth centre (≈ standpoint)	ground plane	azimuth, elevation
+Want me to add this as a doc comment block at the top of SolarPosition.cpp, or as a section in the README?
+
+### PROMPT ###
+Please add this explanation in a separate markdown named SolarPosition.md Update the global README to link to that file and also mention this file in SolarPosition.cpp header
+-------------------------------
+Done
+
+### PROMPT ###
+Extend EarthModel with Ellipsoid model from WGS84 to increase the precision of GroundPlane and SolarPosition calculations
+-------------------------------
+Done. Summary of changes:
+geolib/include/geolib/EarthModel.h
+•	Extended the EarthModel interface with meridionalRadius, primeVerticalRadius, geocentricRadius, geocentricLatitude, plus a sphericalModel() accessor.
+•	Added WGS84EarthModel (a = 6378137 m, 1/f = 298.257223563) exposing eccentricitySquared().
+geolib/src/EarthModel.cpp
+•	defaultModel() now returns the WGS84 ellipsoid (sphere still available via sphericalModel()).
+•	Implemented spherical overrides and the WGS84 math: M/N radii of curvature, Gaussian mean radius as localRadius, geocentric radius/latitude and the exact geodetic → ECEF conversion.
+geolib/include/geolib/GroundPlane.h, geolib/src/GroundPlane.cpp
+•	Ground plane caches the local meridional/prime-vertical radii of its origin.
+•	Added curvatureDrop(east, north) (second order ellipsoid drop below the tangential plane) and toGeoLocation(local) for the inverse local → geodetic mapping using those radii.
+geolib/include/geolib/SolarPosition.h, geolib/src/SolarPosition.cpp
+•	Computes the sun radius vector (sunDistanceAu()).
+•	Applies the diurnal parallax (topocentric) correction using the ellipsoid rho*sin(phi')/rho*cos(phi') terms and the observer altitude, correcting declination, hour angle, elevation and azimuth.
+Verified with a clean Ninja configure/build of geolib (build succeeded; temporary build dir removed).
+
+
+### PROMPT ###
+Add code to populate the GroundPlane with a 3D model based on local HightData.
+The goal is to calculate shadow casting based on that 3D model.
+Limit the 3D model to the extend of the GroundPlane with respect to the HorizonDome.
+On top of that GroundPLane topology 3D model prepae to also the option to add a detailed 3D model of a building in the center of the GroundPlane
+To get concrete Height data add support for multiple sources with a source selection mechanism based on the GroundPLane GeoLocation. 
+E.g. for Bavaria in Germany The "openData DigitalesGeländemodell 1m (DGM1)" could be uesed. For other countries or continents other data sources could be used. Please make suggestiuons for such sources.
+-------------------------------
+The implementation is complete and builds successfully. Here's what was added to geolib:
+Height data abstraction
+•	HeightDataSource.h — abstract provider interface (name(), coverage() as a GeoBounds lat/lon box, resolutionM(), sampleHeight()).
+•	GridHeightDataSource.h/.cpp — FlatHeightDataSource fallback plus a reusable raster source with bilinear interpolation and no-data handling. Concrete readers (GeoTIFF/XYZ/HGT) hand their decoded raster to this class.
+•	HeightDataSourceRegistry.h/.cpp — singleton registry; selectSource(GeoLocation) picks sources covering the standpoint and ranks them by finest resolution, falling back to a world-wide source.
+•	BavariaDgm1HeightDataSource.h/.cpp — concrete DGM1 source: Bavaria bounding box, 1 m resolution, WGS84→UTM32N (EPSG:25832) projection, 1 km tile keys matching the official file naming, and a caching pluggable TileLoader.
+Geometry & shadows
+•	TriangleMesh.h/.cpp — indexed mesh in the ENU frame with append(), bounds, a createBox() helper, and Möller–Trumbore ray intersection / isOccluded().
+•	TerrainModel.h/.cpp — samples the source on a regular ENU grid, limited to HorizonDome::radius() (optionally circularly clipped), subtracts GroundPlane::curvatureDrop(), and triangulates into a terrain mesh skipping data gaps. setBuildingModel() / setBuildingBox() place a detailed building at the ground-plane centre, lifted onto the terrain height, and merge it into sceneMesh(). isInShadow() / isSurfaceInShadow() trace a ray along SolarPosition::direction() against that scene mesh.
+GroundPlane.h was also given the missing #pragma once, which was needed once multiple headers include it.
+Suggested sources for other regions (documented in HeightDataSourceRegistry.h): BKG DGM5/DGM10 for Germany, swissALTI3D (CH), IGN RGE ALTI (FR), AHN (NL), EA LIDAR (UK), Nordic LiDAR sets, USGS 3DEP (US), HRDEM (CA), EU-DEM 25 m, and global Copernicus DEM GLO-30 / NASADEM / AW3D30.
+Note: TriangleMesh::intersect is a linear scan over all triangles. For a 1024×1024 grid (~2 M triangles) shadow queries will be slow — adding a BVH or a height-field ray march would be the natural next step if you plan to compute shadow maps over many sun positions.
+
+### PROMPT ###
+Move concrete HeightDataSources (currently only BavariaDgm1HeightDataSource) in an own subddirectory named data_sources
+-------------------------------
+Done. The concrete height data sources now live in a data_sources subdirectory:
+•	Files moved with git mv (rename detected, history preserved):
+•	geolib/include/geolib/BavariaDgm1HeightDataSource.h → geolib/include/geolib/data_sources/BavariaDgm1HeightDataSource.h
+•	geolib/src/BavariaDgm1HeightDataSource.cpp → geolib/src/data_sources/BavariaDgm1HeightDataSource.cpp
+•	BavariaDgm1HeightDataSource.cpp — self include updated to geolib/data_sources/BavariaDgm1HeightDataSource.h.
+•	geolib/CMakeLists.txt — source entry updated to src/data_sources/BavariaDgm1HeightDataSource.cpp. The public include directory is unchanged, so consumers use #include "geolib/data_sources/BavariaDgm1HeightDataSource.h".
+•	README.md — types table path, the example include, and the note describing the convention all now reference data_sources.
+Note on what happened mid-task: my previous sources/ move had not been committed and was no longer present in the working tree, so I redid the move from the top-level state. During the CMake edit the add_library(geolib line got duplicated, which caused a "Function missing ending )" parse error; I found it via a hex dump and removed the stray line. The build now configures and links cleanly.
+The generic interfaces (HeightDataSource, GridHeightDataSource, FlatHeightDataSource, HeightDataSourceRegistry) intentionally remain at the top level, and nothing in data_sources is referenced by them — so adding further region-specific adapters there requires no changes to the core API.
+
+### PROMPT ###
+Create the Readers/downloader for the BavariaDgm1HeightDataSource. add this new class also to the data_sourced folder
+-------------------------------
+Done. 
+Four new classes in geolib/{include/geolib,src}/data_sources, all registered in geolib/CMakeLists.txt:
+Utm32Projection — forward/inverse transverse Mercator for EPSG:25832. The forward math was moved out of BavariaDgm1HeightDataSource (which now delegates to it, keeping its toUtm32() API) and the inverse was added.
+Utm32GridTile — a tile kept in its native UTM grid rather than as a lat/lon raster. This was a necessary design correction: the previous TileLoader returned a GridHeightDataSource, but DGM1 tiles are projected grids, so forcing them into a lat/lon raster would have resampled and skewed the 1 m data. Geodetic queries are now projected first, then interpolated. TileLoader was retyped to shared_ptr<Utm32GridTile> accordingly.
+BavariaDgm1TileReader — parses the official XYZ delivery format (deriving grid origin/spacing/extent from the samples, tolerating comma/semicolon separators and comments) and ESRI ASC ASCII grids, flipping their north-first rows to the tile's south-up order. readFile() picks the format by extension.
+BavariaDgm1TileDownloader — builds the official file name (dgm1_32_690_5334_1_by.tif), resolves URL and cache path, creates the cache dir, downloads on demand and exposes tileLoader() for direct use with the data source. Since geolib is dependency free, the HTTP GET is injected as a FetchFunction; with allowDownload = false it runs purely off a local tile directory.
+I also improved BavariaDgm1HeightDataSource::sampleHeight to consult neighbouring tiles when a query sits within one cell of a tile border, where the interpolation stencil would otherwise straddle the edge and fail.
+Verified with a temporary test (since removed): XYZ geometry and interpolation, ASCII-grid corner ordering, and a UTM round trip accurate to ~1e-9°. README.md documents all four classes with a wiring example.
+Two things worth flagging: the default fileExtension is .tif, but the reader only handles the text formats — set it to .xyz, or add a GeoTIFF decoder (now a roadmap item). And tileLoader() captures this, so the downloader must outlive the data source, as noted in the docs.
+
+### PROMPT ###
+Move the new Utm32Projecten utility into main geolib
+-------------------------------
+Done — the projection is now part of core geolib, with no stale references remaining.
+Moved (via git mv, rename preserved):
+•	geolib/include/geolib/data_sources/Utm32Projection.h → geolib/include/geolib/UtmProjection.h
+•	geolib/src/data_sources/Utm32Projection.cpp → geolib/src/UtmProjection.cpp
+Generalised as discussed: UtmProjection now takes a zone in its constructor and derives the central meridian as 6 * zone - 183, replacing the hard-coded 9. forward()/inverse() became const members, and zoneForLongitude() was added. Utm32Projection remains as a static convenience wrapper for zone 32N, so every existing call site (Utm32Projection::forward(...) in Utm32GridTile and BavariaDgm1HeightDataSource) compiles unchanged — only the include path moved. BavariaDgm1HeightDataSource::toUtm32() is likewise untouched.
+Utm32GridTile stayed in data_sources, as agreed.
+Verified with a temporary test (since removed): zone 32 reproduces the exact Munich easting/northing from before the change (691611.22 / 5334758.05), so the refactor is behaviour-preserving; Paris via zone 31 and Denver via zone 13 match their published UTM coordinates; round trips stay at ~1e-9°; zone detection returns 32/31/13 correctly.
+One thing to note: the #pragma once was dropped during the move and I restored it while rewriting the header — worth a glance in the diff.
+README.md now has a short "UTM projection" section in the core types area explaining why it sits there (the zone-32/31/32-35/10-19 spread across national DEMs), and the DGM1 section was corrected from four to three classes.
+The Utm32GridTile / GridHeightDataSource duplication I flagged earlier is still open; I'd still address it when a second projected data set arrives.
+
+### PROMPT ###
+in the previous steps you created temporary test code for the BavarianDgm1HeightDataSource and for the UtmProjection.
+Can you place recreate these unit tests and save them in a new base folder named tests: Within the tests folder there should be subfolders for the tests mathcing their place in the source code. Means tests/geolib folder for the UtmProjection Tests/geolib/data_sources for the BavarianDgm1 testers.
+-------------------------------
+Done. The temporary throwaway checks are now a permanent test suite under tests/, mirroring the source layout:
+tests/TestSupport.h                                          CHECK_* macros
+tests/geolib/UtmProjectionTests.cpp
+tests/geolib/data_sources/Utm32GridTileTests.cpp
+tests/geolib/data_sources/BavariaDgm1TileReaderTests.cpp
+tests/geolib/data_sources/BavariaDgm1HeightDataSourceTests.cpp
+tests/geolib/data_sources/BavariaDgm1TileDownloaderTests.cpp
+I kept the harness header-only and dependency-free to match geolib. Root CMakeLists.txt gains enable_testing() behind a GEOSOLAR_BUILD_TESTS option (default ON); ctest --test-dir build --output-on-failure runs all five suites — 100% passing.
+Beyond recreating the original checks, I expanded coverage into the error paths those ad-hoc scripts never touched: no-data rejection, out-of-bounds sampling, truncated/incomplete ASCII headers, tile cache behaviour (including that negative results are cached so a missing tile isn't refetched), download-disabled and failed-fetch paths, and the border fallback to neighbouring tiles. The downloader tests inject the fetch callback, so nothing hits the network.
+Three issues surfaced while getting to green, all in my test code, none in the library:
+1.	My XYZ fixtures wrote coordinates with default stream precision, so 5334000.0 became 5.334e+06 and the derived grid spacing collapsed. Fixed with std::fixed.
+2.	I asserted zoneForLongitude(-174.1) == 2 and (180.0) == 60. Both were wrong: zone 1 spans −180…−174, and +180 wraps to −180, so 1 is correct in both cases. Corrected the expectations.
+3.	My border-fallback fixture gave the neighbour tile a hard edge at the shared border, so it genuinely couldn't cover a point 0.2 m past it — the library was right to decline. The fixture now models the edge overlap real deliveries have.
+I also relaxed one tolerance from 1e-6 m to 1e-3 m: the inverse projection is accurate to ~1e-9°, which is ~1e-4 m, so the original bound was below the algorithm's precision.
+To confirm the tests aren't vacuous, I mutated the central meridian formula (-183 → -182) and verified UtmProjectionTests fails, then reverted — git diff --stat geolib/ is clean, so the library is untouched by this task.
+
+### PROMPT ###
+please generate also unit tests for other geolib classes where appropriate
+-------------------------------
+Extended the suite from 5 to 17 test executables, covering every remaining geolib class. All pass.
+New suites in tests/geolib/: AngleTests, Vector3Tests, DateTimeUtcTests, EarthModelTests, GeoLocationTests, GroundPlaneTests, HorizonDomeTests, SolarPositionTests, SunPathTests, TriangleMeshTests, HeightDataSourceTests, TerrainModelTests.
+Rather than assert whatever the code returns, I anchored the astronomical and geodetic suites to published references: solstice declinations (±23.44°), WGS84 curvature radii (6335439 m / 6399594 m), the equation of time extremes (−14.2 min in February, +16.4 min in November), perihelion/aphelion distances, Munich sunrise/sunset, and known city-pair distances.
+That approach paid off — it found two real bugs in the library:
+1. HorizonDome::radius() was ~half the correct value. The formula divided by 2R + h instead of R + h. The horizon appeared 2.26 km away instead of 4.52 km. Fixed; the result now matches both R·sin(θ) and the classic 3.57·√h rule of thumb to within 0.1%. This mattered beyond the dome itself: TerrainModel clamps its extent to HorizonDome::radius(), so terrain models were silently limited to half their intended reach.
+2. SolarPosition::azimuth() was measured from south, not north. The numerator sin(lat)·cos(Z) − sin(decl) was negated relative to the standard NOAA form. At Munich summer noon it returned 4.7° (north) instead of ~180° (south) — a 180° error that would have mirrored every shadow. After the fix, noon reads 179.66°, and morning/evening azimuths land within ~2° of published values.
+Both fixes are in geolib/src/; I verified them with an independent reference program before removing it. The direction(), projectOnDome() and shadow-casting paths all consume azimuth, so this correction propagates through SunPath and TerrainModel.
+I also corrected several of my own test errors along the way: solar noon in Munich is ~11:15 UTC (I had assumed 11:07), Julian-day differences can't resolve below ~1e-9 given the ~2.4e6 magnitude, and points exactly at the clipped circular rim of a TerrainModel legitimately have incomplete interpolation stencils.
+One note on HorizonDome::curvatureDrop(): it returns R·h/(R+h) ≈ the eye height, i.e. the drop at the tangent point, which differs from GroundPlane::curvatureDrop(radius, 0). Both are defensible; I tested the former as-is, but it's worth confirming that's the intended semantic.
+
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and tilereader for World (Copernicus DEM GLO-30)
+-------------------------------
+Added a complete world-wide height data source following the existing DGM1 pattern:
+New library files
+•	geolib/include/geolib/data_sources/CopernicusDem30HeightDataSource.h / geolib/src/data_sources/CopernicusDem30HeightDataSource.cpp — global HeightDataSource (30 m, world coverage) with a TileKey for 1°×1° tiles (N48_00_E011_00), tile caching including negative results and neighbour fallback on tile borders.
+•	.../CopernicusDem30TileReader.h/.cpp — parses HGT (big endian int16, north row first, square) and ESRI ASC grids into a GridHeightDataSource.
+•	.../CopernicusDem30TileDownloader.h/.cpp — official tile naming (Copernicus_DSM_COG_10_..._DEM), URL building, local cache directory, injected FetchFunction for HTTP, and tileLoader().
+Tests (tests/geolib/data_sources/CopernicusDem30*Tests.cpp) cover naming, decoding incl. negative heights and NODATA, malformed input, caching, disabled/missing/failing downloads and loader integration.
+geolib/CMakeLists.txt, tests/CMakeLists.txt and the README.md were updated. Build succeeds and all 20 tests pass.
+
+
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for United Kingdom (Environment Agency LIDAR 1 m)
+-------------------------------
+Added a UK height data source following the established pattern. Because Environment Agency LIDAR is published on the British National Grid, a projection for it was needed first.
+Core
+•	geolib/include/geolib/BritishNationalGridProjection.h + geolib/src/BritishNationalGridProjection.cpp — OSGB36/EPSG:27700 transverse Mercator on the Airy 1830 ellipsoid with the Helmert WGS84↔OSGB36 datum shift, plus squareFor()/squareOrigin() for the 100 km square codes. Verified against the official OS worked example (~2 m).
+Data source (geolib/{include/geolib,src}/data_sources)
+•	BngGridTile — raster tile kept in native BNG coordinates, bilinear sampling, NODATA handling, south-up rows.
+•	UkEaLidarTileReader — parses the official ESRI ASC grids (incl. xllcenter/yllcenter) and XYZ triples, dispatching on the file extension.
+•	UkEaLidarTileDownloader — 5 km block naming (sp50ne → LIDARCOMP-DTM-1M-sp50ne.asc), URL/cache resolution, injected FetchFunction, tileLoader().
+•	UkEaLidarHeightDataSource — 1 m source over England/Wales, projects to BNG, snaps to the 5 km block, caches tiles incl. negative results and falls back to neighbours at tile borders.
+Tests — 5 new suites (BritishNationalGridProjectionTests, BngGridTileTests, UkEaLidarTileReaderTests, UkEaLidarHeightDataSourceTests, UkEaLidarTileDownloaderTests) covering projection round trips and square codes, interpolation/NODATA, both file formats and malformed input, tile naming/caching/coverage, and download success, failure, disabled and off-grid cases.
+geolib/CMakeLists.txt, tests/CMakeLists.txt and README.md updated. Build succeeds; all 25 tests pass.
+
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for Germany (BKG DGM5)
+-------------------------------
+Added the German nation-wide BKG DGM5 source, following the established three-class pattern. Since DGM5 uses the same UTM32 tiling as the DGM1, the existing Utm32GridTile is reused.
+New library files
+•	geolib/include/geolib/data_sources/BkgDgm5HeightDataSource.h / geolib/src/data_sources/BkgDgm5HeightDataSource.cpp — 5 m source covering all of Germany, TileKey for the 1 km UTM32 squares, tile caching incl. negative results, and a border fallback sized to the 5 m grid spacing.
+•	.../BkgDgm5TileReader.h/.cpp — parses the official XYZ format and ESRI ASC grids; additionally normalises German number formatting (decimal comma vs. comma separator, plus semicolons).
+•	.../BkgDgm5TileDownloader.h/.cpp — tile naming (dgm5_32_690_5334_2.xyz), URL/cache resolution, injected FetchFunction, and tileLoader().
+Tests (tests/geolib/data_sources/BkgDgm5*Tests.cpp) cover 5 m spacing derivation, all separator/decimal-comma variants, ASCII grid incl. centre reference, extension dispatch, malformed input, Germany-wide coverage (Munich/Hamburg/Dresden in, Vienna/London out), caching, border neighbour fallback, and the full download success/failure matrix.
+geolib/CMakeLists.txt, tests/CMakeLists.txt and README.md updated. Build succeeds; all 28 tests pass.
+
+### PROMPT ###
+rename all Files that start with BkgDgm5 into GermanyDgm5 and adapt includes and code
+-------------------------------
+Rename complete.
+Files renamed (via git mv, so history is preserved)
+•	geolib/include/geolib/data_sources/BkgDgm5{HeightDataSource,TileReader,TileDownloader}.h → GermanyDgm5*.h
+•	geolib/src/data_sources/BkgDgm5*.cpp → GermanyDgm5*.cpp
+•	tests/geolib/data_sources/BkgDgm5*Tests.cpp → GermanyDgm5*Tests.cpp
+Code adapted
+•	All class names (BkgDgm5HeightDataSource, BkgDgm5TileReader, BkgDgm5TileDownloader), include paths, doc comments and test suite names updated to the GermanyDgm5 prefix.
+•	geolib/CMakeLists.txt and tests/CMakeLists.txt updated; the source list re-sorted alphabetically.
+•	README.md class/test tables and the DGM5 section updated.
+•	Re-wrapped three C++ lines and one doc comment that exceeded the file's column limit due to the longer name.
+Mentions of "BKG" in prose were kept, since that is the name of the publishing agency (Bundesamt für Kartographie und Geodäsie), not a type name. Build succeeds and all 28 tests pass.
+
+### PROMPT ###
+rename all Files that start with CopernicusDem30 into WorldCopernicusDem30 and adapt includes and code
+-------------------------------
+Done. Changes:
+•	Renamed via git mv (headers, sources, tests):
+•	geolib/include/geolib/data_sources/WorldCopernicusDem30{HeightDataSource,TileDownloader,TileReader}.h
+•	geolib/src/data_sources/WorldCopernicusDem30{HeightDataSource,TileDownloader,TileReader}.cpp
+•	tests/geolib/data_sources/WorldCopernicusDem30*Tests.cpp
+•	Renamed classes, include paths, include guards, test names and updated geolib/CMakeLists.txt, tests/CMakeLists.txt and README.md.
+
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for USA (USGS 3DEP 1m)
+-------------------------------
+Added: USGS 3DEP 1 m (USA)
+Following the existing three-class pattern (HeightDataSource + TileReader + TileDownloader):
+UtmGridTile (data_sources/UtmGridTile.h / .cpp) New helper analogous to Utm32GridTile/BngGridTile, but the UTM zone is stored per tile. The conterminous US spans zones 10–19, so a fixed-zone tile like Utm32GridTile cannot be reused. Geodetic queries are projected with UtmProjection(zone) before bilinear interpolation, so the 1 m raster is never resampled.
+UsaUsgs3Dep1mHeightDataSource
+•	TileKey{zone, eastingM, northingM} with toString() producing the official fragment (16_x540y4400); empty for an invalid zone.
+•	10 km tiling (kTileSizeM), coverage box for CONUS/Alaska/Hawaii, resolutionM() == 1.0.
+•	toUtm() picks the zone via UtmProjection::zoneForLongitude().
+•	Caches tiles including negative results, and falls back to neighbouring tiles of the same zone at tile borders.
+UsaUsgs3Dep1mTileReader Parses ESRI .asc grids (incl. xllcenter/yllcenter) and .xyz triples with derived spacing. The zone is passed in since neither format carries it. ASCII rows are flipped to the south-up ordering of UtmGridTile.
+UsaUsgs3Dep1mTileDownloader Naming (USGS_1M_16_x540y4400.asc), URL under .../1m/<zone>/TIFF/..., local cache, and an injected FetchFunction so geolib stays dependency free.
+Also updated: geolib/CMakeLists.txt, tests/CMakeLists.txt, README.md, plus four new test suites (UtmGridTileTests, UsaUsgs3Dep1mTileReaderTests, UsaUsgs3Dep1mHeightDataSourceTests, UsaUsgs3Dep1mTileDownloaderTests).
+One judgement call worth flagging: the download URL path (<baseUrl>/<zone>/TIFF/<file>) and the USGS_1M_ prefix are modelled on the staged-products layout, but USGS actually versions these names per project/year. The Config struct exposes baseUrl, fileNamePrefix and fileExtension so callers can adjust, but you may want to verify against the specific product generation you intend to consume before pointing it at the live server.
+
+
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for France (IGN RGE ALTI 1m)
+-------------------------------
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for Austria (ALS DGM 1m)
+-------------------------------
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for Switzerland (swissALTI3D05)
+-------------------------------
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for SwedenNorwayFinland (1m-2m)
+-------------------------------
+### PROMPT ###
+add a new concrete HeightDataSource with downloader and TileReader for Canada (HRDEM 1m-2m)
+-------------------------------
+
+
+### PROMPT ###
+generate two scripts to ecexute the build ad to build/execute the tests on Windows and Linux
+-------------------------------
+scripts/build.ps1
+Wraps configure + build:
+./scripts/build.ps1                          # Debug into build/Debug
+./scripts/build.ps1 -Configuration Release   # Release into build/Release
+./scripts/build.ps1 -Clean                   # wipe build tree first
+./scripts/build.ps1 -NoTests                 # -DGEOSOLAR_BUILD_TESTS=OFF
+./scripts/build.ps1 -BuildDir D:/tmp/gs      # custom build tree
+•	Defaults to the Ninja generator (matching your workspace) and falls back to the platform default generator with a warning if ninja isn't on PATH.
+•	Fails fast if cmake is missing, and throws on a non-zero configure/build exit code so it can't silently "succeed".
+scripts/test.ps1
+Calls build.ps1, then runs CTest:
+./scripts/test.ps1                           # build + run all 32 suites
+./scripts/test.ps1 -Filter UsaUsgs3Dep1m     # subset via ctest -R
+./scripts/test.ps1 -SkipBuild                # reuse existing build tree
+./scripts/test.ps1 -Configuration Release -Clean
+Uses --output-on-failure and propagates CTest's exit code, so it's usable as a CI gate.
+Also updated the README's Building and Tests sections to document both scripts alongside the existing manual cmake/ctest commands.
+Two notes on the choices I made:
+•	Scripts are PowerShell only, since your workspace is Windows/MSVC. If you need Linux/macOS or CI-on-Ubuntu coverage, a .sh equivalent would have to be added separately.
+•	They build into build/<Configuration>, which is already covered by /build in .gitignore — deliberately not out/build/x64-Debug, so these scripts never fight with the Visual Studio CMake integration's own cache.
+-------------------------------
+these are now PowerShell scripts for building and testing on windows. pleae rename them to win_build and win_test. Can you also generate two such scripts for Linux shell?
+-------------------------------
+Done. Renamed and added Linux equivalents.
+Renamed (via git mv, so history is preserved)
+•	scripts/build.ps1 → scripts/win_build.ps1
+•	scripts/test.ps1 → scripts/win_test.ps1
+Internal references were updated too: win_test.ps1 now invokes win_build.ps1, and the .EXAMPLE help blocks use the new names.
+New Linux scripts
+scripts/linux_build.sh and scripts/linux_test.sh — same behaviour and defaults as the PowerShell pair, but with idiomatic POSIX-style flags:
+./scripts/linux_build.sh                     # Debug into build/Debug
+./scripts/linux_build.sh -c Release --clean
+./scripts/linux_build.sh --no-tests
+./scripts/linux_test.sh                      # build + run all 32 suites
+./scripts/linux_test.sh -f UsaUsgs3Dep1m     # subset via ctest -R
+./scripts/linux_test.sh --skip-build
+Matching the Windows scripts, they:
+•	default to Ninja and fall back to the platform default generator with a warning if it's missing;
+•	use set -euo pipefail and check for cmake/ctest up front;
+•	propagate CTest's exit code so they work as a CI gate.
+Additions specific to the shell versions: a -j/--jobs flag (defaulting to the CPU count, since cmake --build isn't parallel by default on Make generators) and -h/--help, which prints the header comment block.
+Supporting changes
+•	.gitattributes (new) — pins *.sh to eol=lf and *.ps1 to eol=crlf. Without this, a Windows checkout with core.autocrlf=true would give the shell scripts CRLF endings and Linux would fail with bad interpreter: /usr/bin/env bash^M.
+•	The scripts are staged with mode 100755, so the executable bit survives a Linux clone.
+•	README.md — Building and Tests sections now document both platforms.
+Verified: bash -n passes on both shell scripts, --help and unknown-option handling behave correctly, and win_test.ps1 -Clean still builds from scratch with 32/32 tests passing. I could not execute the Linux scripts against a real toolchain from this Windows workspace — their CMake/CTest invocations are identical to the verified PowerShell ones, but a first run on an actual Linux box is worth doing.
+
+
+
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
