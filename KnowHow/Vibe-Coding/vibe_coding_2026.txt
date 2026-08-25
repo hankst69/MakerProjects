@@ -443,11 +443,124 @@ Supporting changes
 •	README.md — Building and Tests sections now document both platforms.
 Verified: bash -n passes on both shell scripts, --help and unknown-option handling behave correctly, and win_test.ps1 -Clean still builds from scratch with 32/32 tests passing. I could not execute the Linux scripts against a real toolchain from this Windows workspace — their CMake/CTest invocations are identical to the verified PowerShell ones, but a first run on an actual Linux box is worth doing.
 
+### PROMPT ###
+rename SolarPosition into SunPosition
+-------------------------------
+Renamed everywhere:
+•	geolib/include/geolib/SolarPosition.h → SunPosition.h
+•	geolib/src/SolarPosition.cpp → SunPosition.cpp
+•	tests/geolib/SolarPositionTests.cpp → SunPositionTests.cpp
+•	SolarPosition.md → SunPosition.md
+•	Class SolarPosition → SunPosition, plus all references in README.md, geolib/CMakeLists.txt, tests/CMakeLists.txt, SunPath.h/.cpp, TerrainModel.h, and tests.
+Build succeeds.
 
+### PROMPT ###
+please suggest an adaption to calculate the HorizonRadius not only based on ViewerEyeHeight but also consider the TerrainHight above SeaLevel for that specific GeoLocation (fecth TerrainHeight via HeightDataSources)
+-------------------------------
+Done. Adaptation implemented:
+geolib/include/geolib/HorizonDome.h / geolib/src/HorizonDome.cpp
+•	New member m_terrainHeightM with accessors terrainHeight() and observerHeight() (terrainHeight + viewHeight).
+•	New ctor HorizonDome(standpoint, viewHeightM, terrainHeightM); the existing 2-arg ctor delegates to it using standpoint.altitude() as terrain height, so existing behaviour for sea-level standpoints is unchanged.
+•	New factories fromHeightDataSource(standpoint, source, viewHeightM) and fromHeightDataSourceRegistry(standpoint, viewHeightM), which sample the terrain height via HeightDataSource::sampleHeight() (falling back to the location altitude when the source is null or has a data gap).
+•	radius() (now computed in compute()), lineOfSightDistance(), geocentricHorizonAngle() and curvatureDrop() all use observerHeight() instead of only the eye height.
+tests/geolib/HorizonDomeTests.cpp – added a ConstantHeightDataSource stub and three tests: explicit terrain height (formula, monotonicity, altitude fallback), data-source based construction incl. gap/null fallback, and registry based construction (registry state restored afterwards).
+README.md – horizon dome section updated to describe the combined observer height and the new construction options.
+Build succeeds and HorizonDomeTests, SunPathTests, TerrainModelTests pass.
 
 ### PROMPT ###
+create a class SunEnergy that shall deliver the theoretical maximum sun radiation energy in W per square meter for a given date.
+The value shall be calculated for ideal locatin on earth on that date on sea level, so for perpendicular irradiation and under assumtion of not existing atmospheric damping. 
+So that means take into account the actual distance between earth and sun for the given date due the elliptical earth orbit around sun.
+
+Then on top of that theoretical value, also provide a realistic energy value for a specific geolocation on the given date and time. Means take into account the energy damping due inclination of GroundPlane and also the damping due length of path the of sun light needs to take across atmosphere toward the geolocation pointl. This second effect is also realted to the GroundPlane inclination relative to the perpendicular sun radion point.
+-------------------------------
+Added SunEnergy to geolib:
+•	geolib/include/geolib/SunEnergy.h / geolib/src/SunEnergy.cpp
+•	SunEnergy(DateTimeUtc): theoretical maximum — solar constant 1361 W/m² scaled by the inverse square of the date's earth–sun distance (taken from SunPosition::sunDistanceAu(), i.e. the elliptical orbit), perpendicular irradiation, sea level, no atmosphere. ~1408 W/m² at perihelion, ~1316 W/m² at aphelion.
+•	SunEnergy(GeoLocation, DateTimeUtc): adds the realistic part via the contained SunPosition:
+•	airMass() — Kasten/Young relative optical air mass from the refracted elevation (light path length through the atmosphere, 1.0 in the zenith, 0 below horizon),
+•	atmosphericTransmittance() = 0.7^airMass, directNormalIrradiance() = theoretical × transmittance,
+•	groundIrradiance(), irradianceOnPlane(normalENU), irradianceOnTiltedPlane(tilt, azimuth), irradianceOnGroundPlane(GroundPlane) — direct normal irradiance × cosine of the angle between sun direction and plane normal (clamped at 0).
+•	Registered the source in geolib/CMakeLists.txt and added tests/geolib/SunEnergyTests.cpp plus its entry in tests/CMakeLists.txt.
+All 33 tests pass.
+
+### PROMPT ###
+please add documentation for the SunEnergy class in a separate mardown document
+-------------------------------
+Added SunEnergy.md in the repository root, following the style of the existing SunPosition.md:
+•	Theoretical maximum — solar constant E0 = 1361 W/m², inverse square law with the date's earth–sun distance, plus a table of perihelion/mean/aphelion values (~1408 / 1361 / 1316 W/m²) and the +/-3.4 % seasonal swing.
+•	Atmospheric damping — the relative optical air mass (Kasten/Young 1989 formula, refracted elevation), Beer-Lambert transmittance tau^AM with tau = 0.7, resulting in the direct normal irradiance.
+•	Plane inclination — the cosine law max(0, n·s), the tilted-plane normal construction, and a table of the four irradianceOn… overloads.
+•	Putting it together — the combined formula chain and a small Munich code example.
+•	Scope and limitations — direct beam only (no diffuse/albedo), fixed clear sky transmittance, no terrain shading, accuracy inherited from SunPosition.
+Also updated README.md: SunEnergy added to the core types table and the test suite table, plus a new "Sun energy" section linking to the new document.
+
+### PROMPT ###
+please extract also other geolib class documentations from the README.md into separate mardown documents and move all these separate geolib mardown files into a new docs folder. Only keep the READM.ma at root level
+-------------------------------
+Extracted the class documentation from README.md into a new docs folder.
+New/moved files in docs/:
+File	Extracted from
+EarthModel.md	"Earth model" section
+GroundPlane.md	"Ground plane" section
+HorizonDome.md	"Horizon dome" section
+Projections.md	"UTM projection" + "British National Grid projection"
+SunPosition.md	moved from root, plus a new "Interface" section taken from the README
+SunPath.md	"Sun path" section, expanded with the API overview and example
+SunEnergy.md	moved from root
+HeightDataSources.md	"Height data sources" incl. source selection, DGM1, DGM5, GLO-30, EA LIDAR, 3DEP and the other data sets table
+TerrainModel.md	"Terrain model and shadows" incl. TriangleMesh and the shadow example
+Each document ends with a "Related" section linking to the neighbouring topics; all links are relative and stay inside docs/.
+README.md (the only markdown left at root) keeps the build/test instructions, the core types table and the example, and the long per-class sections are replaced by:
+•	a Documentation table linking to every file in docs/,
+•	a short Overview with one bullet per topic pointing at the detailed document.
+The example was also extended with a SunEnergy usage line.
+
+### PROMPT ###
+add a class CameraPosition to calculate the initial camera position for a given GeoLocation. The camera shall be at a height of 30m aboth TerrainGround level and 50m away from HorizonDome Center (for locations on northern hemisphere the camera shall be on 50m towards south, for southern hemisphere 50m towards north.
+Or for a given DateTime place the Camera on the line between GeoLocation and SunPostion.
+-------------------------------
+Done. Added CameraPosition to geolib:
+•	geolib/include/geolib/CameraPosition.h / geolib/src/CameraPosition.cpp
+•	initial(dome|location, heightM=30, distanceM=50): camera 30 m above terrain ground level and 50 m from the HorizonDome centre, towards south on the northern hemisphere (azimuth 180°) and towards north on the southern one (azimuth 0°). Earth curvature drop over the offset is subtracted.
+•	forDateTime(dome|location, utc, ...): places the camera on the line standpoint → sun using SunPosition azimuth/elevation, keeping the 50 m horizontal distance and never dropping below the minimum height (used for sun at/below horizon).
+•	Accessors: target(), localPosition() (ENU), ecefPosition(), geoLocation(), heightAboveTerrain(), horizontalDistance(), azimuth(), elevation(), viewDirection().
+•	Registered the source in geolib/CMakeLists.txt and added tests/geolib/CameraPositionTests.cpp plus its entry in tests/CMakeLists.txt. Build and the new test pass.
+
+### PROMPT ###
+add a mardown documentation for CameraPosition
+-------------------------------
+Added docs/CameraPosition.md describing:
+•	the initial placement rule (30 m above terrain, 50 m from the dome centre, south on the northern / north on the southern hemisphere),
+•	the forDateTime() placement on the standpoint→sun line, including the minimum-height and below-horizon behaviour,
+•	the height/curvature formula for the local z coordinate,
+•	a table of the public queries and links to the related docs.
+Also linked it from README.md in both the documentation table and the overview list.
+
+### PROMPT ###
+create Qt SolarSim gui app that makes use of geolib to render a scene for a given GeoLocation and Date. The scene shall be based on the Terrain model for that location.
+
+Besides a weak basic diffuse illumination, the main light source shall be a simulation of the sun based on SunPath class. The SunLight shall be approximated as a flat area the size to cover the visible scene with light where the light rays shall all be parallel in current direction() of SunPosition for specific DateTime.
+
+The app shall start at GeoLocation given in example in README.mr and for curretn Date.
+The CameraPosition class shall be used for scene viewing.
+The app shall allow to interactively schroll through time from Sunrise to sunset for given Date.
+The app shall allow to adapt the camera position. 
+Encapsulete necessary calculations e.g. for Camera repositioning into existing or new geolib classes.
 -------------------------------
 ### PROMPT ###
 -------------------------------
 ### PROMPT ###
 -------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+
+https://www.dwd.de/DE/leistungen/solarenergie/strahlungskarten_sum.html?nn=16102utm_source=Referral|utm_medium=TypeIn|page_title=Einstrahlungskarte|page_url=https%3A%2F%2Fwww.solarwatt.de%2Fratgeber%2Feinstrahlungskarte|utm_content=Deutscher+Wetterdienst|
