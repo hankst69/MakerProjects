@@ -912,7 +912,27 @@ Build status: successful.
 If it still looks sparse, that would likely be from missing elevation coverage in the selected height data source (not the mesh extent anymore).
 
 ### PROMPT ###
+extend the geolib GeoDataSource interface to set a callback ProgressClass which can be triggered from a concrete DataSourceImplementation via interface function progress(int percent, std::string msg).
+So a concrete implementation of that ProgressClass interface can then use this progress value to display the progress in the ui
 -------------------------------
+I extended GeoDataSource in src/geolib/include/geolib/GeoDataSource.h with:
+•	A callback interface:
+•	class ProgressClass
+•	virtual void progress(int percent, std::string msg) = 0;
+•	A setter on the datasource:
+•	void setProgressClass(std::shared_ptr<ProgressClass> progressClass)
+•	A protected forwarding helper for concrete implementations:
+•	void progress(int percent, std::string msg) const
+•	This calls the registered callback if one is set.
+I also added required includes (<memory>, <utility>) and #pragma once.
+Result
+Concrete datasource implementations can now report progress via:
+•	setProgressClass(...) from outside (e.g., UI layer)
+•	progress(percent, msg) from inside any GeoDataSource-derived class
+Validation
+•	Full workspace build completed successfully.
+
+
 ### PROMPT ###
 -------------------------------
 ### PROMPT ###
