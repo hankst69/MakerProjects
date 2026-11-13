@@ -899,6 +899,7 @@ Files changed
 Validation
 •	Full build passes: Build successful.
 
+
 ### PROMPT ###
 does not really look like I would expect... also the surface seems to only contain 1 tile in the middle. I like to have the whole area covered of theground plane of the HorizonDome.
 -------------------------------
@@ -910,6 +911,111 @@ I changed the terrain setup so the rendered surface now uses the full HorizonDom
 So now the terrain model is no longer a small fixed patch in the center.
 Build status: successful.
 If it still looks sparse, that would likely be from missing elevation coverage in the selected height data source (not the mesh extent anymore).
+
+
+### PROMPT ###
+The heightdatasource needs a fetchUtl function that downloads files. The current implementation is Qt based but seems to have problems when used in the final Qt application. Seems the pseudo synchonus execution interferwes with the application or maybe with parallel requests?
+There is a libraray on github which only consists of an inlclude and a c implementation that could also serve that fetchUrl function. See https://github.com/cesanta/mongoose
+Can you either fix the issue with the downloads or add another fetchUrl function that is based on mongoose
+-------------------------------
+I couldn't find a definitive cause in the code, but the current Qt version has several likely culprits. I've added a Mongoose-based alternative because it avoids them all.
+Likely problems in the Qt fetchUrl
+•	loop.exec() runs a nested event loop. While it runs, paint, timer and input events keep being delivered. If one of them calls sampleHeight, it re-enters fetchUrl and starts a second nested loop, so the loops end up interleaved. The inner finished signal can then quit the wrong loop. This matches your suspicion about parallel requests.
+•	The static QNetworkAccessManager is created on whichever thread calls first. Using it from another thread is undefined behavior.
+•	Redirects aren't followed, and the HTTP status isn't checked. A 404 or an HTML error page is saved as if it were a tile.
+•	The result of output.write isn't checked, and partial files stay on disk.
+The Mongoose version needs no event loop and no Qt. It is blocking and safe to call from any thread. It also follows redirects, checks the status, and writes to a temp file before renaming.
+1. Vendor Mongoose. Copy mongoose.c and mongoose.h (7.14 or newer) into third_party/mongoose/.
+
+
+### PROMPT ###
+The shade calcuation of the triangles for the scene rendering is very time consuming but happenes upon every paint() event.
+This applies to all 3 renferer implememntations.
+see "void SceneViewcollectFaces(QVector<Face>& faces)", "void GLSceneViewuploadGeometryIfNeeded()", "void GpuSceneRenderer::uploadGeometryIfDirty()"
+It seems to be necessary to only activate this shadow based coloring (full lightning simulation) upon request from UI. Initially there should be only a preview of the scene displayed to have interactive camera and date/time adjustment.
+-------------------------------
+Looking at the three implementations, the actual bottleneck is geo::TerrainModel::isInShadow(...), which does a ray-march against the terrain for every visible triangle. This runs:
+•	SceneView::collectFaces — unconditionally, on every single paintEvent() (even just orbiting the camera, which doesn't change shading at all).
+•	GLSceneView::uploadGeometryIfNeeded / GpuSceneRenderer::uploadGeometryIfDirty — gated behind a dirty flag, but that flag is set whenever setDateTime() is called, so dragging the time slider re-triggers the full shadow raycast for the whole mesh.
+None of them separate "cheap preview shading" (ambient + sky + sun-facing diffuse) from "expensive full shadow simulation" (isInShadow per triangle).
+Plan
+1.	Add a shadowsEnabled flag (default false) to all three scene renderers, with a setShadowsEnabled(bool) setter that marks the shading cache dirty and triggers a repaint.
+2.	When shadowsEnabled == false, skip the isInShadow() call entirely and just use the sun-facing Lambertian term — this gives an interactive, physically-plausible-looking preview with camera/date/time manipulation, at a fraction of the cost.
+3.	For SceneView (the only one of the three that didn't cache shading at all), split shading computation out of collectFaces into a separate rebuildShading() step, cached per-triangle and only recomputed when terrain/time/shadow-mode changes — not on every paintEvent (i.e., not on camera orbit/zoom).
+4.	Add a UI control (checkbox) in MainWindow to opt into full shadow simulation, defaulting to off.
+
+Summary of effect
+•	Interactive preview (camera orbit/zoom, date/time scrubbing, playback) now never calls isInShadow() by default — it only evaluates the cheap ambient+sky+sun-facing Lambertian term, which is O(triangles) with no raycasting.
+•	Shading is cached and invalidated only by actual terrain/time/shadow-mode changes, not by every repaint — this removes the biggest previously-hidden cost in SceneView (it had no caching at all; it recomputed shading, including shadow raycasts, on every paintEvent, even pure camera-orbit frames).
+•	The full shadow simulation (isInShadow) is now opt-in via the new "Simulate shadows (slow)" checkbox, matching your request that it should only run "upon request from UI."
+•	All three renderer backends (SceneView, GLSceneView, GpuSceneRenderer) share the same setShadowsEnabled contract, so MainWindow can treat them uniformly through SceneViewWidget.
+
+
+### PROMPT ###
+please apply the suggested changes and update also the SceneViewTests and the documentation
+-------------------------------
+Summary
+•	tests\app\SceneViewTests.cpp: added a testSetShadowsEnabled() case covering the default-off state, toggling on/off, and repainting in both modes without crashing; testInitialStateIsEmpty() now also asserts shadowsEnabled() == false by default.
+•	README.md: updated the GUI description to explain the cheap default preview shading vs. the opt-in "Simulate shadows (slow)" checkbox that enables the full TerrainModel::isInShadow() raycast.
+•	src\app\SceneView.h, src\app\GLSceneView.h, src\app\GpuSceneRenderer.h: updated class doc comments to describe the new setShadowsEnabled() behavior and the preview-vs-full-simulation shading split.
+Build verified successful after all changes.
+
+
+### PROMPT ###
+despite the switch to mbedtls, the MongooseTests still fail to succesfully use the fetchUrlMongoose() In the app it semes to work.
+Remark, that the MongooseTests() operate with a copy for fetchUrlMongoose() and its helper functions. The real implementatins are in D:\GIT\Maker\projects\SolarSim\src\app\GeoDataSources.cpp There ist seems to work now
+-------------------------------
+Fixed two issues in tests/app/MongooseTests.cpp that diverged from the working GeoDataSources.cpp implementation:
+1.	Malformed HTTP request: The test's mgFetchHandler sent a duplicate Host: header (once with the raw host buffer via %.*s, once with the computed hostHeader), plus mismatched/extra format arguments in mg_printf. Sending two Host headers is invalid HTTP/1.1 and many servers reject or mishandle such requests. Fixed to match the single, correct Host header used in GeoDataSources.cpp.
+2.	Undefined behavior in debug logging: The handler unconditionally cast evData to const char* for logging, even though for events like MG_EV_CONNECT the evData is an int*, not a C-string. This could read garbage/crash and destabilize the test. Simplified the log line to print the pointer value instead of dereferencing it as a string.
+
+
+### PROMPT ###
+in GLSceneView.cpp the current sun point is visualized onto the sunpath arc but just as a small single point/pixel see: if (m_hasCurrentSunPoint && m_terrain) { ... }
+can you change thast so it is visualized as a small sphere that appears as a sphere with a diameter of around 20 pixels?
+-------------------------------
+No compile errors; the failure was a linker file-lock (likely running exe). The code changes compile fine.
+Summary of changes in GLSceneView.cpp/.h:
+•	Added a dedicated marker shader program (kMarkerVertexShaderSource / kMarkerFragmentShaderSource) that renders a GL_POINTS sprite shaded as a lit sphere using gl_PointCoord, with a fixed screen-space size (kSunMarkerPixelDiameter = 20.0f via gl_PointSize/GL_PROGRAM_POINT_SIZE).
+•	Removed the old quad/line-based marker vertices from the overlay buffer; the current sun point is now uploaded to a separate m_markerVertexBuffer/m_markerVao.
+•	In paintGL(), after drawing the sun path line strip, the marker is drawn as a single point sprite with blending enabled, giving a consistent ~20px diameter sphere look regardless of camera distance.
+
+### PROMPT ###
+There are 3 different SceneView implementations used in AppLib. SceneView for GPU, GLSceneView for OpenGL and GpuSceneRenderer vor WebGPU. Please refactor the code to have a common SceneView base class and then 3 derived startegy implementations
+-------------------------------
+Summary
+I introduced a common base class SceneViewBase (src/app/SceneViewBase.h/.cpp) that holds the shared state (terrain, camera, light, sun-path overlay data, shadows flag, progress reporting) and shared logic (setTerrain/setDateTime/setCamera/setShadowsEnabled, rebuildLight/rebuildSunPathOverlay, and mouse-driven orbit/zoom handling). It exposes protected virtual hooks (onTerrainChanged, onDateTimeChanged, onCameraChanged, onShadowsEnabledChanged, emitCameraChanged) that each concrete strategy overrides to do its rendering-backend-specific work (GPU buffer invalidation, repaint triggers, etc).
+Since Qt doesn't support a shared QObject base between a QWidget and a QOpenGLWidget subclass, each strategy multiply-inherits from its own Qt base plus SceneViewBase:
+•	SceneView : public QWidget, public SceneViewBase (software rasterizer)
+•	GLSceneView : public QOpenGLWidget, protected QOpenGLFunctions, public SceneViewBase (OpenGL)
+•	GpuSceneRenderer : public SceneViewBase (WebGPU, not a QWidget)
+All three now forward their setTerrain/setDateTime/setCamera/setShadowsEnabled/camera()/shadowsEnabled()/setProgressClass/progress() to the base class, removing duplicated member variables and logic, and delegate mouse events to the shared handleOrbitMousePress/Move/Wheel helpers. Updated src/app/CMakeLists.txt to compile the new SceneViewBase.cpp. Build verified successful.
+
+### PROMPT ###
+now rename SceneView into SceneViewCPU, GLSceneView into SceneViewGL and GpuCeneRenderer into SceneViewWEBGPU
+-------------------------------
+Summary
+Renamed the three SceneView strategy implementations and their files using git mv (to preserve history), then updated class names, constructors/destructors, method definitions, includes, doc comments, and all references throughout the codebase:
+Old	New
+SceneView (SceneView.h/.cpp)	SceneViewCPU (SceneViewCPU.h/.cpp)
+GLSceneView (GLSceneView.h/.cpp)	SceneViewGL (SceneViewGL.h/.cpp)
+GpuSceneRenderer (GpuSceneRenderer.h/.cpp)	SceneViewWEBGPU (SceneViewWEBGPU.h/.cpp)
+Updated consumers:
+•	src/app/MainWindow.h / .cpp — updated includes and the SceneViewWidget type alias logic.
+•	src/app/CMakeLists.txt — updated source file lists and comments.
+•	tests/app/SceneViewTests.cpp — updated include and class usages (test file itself was left named SceneViewTests.cpp as that wasn't part of the rename request).
+•	tests/app/CMakeLists.txt — updated comment.
+•	src/app/SceneViewBase.h — updated doc comments referencing the old class names.
+Also fixed a couple of duplicate-include artifacts left over from the file moves. Verified with a full workspace build, which succeeded.
+
+### PROMPT ###
+right now there are two different strategies to select the rendering version of SceneView.
+1.	the switch between SceneViewCPU und SceneViewWebGPU happens within ScneViewCPU. This seems wrong from software architecture point of view.
+2.	the selectione between SceneViewGL and SceneViewCPU/WebGPU happens in MainWindow.cpp
+In both cases the CMAKE based compile definitions control the selection Can this be unified? What would be the cleanet approach?
+I could also think of a third approach, where the compile switch selection between CPU/GL/WebGPU happens in SceneViewBase. SceneViewBase could/should then also  be renamed to just SceneView.
+Other option s to switch always in MainWindow.cpp.
+-------------------------------
 
 ### PROMPT ###
 -------------------------------
