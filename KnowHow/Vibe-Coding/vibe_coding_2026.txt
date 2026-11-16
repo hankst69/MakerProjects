@@ -1017,6 +1017,39 @@ I could also think of a third approach, where the compile switch selection betwe
 Other option s to switch always in MainWindow.cpp.
 -------------------------------
 
+
+### PROMPT ###
+the TerrainMesh has holes at the borders of the tiles. Do you know why that is and how to prevent?
+-------------------------------
+Summary
+Root cause: Utm32GridTile::sampleUtm bilinearly interpolates using a 2×2 cell. Near a 1 km DGM5 tile boundary, that cell's four corners can span two different tile files. The old GermanyDgm5HeightDataSource::sampleHeight fallback retried the whole interpolation on one neighbouring tile, but no single tile (primary or neighbour) holds all 4 corners in that straddling cell, so it returned false. TerrainModel::sampleHeights then marked those grid vertices invalid, and buildTerrainMesh skips triangles touching invalid vertices — producing holes exactly at tile seams.
+Fix:
+•	Added Utm32GridTile::pointValue() to fetch an exact grid point's height (no interpolation) if that point exists on the tile.
+•	Reworked GermanyDgm5HeightDataSource::sampleHeight to, when the fast path fails, gather the primary tile plus all needed neighbouring tiles and resolve each of the 4 bilinear corners independently (via pointValue) across whichever tile contains it, then interpolate manually. This correctly stitches the height field across tile borders, eliminating the mesh holes.
+Let's check UkEaLidarTileReader/source and WorldCopernicusDem30HeightDataSource for similar border issues, since the user asked generally about holes at tile borders.
+Those likely use a single continuous global/raster grid (not tiled per-file with a border gap), so the DGM5 fix addresses the reported issue. I'll leave those unless the user indicates holes there too.
+
+
+### PROMPT ###
+please mark the center of the simulation, menas the center of the dome with a red cross of around 20m x 20m on the terrain surface at that point
+-------------------------------
+I've implemented a 20m×20m red cross marking the dome centre on the terrain surface, rendered in all three view backends:
+1.	SceneViewBase.h/.cpp: Added rebuildCenterCrossOverlay() which computes 4 points forming two 10m-radius line segments (east-west and north-south) centered at the origin, at the terrain's actual height there. Called whenever setTerrain() is invoked.
+2.	SceneViewGL.cpp/.h: Appended the cross vertices (colored pure red) to the overlay vertex buffer after the sun marker, tracked via m_centerCrossVertexOffset, and draw them with GL_LINES.
+3.	SceneViewCPU.cpp: Projects and draws the two cross line segments directly with QPainter using a red pen.
+4.	SceneViewWEBGPU.cpp: Appended the cross segments (red) to the line-list overlay vertex buffer, scaled by terrain height exaggeration like the sun overlay.
+
+
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
 ### PROMPT ###
 -------------------------------
 ### PROMPT ###
