@@ -1041,16 +1041,6 @@ I've implemented a 20m×20m red cross marking the dome centre on the terrain sur
 
 
 ### PROMPT ###
--------------------------------
-### PROMPT ###
--------------------------------
-### PROMPT ###
--------------------------------
-### PROMPT ###
--------------------------------
-### PROMPT ###
--------------------------------
-### PROMPT ###
 extend the geolib GeoDataSource interface to set a callback ProgressClass which can be triggered from a concrete DataSourceImplementation via interface function progress(int percent, std::string msg).
 So a concrete implementation of that ProgressClass interface can then use this progress value to display the progress in the ui
 -------------------------------
@@ -1072,6 +1062,25 @@ Validation
 •	Full workspace build completed successfully.
 
 
+### PROMPT ###
+please add controls to the ui that allow to change the simulated earth location. Means to add controls for latitude and longitude (in own location group).
+Would be very nice if it would also be possible to pic the new location from an earth map or a rotatable earth sphere (with texture).
+-------------------------------
+Build succeeded. Summary of changes:
+•	Added LocationMapWidget (header/cpp) — a simple clickable equirectangular graticule map widget emitting locationPicked(lat, lon) signal, no external texture assets required (per project constraints), added to src/app/CMakeLists.txt.
+•	Added a new "Location" QGroupBox in MainWindow::buildUi() containing latitude/longitude QDoubleSpinBox controls plus the LocationMapWidget.
+•	Added onLocationSpinChanged, onLocationPickedOnMap, and updateLocationControls to keep the location, spin boxes, and map marker in sync, rebuilding the scene (updateScene()) whenever the location changes.
+•	Verified full workspace build succeeds.
+
+
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
+### PROMPT ###
+-------------------------------
 ### PROMPT ###
 -------------------------------
 ### PROMPT ###
